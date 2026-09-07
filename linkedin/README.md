@@ -42,7 +42,8 @@ Definiciones en `.claude/agents/`.
 | `03-guia-copywriting.md` | Voz, anatomía del post, fórmulas de gancho, prohibiciones |
 | `04-guia-diseno.md` | Medidas, tipografía, plantillas de carrusel y vídeo, exportación |
 | `05-metricas.md` | Registro de resultados, aprendizajes vigentes, hipótesis |
-| `calendario.md` | Tres semanas planificadas con estado por pieza |
+| `calendario.md` | Cuatro semanas planificadas con estado por pieza |
+| `decisiones.md` | Qué versión se eligió cada día y con qué criterio |
 | `cola/` | Piezas listas para publicar |
 | `../docs/b2b-marketing-sales-rules.md` | Regla B2B que manda sobre todo lo comercial |
 

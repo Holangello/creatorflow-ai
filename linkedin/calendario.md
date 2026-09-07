@@ -36,10 +36,10 @@ Máximo una pieza de confrontación pura por semana.
 
 | Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 08-09 | Mar | Autoridad | A1 | El 90% del contenido corporativo no lo vería nadie si no lo pagaran | Acusación al sector desde dentro, con autocrítica. Escena de reunión: "necesitamos un vídeo", "¿para qué?", silencio. Los tres síntomas de una marca sin sistema. Enemigo: el modelo de facturar piezas sueltas | Texto | Pura | tres versiones listas |
+| 08-09 | Mar | Autoridad | A1 | El 90% del contenido corporativo no lo vería nadie si no lo pagaran · **elegida versión B** | Acusación al sector desde dentro, con autocrítica. Escena de reunión: "necesitamos un vídeo", "¿para qué?", silencio. Los tres síntomas de una marca sin sistema. Enemigo: el modelo de facturar piezas sueltas | Texto | Pura | tres versiones listas |
 | 09-09 | Mié | Actualidad | N | Noticia de IA o audiovisual de la semana | Hueco fijo de actualidad. El radar propone tema, ángulo y fuente verificada. Hay tres versiones atemporales de reserva sobre IA en producción por si no sale nada fuerte | Texto o vídeo | Método | tres versiones listas |
 | 10-09 | Jue | Oferta | C1 | A las agencias no les interesa venderte un sistema | Carrusel con las 6 fases del SISTEMA MAKERS, regalado completo. Ataca el modelo de negocio del propio sector, Makers incluida. Cierra con "para quién no es" y CTA de palabra clave por DM | Carrusel | Método | tres versiones listas |
-| 11-09 | Vie | Humano | D1 | Rechacé un proyecto y me llamaron arrogante | Historia de rechazar dinero por no encajar con el sistema. El insulto va en el gancho para desactivar al crítico. Refuerza la regla de no competir por precio. **Requiere confirmar importe** | Texto + foto | Pura | tres versiones listas |
+| 11-09 | Vie | Humano | D1 | Rechacé un proyecto y me llamaron arrogante | Historia de rechazar dinero por no encajar con el sistema. El insulto va en el gancho para desactivar al crítico. Refuerza la regla de no competir por precio. Desbloqueada con una cuarta versión que no necesita cifra · **elegida versión D** | Texto + foto | Pura | cuatro versiones listas |
 
 ## Semana 2 · 14 al 18 de septiembre
 
