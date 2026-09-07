@@ -14,6 +14,14 @@
 | Responder comentarios | No | Es lo que decide la distribución. Lo hace Angello |
 | Registrar métricas | Parcial | Angello pega las cifras; el analyst las procesa |
 
+## Protocolo de ruptura
+
+Una noticia que cambia el trabajo del cliente ideal manda sobre el calendario. Los tres niveles,
+los cuatro criterios y los guardarraíles están en `08-actualidad-newsjacking.md`. Resumen
+operativo: dos barridos automáticos al día (06:00 y 13:00), Angello puede activarlo a cualquier
+hora escribiendo «Maverick, ruptura: [enlace]», y una pieza de nivel 3 sale en menos de tres
+horas sustituyendo a la del día, nunca sumándose.
+
 ## Routine diaria: radar + posts de mañana (activa)
 
 - **Cuándo:** de lunes a viernes a las 06:00 hora de Madrid.

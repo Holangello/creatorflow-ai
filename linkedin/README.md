@@ -34,7 +34,7 @@ Definiciones en `.claude/agents/`.
 | Archivo | Qué contiene |
 | --- | --- |
 | `06-modo-disruptivo.md` | **Línea editorial vigente.** Palancas de viralidad, ganchos y límites |
-| `08-actualidad-newsjacking.md` | Pilar de actualidad: fuentes, ángulos, reglas de verificación |
+| `08-actualidad-newsjacking.md` | Pilar de actualidad: fuentes, ángulos, verificación y protocolo de ruptura |
 | `radar.md` | Noticias candidatas detectadas por la rutina diaria |
 | `09-perfil.md` | Titular, «Acerca de», destacados y ajustes del perfil, listos para pegar |
 | `01-estrategia.md` | Posicionamiento, ICP, embudo, parámetros del algoritmo, cadencia, perfil |
