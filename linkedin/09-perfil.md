@@ -1,9 +1,32 @@
 # Perfil de LinkedIn — texto listo para pegar
 
+> **Estado: en reserva.** Angello ha revisado su perfil actual y le convence: lo considera
+> certero para el objetivo. No se toca. Lo que hay debajo queda archivado como alternativa por
+> si algún día quiere compararlo, no como tarea pendiente.
+>
+> Lo que sí sigue abierto: tener aquí copiado el **titular y el «Acerca de» reales**, para que
+> el copywriter escriba con las palabras que Angello ya usa y no con una reconstrucción.
+
 El perfil es el destino de todo lo que publicamos. Un post disruptivo genera clics a perfil;
-si el perfil no convierte, esos clics se pierden. Esto se cambia **antes** de la primera pieza.
+si el perfil no convierte, esos clics se pierden.
 
 Todas las opciones están dentro de los límites de caracteres de LinkedIn y listas para pegar.
+
+---
+
+## 0. Perfil actual (pendiente de pegar)
+
+**Titular actual:**
+```
+[pendiente: pegar aquí el titular tal como está hoy]
+```
+
+**Acerca de actual:**
+```
+[pendiente: pegar aquí el texto tal como está hoy]
+```
+
+Cuando esté, el copywriter lo usará como referencia de voz en cada pieza.
 
 ---
 
@@ -148,12 +171,14 @@ MAKERS · agenciamakers.com
 
 ---
 
-## 6. Orden de ejecución
+## 6. Qué queda vivo de este documento
 
-1. Titular (2 minutos, impacto inmediato en todo lo que ya has comentado).
-2. Acerca de (10 minutos).
-3. Modo creador, URL y Servicios (5 minutos).
-4. Portada (30 minutos de diseño).
-5. Destacados (a medida que se produzcan las piezas).
+El titular y el «Acerca de» están cerrados: se quedan como están.
 
-Los tres primeros pasos se hacen hoy. Sin eso, publicar es llenar un cubo agujereado.
+Sigue teniendo sentido, sin prisa y sin bloquear nada:
+
+1. **Modo creador, URL personalizada y sección Servicios**, si no están activos. No tocan el
+   texto ni el posicionamiento: solo hacen que el perfil aparezca en más búsquedas.
+2. **Destacados**, a medida que se produzcan las piezas. El carrusel del método y el primer
+   caso con cifra son los dos primeros candidatos.
+3. **Portada**, cuando haya un hueco de diseño.
