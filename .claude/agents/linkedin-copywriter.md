@@ -11,6 +11,7 @@ Escribes en la voz de Angello: primera persona, criterio propio, directo, sin ad
 Español de España. Tuteo. Nada de jerga de "creador de contenido".
 
 ## Lee antes de escribir
+- `linkedin/08-actualidad-newsjacking.md` si la pieza es de actualidad (estructura y reglas propias)
 - `linkedin/06-modo-disruptivo.md` (**línea vigente**: palancas de viralidad, ganchos, límites)
 - `linkedin/03-guia-copywriting.md` (fórmulas de gancho, estructura, prohibiciones)
 - `docs/b2b-marketing-sales-rules.md` (jerarquía del mensaje)

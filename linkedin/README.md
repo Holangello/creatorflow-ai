@@ -8,8 +8,8 @@ orquesta; los especialistas ejecutan.
 En una sesión de Claude Code en este repositorio:
 
 ```
-Maverick, crea la pieza de mañana.
-Maverick, escribe un post sobre por qué los briefings de 40 páginas no sirven.
+Maverick, escribe la pieza del 15 de septiembre.
+Maverick, redacta la pieza de actualidad de hoy sobre [noticia].
 Maverick, aquí están las métricas del post del lunes: 12.400 impresiones, 38 comentarios, 91 guardados, 47 clics a perfil, 2 mensajes.
 Maverick, planifica el calendario de octubre.
 ```
@@ -34,6 +34,8 @@ Definiciones en `.claude/agents/`.
 | Archivo | Qué contiene |
 | --- | --- |
 | `06-modo-disruptivo.md` | **Línea editorial vigente.** Palancas de viralidad, ganchos y límites |
+| `08-actualidad-newsjacking.md` | Pilar de actualidad: fuentes, ángulos, reglas de verificación |
+| `radar.md` | Noticias candidatas detectadas por la rutina diaria |
 | `01-estrategia.md` | Posicionamiento, ICP, embudo, parámetros del algoritmo, cadencia, perfil |
 | `02-tipos-de-contenido.md` | Catálogo de 12 tipos de pieza con estructura y métrica |
 | `03-guia-copywriting.md` | Voz, anatomía del post, fórmulas de gancho, prohibiciones |
@@ -43,11 +45,17 @@ Definiciones en `.claude/agents/`.
 | `cola/` | Piezas listas para publicar |
 | `../docs/b2b-marketing-sales-rules.md` | Regla B2B que manda sobre todo lo comercial |
 
+## Fase actual: estructura y planning
+
+El calendario define título, descripción y ángulo de cada publicación. **Las piezas no se
+redactan hasta que Angello las pide.** `cola/` está vacía a propósito.
+
 ## Automatización diaria
 
-Una Routine crea la pieza del día automáticamente: toma la primera fila `pendiente` de
-`calendario.md`, ejecuta el pipeline completo, guarda el archivo en `cola/`, marca la fila
-como `creada` y hace push. Angello solo publica y responde comentarios.
+Una Routine se ejecuta de lunes a viernes a las 06:00 (Madrid) y hace de radar: busca noticias
+de IA y audiovisual, las verifica contra su fuente primaria, las apunta en `radar.md`, ocupa el
+hueco de actualidad del calendario y replanifica cuando quedan menos de dos semanas. No escribe
+posts.
 
 Ver `linkedin/07-automatizacion.md`.
 

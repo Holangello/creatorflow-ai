@@ -5,34 +5,49 @@
 | Paso | Automatizable | Cómo |
 | --- | --- | --- |
 | Elegir la pieza del día | Sí | Routine diaria lee `calendario.md` |
-| Escribir estrategia, copy y brief de diseño | Sí | Maverick + agentes |
+| Vigilar noticias de IA y audiovisual | Sí | Radar diario, alimenta `radar.md` |
+| Planificar el calendario | Sí | Strategist, a demanda o cuando quedan menos de 2 semanas |
+| Escribir estrategia, copy y brief de diseño | Solo a petición | Maverick + agentes, cuando Angello lo pide |
 | Guardar, versionar y hacer push | Sí | Routine |
 | Producir el carrusel o el vídeo | No | Requiere Figma/Premiere y material propio |
 | Publicar en LinkedIn | No | La API de LinkedIn solo permite publicar en Páginas de empresa con app aprobada, no en perfil personal |
 | Responder comentarios | No | Es lo que decide la distribución. Lo hace Angello |
 | Registrar métricas | Parcial | Angello pega las cifras; el analyst las procesa |
 
-## Routine diaria (recomendada)
+## Routine diaria: radar de actualidad (activa)
 
-- **Cuándo:** todos los días laborables a las 06:00 hora de Madrid, para que la pieza esté
-  lista antes de la hora de publicación.
-- **Qué hace:** abre una sesión nueva en este repositorio, invoca a Maverick en modo
-  automático, crea la pieza siguiente, la commitea y la sube a la rama de trabajo.
-- **Cómo se crea:** pídelo en una sesión ("activa la rutina diaria de LinkedIn") o créala
-  desde la lista de Routines. Prompt de la rutina:
+Fase actual del sistema: estructura y planning. La rutina **no redacta piezas**. Vigila
+noticias y mantiene el calendario poblado.
+
+- **Cuándo:** de lunes a viernes a las 06:00 hora de Madrid.
+- **Qué hace:** busca noticias de IA y audiovisual de las últimas 24-48 horas, las verifica
+  contra su fuente primaria, añade hasta 3 candidatos a `radar.md`, actualiza el hueco de
+  actualidad del calendario si alguna lo merece, replanifica si quedan menos de dos semanas,
+  y hace push.
+- **Lo que no hace:** escribir posts. Eso se pide a mano.
+- **Prompt de la rutina:**
 
 ```
-Repositorio creatorflow-ai, rama claude/linkedin-angello-strategy-myu9oo.
+Repositorio Holangello/creatorflow-ai, rama claude/linkedin-angello-strategy-myu9oo.
 
-Actúa como Maverick (.claude/agents/maverick.md) en modo automático:
-1. Lee linkedin/06-modo-disruptivo.md, linkedin/01-estrategia.md y linkedin/calendario.md.
-2. Toma la primera fila con estado "pendiente".
-3. Ejecuta el pipeline: strategist -> copywriter -> designer -> QA Maverick.
-4. Guarda la pieza en linkedin/cola/AAAA-MM-DD-slug.md con el formato oficial.
-5. Marca la fila como "creada" con la ruta del archivo.
-6. Si quedan menos de 5 filas pendientes, activa al strategist para planificar dos semanas más.
-7. Commit y push a la rama indicada.
-8. Resume en dos líneas qué pieza has creado y qué [DATO] necesita confirmación.
+Actúa como Maverick (.claude/agents/maverick.md) en modo automático: radar de actualidad.
+NO redactes ninguna pieza.
+
+1. Lee linkedin/08-actualidad-newsjacking.md, linkedin/06-modo-disruptivo.md,
+   linkedin/01-estrategia.md, linkedin/calendario.md y linkedin/radar.md.
+2. Busca en la web noticias de las últimas 24-48 horas en las fuentes del pilar de actualidad
+   (IA aplicada a vídeo, imagen y voz; regulación europea; cámaras y flujos de trabajo;
+   cambios de formato en plataformas; industria audiovisual en España).
+3. Selecciona un máximo de 3 con lectura clara para un director de marketing.
+4. Verifica cada una contra su fuente primaria. Sin fuente primaria, se descarta.
+5. Añade cada candidato a linkedin/radar.md con titular propuesto, ángulo, por qué le importa
+   al ICP, enlace y caducidad. Archiva las entradas de más de 72 horas.
+6. Si alguna merece el hueco de actualidad de esta semana, actualiza esa fila de
+   linkedin/calendario.md con el título y la descripción. Déjala en estado "planificada".
+7. Si quedan menos de dos semanas planificadas, activa a linkedin-strategist para añadir dos
+   semanas más (título y descripción, sin redactar).
+8. Commit y push a la rama indicada. No abras pull request.
+9. Resume en dos líneas: qué has detectado y qué recomiendas publicar.
 ```
 
 ## Alternativa de publicación programada

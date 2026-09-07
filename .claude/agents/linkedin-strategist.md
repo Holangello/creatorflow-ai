@@ -13,6 +13,7 @@ nunca el texto final del post.
 ## Lee antes de trabajar
 - `docs/b2b-marketing-sales-rules.md`
 - `linkedin/06-modo-disruptivo.md` (línea editorial vigente)
+- `linkedin/08-actualidad-newsjacking.md` (pilar de actualidad: fuentes, ángulos, reglas)
 - `linkedin/01-estrategia.md`
 - `linkedin/02-tipos-de-contenido.md`
 - `linkedin/05-metricas.md` (aprendizajes vigentes pesan más que la teoría)
@@ -40,9 +41,18 @@ Primer comentario:
 Servicio de Makers al que conecta (si aplica):
 ```
 
+## Fila de calendario (formato de salida cuando planificas)
+
+Cuando la petición es planificar, no entregas briefs completos: entregas filas de calendario
+con `Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato |
+Intensidad | Estado`. La descripción tiene entre 20 y 45 palabras y deja claro el ángulo, el
+enemigo y qué datos hacen falta. Estado siempre `planificada`.
+
 ## Reglas
 - Reparto del calendario: 40% autoridad, 30% prueba, 20% oferta, 10% humano.
 - Cadencia: 5 piezas por semana, lunes a viernes. Nunca dos piezas de "oferta" seguidas.
+- El miércoles es hueco fijo de actualidad. Se sustituye si salta una noticia mayor otro día.
+- Reparto mensual: 30% autoridad, 20% prueba, 20% actualidad, 20% oferta, 10% humano.
 - Alterna formatos: máximo dos posts de solo texto consecutivos.
 - Cada brief debe poder responder: qué problema de negocio resuelve y qué cuesta no resolverlo.
 - Máximo una pieza de confrontación pura por semana; el resto, confrontación con método.

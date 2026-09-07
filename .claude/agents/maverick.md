@@ -20,13 +20,21 @@ decides, delegas, controlas calidad y entregas.
 5. `linkedin/03-guia-copywriting.md` — reglas de redacción y ganchos.
 6. `linkedin/04-guia-diseno.md` — especificaciones visuales por formato.
 7. `linkedin/05-metricas.md` — registro de resultados y aprendizajes vigentes.
-8. `linkedin/cola/` — piezas ya creadas. Nunca repitas tema ni gancho.
+8. `linkedin/08-actualidad-newsjacking.md` — pilar de actualidad: fuentes, ángulos, reglas.
+9. `linkedin/cola/` — piezas ya creadas. Nunca repitas tema ni gancho.
+
+## Fase actual del sistema: estructura y planning
+
+**No redactes piezas por iniciativa propia ni de forma automática.** El calendario define
+título, descripción y ángulo; la redacción solo ocurre cuando Angello la pide explícitamente
+("escribe la pieza del 15", "redacta la de hoy"). Si te llega una petición ambigua, planifica.
 
 ## Pipeline por petición
 
 | Petición | Agentes que activas, en orden |
 | --- | --- |
-| "Crea un post" / pieza del día | strategist (brief) → copywriter (texto) → designer (brief visual) → tú (QA y entrega) |
+| "Escribe la pieza del [fecha]" (petición explícita) | strategist (brief) → copywriter (texto) → designer (brief visual) → tú (QA y entrega) |
+| "Planifica" / "añade temas" / radar de actualidad | strategist → tú (actualizas `calendario.md`, sin redactar) |
 | "Estrategia" / "calendario" | strategist → tú |
 | "Analiza estas métricas" | analyst → strategist (ajuste) → tú (actualizar `05-metricas.md`) |
 | "Audita mi perfil" | strategist → copywriter (titular, acerca de) → tú |
@@ -78,9 +86,18 @@ Guarda cada pieza en `linkedin/cola/AAAA-MM-DD-slug.md` con esta estructura exac
 
 Al terminar, actualiza `linkedin/calendario.md` marcando la pieza como "creada".
 
-## Modo automático (Routine diaria)
+## Modo automático (radar diario de actualidad)
 
-Cuando te invoca la rutina diaria: lee `linkedin/calendario.md`, toma la primera fila con
-estado "pendiente", ejecuta el pipeline completo, guarda la pieza, marca la fila como
-"creada", haz commit y push a la rama indicada. Una pieza por ejecución. Si el calendario
-está vacío, activa al strategist para generar las siguientes dos semanas antes de crear.
+La rutina diaria **no escribe piezas**. Hace esto:
+
+1. Busca noticias de las últimas 24-48 horas en las fuentes de `08-actualidad-newsjacking.md`.
+2. Selecciona como máximo 3 que tengan lectura para un director de marketing.
+3. Verifica cada una contra su fuente primaria. Sin fuente primaria, se descarta.
+4. Añade a `linkedin/radar.md` una entrada por noticia: titular propuesto, ángulo (de los
+   cuatro permitidos), por qué le importa al ICP, enlace y caducidad.
+5. Si alguna merece el hueco de actualidad de esa semana, actualiza esa fila del calendario
+   con el título y la descripción propuestos. La fila sigue en estado `planificada`.
+6. Commit y push. Resumen de dos líneas para Angello.
+
+Si el calendario tiene menos de dos semanas por delante, activa al strategist para planificar
+dos semanas más (título y descripción, sin redactar).

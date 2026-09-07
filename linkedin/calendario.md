@@ -1,25 +1,105 @@
 # Calendario editorial
 
-Estados: `pendiente` (la rutina diaria la creará), `creada` (archivo en `linkedin/cola/`),
-`publicada` (Angello la publicó; métricas a `05-metricas.md`).
+**Fase actual: estructura y planning.** Aquí vive el plan. Las piezas no se redactan hasta que
+Angello las pide. Nada en `cola/` todavía.
 
-Línea editorial vigente: `linkedin/06-modo-disruptivo.md`. Máximo una pieza de confrontación
-pura por semana; el resto, confrontación con método.
+**Estados:** `planificada` (título y descripción listos, sin redactar) · `creada` (pieza escrita
+en `cola/`) · `publicada` (ya en LinkedIn; métricas a `05-metricas.md`).
 
-| Fecha | Día | Hora | Pilar | Tipo | Gancho / tema | Intensidad | Estado | Archivo |
+**Cómo se pide una pieza:**
+```
+Maverick, escribe la pieza del 15 de septiembre.
+Maverick, redacta la pieza de actualidad de hoy sobre [noticia].
+```
+
+## Estructura de la semana
+
+| Día | Hora (Madrid) | Pilar | Función |
+| --- | --- | --- | --- |
+| Lunes | 08:15 | Autoridad | Tesis fuerte. La pieza más confrontativa de la semana |
+| Martes | 12:30 | Prueba | Caso, resultado o proceso con cifra |
+| Miércoles | 08:15 | **Actualidad** | Noticia de IA o audiovisual con opinión propia. Se sustituye si salta algo mayor |
+| Jueves | 12:30 | Oferta | Cómo trabajamos, para quién, objeciones, disponibilidad |
+| Viernes | 09:00 | Humano / Autoridad | Historia personal con lección de negocio, o encuesta |
+
+Reparto resultante al mes: 30% autoridad, 20% prueba, 20% actualidad, 20% oferta, 10% humano.
+Máximo una pieza de confrontación pura por semana.
+
+---
+
+## Semana 1 · 7 al 11 de septiembre
+
+| Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-09-07 | Lun | 08:15 | Autoridad | A1 | El 90% del contenido corporativo no lo vería nadie si no lo pagaran | Pura | creada | cola/2026-09-07-mas-contenido-no-arregla.md |
-| 2026-09-08 | Mar | 12:30 | Prueba | B1 | Tu agencia no te engaña: te da lo que pediste | Método | creada | cola/2026-09-08-caso-calendario-mensual.md |
-| 2026-09-09 | Mié | 08:15 | Autoridad | A2 | Si empieza con un dron sobre el edificio, ya has perdido | Método | creada | cola/2026-09-09-decision-creativa.md |
-| 2026-09-10 | Jue | 12:30 | Oferta | C1 | A las agencias no les interesa venderte un sistema | Método | creada | cola/2026-09-10-sistema-makers-6-fases.md |
-| 2026-09-11 | Vie | 09:00 | Humano | D1 | Rechacé un proyecto y me llamaron arrogante | Pura | creada | cola/2026-09-11-rechazar-proyecto.md |
-| 2026-09-14 | Lun | 08:15 | Autoridad | A3 | El briefing de 40 páginas no es rigor, es miedo a decidir | Pura | pendiente | |
-| 2026-09-15 | Mar | 12:30 | Prueba | B3 | Lo que no te enseñan del rodaje que pagaste | Método | pendiente | |
-| 2026-09-16 | Mié | 08:15 | Autoridad | A4 | Carrusel: cómo decidir qué contenido NO producir | Método | pendiente | |
-| 2026-09-17 | Jue | 12:30 | Oferta | C3 | "El contenido lo hacemos dentro". Vale. ¿Cuánto os cuesta cada pieza? | Método | pendiente | |
-| 2026-09-18 | Vie | 09:00 | Prueba | B2 | Antes y después: mismo presupuesto, otro sistema | Método | pendiente | |
-| 2026-09-21 | Lun | 08:15 | Autoridad | A1 | La IA no va a sustituir a tu equipo creativo. Tu falta de sistema sí | Pura | pendiente | |
-| 2026-09-22 | Mar | 12:30 | Prueba | B1 | Caso 2 (requiere datos reales de cliente) | Método | pendiente | |
-| 2026-09-23 | Mié | 08:15 | Autoridad | A2 | Lo que automatizo con IA y lo que no pienso automatizar nunca | Método | pendiente | |
-| 2026-09-24 | Jue | 12:30 | Oferta | C2 | Plazas de retainer para Q4: para quién no es | Método | pendiente | |
-| 2026-09-25 | Vie | 09:00 | Autoridad | D2 | Encuesta: ¿qué frena de verdad vuestro contenido? | Método | pendiente | |
+| 07-09 | Lun | Autoridad | A1 | El 90% del contenido corporativo no lo vería nadie si no lo pagaran | Acusación al sector desde dentro, con autocrítica. Escena de reunión: "necesitamos un vídeo", "¿para qué?", silencio. Los tres síntomas de una marca sin sistema. Enemigo: el modelo de facturar piezas sueltas | Texto | Pura | planificada |
+| 08-09 | Mar | Prueba | B1 | Tu agencia no te engaña: te da exactamente lo que pediste | Caso real de Makers en carrusel. Devuelve la responsabilidad al cliente. Estructura: contexto, problema, qué cambiamos, resultado con cifra, qué puede replicar. **Requiere cliente y cifras autorizadas** | Carrusel | Método | planificada |
+| 09-09 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo de actualidad. El radar diario propone tema, ángulo y fuente. Ángulo por defecto: traducción a negocio | Texto o vídeo | Método | planificada |
+| 10-09 | Jue | Oferta | C1 | A las agencias no les interesa venderte un sistema | Carrusel con las 6 fases del SISTEMA MAKERS, regalado completo. Ataca el modelo de negocio del propio sector, Makers incluida. Cierra con "para quién no es" y CTA de palabra clave por DM | Carrusel | Método | planificada |
+| 11-09 | Vie | Humano | D1 | Rechacé un proyecto y me llamaron arrogante | Historia real de rechazar dinero por no encajar con el sistema. El insulto va en el gancho para desactivar al crítico. Refuerza la regla de no competir por precio. **Requiere confirmar importe** | Texto + foto | Pura | planificada |
+
+## Semana 2 · 14 al 18 de septiembre
+
+| Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 14-09 | Lun | Autoridad | A3 | El briefing de 40 páginas no es rigor, es miedo a decidir | Ataque al proceso de aprobación por comité. Cuánto cuesta en semanas y en dilución del mensaje. Las 5 preguntas que sustituyen a un briefing entero | Texto | Pura | planificada |
+| 15-09 | Mar | Prueba | B3 | Lo que no te enseñaron del rodaje que pagaste | Detrás del proceso: las decisiones invisibles de un rodaje y por qué justifican el presupuesto. Educa al cliente sobre qué está comprando | Vídeo | Método | planificada |
+| 16-09 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar | Texto o vídeo | Método | planificada |
+| 17-09 | Jue | Oferta | C3 | "El contenido lo hacemos dentro". Vale. ¿Cuánto os cuesta cada pieza? | Objeción respondida con aritmética: sueldos, horas, herramientas y coste de oportunidad frente a un retainer. Sin atacar al equipo interno | Texto + imagen | Método | planificada |
+| 18-09 | Vie | Prueba | B2 | Mismo presupuesto, otro sistema | Antes y después con plazo y cifra. Formato visual de contraste. **Requiere datos reales** | Imagen o carrusel | Método | planificada |
+
+## Semana 3 · 21 al 25 de septiembre
+
+| Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 21-09 | Lun | Autoridad | A1 | La IA no va a sustituir a tu equipo creativo. Tu falta de sistema sí | Contra el miedo. La IA amplifica lo que ya existe: si no hay criterio, produce más ruido más rápido. Tesis central del pilar de automatización | Texto | Pura | planificada |
+| 22-09 | Mar | Prueba | B1 | Caso 2: [pendiente de elegir cliente] | Segundo caso de estudio. Angello elige el cliente y aporta cifras. Estructura obligatoria de caso | Carrusel | Método | planificada |
+| 23-09 | Mié | Actualidad | N | Lo que automatizo con IA y lo que no pienso automatizar nunca | Pieza de actualidad con ángulo de prueba en directo: el flujo real de Makers, herramienta por herramienta, con lo que falló. Se ancla a la noticia de IA más relevante de esa semana | Carrusel o vídeo | Método | planificada |
+| 24-09 | Jue | Oferta | C2 | Plazas de retainer para Q4: para quién no es | Disponibilidad con descalificadores por delante. Escasez real, no fabricada. **Confirmar número de plazas** | Texto | Método | planificada |
+| 25-09 | Vie | Autoridad | D2 | Encuesta: ¿qué frena de verdad vuestro contenido? | Encuesta con 4 opciones que dividen al ICP (presupuesto, tiempo, criterio, aprobaciones). En el primer comentario, el voto de Angello y por qué | Encuesta | Método | planificada |
+
+## Semana 4 · 28 de septiembre al 2 de octubre
+
+| Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 28-09 | Lun | Autoridad | A1 | Si tu vídeo empieza con un dron sobre el edificio, ya has perdido | Ataque a un tópico visual que casi todos han pagado. Matemática de atención en los 3 primeros segundos. La decisión que se toma antes de encender la cámara | Vídeo | Pura | planificada |
+| 29-09 | Mar | Prueba | B3 | El error que costó un día entero de rodaje | Historia de un fallo propio y el sistema que se montó para que no se repita. Vulnerabilidad usada como prueba de proceso | Texto | Método | planificada |
+| 30-09 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar | Texto o vídeo | Método | planificada |
+| 01-10 | Jue | Oferta | C1 | Qué recibe un cliente de Makers cada mes | Desglose literal del entregable mensual: calendario, piezas, informe. Transparencia como argumento de venta frente a agencias opacas | Carrusel | Método | planificada |
+| 02-10 | Vie | Humano | D1 | Por qué me fui de Perú a Madrid a montar esto | Historia personal con lección de negocio. Única pieza puramente biográfica del mes. **Angello: confirma los datos que quieres contar** | Texto + foto | Método | planificada |
+
+---
+
+## Temas en reserva (banco de ideas)
+
+Para rellenar huecos, sustituir una pieza bloqueada por falta de datos, o alimentar octubre.
+
+**Autoridad**
+- "Cobrar barato no te hace competitivo, te hace prescindible."
+- Las 5 preguntas que hago antes de aceptar un proyecto.
+- Por qué un logo no es una marca y qué es lo que sí.
+- El coste real de cambiar de proveedor audiovisual cada año.
+- Lo que un director creativo hace de verdad todo el día.
+- Por qué la coherencia vende más que la creatividad.
+
+**Prueba**
+- Cómo montamos un mes entero de contenido en dos días de rodaje.
+- El sistema de nombres de archivo que nos ahorra horas (ligado a `tools/rename_clips.py`).
+- Antes y después de una identidad audiovisual.
+- Qué mide Makers en un proyecto y qué ignora deliberadamente.
+
+**Actualidad (ángulos recurrentes)**
+- Cada anuncio de modelo generativo de vídeo: qué cambia y qué no en un rodaje real.
+- AI Act: plazos y qué debe tener firmado una empresa que usa IA en campañas.
+- Derechos de imagen y voz sintética en publicidad en España.
+- Cada actualización de formatos o especificaciones de vídeo en LinkedIn.
+- Campañas de marcas grandes hechas con IA y la reacción del público.
+
+**Oferta**
+- Las tres opciones de propuesta y por qué nunca doy una sola cifra.
+- Qué pasa en los primeros 30 días de un retainer.
+- Por qué no trabajamos por horas.
+
+**Humano**
+- El proyecto del que más aprendí y menos cobré.
+- Qué le diría al Angello que empezaba.
+- Cómo decido si un cliente va a ser un problema en la primera llamada.
