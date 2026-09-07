@@ -14,17 +14,20 @@
 | Responder comentarios | No | Es lo que decide la distribución. Lo hace Angello |
 | Registrar métricas | Parcial | Angello pega las cifras; el analyst las procesa |
 
-## Routine diaria: radar de actualidad (activa)
-
-Fase actual del sistema: estructura y planning. La rutina **no redacta piezas**. Vigila
-noticias y mantiene el calendario poblado.
+## Routine diaria: radar + posts de mañana (activa)
 
 - **Cuándo:** de lunes a viernes a las 06:00 hora de Madrid.
-- **Qué hace:** busca noticias de IA y audiovisual de las últimas 24-48 horas, las verifica
-  contra su fuente primaria, añade hasta 3 candidatos a `radar.md`, actualiza el hueco de
-  actualidad del calendario si alguna lo merece, replanifica si quedan menos de dos semanas,
-  y hace push.
-- **Lo que no hace:** escribir posts. Eso se pide a mano.
+- **Dónde:** se ejecuta dentro de la sesión de trabajo de Angello, no en una sesión nueva.
+  Una sesión nueva nace sin el repositorio ni credenciales de push: la primera versión de esta
+  rutina se probó así y no pudo subir nada. Atada a la sesión, tiene repositorio, agentes y
+  contexto del sistema.
+- **Qué hace:** (1) radar de noticias verificadas a `radar.md`; (2) toma la fila del próximo
+  día laborable del calendario, o la noticia si es lo bastante grande, y activa al copywriter
+  para escribir **tres alternativas completas** del post con su primer comentario; (3) pide
+  brief visual al designer si la pieza lleva carrusel, vídeo o foto; (4) pasa el control de
+  calidad; (5) actualiza el artefacto de vista previa; (6) guarda en `cola/`, marca el
+  calendario y hace push.
+- **Lo que sigue siendo de Angello:** elegir versión, corregir, publicar y responder comentarios.
 - **Prompt de la rutina:**
 
 ```
