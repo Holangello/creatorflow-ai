@@ -1,6 +1,6 @@
 # Pendiente · Dashboard unificado Makers
 
-**Estado:** aparcado por decisión de Angello hasta disponer de créditos. No se empieza sin que lo pida.
+**Estado:** construido el 8 de septiembre de 2026 en `dashboard/index.html`. Este documento queda como brief de referencia para futuras iteraciones.
 **Anotado:** 2026-09-08
 
 ## Qué se quiere
