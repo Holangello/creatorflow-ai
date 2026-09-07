@@ -36,6 +36,7 @@ Definiciones en `.claude/agents/`.
 | `06-modo-disruptivo.md` | **Línea editorial vigente.** Palancas de viralidad, ganchos y límites |
 | `08-actualidad-newsjacking.md` | Pilar de actualidad: fuentes, ángulos, reglas de verificación |
 | `radar.md` | Noticias candidatas detectadas por la rutina diaria |
+| `09-perfil.md` | Titular, «Acerca de», destacados y ajustes del perfil, listos para pegar |
 | `01-estrategia.md` | Posicionamiento, ICP, embudo, parámetros del algoritmo, cadencia, perfil |
 | `02-tipos-de-contenido.md` | Catálogo de 12 tipos de pieza con estructura y métrica |
 | `03-guia-copywriting.md` | Voz, anatomía del post, fórmulas de gancho, prohibiciones |
