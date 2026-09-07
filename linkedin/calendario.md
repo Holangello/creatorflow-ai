@@ -27,22 +27,26 @@ Máximo una pieza de confrontación pura por semana.
 
 ---
 
-## Semana 1 · 7 al 11 de septiembre
+## Semana 1 · 8 al 11 de septiembre
+
+> El sistema quedó listo la noche del lunes 7, pasada ya la franja de las 08:15, así que la
+> semana arranca el martes. El caso de estudio (B1) sale de esta semana: está bloqueado por
+> datos de cliente y no conviene tenerlo en el camino crítico. Vuelve en la semana 2 en cuanto
+> Angello confirme las cifras.
 
 | Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 07-09 | Lun | Autoridad | A1 | El 90% del contenido corporativo no lo vería nadie si no lo pagaran | Acusación al sector desde dentro, con autocrítica. Escena de reunión: "necesitamos un vídeo", "¿para qué?", silencio. Los tres síntomas de una marca sin sistema. Enemigo: el modelo de facturar piezas sueltas | Texto | Pura | planificada |
-| 08-09 | Mar | Prueba | B1 | Tu agencia no te engaña: te da exactamente lo que pediste | Caso real de Makers en carrusel. Devuelve la responsabilidad al cliente. Estructura: contexto, problema, qué cambiamos, resultado con cifra, qué puede replicar. **Requiere cliente y cifras autorizadas** | Carrusel | Método | planificada |
-| 09-09 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo de actualidad. El radar diario propone tema, ángulo y fuente. Ángulo por defecto: traducción a negocio | Texto o vídeo | Método | planificada |
-| 10-09 | Jue | Oferta | C1 | A las agencias no les interesa venderte un sistema | Carrusel con las 6 fases del SISTEMA MAKERS, regalado completo. Ataca el modelo de negocio del propio sector, Makers incluida. Cierra con "para quién no es" y CTA de palabra clave por DM | Carrusel | Método | planificada |
-| 11-09 | Vie | Humano | D1 | Rechacé un proyecto y me llamaron arrogante | Historia real de rechazar dinero por no encajar con el sistema. El insulto va en el gancho para desactivar al crítico. Refuerza la regla de no competir por precio. **Requiere confirmar importe** | Texto + foto | Pura | planificada |
+| 08-09 | Mar | Autoridad | A1 | El 90% del contenido corporativo no lo vería nadie si no lo pagaran | Acusación al sector desde dentro, con autocrítica. Escena de reunión: "necesitamos un vídeo", "¿para qué?", silencio. Los tres síntomas de una marca sin sistema. Enemigo: el modelo de facturar piezas sueltas | Texto | Pura | tres versiones listas |
+| 09-09 | Mié | Actualidad | N | Noticia de IA o audiovisual de la semana | Hueco fijo de actualidad. El radar propone tema, ángulo y fuente verificada. Hay tres versiones atemporales de reserva sobre IA en producción por si no sale nada fuerte | Texto o vídeo | Método | tres versiones listas |
+| 10-09 | Jue | Oferta | C1 | A las agencias no les interesa venderte un sistema | Carrusel con las 6 fases del SISTEMA MAKERS, regalado completo. Ataca el modelo de negocio del propio sector, Makers incluida. Cierra con "para quién no es" y CTA de palabra clave por DM | Carrusel | Método | tres versiones listas |
+| 11-09 | Vie | Humano | D1 | Rechacé un proyecto y me llamaron arrogante | Historia de rechazar dinero por no encajar con el sistema. El insulto va en el gancho para desactivar al crítico. Refuerza la regla de no competir por precio. **Requiere confirmar importe** | Texto + foto | Pura | tres versiones listas |
 
 ## Semana 2 · 14 al 18 de septiembre
 
 | Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 14-09 | Lun | Autoridad | A3 | El briefing de 40 páginas no es rigor, es miedo a decidir | Ataque al proceso de aprobación por comité. Cuánto cuesta en semanas y en dilución del mensaje. Las 5 preguntas que sustituyen a un briefing entero | Texto | Pura | planificada |
-| 15-09 | Mar | Prueba | B3 | Lo que no te enseñaron del rodaje que pagaste | Detrás del proceso: las decisiones invisibles de un rodaje y por qué justifican el presupuesto. Educa al cliente sobre qué está comprando | Vídeo | Método | planificada |
+| 15-09 | Mar | Prueba | B1 | Tu agencia no te engaña: te da exactamente lo que pediste | Caso real de Makers en carrusel, desplazado desde la semana 1. Contexto, problema, qué cambiamos, resultado con cifra, qué puede replicar. **Requiere cliente y cifras autorizadas**. Tres versiones ya escritas | Carrusel | Método | tres versiones listas |
 | 16-09 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar | Texto o vídeo | Método | planificada |
 | 17-09 | Jue | Oferta | C3 | "El contenido lo hacemos dentro". Vale. ¿Cuánto os cuesta cada pieza? | Objeción respondida con aritmética: sueldos, horas, herramientas y coste de oportunidad frente a un retainer. Sin atacar al equipo interno | Texto + imagen | Método | planificada |
 | 18-09 | Vie | Prueba | B2 | Mismo presupuesto, otro sistema | Antes y después con plazo y cifra. Formato visual de contraste. **Requiere datos reales** | Imagen o carrusel | Método | planificada |
