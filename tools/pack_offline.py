@@ -290,4 +290,57 @@ document.getElementById('theme').addEventListener('click',()=>{{const r=document
 </script>
 """
 (ROOT / "dashboard" / "pack-offline.html").write_text(page)
-print("ok", len(md), "chars md;", len(page), "chars html")
+
+# ---------------- datos para el módulo del dashboard ----------------
+def adapt_sections(kind):
+    res = {}
+    for m in re.finditer(r"^### " + kind + r" · (\d{4}-\d{2}-\d{2}) · (.*?)\n(.*?)(?=^### |\Z)", adapt, re.S | re.M):
+        res[m.group(1)] = {"title": m.group(2).strip(), "html": md_to_html(m.group(3))[0]}
+    return res
+adapts = adapt_sections("Adaptaciones"); guides = adapt_sections("Guía")
+DATE = {"d1": "2026-09-08", "mie": "2026-09-09", "jue": "2026-09-10", "vie": "2026-09-11", "lun14": "2026-09-14", "caso": "2026-09-15", "jue17": "2026-09-17"}
+pieces = []
+for d in days:
+    ch = d.get("chosen"); a = d["alts"][ch] if ch is not None else None
+    brief = ""
+    if d["id"] == "jue":
+        t = (LI / "cola" / COLA["jue"]).read_text(); m = re.search(r"^## Estructura.*", t, re.S | re.M); brief = md_to_html(m.group(0))[0] if m else ""
+    elif d["id"] == "jue17":
+        brief = md_to_html(section(COLA["jue17"], "Brief de la imagen").split("\n", 1)[1])[0]
+    pieces.append({"id": d["id"], "date": DATE[d["id"]], "fecha": FECHA[d["id"]], "hora": d["hora"], "pilar": d["pilar"].split(" · ")[0],
+        "formato": d["formato"], "tono": d["tono"], "short": d["short"], "blocked": ch is None,
+        "name": a["name"] if a else "", "tag": a["tag"] if a else "", "why": a["why"] if a else "",
+        "text": a["text"] if a else "", "comment": a["comment"] if a else "", "data": d.get("data") or "",
+        "media": d.get("media"), "nalts": len(d["alts"]), "brief": brief,
+        "adapt": adapts.get(DATE[d["id"]], {}).get("html", "")})
+guides_list = [{"date": k, "title": v["title"], "html": v["html"]} for k, v in sorted(guides.items())]
+tasks = [
+ ("dato","Días de rodaje por mes y piezas por rodaje de SISTEMA MAKERS","Desbloquea el carrusel del jueves 10 y la pieza del jueves 17"),
+ ("dato","Un cliente autorizado con cifras (piezas antes/después, antelación, horas por rodaje)","Desbloquea el caso del martes 15 y el antes/después del viernes 18"),
+ ("dato","Segundo cliente para el caso del martes 22",""),
+ ("dato","Número de plazas de retainer para Q4","Jueves 24"),
+ ("dato","Qué datos de tu historia Perú → Madrid quieres contar","Viernes 2 de octubre"),
+ ("figma","Carrusel SISTEMA MAKERS, 10 slides","Brief en la pieza del jueves 10. PDF < 10 MB y portada PNG"),
+ ("figma","Imagen «Contenido \"gratis\": 430 € por pieza publicada»","Brief en la pieza del jueves 17. Variante negra y clara"),
+ ("figma","Foto propia 4:5 para el viernes 11","En set o en reunión, sin posado, luz natural"),
+ ("figma","Vídeo vertical 45–90 s para el lunes 28 (dron)","Gancho en pantalla 0–3 s, subtítulos quemados, 1080×1350"),
+ ("figma","Vídeos de 30–45 s para Instagram y TikTok","Guiones en cada pieza, pestaña Otras redes"),
+ ("redes","Reservar @makers_agencia en Instagram","Quedó libre al renombrar; las menciones antiguas apuntan ahí"),
+ ("redes","Cambiar nombre y bio de Threads de MAKERS Wedding","No se sincroniza con Instagram"),
+ ("redes","Sustituir el Linktree del perfil de Instagram por angellobenavides.com",""),
+ ("redes","Nombre de TikTok de Wedding: «Fotógrafos de Bodas · Madrid»","El bloqueo de 7 días ya venció"),
+ ("webs","Cron de hPanel cada 15 minutos","Sin él la cadencia de seguimiento no avanza sola"),
+ ("webs","Contraseña SMTP de info@moixandco.com en el .env del CRM","Sin ella los acuses caen en spam"),
+ ("webs","Renovar makerswedding.com indefinidamente","Las dos citas de IA apuntan a ese dominio"),
+ ("webs","creatribe.es: cambiar el H1 y poner CTA y formulario en Servicios",""),
+ ("webs","moixandco.com/contacto: una sola promesa de plazo",""),
+ ("webs","Decidir cuánto vale tu hora","Fija el umbral de las llamadas con IA"),
+]
+PACK = {"pieces": pieces, "guides": guides_list, "tasks": [{"id": f"t{i}", "cat": c, "t": t, "x": x} for i, (c, t, x) in enumerate(tasks)],
+        "generated": today.isoformat()}
+dash = ROOT / "dashboard" / "index.html"
+ds = dash.read_text()
+blob = "const PACK=" + json.dumps(PACK, ensure_ascii=False) + ";"
+ds = re.sub(r"/\*__PACK__\*/.*?/\*__/PACK__\*/", "/*__PACK__*/" + blob.replace("\\", "\\\\") + "/*__/PACK__*/", ds, flags=re.S) if "/*__PACK__*/" in ds else ds
+dash.write_text(ds)
+print("ok", len(md), "chars md;", len(page), "chars html;", len(blob), "chars pack")
