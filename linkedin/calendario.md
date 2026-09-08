@@ -78,6 +78,7 @@ Máximo una pieza de confrontación pura por semana.
 Para rellenar huecos, sustituir una pieza bloqueada por falta de datos, o alimentar octubre.
 
 **Autoridad**
+- Carrusel A4 «Las 5 preguntas que sustituyen a un briefing de 40 páginas» (reservado de la versión A del 14-09; octubre).
 - "Cobrar barato no te hace competitivo, te hace prescindible."
 - Las 5 preguntas que hago antes de aceptar un proyecto.
 - Por qué un logo no es una marca y qué es lo que sí.
