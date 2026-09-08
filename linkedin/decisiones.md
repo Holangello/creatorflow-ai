@@ -44,7 +44,8 @@ confirma la cifra.
 ## Pendiente
 
 - **Caso de estudio (15 de septiembre).** Bloqueado: requiere cliente, autorización y cifras
-  reales. Es la única pieza del sistema que sigue esperando datos.
+  reales.
+- **[DATO: nº] días de rodaje** en el carrusel del jueves 10.
 
 ## 2026-09-09 · Pieza de actualidad sobre IA
 
@@ -95,3 +96,30 @@ se cobra una vez; un encargo detrás de otro, todos los meses"), y se añade un 
 propio de Makers sobre ritmo de producción, marcado como [DATO] para que Angello lo confirme.
 
 **Brief de producción:** `cola/2026-09-10-carrusel-sistema-makers.md`.
+
+## 2026-09-09 · Actualidad anclada a Sora (radar del 8 de septiembre)
+
+**Elegida: B+, «Sora caduca en quince días».** La B con la fecha del apagado de la API en el
+gancho y una cuarta cosa que nadie cuenta: el riesgo de proveedor. Nivel 2 del protocolo.
+
+Criterio: el radar solo devuelve una noticia con fuente primaria y consecuencia directa para
+un director de marketing con campaña en Q4. Es de abril, pero la ventaja está en la fecha
+límite, no en la novedad. Ni una línea contra la empresa: el enemigo sigue siendo la práctica.
+Comprobar antes de publicar que la página de OpenAI mantenga el 24 de septiembre.
+
+## 2026-09-14 · "El briefing de 40 páginas no es rigor, es miedo a decidir"
+
+**Elegida: versión B, «La frase».**
+
+Criterio:
+
+1. El dolor no dicho lo verbaliza el propio ICP («así nadie me lo puede tirar»). Divide en dos
+   bandos desde la segunda línea.
+2. Mecanismo nuevo: una sola réplica. La semana 1 ya gastó lista de síntomas, desmontaje de un
+   objeto, método regalado y diálogo a tres.
+3. El CTA apunta al cargo que queremos en comentarios y le pide firmar.
+4. Las cinco preguntas de la A se reservan para un carrusel A4 en octubre; quemarlas en la pieza
+   de confrontación desperdicia un formato de guardado.
+
+**Modificación aplicada:** fuera los dos [DATO] de la B; la escena se sostiene sin cifra.
+La A y la C conservan los suyos por si Angello prefiere una de ellas.

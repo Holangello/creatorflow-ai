@@ -528,7 +528,7 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
       <span class="live"><i></i>Rutinas: <b>06:08</b> radar + posts · <b>13:04</b> ruptura · L–V</span>
       <span>Hoy: <b id="todayLbl">—</b></span>
       <span>Siguiente publicación: <b id="nextPost">—</b></span>
-      <span>Datos: <b id="freshLbl">leídos el 8 sep 2026, 00:20</b></span>
+      <span>Datos: <b id="freshLbl">leídos el 8 sep 2026, 06:30</b></span>
     </div>
 
     <main class="views" id="main">
@@ -624,7 +624,7 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 
         <div class="grid g2">
           <div class="card">
-            <div class="ch"><h3>Radar de actualidad</h3><div class="r"><span class="pill mute">vacío · arranca el 8 sep</span></div><span class="sub">Dos barridos al día. Una entrada caduca a las 72 horas. Nivel 3 sustituye a la pieza del día y sale en menos de tres horas.</span></div>
+            <div class="ch"><h3>Radar de actualidad</h3><div class="r"><span class="pill acc">3 candidatos · 8 sep</span></div><span class="sub">Dos barridos al día. Una entrada caduca a las 72 horas. Nivel 3 sustituye a la pieza del día y sale en menos de tres horas.</span></div>
             <div class="cb">
               <ul class="list">
                 <li><span class="k">N1</span><span><b>Comentario en pieza ajena</b><span class="x">Sin cambiar el calendario. Se responde donde ya se habla.</span></span></li>
@@ -962,14 +962,14 @@ const CAL = [
   {w:'Semana 1',r:'8 – 11 sep',days:[
     {d:'2026-09-07',dow:'Lun',h:'—',pilar:'Autoridad',tipo:'—',t:'Sin pieza: el sistema quedó listo pasada la franja de las 08:15',st:'skip'},
     {d:'2026-09-08',dow:'Mar',h:'08:15',pilar:'Autoridad',tipo:'A1',t:'El 90% del contenido corporativo no lo vería nadie si no lo pagaran',st:'lista',v:'B · Los tres síntomas',f:'Texto',i:'pura'},
-    {d:'2026-09-09',dow:'Mié',h:'08:15',pilar:'Actualidad',tipo:'N',t:'La demo dura ocho segundos',st:'lista',v:'B · contra el hype',f:'Texto',i:'método'},
+    {d:'2026-09-09',dow:'Mié',h:'08:15',pilar:'Actualidad',tipo:'N',t:'Sora caduca en quince días',st:'lista',v:'B+ · anclada al radar del 8 sep',f:'Texto',i:'método'},
     {d:'2026-09-10',dow:'Jue',h:'12:30',pilar:'Oferta',tipo:'C1',t:'A las agencias no les interesa venderte un sistema',st:'lista',v:'B · Te regalo el método',f:'Carrusel 10 slides',i:'método',dato:true},
     {d:'2026-09-11',dow:'Vie',h:'09:00',pilar:'Humano',tipo:'D1',t:'Rechacé un proyecto y me llamaron arrogante',st:'lista',v:'D · El no que retuvo criterio',f:'Texto + foto',i:'pura'},
   ]},
   {w:'Semana 2',r:'14 – 18 sep',days:[
-    {d:'2026-09-14',dow:'Lun',h:'08:15',pilar:'Autoridad',tipo:'A3',t:'El briefing de 40 páginas no es rigor, es miedo a decidir',st:'plan',f:'Texto',i:'pura'},
+    {d:'2026-09-14',dow:'Lun',h:'08:15',pilar:'Autoridad',tipo:'A3',t:'El briefing de 40 páginas no es rigor, es miedo a decidir',st:'lista',v:'B · La frase',f:'Texto',i:'pura'},
     {d:'2026-09-15',dow:'Mar',h:'12:30',pilar:'Prueba',tipo:'B1',t:'Tu agencia no te engaña: te da exactamente lo que pediste',st:'block',f:'Carrusel',i:'método',v:'3 versiones · falta cliente y cifra'},
-    {d:'2026-09-16',dow:'Mié',h:'08:15',pilar:'Actualidad',tipo:'N',t:'[Radar] Noticia de IA o audiovisual de la semana',st:'plan',f:'Texto o vídeo',i:'método'},
+    {d:'2026-09-16',dow:'Mié',h:'08:15',pilar:'Actualidad',tipo:'N',t:'[Radar] IBC 2026: lo que cambia en un rodaje real',st:'plan',f:'Texto o vídeo',i:'método'},
     {d:'2026-09-17',dow:'Jue',h:'12:30',pilar:'Oferta',tipo:'C3',t:'«El contenido lo hacemos dentro». Vale. ¿Cuánto os cuesta cada pieza?',st:'plan',f:'Texto + imagen',i:'método'},
     {d:'2026-09-18',dow:'Vie',h:'09:00',pilar:'Prueba',tipo:'B2',t:'Mismo presupuesto, otro sistema',st:'block',f:'Imagen o carrusel',i:'método',v:'requiere datos reales'},
   ]},
@@ -991,9 +991,10 @@ const CAL = [
 
 const DECISIONS = [
   {p:'8 sep · El 90% del contenido corporativo…',v:'B · Los tres síntomas',w:'Acusación, cifra y dolor dentro de los 210 caracteres. La lista de autodiagnóstico retiene; «elige un síntoma» provoca comentarios largos y autoclasifica al ICP. Escena de los once segundos incrustada en el primer síntoma.'},
-  {p:'9 sep · Pieza de actualidad IA',v:'B · La demo dura ocho segundos',w:'A y C canibalizaban las piezas del 21 y del 23. La B funciona sola o anclada a cualquier anuncio de vídeo generativo. Tercer punto pasado a riesgo contractual concreto.'},
+  {p:'9 sep · Pieza de actualidad IA',v:'B+ · Sora caduca en quince días',w:'Radar del 8 sep: OpenAI apaga la API de Sora el 24. La B se ancla a esa fecha y suma el riesgo de proveedor. Nivel 2. Antes: '+''A y C canibalizaban las piezas del 21 y del 23. La B funciona sola o anclada a cualquier anuncio de vídeo generativo. Tercer punto pasado a riesgo contractual concreto.'},
   {p:'10 sep · Carrusel SISTEMA MAKERS',v:'B · Te regalo el método',w:'La A repetía el movimiento del martes; la C llevaba cifra sin confirmar y su apertura está reservada al 24. Regalar las seis fases maximiza guardados; reciprocidad en el DM.'},
   {p:'11 sep · Rechacé un proyecto…',v:'D · El no que retuvo criterio',w:'Las tres primeras dependían de un importe no confirmado. La D mide la pérdida en semanas de rodaje reservadas y sostiene la tensión con un diálogo a tres réplicas.'},
+  {p:'14 sep · El briefing de 40 páginas…',v:'B · La frase',w:'El dolor no dicho lo verbaliza el propio ICP. Mecanismo nuevo: una sola réplica. El CTA pide al cargo que firme. Las cinco preguntas de la A se reservan para un carrusel.'},
 ];
 
 const KANBAN = [
@@ -1077,7 +1078,7 @@ const iso=d=>d.toISOString().slice(0,10);
    ============================================================ */
 function renderKpis(){
   const listas=CAL.flatMap(w=>w.days).filter(d=>d.st==='lista').length;
-  const versiones=16;
+  const versiones=20;
   const kp=[
     {k:'Reuniones de diagnóstico ICP',v:0,s:'/ 4 objetivo mes',d:'Primera métrica que importa. Arranca con LinkedIn el 8 de septiembre.',p:0,src:'real · CRM'},
     {k:'Leads reales en el CRM',v:0,s:'+1 prueba',d:'0 leads en 4 días con 9 formularios activos. Es ausencia de dato, no de demanda.',p:0,src:'real · Drive/CRM'},
@@ -1161,7 +1162,7 @@ function renderLinkedIn(){
   const listas=all.filter(d=>d.st==='lista').length, block=all.filter(d=>d.st==='block').length, plan=all.filter(d=>d.st==='plan').length;
   const kp=[
     {k:'Piezas en calendario',v:all.length,s:'4 semanas',d:'30% autoridad · 20% prueba · 20% actualidad · 20% oferta · 10% humano',p:100},
-    {k:'Listas y elegidas',v:listas,s:'16 versiones',d:'Semana 1 completa. Cada una con primer comentario.',p:listas/all.length*100},
+    {k:'Listas y elegidas',v:listas,s:'20 versiones',d:'Semana 1 completa y lunes 14. Cada una con primer comentario.',p:listas/all.length*100},
     {k:'Bloqueadas por datos',v:block,s:'cliente y cifras',d:'Caso 15 sep, antes/después 18 sep, caso 2 el 22 sep.',p:block/all.length*100},
     {k:'Publicadas',v:0,s:'de '+all.length,d:'La primera sale el martes 8 a las 08:15.',p:0},
   ];
