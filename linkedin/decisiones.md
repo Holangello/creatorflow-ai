@@ -123,3 +123,17 @@ Criterio:
 
 **Modificación aplicada:** fuera los dos [DATO] de la B; la escena se sostiene sin cifra.
 La A y la C conservan los suyos por si Angello prefiere una de ellas.
+
+## 2026-09-17 · "El contenido lo hacemos dentro. Vale. ¿Cuánto os cuesta cada pieza?"
+
+**Elegida: versión A, «La cuenta en voz alta».**
+
+Criterio:
+
+1. Intensidad método de verdad: una cuenta con supuestos redondos que el lector sustituye.
+2. El total (430 € por pieza publicada, 3.400 € al mes) es lo citable y lo que se comparte.
+3. La B abre con videollamada y réplica única, el mismo mecanismo del lunes 14.
+4. La C («y lo aprobaste tú») roza la confrontación pura; su gancho queda en reserva.
+
+**Sin modificación.** El [DATO: piezas por rodaje] se mantiene: es el mismo hecho propio de
+Makers que pide el carrusel del jueves 10. Confirmarlo una vez sirve para ambas piezas.
