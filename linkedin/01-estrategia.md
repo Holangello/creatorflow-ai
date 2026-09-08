@@ -86,11 +86,22 @@ Cinco piezas por semana. Horario Madrid.
 | --- | --- | --- | --- |
 | Lunes | 08:15 | Autoridad | Texto largo |
 | Martes | 12:30 | Prueba | Carrusel PDF (caso) |
-| Miércoles | 08:15 | Autoridad | Vídeo nativo (60-90 s) o texto |
+| Miércoles | 08:15 | **Actualidad** | Noticia de IA o audiovisual con opinión propia |
 | Jueves | 12:30 | Oferta | Texto + imagen o carrusel de proceso |
-| Viernes | 09:00 | Humano / Prueba | Texto corto + foto propia, o encuesta |
+| Viernes | 09:00 | Humano / Autoridad | Texto corto + foto propia, o encuesta |
 
-Rotación de pilares en cuatro semanas: 8 autoridad, 6 prueba, 4 oferta, 2 humano.
+**Reparto objetivo al mes: 30 % autoridad, 20 % prueba, 20 % actualidad, 20 % oferta,
+10 % humano.** Es el único reparto vigente y el que mide la dona del centro de mando.
+
+El miércoles de actualidad no estaba en la primera versión de este documento, que
+repartía 40/30/20/10 entre cuatro pilares. Se añadió al abrir el protocolo de
+newsjacking (`08-actualidad-newsjacking.md`) y quedó fijado en `calendario.md`,
+pero esta tabla se quedó sin actualizar: durante un tiempo el sistema tuvo dos
+repartos declarados que no coincidían. Manda este.
+
+El techo de `08-actualidad-newsjacking.md` sigue en pie: actualidad no pasa del
+30 % del mes aunque haya noticias de sobra. El 20 % objetivo deja margen para
+que una ruptura de nivel 2 o 3 desplace a otra pieza sin romper el reparto.
 
 ## 7. Rutina diaria de Angello (20 minutos, no negociable)
 

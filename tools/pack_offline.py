@@ -347,8 +347,14 @@ dash.write_text(ds)
 def js_const(name):
     m = re.search(r"^const " + name + r" ?= ?\[.*?^\];", ds, re.S | re.M)
     return m.group(0) if m else "const " + name + "=[];"
+# El reparto objetivo de pilares vive en linkedin/calendario.md y en la seccion 6
+# de 01-estrategia.md. Se emite aqui para que la dona del panel pueda pintar el
+# real contra el objetivo en vez de contra nada.
+OBJETIVO_PILARES = {"Autoridad": 30, "Prueba": 20, "Actualidad": 20, "Oferta": 20, "Humano": 10}
+
 li = "/* Generado por tools/pack_offline.py en creatorflow-ai. No editar a mano: se sincroniza con herramientas/sincronizar_linkedin.py */\n"
 li += js_const("CAL") + "\n" + js_const("DECISIONS") + "\n" + js_const("ALERTS") + "\n" + blob + "\n"
-li += "window.LINKEDIN={generado:" + json.dumps(today.isoformat()) + ",CAL,DECISIONS,ALERTS,PACK};\n"
+li += "const OBJETIVO=" + json.dumps(OBJETIVO_PILARES, ensure_ascii=False) + ";\n"
+li += "window.LINKEDIN={generado:" + json.dumps(today.isoformat()) + ",CAL,DECISIONS,ALERTS,PACK,OBJETIVO};\n"
 (ROOT / "dashboard" / "linkedin-datos.js").write_text(li)
 print("ok", len(md), "chars md;", len(page), "chars html;", len(blob), "chars pack;", len(li), "chars linkedin-datos")
