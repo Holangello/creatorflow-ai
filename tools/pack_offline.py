@@ -347,6 +347,55 @@ dash.write_text(ds)
 def js_const(name):
     m = re.search(r"^const " + name + r" ?= ?\[.*?^\];", ds, re.S | re.M)
     return m.group(0) if m else "const " + name + "=[];"
+# ── Radar ──
+# El panel pintaba tres entradas escritas a mano en linkedin.js: la unica cosa
+# del sistema que podia mentir sin fallar, porque si el barrido deja de correr la
+# lista sigue diciendo lo mismo para siempre. Ahora sale de radar.md, y el sello
+# NO es la fecha de generacion del pack: es la marca «Detectado» mas reciente de
+# la tabla. Regenerar el pack por cualquier otro motivo no puede rejuvenecer un
+# radar de hace una semana.
+def leer_radar():
+    f = ROOT / "linkedin" / "radar.md"
+    if not f.exists():
+        return {"barrido": None, "items": []}
+    txt = f.read_text()
+    m = re.search(r"## Candidatos activos\n(.*?)(?:\n## |\Z)", txt, re.S)
+    if not m:
+        return {"barrido": None, "items": []}
+    # radar.md es un documento para leer, con negritas y notas entre asteriscos.
+    # El panel pinta texto plano: si no se limpian, salen los asteriscos crudos.
+    limpio = lambda t: re.sub(r"\*\*(.+?)\*\*", r"\1", t).replace("**", "").strip()
+    # Los cuatro angulos que declara el propio documento, en codigo corto: la
+    # columna de la izquierda de la lista es de dos o tres caracteres, no de una
+    # frase. Lo que no encaje se queda sin codigo antes que inventarse uno.
+    CODIGO = {"traducción a negocio": "NEG", "contra el hype": "HYPE",
+              "contra el miedo": "MIEDO", "prueba en directo": "VIVO"}
+    items = []
+    for linea in m.group(1).splitlines():
+        if not linea.startswith("|"):
+            continue
+        c = [x.strip() for x in linea.strip().strip("|").split("|")]
+        if len(c) < 6 or c[0] in ("Detectado", "---") or set(c[0]) <= {"-", " "}:
+            continue
+        visto = re.match(r"(\d{2})-(\d{2})\s+(\d{2}:\d{2})", c[0])
+        if not visto:
+            continue
+        dia, mes, hora = visto.groups()
+        angulo = limpio(c[2])
+        codigo = next((v for k, v in CODIGO.items() if k in angulo.lower()), "—")
+        items.append({
+            "visto": f"{today.year}-{mes}-{dia} {hora}",
+            "t": limpio(c[1]), "angulo": angulo, "cod": codigo,
+            "icp": limpio(c[3]), "fuente": limpio(c[4]), "caduca": limpio(c[5]),
+            # Una entrada ya usada no desaparece: se aparta, para no repetirla.
+            "usada": bool(re.search(r"\busada\b", c[5], re.I)),
+        })
+    barrido = max((i["visto"] for i in items), default=None)
+    return {"barrido": barrido, "items": items}
+
+
+RADAR = leer_radar()
+
 # El reparto objetivo de pilares vive en linkedin/calendario.md y en la seccion 6
 # de 01-estrategia.md. Se emite aqui para que la dona del panel pueda pintar el
 # real contra el objetivo en vez de contra nada.
@@ -355,6 +404,7 @@ OBJETIVO_PILARES = {"Autoridad": 30, "Prueba": 20, "Actualidad": 20, "Oferta": 2
 li = "/* Generado por tools/pack_offline.py en creatorflow-ai. No editar a mano: se sincroniza con herramientas/sincronizar_linkedin.py */\n"
 li += js_const("CAL") + "\n" + js_const("DECISIONS") + "\n" + js_const("ALERTS") + "\n" + blob + "\n"
 li += "const OBJETIVO=" + json.dumps(OBJETIVO_PILARES, ensure_ascii=False) + ";\n"
-li += "window.LINKEDIN={generado:" + json.dumps(today.isoformat()) + ",CAL,DECISIONS,ALERTS,PACK,OBJETIVO};\n"
+li += "const RADAR=" + json.dumps(RADAR, ensure_ascii=False) + ";\n"
+li += "window.LINKEDIN={generado:" + json.dumps(today.isoformat()) + ",CAL,DECISIONS,ALERTS,PACK,OBJETIVO,RADAR};\n"
 (ROOT / "dashboard" / "linkedin-datos.js").write_text(li)
 print("ok", len(md), "chars md;", len(page), "chars html;", len(blob), "chars pack;", len(li), "chars linkedin-datos")
