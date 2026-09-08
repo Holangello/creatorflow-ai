@@ -343,4 +343,12 @@ ds = dash.read_text()
 blob = "const PACK=" + json.dumps(PACK, ensure_ascii=False) + ";"
 ds = re.sub(r"/\*__PACK__\*/.*?/\*__/PACK__\*/", "/*__PACK__*/" + blob.replace("\\", "\\\\") + "/*__/PACK__*/", ds, flags=re.S) if "/*__PACK__*/" in ds else ds
 dash.write_text(ds)
-print("ok", len(md), "chars md;", len(page), "chars html;", len(blob), "chars pack")
+# ---------------- fichero de datos para el Daily Command Center (Mac de Angello) ----------------
+def js_const(name):
+    m = re.search(r"^const " + name + r" ?= ?\[.*?^\];", ds, re.S | re.M)
+    return m.group(0) if m else "const " + name + "=[];"
+li = "/* Generado por tools/pack_offline.py en creatorflow-ai. No editar a mano: se sincroniza con herramientas/sincronizar_linkedin.py */\n"
+li += js_const("CAL") + "\n" + js_const("DECISIONS") + "\n" + js_const("ALERTS") + "\n" + blob + "\n"
+li += "window.LINKEDIN={generado:" + json.dumps(today.isoformat()) + ",CAL,DECISIONS,ALERTS,PACK};\n"
+(ROOT / "dashboard" / "linkedin-datos.js").write_text(li)
+print("ok", len(md), "chars md;", len(page), "chars html;", len(blob), "chars pack;", len(li), "chars linkedin-datos")
