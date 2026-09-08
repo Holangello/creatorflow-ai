@@ -5,57 +5,51 @@
 
 <style>
 /* ============================================================
-   TOKENS · identidad Makers (misma familia que el Banco de Posts)
+   TOKENS · identidad Makers
    ============================================================ */
 :root{
-  --paper:#EEF0F3;        /* fondo general */
-  --surface:#FFFFFF;      /* tarjetas */
-  --sunk:#E3E6EA;         /* hundido: inputs, barras */
-  --side:#F6F7F9;         /* sidebar */
-  --ink:#0F1216;
-  --ink-2:#3B424B;
-  --muted:#6B737D;
-  --faint:#9AA2AB;
-  --line:#D5D9DF;
-  --line-soft:#E6E9ED;
-  --accent:#6E1B3C;       /* granate Makers */
-  --accent-ink:#FFFFFF;
-  --accent-soft:#F3E3E9;
-  --accent-line:#D9A9BC;
+  --paper:#EEF0F3; --surface:#FFFFFF; --sunk:#E3E6EA; --side:#F6F7F9; --raised:#F8F9FB;
+  --ink:#0F1216; --ink-2:#3B424B; --muted:#6B737D; --faint:#9AA2AB;
+  --line:#D5D9DF; --line-soft:#E6E9ED;
+  --accent:#6E1B3C; --accent-ink:#FFFFFF; --accent-soft:#F3E3E9; --accent-line:#D9A9BC; --accent-hover:#5A1531;
   --ok:#1B5E3F;   --ok-soft:#DCEDE3;
   --warn:#8A5A12; --warn-soft:#F5E9D2;
   --crit:#9E3A31; --crit-soft:#F5DEDB;
   --info:#1F4E7A; --info-soft:#DCE7F2;
-  --shadow:0 1px 2px rgba(15,18,22,.06),0 10px 30px -18px rgba(15,18,22,.35);
+  /* series de pilares · validadas (claro) */
+  --p-aut:#B5306A; --p-pru:#2A78D6; --p-act:#EB6834; --p-ofe:#1BAF7A; --p-hum:#6E5AD9;
+  --p-aut-soft:#F6E2EB; --p-pru-soft:#DFEAF9; --p-act-soft:#FCE6DC; --p-ofe-soft:#DDF3EB; --p-hum-soft:#E7E3F8;
+  --shadow:0 1px 2px rgba(15,18,22,.05),0 12px 32px -20px rgba(15,18,22,.35);
+  --shadow-2:0 20px 50px -20px rgba(15,18,22,.45);
   --display:"Bricolage Grotesque","IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --r:6px;
-  --sidebar:248px;
+  --r:10px; --r-sm:8px; --r-pill:999px;
+  --sidebar:248px; --tap:40px;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --paper:#0F1216; --surface:#171B21; --sunk:#0B0E11; --side:#12161B;
+    --paper:#0F1216; --surface:#171B21; --sunk:#0B0E11; --side:#12161B; --raised:#1D2229;
     --ink:#EEF0F3; --ink-2:#C5CAD1; --muted:#8E97A1; --faint:#646C76;
     --line:#2A3038; --line-soft:#22272E;
-    --accent:#E88AAB; --accent-ink:#1A0810; --accent-soft:#3A1A27; --accent-line:#6B2F48;
-    --ok:#7CC49E; --ok-soft:#14291F;
-    --warn:#DCB268; --warn-soft:#2E2515;
-    --crit:#E4918A; --crit-soft:#331B19;
-    --info:#7FB2E0; --info-soft:#15263A;
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -18px rgba(0,0,0,.9);
+    --accent:#E88AAB; --accent-ink:#1A0810; --accent-soft:#3A1A27; --accent-line:#6B2F48; --accent-hover:#F09DBA;
+    --ok:#7CC49E; --ok-soft:#14291F; --warn:#DCB268; --warn-soft:#2E2515;
+    --crit:#E4918A; --crit-soft:#331B19; --info:#7FB2E0; --info-soft:#15263A;
+    --p-aut:#D5608C; --p-pru:#3987E5; --p-act:#D95926; --p-ofe:#199E70; --p-hum:#9085E9;
+    --p-aut-soft:#3A1E2B; --p-pru-soft:#16273D; --p-act-soft:#3A2119; --p-ofe-soft:#12302A; --p-hum-soft:#25223E;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -20px rgba(0,0,0,.9); --shadow-2:0 20px 50px -20px rgba(0,0,0,.8);
   }
 }
 :root[data-theme="dark"]{
-  --paper:#0F1216; --surface:#171B21; --sunk:#0B0E11; --side:#12161B;
+  --paper:#0F1216; --surface:#171B21; --sunk:#0B0E11; --side:#12161B; --raised:#1D2229;
   --ink:#EEF0F3; --ink-2:#C5CAD1; --muted:#8E97A1; --faint:#646C76;
   --line:#2A3038; --line-soft:#22272E;
-  --accent:#E88AAB; --accent-ink:#1A0810; --accent-soft:#3A1A27; --accent-line:#6B2F48;
-  --ok:#7CC49E; --ok-soft:#14291F;
-  --warn:#DCB268; --warn-soft:#2E2515;
-  --crit:#E4918A; --crit-soft:#331B19;
-  --info:#7FB2E0; --info-soft:#15263A;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -18px rgba(0,0,0,.9);
+  --accent:#E88AAB; --accent-ink:#1A0810; --accent-soft:#3A1A27; --accent-line:#6B2F48; --accent-hover:#F09DBA;
+  --ok:#7CC49E; --ok-soft:#14291F; --warn:#DCB268; --warn-soft:#2E2515;
+  --crit:#E4918A; --crit-soft:#331B19; --info:#7FB2E0; --info-soft:#15263A;
+  --p-aut:#D5608C; --p-pru:#3987E5; --p-act:#D95926; --p-ofe:#199E70; --p-hum:#9085E9;
+  --p-aut-soft:#3A1E2B; --p-pru-soft:#16273D; --p-act-soft:#3A2119; --p-ofe-soft:#12302A; --p-hum-soft:#25223E;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -20px rgba(0,0,0,.9); --shadow-2:0 20px 50px -20px rgba(0,0,0,.8);
 }
 
 /* ============================================================
@@ -63,132 +57,147 @@
    ============================================================ */
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  margin:0;background:var(--paper);color:var(--ink);
-  font-family:var(--sans);font-size:14px;line-height:1.5;
-  -webkit-font-smoothing:antialiased;
-}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{margin:0;font-family:var(--display);letter-spacing:-.01em;text-wrap:balance}
 p{margin:0}
 a{color:var(--accent);text-underline-offset:3px}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 input,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.skip{position:absolute;left:8px;top:-60px;z-index:100;background:var(--accent);color:var(--accent-ink);padding:8px 14px;border-radius:var(--r);font-weight:600}
+.skip{position:absolute;left:8px;top:-60px;z-index:100;background:var(--accent);color:var(--accent-ink);padding:8px 14px;border-radius:var(--r-sm);font-weight:600}
 .skip:focus{top:8px}
+svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* ============================================================
+   SISTEMA DE BOTONES · cuatro familias, una por tipo de acción
+   ------------------------------------------------------------
+   .btn.primary   → la acción principal de la pantalla (relleno acento)
+   .btn.nav       → ir a otro sitio (borde acento, flecha)
+   .btn.tool      → utilidades: copiar, alternar, ver (fondo hundido, sin borde)
+   .btn.danger    → destructivo: reiniciar, borrar (rojo suave)
+   .chip          → filtros y categorías (píldora; la de pilar lleva su color)
+   .pill          → estado semántico, no se pulsa
+   .src           → procedencia del dato, no se pulsa
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;height:var(--tap);padding:0 14px;
+  border-radius:var(--r-pill);font-weight:600;font-size:13px;white-space:nowrap;text-decoration:none;
+  border:1.5px solid transparent;transition:background .15s,border-color .15s,color .15s,transform .08s,box-shadow .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:scale(.98)}
+.btn.sm{height:32px;padding:0 12px;font-size:12px}
+.btn.xs{height:28px;padding:0 10px;font-size:11.5px;gap:6px}
+.btn.icon{width:var(--tap);padding:0}
+.btn.primary{background:var(--accent);color:var(--accent-ink);box-shadow:0 6px 16px -8px var(--accent)}
+.btn.primary:hover{background:var(--accent-hover)}
+.btn.nav{background:var(--surface);color:var(--accent);border-color:var(--accent-line)}
+.btn.nav:hover{background:var(--accent-soft);border-color:var(--accent)}
+.btn.nav .i{margin-left:-2px}
+.btn.tool{background:var(--sunk);color:var(--ink-2)}
+.btn.tool:hover{background:var(--line);color:var(--ink)}
+.btn.tool[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.btn.danger{background:var(--crit-soft);color:var(--crit)}
+.btn.danger:hover{background:var(--crit);color:#fff}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* chips: filtros y categorías */
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:var(--r-pill);
+  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.04em;white-space:nowrap;
+  background:var(--sunk);color:var(--ink-2);border:1.5px solid transparent;transition:.15s;
+}
+button.chip:hover{border-color:var(--faint)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.chip i{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+.chip.aut{background:var(--p-aut-soft);color:var(--p-aut)}
+.chip.pru{background:var(--p-pru-soft);color:var(--p-pru)}
+.chip.act{background:var(--p-act-soft);color:var(--p-act)}
+.chip.ofe{background:var(--p-ofe-soft);color:var(--p-ofe)}
+.chip.hum{background:var(--p-hum-soft);color:var(--p-hum)}
+.chip.xs{height:22px;padding:0 8px;font-size:10px}
+
+/* estado semántico (no se pulsa) */
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:6px;white-space:nowrap;line-height:1.5}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.pill.info{background:var(--info-soft);color:var(--info)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.pill.mute{background:var(--sunk);color:var(--muted)}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
+/* procedencia (no se pulsa) */
+.src{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.src.real{border-style:solid;color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+.src.none{color:var(--faint)}
+
+/* segmentado (rango de fechas, tema) */
+.seg{display:inline-flex;background:var(--sunk);border-radius:var(--r-pill);height:36px;padding:3px;gap:2px}
+.seg button{padding:0 12px;font-size:12.5px;color:var(--muted);font-weight:600;border-radius:var(--r-pill);transition:.15s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
 
 /* ============================================================
    SHELL
    ============================================================ */
 .app{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh}
-.app.collapsed{--sidebar:64px}
-
-/* ---- sidebar ---- */
-.side{
-  background:var(--side);border-right:1px solid var(--line);
-  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
-  padding:14px 10px;gap:6px;overflow:hidden;
-}
-.brandmark{
-  display:flex;align-items:center;gap:10px;padding:6px 8px 14px;border-bottom:1px solid var(--line-soft);margin-bottom:6px;
-}
-.brandmark .m{
-  width:32px;height:32px;flex:none;border-radius:8px;background:var(--accent);color:var(--accent-ink);
-  display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.04em;
-}
-.brandmark .t{min-width:0}
-.brandmark b{display:block;font-family:var(--display);font-weight:700;font-size:14.5px;letter-spacing:-.01em;white-space:nowrap}
+.app.collapsed{--sidebar:68px}
+.side{background:var(--side);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:14px 10px;gap:6px;overflow:hidden}
+.brandmark{display:flex;align-items:center;gap:10px;padding:6px 8px 14px;border-bottom:1px solid var(--line-soft);margin-bottom:6px}
+.brandmark .m{width:34px;height:34px;flex:none;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-.04em}
+.brandmark b{display:block;font-family:var(--display);font-weight:700;font-size:14.5px;white-space:nowrap}
 .brandmark small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
 .nav{display:flex;flex-direction:column;gap:2px;flex:1}
 .nav .grp{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);padding:12px 10px 4px;white-space:nowrap}
-.nav button{
-  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
-  padding:8px 10px;border-radius:var(--r);color:var(--ink-2);font-weight:500;
-  white-space:nowrap;transition:background .15s,color .15s;position:relative;
-}
-.nav button svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.nav button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;height:var(--tap);padding:0 10px;border-radius:var(--r-sm);color:var(--ink-2);font-weight:500;white-space:nowrap;transition:background .15s,color .15s;position:relative}
 .nav button:hover{background:var(--sunk);color:var(--ink)}
 .nav button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);font-weight:600}
-.nav button[aria-selected="true"]::before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:var(--accent)}
-.nav .cnt{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--sunk);padding:1px 7px;border-radius:99px}
+.nav button[aria-selected="true"]::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:0 2px 2px 0;background:var(--accent)}
+.nav .cnt{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--sunk);padding:1px 7px;border-radius:99px;min-width:22px;text-align:center}
 .nav button[aria-selected="true"] .cnt{background:var(--accent-soft);color:var(--accent)}
+.nav .cnt:empty,.nav .cnt[data-zero="1"]{display:none}
 .side-foot{border-top:1px solid var(--line-soft);padding-top:10px;display:flex;flex-direction:column;gap:2px}
-.side-foot button{display:flex;align-items:center;gap:11px;width:100%;padding:8px 10px;border-radius:var(--r);color:var(--muted);white-space:nowrap}
+.side-foot button{display:flex;align-items:center;gap:11px;width:100%;height:var(--tap);padding:0 10px;border-radius:var(--r-sm);color:var(--muted);white-space:nowrap}
 .side-foot button:hover{background:var(--sunk);color:var(--ink)}
-.side-foot svg{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .app.collapsed .side{padding:14px 8px}
 .app.collapsed .brandmark .t,.app.collapsed .nav .grp,.app.collapsed .nav .lbl,.app.collapsed .cnt,.app.collapsed .side-foot .lbl{display:none}
-.app.collapsed .nav button,.app.collapsed .side-foot button{justify-content:center;padding:10px 0}
+.app.collapsed .nav button,.app.collapsed .side-foot button{justify-content:center;padding:0}
 .app.collapsed .brandmark{justify-content:center;padding-left:0;padding-right:0}
 .app.collapsed .nav button[aria-selected="true"]::before{left:-8px}
 
-/* ---- main ---- */
 .main{min-width:0;display:flex;flex-direction:column}
-.top{
-  position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--paper) 88%,transparent);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
-  display:flex;align-items:center;gap:10px;padding:10px 22px;flex-wrap:wrap;
-}
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:10px 22px;flex-wrap:wrap}
 .top .crumb{display:flex;align-items:baseline;gap:8px;margin-right:auto;min-width:0}
 .top .crumb h1{font-size:17px;font-weight:700}
 .top .crumb span{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;white-space:nowrap}
-.ctl{
-  display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 11px;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  font-size:13px;color:var(--ink-2);transition:border-color .15s,background .15s;white-space:nowrap;
-}
+.ctl{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-pill);font-size:13px;color:var(--ink-2);transition:.15s;white-space:nowrap}
 .ctl:hover{border-color:var(--faint);color:var(--ink)}
-.ctl svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.ctl select{appearance:none;background:transparent;border:0;padding:0 14px 0 0;color:var(--ink);font-weight:500;cursor:pointer;max-width:200px}
+.ctl select{appearance:none;background:transparent;border:0;padding:0 14px 0 0;color:var(--ink);font-weight:600;cursor:pointer;max-width:200px}
 .ctl.sel{position:relative}
-.ctl.sel::after{content:"";position:absolute;right:11px;top:13px;width:6px;height:6px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg);pointer-events:none}
-.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);height:34px;overflow:hidden}
-.seg button{padding:0 11px;font-size:12.5px;color:var(--muted);font-weight:500;border-right:1px solid var(--line-soft)}
-.seg button:last-child{border-right:0}
-.seg button:hover{color:var(--ink);background:var(--sunk)}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.search{min-width:200px;cursor:text}
+.ctl.sel::after{content:"";position:absolute;right:13px;top:13px;width:6px;height:6px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg);pointer-events:none}
+.search{min-width:210px;cursor:text}
 .search kbd{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 5px;background:var(--sunk)}
-.bell{position:relative;width:34px;padding:0;justify-content:center}
-.bell .dot{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--crit);border:2px solid var(--surface)}
-.avatar{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:13px;flex:none}
-
-/* ---- context ribbon ---- */
-.ribbon{
-  display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:8px 22px;
-  font-family:var(--mono);font-size:11px;color:var(--muted);border-bottom:1px solid var(--line-soft);
-}
+.bell{position:relative;width:36px;padding:0;justify-content:center;border-radius:50%}
+.bell .dot{position:absolute;top:6px;right:7px;width:9px;height:9px;border-radius:50%;background:var(--crit);border:2px solid var(--surface)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:13px;flex:none}
+.ribbon{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:8px 22px;font-family:var(--mono);font-size:11px;color:var(--muted);border-bottom:1px solid var(--line-soft)}
 .ribbon b{color:var(--ink);font-weight:500}
 .ribbon .live{display:inline-flex;align-items:center;gap:6px}
-.ribbon .live i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}
+.ribbon .live i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block;box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
 
 /* ---- views ---- */
 .views{padding:22px;display:flex;flex-direction:column;gap:22px;flex:1}
 .view{display:none;flex-direction:column;gap:20px}
-.app.switched .view.on{animation:rise .28s ease}
 .view.on{display:flex}
+.app.switched .view.on{animation:rise .28s ease}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .vhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .vhead h2{font-size:24px;font-weight:700;letter-spacing:-.02em}
 .vhead p{color:var(--muted);max-width:70ch;margin-top:4px}
 .vhead .acts{display:flex;gap:8px;flex-wrap:wrap}
-
-/* ---- buttons ---- */
-.btn{
-  display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:var(--r);
-  border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:500;font-size:13px;
-  transition:background .15s,border-color .15s,transform .1s;white-space:nowrap;text-decoration:none;
-}
-.btn:hover{border-color:var(--faint);background:var(--sunk)}
-.btn:active{transform:translateY(1px)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn.primary:hover{filter:brightness(1.08)}
-.btn.sm{height:28px;padding:0 10px;font-size:12px}
-.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 /* ---- grids & cards ---- */
 .grid{display:grid;gap:14px}
@@ -199,48 +208,27 @@ input,select{font:inherit;color:inherit}
 .g12{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
 @media (max-width:1180px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:820px){.g4,.g3,.g2,.g21,.g12{grid-template-columns:1fr}}
-.card{
-  background:var(--surface);border:1px solid var(--line);border-radius:10px;
-  box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0;
-}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0}
 .card > .ch{display:flex;align-items:center;gap:10px;padding:14px 18px 0;flex-wrap:wrap}
 .card > .ch h3{font-size:15px;font-weight:700}
 .card > .ch .sub{color:var(--muted);font-size:12.5px;width:100%}
-.card > .ch .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+.card > .ch .r{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .card > .cb{padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .card > .cb.flush{padding:0}
 .card > .cf{border-top:1px solid var(--line-soft);padding:10px 18px;font-size:12px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 
 /* ---- KPI ---- */
-.kpi{padding:16px 18px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
-.kpi .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
-.kpi .v{font-family:var(--display);font-weight:800;font-size:36px;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px}
-.kpi .v small{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--muted);letter-spacing:0}
-.kpi .d{font-size:12.5px;color:var(--ink-2)}
-.kpi .bar{height:5px;background:var(--sunk);border-radius:99px;overflow:hidden}
-.kpi .bar i{display:block;height:100%;background:var(--accent);border-radius:99px;width:0;transition:width .8s cubic-bezier(.2,.8,.2,1)}
-
-/* ---- pills / badges ---- */
-.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;white-space:nowrap;line-height:1.6}
-.pill.ok{background:var(--ok-soft);color:var(--ok)}
-.pill.warn{background:var(--warn-soft);color:var(--warn)}
-.pill.crit{background:var(--crit-soft);color:var(--crit)}
-.pill.info{background:var(--info-soft);color:var(--info)}
-.pill.acc{background:var(--accent-soft);color:var(--accent)}
-.pill.mute{background:var(--sunk);color:var(--muted)}
-.pill i{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
-.src{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap}
-.src.real{border-style:solid;color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
-.src.none{color:var(--faint)}
-.src.ejemplo{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 50%,transparent)}
+.kpi{padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.kpi .k{grid-column:1/-1;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.kpi .v{font-family:var(--display);font-weight:800;font-size:38px;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px}
+.kpi .v small{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--muted);letter-spacing:0}
+.kpi .viz{grid-row:2;display:grid;place-items:center}
+.kpi .d{grid-column:1/-1;font-size:12.5px;color:var(--ink-2)}
 
 /* ---- tables ---- */
 .tw{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13px}
-thead th{
-  text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-  font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface);position:sticky;top:0;
-}
+thead th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface);position:sticky;top:0}
 tbody td{padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
 tbody tr:last-child td{border-bottom:0}
 tbody tr:hover td{background:color-mix(in srgb,var(--sunk) 55%,transparent)}
@@ -250,24 +238,27 @@ td b{font-weight:600}
 td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 .dom{font-family:var(--mono);font-weight:500;font-size:12.5px;color:var(--ink)}
 
-/* ---- chart ---- */
-.chart{width:100%;height:auto;display:block}
+/* ---- charts ---- */
+.chart{width:100%;height:auto;display:block;overflow:visible}
 .chart text{font-family:var(--mono);font-size:10px;fill:var(--muted)}
-.chart .grid line{stroke:var(--line-soft)}
+.chart text.ann{fill:var(--ink);font-weight:500}
+.chart .gl{stroke:var(--line-soft);stroke-width:1}
 .chart .axis{stroke:var(--line)}
-.chart .bar{fill:var(--accent);opacity:.85;transition:opacity .15s}
-.chart .bar.z{fill:var(--sunk);opacity:1}
-.chart .bar.hi{fill:var(--accent);opacity:1}
-.chart .bar:hover,.chart .bar:focus{opacity:1;outline:none}
-.chart .area{fill:var(--accent);opacity:.12}
-.chart .lineP{fill:none;stroke:var(--accent);stroke-width:1.8}
-.chart .pt{fill:var(--accent)}
-.chart .ann{fill:var(--ink);font-weight:500}
+.chart .m{transition:opacity .15s;cursor:default}
+.chart .m:hover,.chart .m:focus{opacity:.75;outline:none}
+.chart .z{fill:var(--sunk)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.donut-wrap{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.donut-wrap .lg{display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.donut-wrap .lg span{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center}
+.donut-wrap .lg i{width:10px;height:10px;border-radius:3px}
+.donut-wrap .lg b{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+.tip{position:fixed;z-index:95;background:var(--ink);color:var(--paper);font-size:11.5px;line-height:1.4;padding:6px 9px;border-radius:6px;pointer-events:none;max-width:260px;opacity:0;transition:opacity .12s;transform:translate(-50%,calc(-100% - 10px))}
+.tip.on{opacity:1}
 
-/* ---- alerts feed ---- */
+/* ---- alerts ---- */
 .feed{display:flex;flex-direction:column}
 .al{display:grid;grid-template-columns:20px 1fr auto;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line-soft);align-items:start}
 .al:last-child{border-bottom:0}
@@ -276,36 +267,39 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 .al .t{font-weight:600;font-size:13.5px}
 .al .x{color:var(--muted);font-size:12.5px;margin-top:2px}
 .al .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.al label{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);cursor:pointer;white-space:nowrap;margin-top:3px}
-.al input{accent-color:var(--accent);width:15px;height:15px;margin:0}
 .al.done{opacity:.5}
 .al.done .t{text-decoration:line-through}
+.check{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--sunk);color:var(--ink-2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;user-select:none}
+.check:hover{background:var(--line)}
+.check input{appearance:none;width:18px;height:18px;margin:0;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;transition:.15s;cursor:pointer}
+.check input:checked{background:var(--ok);border-color:var(--ok)}
+.check input:checked::after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg) translate(-1px,-1px)}
+.check:has(input:checked){background:var(--ok-soft);color:var(--ok)}
 
-/* ---- today block ---- */
-.today{display:flex;flex-direction:column;gap:10px}
+/* ---- today ---- */
 .slot{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
 .slot:last-child{border-bottom:0}
 .slot time{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:2px;font-variant-numeric:tabular-nums}
 .slot b{font-weight:600;display:block}
 .slot span{color:var(--muted);font-size:12.5px}
 
-/* ---- funnel ---- */
+/* ---- funnel bars ---- */
 .funnel{display:flex;flex-direction:column;gap:6px}
 .fs{display:grid;grid-template-columns:160px 1fr 90px;gap:12px;align-items:center}
 .fs .l{font-weight:600;font-size:13px}
 .fs .l small{display:block;color:var(--muted);font-weight:400;font-size:11.5px}
-.fs .t{height:26px;background:var(--sunk);border-radius:4px;overflow:hidden;position:relative}
-.fs .t i{display:block;height:100%;background:var(--accent);opacity:.9;border-radius:4px;width:0;transition:width .8s cubic-bezier(.2,.8,.2,1)}
-.fs .t.empty i{background:repeating-linear-gradient(135deg,var(--line) 0 4px,transparent 4px 9px);opacity:1}
+.fs .t{height:22px;background:var(--sunk);border-radius:4px;overflow:hidden;position:relative}
+.fs .t i{display:block;height:100%;background:var(--accent);border-radius:0 4px 4px 0;width:0;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.fs .t.empty i{background:repeating-linear-gradient(135deg,var(--line) 0 4px,transparent 4px 9px);border-radius:0}
 .fs .v{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
 .fs .v small{display:block;color:var(--muted);font-size:10.5px}
 @media (max-width:560px){.fs{grid-template-columns:1fr;gap:4px}.fs .v{text-align:left}}
 
 /* ---- kanban ---- */
 .kan{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:12px;overflow-x:auto}
-.kcol{background:var(--sunk);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.kcol{background:var(--sunk);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
 .kcol h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;padding:2px 4px}
-.kc{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;transition:transform .15s,box-shadow .15s}
+.kc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;display:flex;flex-direction:column;gap:6px;transition:transform .15s,box-shadow .15s}
 .kc:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
 .kc b{font-size:13px;font-weight:600;line-height:1.35}
 .kc .m{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11.5px;color:var(--muted)}
@@ -318,17 +312,16 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 .days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 @media (max-width:1100px){.days{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.days{grid-template-columns:1fr}}
-.day{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:11px 12px;display:flex;flex-direction:column;gap:7px;min-height:150px;position:relative}
-.day.pub{border-color:var(--accent-line);background:var(--accent-soft)}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;display:flex;flex-direction:column;gap:7px;min-height:150px;position:relative;border-top:3px solid var(--line)}
+.day.aut{border-top-color:var(--p-aut)}.day.pru{border-top-color:var(--p-pru)}.day.act{border-top-color:var(--p-act)}.day.ofe{border-top-color:var(--p-ofe)}.day.hum{border-top-color:var(--p-hum)}
 .day.past{opacity:.55}
 .day .dh{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:11px;color:var(--muted)}
 .day .dh b{color:var(--ink);font-weight:500}
-.day .pl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 .day .ti{font-weight:600;font-size:13px;line-height:1.35;flex:1}
 .day .ft{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto}
-.day .today-tag{position:absolute;top:-8px;right:10px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:99px}
+.day .today-tag{position:absolute;top:-9px;right:10px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:99px}
 
-/* ---- hypotheses / list ---- */
+/* ---- lists ---- */
 .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .list li{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-soft);align-items:flex-start}
 .list li:last-child{border-bottom:0}
@@ -336,20 +329,19 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 .list b{font-weight:600}
 .list .x{color:var(--muted);font-size:12.5px;display:block}
 
-/* ---- inbox monitor ---- */
+/* ---- inbox ---- */
 .box{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line-soft)}
 .box:last-child{border-bottom:0}
-.box .ic{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;background:var(--sunk);color:var(--ink-2)}
-.box .ic svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.box .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--sunk);color:var(--ink-2)}
 .box .a{font-family:var(--mono);font-size:12.5px;font-weight:500}
 .box .r{color:var(--muted);font-size:12px}
 .box .u{text-align:right}
 .box .u b{display:block;font-family:var(--display);font-size:22px;font-weight:800;line-height:1}
 .box .u span{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 
-/* ---- cadence strip ---- */
+/* ---- cadence ---- */
 .cad{display:grid;grid-template-columns:repeat(14,1fr);gap:4px}
-.cad div{background:var(--sunk);border-radius:4px;padding:6px 4px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;flex-direction:column;gap:3px;min-width:0}
+.cad div{background:var(--sunk);border-radius:6px;padding:6px 4px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;flex-direction:column;gap:3px;min-width:0}
 .cad div b{font-size:12px;color:var(--ink);font-weight:600}
 .cad div.tel{border-top:3px solid var(--info)}
 .cad div.wa{border-top:3px solid var(--ok)}
@@ -360,141 +352,121 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 /* ---- settings ---- */
 .conn{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line-soft)}
 .conn:last-child{border-bottom:0}
-.conn .ic{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:12px;background:var(--sunk);color:var(--ink-2)}
+.conn .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:12px;background:var(--sunk);color:var(--ink-2)}
 .conn b{display:block;font-weight:600}
 .conn span{color:var(--muted);font-size:12.5px}
 .opt{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
 .opt:last-child{border-bottom:0}
 .opt b{font-weight:600;display:block}
 .opt span{color:var(--muted);font-size:12.5px}
+.btn-demo{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;align-items:center;font-size:12.5px;color:var(--muted)}
 
-/* ---- tooltip ---- */
+/* ---- popover, palette, toast ---- */
 [data-tip]{position:relative}
-[data-tip]::after{
-  content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);
-  background:var(--ink);color:var(--paper);font-family:var(--sans);font-size:11.5px;font-weight:400;line-height:1.4;
-  padding:6px 9px;border-radius:5px;white-space:normal;width:max-content;max-width:260px;text-align:left;
-  opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:50;letter-spacing:0;text-transform:none;
-}
-[data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ---- popovers & palette ---- */
-.pop{position:absolute;right:22px;top:54px;width:380px;max-width:calc(100vw - 44px);background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 20px 50px -20px rgba(0,0,0,.45);z-index:60;overflow:hidden}
+.pop{position:absolute;right:22px;top:56px;width:380px;max-width:calc(100vw - 44px);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-2);z-index:60;overflow:hidden}
 .pop h4{padding:12px 16px;border-bottom:1px solid var(--line-soft);font-size:13px;display:flex;justify-content:space-between;align-items:center}
-.pop h4 button{color:var(--accent);font-size:12px;font-weight:500}
 .pop .feed{max-height:380px;overflow:auto}
 .pal-bg{position:fixed;inset:0;background:rgba(15,18,22,.45);z-index:70;display:grid;place-items:start center;padding-top:12vh}
-.pal{width:600px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);overflow:hidden}
+.pal{width:600px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-2);overflow:hidden}
 .pal input{width:100%;border:0;background:transparent;padding:16px 18px;font-size:16px;outline:none;border-bottom:1px solid var(--line-soft)}
 .pal ul{list-style:none;margin:0;padding:6px;max-height:50vh;overflow:auto}
-.pal li{display:flex;gap:12px;align-items:center;padding:9px 12px;border-radius:6px;cursor:pointer}
+.pal li{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:8px;cursor:pointer}
 .pal li[aria-selected="true"],.pal li:hover{background:var(--sunk)}
 .pal li .kind{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:78px}
 .pal li b{font-weight:500}
 .pal li small{color:var(--muted);margin-left:auto;font-family:var(--mono);font-size:11px;white-space:nowrap}
 .pal .empty{padding:18px;color:var(--muted);text-align:center}
-
-/* ---- toast ---- */
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s,transform .2s;z-index:90;pointer-events:none}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:var(--r-pill);font-size:13px;opacity:0;transition:.2s;z-index:90;pointer-events:none;box-shadow:var(--shadow-2)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ---- callouts ---- */
-.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px;color:var(--ink-2)}
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:13px;color:var(--ink-2)}
 .note b{color:var(--ink)}
 .note.warn{border-left-color:var(--warn);background:var(--warn-soft)}
-.note.crit{border-left-color:var(--crit);background:var(--crit-soft)}
 .stat-row{display:flex;gap:18px;flex-wrap:wrap}
 .stat{display:flex;flex-direction:column;gap:2px;min-width:100px}
 .stat b{font-family:var(--display);font-size:26px;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .stat span{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 
+/* ---- mobile: barra de pestañas inferior ---- */
+.tabbar{display:none}
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
-  .side{position:fixed;left:0;top:0;bottom:0;width:248px;z-index:80;transform:translateX(-100%);transition:transform .2s;box-shadow:0 0 60px rgba(0,0,0,.3)}
+  .side{position:fixed;left:0;top:0;bottom:0;width:264px;z-index:80;transform:translateX(-100%);transition:transform .2s;box-shadow:var(--shadow-2)}
   .app.mobile-open .side{transform:none}
-  .app.collapsed .side{width:248px}
+  .app.collapsed .side{width:264px}
   .app.collapsed .brandmark .t,.app.collapsed .nav .grp,.app.collapsed .nav .lbl,.app.collapsed .cnt,.app.collapsed .side-foot .lbl{display:initial}
-  .app.collapsed .nav button,.app.collapsed .side-foot button{justify-content:flex-start;padding:8px 10px}
+  .app.collapsed .nav button,.app.collapsed .side-foot button{justify-content:flex-start;padding:0 10px}
   .burger{display:inline-flex!important}
-  .views{padding:16px}
+  .views{padding:16px 16px 92px}
   .top{padding:10px 16px}
   .ribbon{padding:8px 16px}
   .search{min-width:0}
-  .search .lbl{display:none}
+  .search .lbl,.search kbd{display:none}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;height:52px;border-radius:12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .tabbar button svg{width:20px;height:20px}
+  .tabbar button[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
+  .vhead h2{font-size:21px}
+  .kpi .v{font-size:32px}
 }
 .burger{display:none}
-@media print{.side,.top,.ribbon{display:none}.view{display:flex!important}.app{grid-template-columns:1fr}}
+@media print{.side,.top,.ribbon,.tabbar{display:none}.view{display:flex!important}.app{grid-template-columns:1fr}}
 </style>
 
 <a class="skip" href="#main">Saltar al contenido</a>
 
-<div class="app" id="app">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="14" width="8" height="7" rx="1.5"/></symbol>
+  <symbol id="i-li" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 10v6M8 7v.5M12 16v-3.5a2 2 0 0 1 4 0V16M12 10v6"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.3 10.8l7.4-3.6M8.3 13.2l7.4 3.6"/></symbol>
+  <symbol id="i-funnel" viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+  <symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.6"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 4v5h5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.5 0-.9-.1-1.3A6 6 0 0 1 12 3z"/></symbol>
+  <symbol id="i-side" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l-2 2 2 2"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h16M6 16l10-10 2 2-10 10H6z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></symbol>
+</defs></svg>
 
-  <!-- ================= SIDEBAR ================= -->
+<div class="app" id="app">
   <aside class="side" aria-label="Navegación principal">
-    <div class="brandmark">
-      <span class="m" aria-hidden="true">M</span>
-      <span class="t"><b>Centro de Mando</b><small>Makers · Angello</small></span>
-    </div>
+    <div class="brandmark"><span class="m" aria-hidden="true">M</span><span class="t"><b>Centro de Mando</b><small>Makers · Angello</small></span></div>
     <nav class="nav" role="tablist" aria-orientation="vertical" id="tabs">
       <span class="grp">Panorama</span>
-      <button role="tab" data-view="hub" aria-selected="true" aria-controls="v-hub" id="t-hub">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="14" width="8" height="7" rx="1.5"/></svg>
-        <span class="lbl">Visión general</span><span class="cnt" id="c-hub">0</span>
-      </button>
+      <button role="tab" data-view="hub" aria-selected="true" aria-controls="v-hub" id="t-hub"><svg class="i"><use href="#i-grid"/></svg><span class="lbl">Visión general</span><span class="cnt" id="c-hub"></span></button>
       <span class="grp">Canales</span>
-      <button role="tab" data-view="linkedin" aria-selected="false" aria-controls="v-linkedin" id="t-linkedin" tabindex="-1">
-        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 10v6M8 7v.5M12 16v-3.5a2 2 0 0 1 4 0V16M12 10v6"/></svg>
-        <span class="lbl">LinkedIn</span><span class="cnt" id="c-li">0</span>
-      </button>
-      <button role="tab" data-view="webs" aria-selected="false" aria-controls="v-webs" id="t-webs" tabindex="-1">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span class="lbl">Webs y tráfico</span><span class="cnt" id="c-webs">0</span>
-      </button>
-      <button role="tab" data-view="contenido" aria-selected="false" aria-controls="v-contenido" id="t-contenido" tabindex="-1">
-        <svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>
-        <span class="lbl">Contenido editorial</span><span class="cnt" id="c-cont">0</span>
-      </button>
-      <button role="tab" data-view="redes" aria-selected="false" aria-controls="v-redes" id="t-redes" tabindex="-1">
-        <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.3 10.8l7.4-3.6M8.3 13.2l7.4 3.6"/></svg>
-        <span class="lbl">Redes sociales</span>
-      </button>
+      <button role="tab" data-view="linkedin" aria-selected="false" aria-controls="v-linkedin" id="t-linkedin" tabindex="-1"><svg class="i"><use href="#i-li"/></svg><span class="lbl">LinkedIn</span><span class="cnt" id="c-li"></span></button>
+      <button role="tab" data-view="webs" aria-selected="false" aria-controls="v-webs" id="t-webs" tabindex="-1"><svg class="i"><use href="#i-globe"/></svg><span class="lbl">Webs y tráfico</span><span class="cnt" id="c-webs"></span></button>
+      <button role="tab" data-view="contenido" aria-selected="false" aria-controls="v-contenido" id="t-contenido" tabindex="-1"><svg class="i"><use href="#i-doc"/></svg><span class="lbl">Contenido editorial</span><span class="cnt" id="c-cont"></span></button>
+      <button role="tab" data-view="redes" aria-selected="false" aria-controls="v-redes" id="t-redes" tabindex="-1"><svg class="i"><use href="#i-share"/></svg><span class="lbl">Redes sociales</span><span class="cnt"></span></button>
       <span class="grp">Negocio</span>
-      <button role="tab" data-view="funnel" aria-selected="false" aria-controls="v-funnel" id="t-funnel" tabindex="-1">
-        <svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>
-        <span class="lbl">Embudo y ventas</span><span class="cnt" id="c-fun">0</span>
-      </button>
-      <button role="tab" data-view="email" aria-selected="false" aria-controls="v-email" id="t-email" tabindex="-1">
-        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-        <span class="lbl">Email y bandejas</span><span class="cnt" id="c-mail">0</span>
-      </button>
+      <button role="tab" data-view="funnel" aria-selected="false" aria-controls="v-funnel" id="t-funnel" tabindex="-1"><svg class="i"><use href="#i-funnel"/></svg><span class="lbl">Embudo y ventas</span><span class="cnt" id="c-fun"></span></button>
+      <button role="tab" data-view="email" aria-selected="false" aria-controls="v-email" id="t-email" tabindex="-1"><svg class="i"><use href="#i-mail"/></svg><span class="lbl">Email y bandejas</span><span class="cnt" id="c-mail"></span></button>
       <span class="grp">Sistema</span>
-      <button role="tab" data-view="ajustes" aria-selected="false" aria-controls="v-ajustes" id="t-ajustes" tabindex="-1">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-        <span class="lbl">Ajustes y cuentas</span>
-      </button>
+      <button role="tab" data-view="ajustes" aria-selected="false" aria-controls="v-ajustes" id="t-ajustes" tabindex="-1"><svg class="i"><use href="#i-cog"/></svg><span class="lbl">Ajustes y cuentas</span><span class="cnt"></span></button>
     </nav>
     <div class="side-foot">
-      <button type="button" id="themeBtn" aria-label="Cambiar tema">
-        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.5 0-.9-.1-1.3A6 6 0 0 1 12 3z"/></svg>
-        <span class="lbl">Tema: <span id="themeLbl">sistema</span></span>
-      </button>
-      <button type="button" id="collapseBtn" aria-label="Plegar la barra lateral">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l-2 2 2 2"/></svg>
-        <span class="lbl">Plegar barra</span>
-      </button>
+      <button type="button" id="themeBtn" aria-label="Cambiar tema"><svg class="i"><use href="#i-moon"/></svg><span class="lbl">Tema: <span id="themeLbl">sistema</span></span></button>
+      <button type="button" id="collapseBtn" aria-label="Plegar la barra lateral"><svg class="i"><use href="#i-side"/></svg><span class="lbl">Plegar barra</span></button>
     </div>
   </aside>
 
-  <!-- ================= MAIN ================= -->
   <div class="main">
     <header class="top">
-      <button class="ctl burger" id="burger" aria-label="Abrir navegación"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <button class="btn tool icon burger" id="burger" aria-label="Abrir navegación"><svg class="i"><use href="#i-menu"/></svg></button>
       <div class="crumb"><h1 id="crumb">Visión general</h1><span id="crumbSub">todas las marcas</span></div>
-
-      <label class="ctl sel" data-tip="Filtra webs, contenido, embudo y bandejas por marca">
-        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6"/></svg>
-        <span class="sr">Marca</span>
+      <label class="ctl sel" data-tip="Filtra webs, contenido, embudo, avisos y bandejas por marca">
+        <svg class="i"><use href="#i-filter"/></svg><span class="sr">Marca</span>
         <select id="brandSel">
           <option value="all">Todas las marcas</option>
           <option value="angello">angellobenavides.com</option>
@@ -504,23 +476,14 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
           <option value="wedding">makerswedding.com</option>
         </select>
       </label>
-
       <div class="seg" role="group" aria-label="Rango de fechas" id="rangeSeg">
         <button type="button" data-days="7" aria-pressed="false">7 d</button>
         <button type="button" data-days="14" aria-pressed="true">14 d</button>
         <button type="button" data-days="30" aria-pressed="false">30 d</button>
         <button type="button" data-days="90" aria-pressed="false">90 d</button>
       </div>
-
-      <button class="ctl search" id="searchBtn" type="button" aria-haspopup="dialog" aria-controls="palette">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
-        <span class="lbl">Buscar en todo…</span><kbd>Ctrl K</kbd>
-      </button>
-
-      <button class="ctl bell" id="bellBtn" type="button" aria-label="Avisos" aria-expanded="false" aria-controls="bellPop">
-        <svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
-        <span class="dot" id="bellDot"></span>
-      </button>
+      <button class="ctl search" id="searchBtn" type="button" aria-haspopup="dialog" aria-controls="palette"><svg class="i"><use href="#i-search"/></svg><span class="lbl">Buscar en todo…</span><kbd>Ctrl K</kbd></button>
+      <button class="ctl bell" id="bellBtn" type="button" aria-label="Avisos" aria-expanded="false" aria-controls="bellPop"><svg class="i"><use href="#i-bell"/></svg><span class="dot" id="bellDot"></span></button>
       <div class="avatar" aria-hidden="true">AB</div>
     </header>
 
@@ -528,7 +491,7 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
       <span class="live"><i></i>Rutinas: <b>06:08</b> radar + posts · <b>13:04</b> ruptura · L–V</span>
       <span>Hoy: <b id="todayLbl">—</b></span>
       <span>Siguiente publicación: <b id="nextPost">—</b></span>
-      <span>Datos: <b id="freshLbl">leídos el 8 sep 2026, 06:30</b></span>
+      <span>Datos: <b id="freshLbl">leídos el 8 sep 2026, 08:40</b></span>
     </div>
 
     <main class="views" id="main">
@@ -538,42 +501,41 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
         <div class="vhead">
           <div><h2>Lo que mueve el negocio esta semana</h2><p>Cuatro cifras que importan según las reglas B2B: reuniones, leads, recurrente y piezas. Nada de seguidores ni likes en esta pantalla.</p></div>
           <div class="acts">
-            <a class="btn" href="https://claude.ai/code/artifact/0b464c7a-117e-438e-9090-f5b31b186643" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l10-10 2 2-10 10H6z"/></svg>Banco de posts</a>
-            <a class="btn" href="https://claude.ai/code/artifact/c204ed88-5585-481f-b07b-da968bf394ab" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12l3 3 5-6"/></svg>Hoja de rodaje</a>
+            <a class="btn nav" href="https://claude.ai/code/artifact/0b464c7a-117e-438e-9090-f5b31b186643" target="_blank" rel="noopener"><svg class="i"><use href="#i-pen"/></svg>Banco de posts<svg class="i"><use href="#i-ext"/></svg></a>
+            <a class="btn nav" href="https://claude.ai/code/artifact/c204ed88-5585-481f-b07b-da968bf394ab" target="_blank" rel="noopener"><svg class="i"><use href="#i-check"/></svg>Hoja de rodaje<svg class="i"><use href="#i-ext"/></svg></a>
           </div>
         </div>
-
         <div class="grid g4" id="kpis"></div>
-
         <div class="grid g21">
           <div class="card">
-            <div class="ch"><h3>Sesiones en el configurador de MOIX</h3>
-              <div class="r"><span class="src real" data-tip="Hoja 'Leads MAKERS Wedding' en Drive, pestaña de sesiones. 21 sesiones entre el 23 de agosto y el 3 de septiembre.">real · Drive</span></div>
-              <span class="sub">Única fuente de tráfico medida hoy. No hay analítica en ninguna web: el denominador de visitas no existe.</span>
-            </div>
-            <div class="cb">
-              <div id="chartSessions"></div>
-              <div class="legend"><span><i style="background:var(--accent)"></i>Sesiones iniciadas</span><span><i style="background:var(--sunk);border:1px solid var(--line)"></i>Sin sesiones</span><span class="mono" id="chartRangeLbl"></span></div>
-            </div>
+            <div class="ch"><h3>Sesiones en el configurador de MOIX</h3><div class="r"><span class="src real" data-tip="Hoja «Leads MAKERS Wedding» en Drive, pestaña de sesiones. 21 sesiones entre el 23 de agosto y el 3 de septiembre.">real · Drive</span></div><span class="sub">Única fuente de tráfico medida hoy. No hay analítica en ninguna web: el denominador de visitas no existe.</span></div>
+            <div class="cb"><div id="chartSessions"></div><div class="legend"><span><i style="background:var(--accent)"></i>Sesiones iniciadas</span><span><i style="background:var(--sunk);border:1px solid var(--line)"></i>Sin sesiones</span><span class="mono" id="chartRangeLbl"></span></div></div>
             <div class="cf">21 sesiones · 20 se quedaron en el paso 1 de 7 · 1 llegó al paso 2 · 0 presupuestos enviados. <b style="color:var(--ink)">La gente entra y no sigue.</b></div>
           </div>
-
           <div class="card">
             <div class="ch"><h3>Hoy y mañana</h3><span class="sub">Lo que sale del sistema y lo que te toca a ti.</span></div>
-            <div class="cb today" id="todayList"></div>
+            <div class="cb" id="todayList"></div>
           </div>
         </div>
-
-        <div class="grid g12">
+        <div class="grid g3">
           <div class="card">
-            <div class="ch"><h3>Search Console · 3 meses</h3><div class="r"><span class="src real" data-tip="Leído en la auditoría del 30 de agosto de 2026. Impresiones y clics de búsqueda orgánica por dominio.">real · 30 ago</span></div></div>
+            <div class="ch"><h3>Semana en un vistazo</h3><div class="r"><span class="src real">real · calendario</span></div><span class="sub">Cinco franjas, un pilar cada una. El color es el pilar; la altura, el estado.</span></div>
+            <div class="cb"><div id="chartWeek"></div><div class="legend" id="pillarLegend"></div></div>
+          </div>
+          <div class="card">
+            <div class="ch"><h3>Mezcla de pilares · septiembre</h3><div class="r"><span class="src real">real · calendario</span></div><span class="sub">Lo planificado frente al reparto que fijan las reglas B2B.</span></div>
+            <div class="cb"><div id="chartMix"></div></div>
+            <div class="cf">Las reglas piden 40/30/20/10. El mes va 30/20/20/20/10 porque actualidad tiene hueco fijo. Prueba está por debajo: dos casos bloqueados por datos.</div>
+          </div>
+          <div class="card">
+            <div class="ch"><h3>Search Console · 3 meses</h3><div class="r"><span class="src real" data-tip="Auditoría del 30 de agosto de 2026. Impresiones y clics de búsqueda orgánica por dominio.">real · 30 ago</span></div></div>
             <div class="cb"><div id="chartSC"></div></div>
             <div class="cf">391 de las 630 impresiones de angellobenavides son de «anyelo benavides», otra persona.</div>
           </div>
-          <div class="card">
-            <div class="ch"><h3>Avisos activos</h3><div class="r"><button class="btn sm" id="showDone" type="button">Ver hechos</button></div><span class="sub">Ordenados por gravedad. Marca lo que ya hiciste: se guarda en este navegador.</span></div>
-            <div class="cb flush"><div class="feed" id="alertFeed"></div></div>
-          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><h3>Avisos activos</h3><div class="r"><button class="btn tool sm" id="showDone" type="button" aria-pressed="false"><svg class="i"><use href="#i-eye"/></svg>Ver hechos</button></div><span class="sub">Ordenados por gravedad. Marca lo que ya hiciste: se guarda en este navegador.</span></div>
+          <div class="cb flush"><div class="feed" id="alertFeed"></div></div>
         </div>
       </section>
 
@@ -582,37 +544,35 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
         <div class="vhead">
           <div><h2>LinkedIn · canal número uno</h2><p>Calendario de cuatro semanas, versiones elegidas por Maverick, radar de actualidad y registro de métricas. Angello publica cada mañana; el sistema prepara tres alternativas la noche anterior.</p></div>
           <div class="acts">
-            <a class="btn primary" href="https://claude.ai/code/artifact/0b464c7a-117e-438e-9090-f5b31b186643" target="_blank" rel="noopener">Abrir el Banco de Posts</a>
-            <button class="btn" type="button" data-copy="Maverick, escribe la pieza del 15 de septiembre.">Copiar orden de pieza</button>
+            <a class="btn primary" href="https://claude.ai/code/artifact/0b464c7a-117e-438e-9090-f5b31b186643" target="_blank" rel="noopener"><svg class="i"><use href="#i-pen"/></svg>Abrir el Banco de Posts</a>
+            <button class="btn tool" type="button" data-copy="Maverick, escribe la pieza del 15 de septiembre."><svg class="i"><use href="#i-copy"/></svg>Copiar orden de pieza</button>
           </div>
         </div>
-
         <div class="grid g4" id="liKpis"></div>
-
-        <div class="card">
-          <div class="ch"><h3>Calendario editorial · septiembre</h3>
-            <div class="r"><span class="pill acc">Semana 1 arranca el martes</span></div>
-            <span class="sub">Lunes autoridad · martes prueba · miércoles actualidad · jueves oferta · viernes humano. Máximo una confrontación pura por semana.</span>
+        <div class="grid g12">
+          <div class="card">
+            <div class="ch"><h3>Estado de las piezas</h3><div class="r"><span class="src real">real</span></div></div>
+            <div class="cb"><div id="chartState"></div></div>
           </div>
-          <div class="cb"><div class="cal" id="calendar"></div></div>
-          <div class="cf"><span class="pill ok">listas</span> tres o cuatro versiones escritas y una elegida &nbsp; <span class="pill warn">bloqueada</span> requiere datos de Angello &nbsp; <span class="pill mute">planificada</span> título y ángulo, sin redactar</div>
+          <div class="card">
+            <div class="ch"><h3>Pilares por semana</h3><div class="r"><span class="src real">real · calendario</span></div><span class="sub">Cada semana, cinco piezas. Las de intensidad pura llevan borde.</span></div>
+            <div class="cb"><div id="chartWeeks"></div><div class="legend" id="pillarLegend2"></div></div>
+          </div>
         </div>
-
+        <div class="card">
+          <div class="ch"><h3>Calendario editorial · septiembre</h3><div class="r"><span class="chip xs aut"><i></i>Autoridad</span><span class="chip xs pru"><i></i>Prueba</span><span class="chip xs act"><i></i>Actualidad</span><span class="chip xs ofe"><i></i>Oferta</span><span class="chip xs hum"><i></i>Humano</span></div><span class="sub">Lunes autoridad · martes prueba · miércoles actualidad · jueves oferta · viernes humano. Máximo una confrontación pura por semana.</span></div>
+          <div class="cb"><div class="cal" id="calendar"></div></div>
+          <div class="cf"><span class="pill ok">listas</span> versiones escritas y una elegida &nbsp; <span class="pill warn">bloqueada</span> requiere datos de Angello &nbsp; <span class="pill mute">planificada</span> título y ángulo, sin redactar</div>
+        </div>
         <div class="grid g2">
           <div class="card">
             <div class="ch"><h3>Decisiones de Maverick</h3><span class="sub">Cada versión elegida, con el criterio. Sirve para cruzar con resultados.</span></div>
-            <div class="cb flush"><div class="tw"><table>
-              <thead><tr><th>Pieza</th><th>Elegida</th><th>Por qué</th></tr></thead>
-              <tbody id="decisions"></tbody>
-            </table></div></div>
+            <div class="cb flush"><div class="tw"><table><thead><tr><th>Pieza</th><th>Elegida</th><th>Por qué</th></tr></thead><tbody id="decisions"></tbody></table></div></div>
           </div>
           <div class="card">
             <div class="ch"><h3>Métricas por pieza</h3><div class="r"><span class="src none">sin datos</span></div><span class="sub">Angello pega impresiones, comentarios, guardados, clics a perfil y mensajes a las 48 h y a los 7 días. La línea base se fija con las 10 primeras piezas.</span></div>
             <div class="cb">
-              <div class="tw"><table>
-                <thead><tr><th>Fecha</th><th>Pieza</th><th class="n">Impr. 48h</th><th class="n">Coment.</th><th class="n">Guard.</th><th class="n">Perfil</th><th class="n">DM</th></tr></thead>
-                <tbody><tr><td colspan="7" style="color:var(--muted);text-align:center;padding:22px">Vacío hasta la primera publicación del 8 de septiembre.</td></tr></tbody>
-              </table></div>
+              <div class="tw"><table><thead><tr><th>Fecha</th><th>Pieza</th><th class="n">Impr. 48h</th><th class="n">Coment.</th><th class="n">Guard.</th><th class="n">Perfil</th><th class="n">DM</th></tr></thead><tbody><tr><td colspan="7" style="color:var(--muted);text-align:center;padding:22px">Vacío hasta la primera publicación del 8 de septiembre.</td></tr></tbody></table></div>
               <ul class="list">
                 <li><span class="k">H1</span><span><b>Los carruseles de caso generan más clics a perfil</b><span class="x">que el texto largo. Se prueba el 10 y el 15 de septiembre.</span></span></li>
                 <li><span class="k">H2</span><span><b>Publicar a las 08:15 supera a las 12:30</b><span class="x">en impresiones a 48 horas.</span></span></li>
@@ -621,57 +581,50 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
             </div>
           </div>
         </div>
-
         <div class="grid g2">
           <div class="card">
             <div class="ch"><h3>Radar de actualidad</h3><div class="r"><span class="pill acc">3 candidatos · 8 sep</span></div><span class="sub">Dos barridos al día. Una entrada caduca a las 72 horas. Nivel 3 sustituye a la pieza del día y sale en menos de tres horas.</span></div>
             <div class="cb">
               <ul class="list">
-                <li><span class="k">N1</span><span><b>Comentario en pieza ajena</b><span class="x">Sin cambiar el calendario. Se responde donde ya se habla.</span></span></li>
-                <li><span class="k">N2</span><span><b>Ocupa el hueco del miércoles</b><span class="x">Sustituye la pieza de actualidad de la semana.</span></span></li>
-                <li><span class="k">N3</span><span><b>Ruptura</b><span class="x">Tres de cuatro criterios: cambia el trabajo del ICP, fuente primaria, menos de 12 h, criterio propio. Máximo 2 al mes.</span></span></li>
+                <li><span class="k">N2</span><span><b>Sora apaga su API el 24 de septiembre</b><span class="x">Usada: ancla la pieza del miércoles 9. Fuente: centro de ayuda de OpenAI.</span></span></li>
+                <li><span class="k">N1</span><span><b>Primer spot de TV en España hecho íntegramente con IA (Lepas)</b><span class="x">Candidata a comentario en pieza ajena. Falta la nota de prensa de la marca.</span></span></li>
+                <li><span class="k">—</span><span><b>IBC 2026, Ámsterdam, 11 a 14 de septiembre</b><span class="x">Reservada para el miércoles 16. Se concreta con los anuncios del 11 y 12.</span></span></li>
               </ul>
-              <button class="btn sm" type="button" data-copy="Maverick, ruptura: [enlace]. ¿Nivel?">Copiar la orden de ruptura</button>
+              <button class="btn tool sm" type="button" data-copy="Maverick, ruptura: [enlace]. ¿Nivel?"><svg class="i"><use href="#i-copy"/></svg>Copiar la orden de ruptura</button>
             </div>
           </div>
           <div class="card">
-            <div class="ch"><h3>Parámetros del algoritmo que atacamos</h3><div class="r"><span class="src" data-tip="Vigentes a septiembre de 2026 según linkedin/01-estrategia.md. Se revisan con cada cambio que Angello comunique.">sept 2026</span></div></div>
-            <div class="cb flush"><div class="tw"><table>
-              <thead><tr><th>Señal</th><th>Qué hacemos</th></tr></thead>
-              <tbody>
-                <tr><td><b>Dwell time</b></td><td>Gancho que obliga a pulsar «ver más» antes del corte de 210 caracteres.</td></tr>
-                <tr><td><b>Ventana 60–90 min</b></td><td>Primer comentario propio y respuesta a todo en la primera hora.</td></tr>
-                <tr><td><b>Comentarios &gt; reacciones</b></td><td>CTA que pide respuestas de más de cinco palabras. Nunca «🔥».</td></tr>
-                <tr><td><b>Guardados</b></td><td>Carruseles y piezas de proceso optimizados para guardar.</td></tr>
-                <tr><td><b>Enlaces y edición</b></td><td>Enlaces al primer comentario. No se edita el post en 2 horas.</td></tr>
-                <tr><td><b>Hashtags</b></td><td>Máximo 3 al final, solo como clasificación.</td></tr>
-              </tbody>
-            </table></div></div>
+            <div class="ch"><h3>Parámetros del algoritmo que atacamos</h3><div class="r"><span class="src" data-tip="Vigentes a septiembre de 2026 según linkedin/01-estrategia.md.">sept 2026</span></div></div>
+            <div class="cb flush"><div class="tw"><table><thead><tr><th>Señal</th><th>Qué hacemos</th></tr></thead><tbody>
+              <tr><td><b>Dwell time</b></td><td>Gancho que obliga a pulsar «ver más» antes del corte de 210 caracteres.</td></tr>
+              <tr><td><b>Ventana 60–90 min</b></td><td>Primer comentario propio y respuesta a todo en la primera hora.</td></tr>
+              <tr><td><b>Comentarios &gt; reacciones</b></td><td>CTA que pide respuestas de más de cinco palabras. Nunca «🔥».</td></tr>
+              <tr><td><b>Guardados</b></td><td>Carruseles y piezas de proceso optimizados para guardar.</td></tr>
+              <tr><td><b>Enlaces y edición</b></td><td>Enlaces al primer comentario. No se edita el post en 2 horas.</td></tr>
+              <tr><td><b>Hashtags</b></td><td>Máximo 3 al final, solo como clasificación.</td></tr>
+            </tbody></table></div></div>
           </div>
         </div>
       </section>
 
       <!-- ================= WEBS ================= -->
       <section class="view" id="v-webs" role="tabpanel" aria-labelledby="t-webs" hidden>
-        <div class="vhead">
-          <div><h2>Cinco dominios, tres en producción</h2><p>Estado, formularios y búsqueda orgánica por web. El diagnóstico del 30 de agosto sigue vigente: no es el embudo, es la visibilidad.</p></div>
-        </div>
+        <div class="vhead"><div><h2>Cinco dominios, tres en producción</h2><p>Estado, formularios y búsqueda orgánica por web. El diagnóstico del 30 de agosto sigue vigente: no es el embudo, es la visibilidad.</p></div></div>
         <div class="grid g4" id="webKpis"></div>
+        <div class="grid g3">
+          <div class="card"><div class="ch"><h3>Impresiones · 3 meses</h3><div class="r"><span class="src real">real · 30 ago</span></div></div><div class="cb"><div id="chartSC2"></div></div></div>
+          <div class="card"><div class="ch"><h3>Puertas al CRM por web</h3><div class="r"><span class="src real">real</span></div><span class="sub">Formularios que meten un lead. angellobenavides sigue en cero.</span></div><div class="cb"><div id="chartForms"></div></div></div>
+          <div class="card"><div class="ch"><h3>Arreglos</h3><div class="r"><span class="src real">real · auditoría</span></div></div><div class="cb"><div id="chartFixes"></div></div></div>
+        </div>
         <div class="card">
           <div class="ch"><h3>Estado por sitio</h3><div class="r"><span class="src real">real · auditoría 30 ago</span></div></div>
-          <div class="cb flush"><div class="tw"><table>
-            <thead><tr><th>Dominio</th><th>Rol</th><th>Estado</th><th class="n">Páginas</th><th class="n">Puertas</th><th>Analítica</th><th class="n">Impr. 3m</th><th class="n">Clics 3m</th><th>Nota</th></tr></thead>
-            <tbody id="sitesBody"></tbody>
-          </table></div></div>
+          <div class="cb flush"><div class="tw"><table><thead><tr><th>Dominio</th><th>Rol</th><th>Estado</th><th class="n">Páginas</th><th class="n">Puertas</th><th>Analítica</th><th class="n">Impr. 3m</th><th class="n">Clics 3m</th><th>Nota</th></tr></thead><tbody id="sitesBody"></tbody></table></div></div>
           <div class="cf">«Puertas» = formularios que meten un lead en el CRM propio. SSL y velocidad no se han medido desde aquí: se marcan cuando exista el contador propio.</div>
         </div>
         <div class="grid g2">
           <div class="card">
             <div class="ch"><h3>Arreglos abiertos y cerrados</h3><span class="sub">De la auditoría de ocho agentes. Lo hecho está verificado en vivo.</span></div>
-            <div class="cb flush"><div class="tw"><table>
-              <thead><tr><th>Qué</th><th>Dónde</th><th class="n">Coste</th><th>Estado</th></tr></thead>
-              <tbody id="fixesBody"></tbody>
-            </table></div></div>
+            <div class="cb flush"><div class="tw"><table><thead><tr><th>Qué</th><th>Dónde</th><th class="n">Coste</th><th>Estado</th></tr></thead><tbody id="fixesBody"></tbody></table></div></div>
           </div>
           <div class="card">
             <div class="ch"><h3>Medir visitas sin pagar un SaaS</h3><div class="r"><span class="pill warn">pendiente</span></div></div>
@@ -680,7 +633,7 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
               <ul class="list">
                 <li><span class="k">01</span><span><b>Referrer y utm_* en la tabla leads</b><span class="x">Las columnas página y origen ya existen. Falta el denominador.</span></span></li>
                 <li><span class="k">02</span><span><b>Canario semanal</b><span class="x">Avisa si una puerta pasa siete días con visitas y cero envíos. Habría cazado el bug del imán.</span></span></li>
-                <li><span class="k">03</span><span><b>Test A/B: no antes de 150 envíos al mes</b><span class="x">Con nueve clics en tres meses faltan tres órdenes de magnitud. Un test hoy sería ruido defendido como resultado.</span></span></li>
+                <li><span class="k">03</span><span><b>Test A/B: no antes de 150 envíos al mes</b><span class="x">Con nueve clics en tres meses faltan tres órdenes de magnitud.</span></span></li>
               </ul>
             </div>
           </div>
@@ -691,69 +644,57 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
       <section class="view" id="v-contenido" role="tabpanel" aria-labelledby="t-contenido" hidden>
         <div class="vhead">
           <div><h2>Contenido editorial fuera de LinkedIn</h2><p>Pipeline de piezas web, imanes y guías. Cada tarjeta lleva web de destino, quién la hace y qué busca en Google.</p></div>
-          <div class="acts"><button class="btn" type="button" data-copy="Maverick, prepara el brief de «Cuánto cuesta una identidad de marca y de qué depende» para creatribe.es siguiendo docs/b2b-marketing-sales-rules.md.">Copiar orden de brief</button></div>
+          <div class="acts"><button class="btn tool" type="button" data-copy="Maverick, prepara el brief de «Cuánto cuesta una identidad de marca y de qué depende» para creatribe.es siguiendo docs/b2b-marketing-sales-rules.md."><svg class="i"><use href="#i-copy"/></svg>Copiar orden de brief</button></div>
         </div>
         <div class="grid g4" id="contKpis"></div>
-        <div class="card">
-          <div class="ch"><h3>Pipeline</h3><span class="sub">Arrastrar no cambia nada real: el estado vive en el repositorio. Aquí se lee.</span></div>
-          <div class="cb"><div class="kan" id="kanban"></div></div>
+        <div class="grid g12">
+          <div class="card"><div class="ch"><h3>Piezas por web</h3><div class="r"><span class="src real">real</span></div></div><div class="cb"><div id="chartKanBrand"></div></div></div>
+          <div class="card">
+            <div class="ch"><h3>Pipeline</h3><span class="sub">El estado vive en el repositorio. Aquí se lee.</span></div>
+            <div class="cb"><div class="kan" id="kanban"></div></div>
+          </div>
         </div>
         <div class="grid g2">
           <div class="card">
             <div class="ch"><h3>Consultas que nadie responde</h3><div class="r"><span class="src real">real · SERP 30 ago</span></div><span class="sub">Intención de compra explícita sin respuesta local. Es donde entra un artículo propio.</span></div>
-            <div class="cb flush"><div class="tw"><table>
-              <thead><tr><th>Consulta</th><th>Marca</th><th>Qué se lleva el SERP hoy</th></tr></thead>
-              <tbody>
-                <tr><td><b>cuánto cuesta una identidad de marca</b></td><td>creatribe</td><td>Nadie local. Primera pieza a escribir.</td></tr>
-                <tr><td><b>precio fotógrafo bodas Mallorca / Madrid</b></td><td>moix</td><td>Agregadores, 4 de 9 resultados. Se recupera con guía, no con tarifa.</td></tr>
-                <tr><td><b>precio vídeo corporativo</b></td><td>angello</td><td>Imán de negocio en /journal/. Formulario real pendiente.</td></tr>
-                <tr><td><b>plantilla de presupuesto para fotógrafos</b></td><td>angello</td><td>Imán de gremio. Da autoridad y corrige la colisión con «anyelo benavides».</td></tr>
-              </tbody>
-            </table></div></div>
+            <div class="cb flush"><div class="tw"><table><thead><tr><th>Consulta</th><th>Marca</th><th>Qué se lleva el SERP hoy</th></tr></thead><tbody>
+              <tr><td><b>cuánto cuesta una identidad de marca</b></td><td>creatribe</td><td>Nadie local. Primera pieza a escribir.</td></tr>
+              <tr><td><b>precio fotógrafo bodas Mallorca / Madrid</b></td><td>moix</td><td>Agregadores, 4 de 9 resultados. Se recupera con guía, no con tarifa.</td></tr>
+              <tr><td><b>precio vídeo corporativo</b></td><td>angello</td><td>Imán de negocio en /journal/. Formulario real pendiente.</td></tr>
+              <tr><td><b>plantilla de presupuesto para fotógrafos</b></td><td>angello</td><td>Imán de gremio. Corrige la colisión con «anyelo benavides».</td></tr>
+            </tbody></table></div></div>
           </div>
           <div class="card">
             <div class="ch"><h3>Reglas que gobiernan cualquier pieza</h3><div class="r"><span class="src">b2b-marketing-sales-rules.md</span></div></div>
-            <div class="cb">
-              <ul class="list">
-                <li><span class="k">80/20</span><span><b>B2B manda</b><span class="x">El B2C solo existe si alimenta al B2B: alcance verificable, autoridad pública o parte alta del embudo.</span></span></li>
-                <li><span class="k">40/30/20/10</span><span><b>Autoridad · prueba · oferta · humano</b><span class="x">Reparto obligatorio del calendario.</span></span></li>
-                <li><span class="k">Caso</span><span><b>Contexto → problema → qué se hizo → cifra → qué se replica</b><span class="x">Ningún caso sale sin cifra verificable.</span></span></li>
-                <li><span class="k">CTA</span><span><b>Todo cierra con un paso siguiente</b><span class="x">Publicar sin llamada a la acción está prohibido.</span></span></li>
-                <li><span class="k">Precio</span><span><b>MOIX no publica precio</b><span class="x">Reafirmado el 30 de agosto. Suelo real 2.400 €. La consulta «precio» se ataca con guías.</span></span></li>
-              </ul>
-            </div>
+            <div class="cb"><ul class="list">
+              <li><span class="k">80/20</span><span><b>B2B manda</b><span class="x">El B2C solo existe si alimenta al B2B.</span></span></li>
+              <li><span class="k">40/30/20/10</span><span><b>Autoridad · prueba · oferta · humano</b><span class="x">Reparto obligatorio del calendario.</span></span></li>
+              <li><span class="k">Caso</span><span><b>Contexto → problema → qué se hizo → cifra → qué se replica</b><span class="x">Ningún caso sale sin cifra verificable.</span></span></li>
+              <li><span class="k">CTA</span><span><b>Todo cierra con un paso siguiente</b></span></li>
+              <li><span class="k">Precio</span><span><b>MOIX no publica precio</b><span class="x">Reafirmado el 30 de agosto. Suelo real 2.400 €.</span></span></li>
+            </ul></div>
           </div>
         </div>
       </section>
 
       <!-- ================= REDES ================= -->
       <section class="view" id="v-redes" role="tabpanel" aria-labelledby="t-redes" hidden>
-        <div class="vhead">
-          <div><h2>Redes: escaparate, no canal de venta</h2><p>Instagram y TikTok no venden B2B. Su métrica no son las vistas: es cuántos decisores llegan desde ahí a una conversación. Cifras de la última lectura verificada, 12 de agosto.</p></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h3>Métricas por plataforma</h3><div class="r"><span class="src real">real · 12 ago</span><span class="src none">crecimiento y engagement: sin conector</span></div></div>
-          <div class="cb flush"><div class="tw"><table>
-            <thead><tr><th>Cuenta</th><th>Plataforma</th><th class="n">Seguidores</th><th class="n">Δ semana</th><th class="n">Engagement</th><th class="n">Clics salientes</th><th>Identidad</th><th>Pendiente</th></tr></thead>
-            <tbody id="socialBody"></tbody>
-          </table></div></div>
-          <div class="cf">Windsor.ai solo tiene Meta Ads conectado. Para leer LinkedIn orgánico, Instagram y YouTube en vivo hay que autorizar esos conectores en Ajustes.</div>
+        <div class="vhead"><div><h2>Redes: escaparate, no canal de venta</h2><p>Instagram y TikTok no venden B2B. Su métrica no son las vistas: es cuántos decisores llegan desde ahí a una conversación. Cifras de la última lectura verificada, 12 de agosto.</p></div></div>
+        <div class="grid g12">
+          <div class="card"><div class="ch"><h3>Seguidores conocidos</h3><div class="r"><span class="src real">real · 12 ago</span></div><span class="sub">Solo cuentas con cifra verificada.</span></div><div class="cb"><div id="chartFollowers"></div></div></div>
+          <div class="card">
+            <div class="ch"><h3>Métricas por plataforma</h3><div class="r"><span class="src real">real · 12 ago</span><span class="src none">crecimiento y engagement: sin conector</span></div></div>
+            <div class="cb flush"><div class="tw"><table><thead><tr><th>Cuenta</th><th>Plataforma</th><th class="n">Seguidores</th><th class="n">Δ semana</th><th class="n">Engagement</th><th>Identidad</th><th>Pendiente</th></tr></thead><tbody id="socialBody"></tbody></table></div></div>
+            <div class="cf">Windsor.ai solo tiene Meta Ads conectado. Para leer LinkedIn orgánico, Instagram y YouTube en vivo hay que autorizar esos conectores en Ajustes.</div>
+          </div>
         </div>
         <div class="grid g2">
-          <div class="card">
-            <div class="ch"><h3>Publicaciones top · 7 días</h3><div class="r"><span class="src none">sin datos</span></div></div>
-            <div class="cb"><p style="color:var(--muted)">Se rellena con LinkedIn a partir del 8 de septiembre. Hasta entonces no hay publicación B2B que medir, y las de bodas no se reportan aquí como éxito.</p></div>
-          </div>
-          <div class="card">
-            <div class="ch"><h3>Tres cosas con fecha</h3></div>
-            <div class="cb">
-              <ul class="list">
-                <li><span class="k">IG</span><span><b>Reservar @makers_agencia</b><span class="x">Quedó libre al renombrar. Las menciones antiguas apuntan ahí y cualquiera puede cogerlo.</span></span></li>
-                <li><span class="k">Threads</span><span><b>MAKERS Wedding sigue con el nombre viejo</b><span class="x">Threads no sincroniza con Instagram. Cambiarlo a mano.</span></span></li>
-                <li><span class="k">Enlace</span><span><b>Linktree en el perfil de Angello</b><span class="x">Toda la autoridad del enlace va a Linktree en vez de a angellobenavides.com.</span></span></li>
-              </ul>
-            </div>
-          </div>
+          <div class="card"><div class="ch"><h3>Publicaciones top · 7 días</h3><div class="r"><span class="src none">sin datos</span></div></div><div class="cb"><p style="color:var(--muted)">Se rellena con LinkedIn a partir del 8 de septiembre. Hasta entonces no hay publicación B2B que medir.</p></div></div>
+          <div class="card"><div class="ch"><h3>Tres cosas con fecha</h3></div><div class="cb"><ul class="list">
+            <li><span class="k">IG</span><span><b>Reservar @makers_agencia</b><span class="x">Quedó libre al renombrar. Cualquiera puede cogerlo.</span></span></li>
+            <li><span class="k">Threads</span><span><b>MAKERS Wedding sigue con el nombre viejo</b><span class="x">Threads no sincroniza con Instagram.</span></span></li>
+            <li><span class="k">Enlace</span><span><b>Linktree en el perfil de Angello</b><span class="x">La autoridad del enlace se va a Linktree.</span></span></li>
+          </ul></div></div>
         </div>
       </section>
 
@@ -761,145 +702,135 @@ td .sub{display:block;color:var(--muted);font-size:12px;margin-top:2px}
       <section class="view" id="v-funnel" role="tabpanel" aria-labelledby="t-funnel" hidden>
         <div class="vhead">
           <div><h2>Dos embudos, un solo CRM</h2><p>El B2B sigue las reglas de la casa: atracción, conversación, captación, diagnóstico, propuesta de tres opciones, retainer. El de bodas es el configurador de MOIX en siete pasos.</p></div>
-          <div class="acts"><a class="btn" href="https://claude.ai/code/artifact/106f554d-4574-462d-a365-b645fcdd3621" target="_blank" rel="noopener">Runbook de ventas</a><a class="btn" href="https://claude.ai/code/artifact/dbadf1a0-2c34-4d0b-81b3-17cd035a10c4" target="_blank" rel="noopener">Los 28 mensajes</a></div>
+          <div class="acts"><a class="btn nav" href="https://claude.ai/code/artifact/106f554d-4574-462d-a365-b645fcdd3621" target="_blank" rel="noopener">Runbook de ventas<svg class="i"><use href="#i-ext"/></svg></a><a class="btn nav" href="https://claude.ai/code/artifact/dbadf1a0-2c34-4d0b-81b3-17cd035a10c4" target="_blank" rel="noopener">Los 28 mensajes<svg class="i"><use href="#i-ext"/></svg></a></div>
         </div>
         <div class="grid g4" id="funKpis"></div>
         <div class="grid g2">
           <div class="card">
             <div class="ch"><h3>Embudo B2B · LinkedIn → retainer</h3><div class="r"><span class="src real">real · CRM + LinkedIn</span></div><span class="sub">Objetivo inicial: 4 reuniones de diagnóstico al mes. Arranca con la primera publicación.</span></div>
             <div class="cb"><div class="funnel" id="funnelB2B"></div></div>
-            <div class="cf">Regla de derivación: la marca personal abre la conversación, Makers firma. Toda propuesta lleva tres opciones y una de continuidad mensual.</div>
+            <div class="cf">La marca personal abre la conversación, Makers firma. Toda propuesta lleva tres opciones y una de continuidad mensual.</div>
           </div>
           <div class="card">
-            <div class="ch"><h3>Embudo bodas · configurador MOIX</h3><div class="r"><span class="src real">real · Drive · 23 ago – 3 sep</span></div><span class="sub">Siete pasos. El precio se revela dentro, nunca en la web.</span></div>
-            <div class="cb"><div class="funnel" id="funnelMoix"></div></div>
-            <div class="cf">El único presupuesto registrado es la prueba del sistema del 26 de agosto (2.400 € sin IVA). Los 21 visitantes reales no pasaron del paso 1 salvo uno.</div>
+            <div class="ch"><h3>Configurador MOIX · dónde se cae la gente</h3><div class="r"><span class="src real">real · Drive · 23 ago – 3 sep</span></div><span class="sub">Siete pasos. El precio se revela en el paso 3, nunca en la web.</span></div>
+            <div class="cb"><div id="chartDrop"></div></div>
+            <div class="cf">El único presupuesto registrado es la prueba del sistema del 26 de agosto. Los 21 visitantes reales no pasaron del paso 1 salvo uno.</div>
           </div>
         </div>
         <div class="card">
           <div class="ch"><h3>Cadencia de seguimiento · 14 toques en 30 días</h3><div class="r"><span class="pill acc">solo el 4 es automático</span></div><span class="sub">Franja 10:00 a 20:00, lunes a domingo. Sin llamadas con IA hasta 20 leads al mes sostenidos dos meses.</span></div>
-          <div class="cb">
-            <div class="cad" id="cadence"></div>
-            <div class="legend"><span><i style="background:var(--info)"></i>Llamada tuya</span><span><i style="background:var(--ok)"></i>WhatsApp</span><span><i style="background:var(--warn)"></i>Email</span><span><i style="background:transparent;outline:2px solid var(--accent)"></i>Automático</span></div>
-          </div>
+          <div class="cb"><div id="chartCad"></div><div class="cad" id="cadence"></div><div class="legend"><span><i style="background:var(--info)"></i>Llamada tuya</span><span><i style="background:var(--ok)"></i>WhatsApp</span><span><i style="background:var(--warn)"></i>Email</span><span><i style="background:transparent;outline:2px solid var(--accent)"></i>Automático</span></div></div>
         </div>
         <div class="grid g2">
           <div class="card">
             <div class="ch"><h3>Plan de ventas · fases</h3><span class="sub">Del runbook del 27 de agosto, con los recortes del 30.</span></div>
-            <div class="cb flush"><div class="tw"><table>
-              <thead><tr><th>Fase</th><th>Qué</th><th>Estado</th><th>Bloquea</th></tr></thead>
-              <tbody id="phasesBody"></tbody>
-            </table></div></div>
+            <div class="cb flush"><div class="tw"><table><thead><tr><th>Fase</th><th>Qué</th><th>Estado</th><th>Bloquea</th></tr></thead><tbody id="phasesBody"></tbody></table></div></div>
           </div>
           <div class="card">
             <div class="ch"><h3>Prioridad de la oferta</h3><div class="r"><span class="src">reglas B2B</span></div></div>
-            <div class="cb">
-              <ul class="list">
-                <li><span class="k">1</span><span><b>Retainer mensual de contenido</b><span class="x">Ingreso recurrente. Objetivo principal. Plazas Q4: número por confirmar.</span></span></li>
-                <li><span class="k">2</span><span><b>Contrato anual de campañas por fases</b></span></li>
-                <li><span class="k">3</span><span><b>Proyecto único de alto valor</b><span class="x">Solo como puerta al retainer. Siempre con opción de continuidad.</span></span></li>
-                <li><span class="k">4</span><span><b>Consultoría y formación corporativa</b><span class="x">Alto margen, marca personal.</span></span></li>
-              </ul>
-              <p class="note warn"><b>Nunca se compite por precio.</b> Si el cliente compara solo por precio, no es el cliente. Se compite por riesgo, consistencia y resultado.</p>
-            </div>
+            <div class="cb"><ul class="list">
+              <li><span class="k">1</span><span><b>Retainer mensual de contenido</b><span class="x">Ingreso recurrente. Plazas Q4 por confirmar.</span></span></li>
+              <li><span class="k">2</span><span><b>Contrato anual de campañas por fases</b></span></li>
+              <li><span class="k">3</span><span><b>Proyecto único de alto valor</b><span class="x">Solo como puerta al retainer.</span></span></li>
+              <li><span class="k">4</span><span><b>Consultoría y formación corporativa</b><span class="x">Alto margen, marca personal.</span></span></li>
+            </ul><p class="note warn"><b>Nunca se compite por precio.</b> Se compite por riesgo, consistencia y resultado.</p></div>
           </div>
         </div>
       </section>
 
       <!-- ================= EMAIL ================= -->
       <section class="view" id="v-email" role="tabpanel" aria-labelledby="t-email" hidden>
-        <div class="vhead">
-          <div><h2>Bandejas y secuencias</h2><p>Lectura en vivo de las bandejas conectadas. Las métricas de envío masivo no existen porque el boletín está parado a propósito hasta que el primer embudo dé señal.</p></div>
-        </div>
+        <div class="vhead"><div><h2>Bandejas y secuencias</h2><p>Lectura en vivo de las bandejas conectadas. Las métricas de envío masivo no existen porque el boletín está parado a propósito hasta que el primer embudo dé señal.</p></div></div>
         <div class="grid g4" id="mailKpis"></div>
-        <div class="grid g2">
+        <div class="grid g12">
+          <div class="card"><div class="ch"><h3>info@creatribe.es · carpetas</h3><div class="r"><span class="src real">real · Hostinger</span></div></div><div class="cb"><div id="chartFolders"></div></div></div>
           <div class="card">
             <div class="ch"><h3>Monitor de bandejas</h3><div class="r"><span class="src real">real · 8 sep 00:20</span></div></div>
             <div class="cb flush" id="boxes"></div>
             <div class="cf">Tiempo de respuesta comprometido en los acuses: contestar el mismo día, entre las 10:00 y las 20:00.</div>
           </div>
+        </div>
+        <div class="grid g2">
           <div class="card">
             <div class="ch"><h3>Secuencias</h3></div>
-            <div class="cb flush"><div class="tw"><table>
-              <thead><tr><th>Secuencia</th><th>Marca</th><th>Estado</th><th>Detalle</th></tr></thead>
-              <tbody>
-                <tr><td><b>Acuse de recibo</b><span class="sub">toque 4, al instante</span></td><td>3 marcas</td><td><span class="pill ok">activa</span></td><td>Sale sola. En moix depende de la contraseña SMTP para no caer en spam.</td></tr>
-                <tr><td><b>Cadencia de 14 toques</b><span class="sub">bodas y B2B</span></td><td>3 marcas</td><td><span class="pill warn">a mano</span></td><td>Preparada por el sistema, enviada por Angello. No avanza sola hasta que exista el cron.</td></tr>
-                <tr><td><b>Toque 11 B2B</b><span class="sub">«una cosa concreta»</span></td><td>B2B</td><td><span class="pill info">decidir</span></td><td>Hueco a propósito: exige un dato real del negocio del lead o no se manda.</td></tr>
-                <tr><td><b>Boletín</b></td><td>angello</td><td><span class="pill mute">parado</span></td><td>Un segundo embudo antes de que el primero dé señal. Recorte del 30 de agosto.</td></tr>
-                <tr><td><b>Nurturing del Icebox</b></td><td>todas</td><td><span class="pill mute">fuera</span></td><td>Aplicar la cadencia al frío de la lista Apify sigue siendo ilegal.</td></tr>
-              </tbody>
-            </table></div></div>
+            <div class="cb flush"><div class="tw"><table><thead><tr><th>Secuencia</th><th>Marca</th><th>Estado</th><th>Detalle</th></tr></thead><tbody>
+              <tr><td><b>Acuse de recibo</b><span class="sub">toque 4, al instante</span></td><td>3 marcas</td><td><span class="pill ok">activa</span></td><td>Sale sola. En moix depende de la contraseña SMTP.</td></tr>
+              <tr><td><b>Cadencia de 14 toques</b></td><td>3 marcas</td><td><span class="pill warn">a mano</span></td><td>No avanza sola hasta que exista el cron.</td></tr>
+              <tr><td><b>Toque 11 B2B</b></td><td>B2B</td><td><span class="pill info">decidir</span></td><td>Hueco a propósito: exige un dato real del lead.</td></tr>
+              <tr><td><b>Boletín</b></td><td>angello</td><td><span class="pill mute">parado</span></td><td>Recorte del 30 de agosto.</td></tr>
+              <tr><td><b>Nurturing del Icebox</b></td><td>todas</td><td><span class="pill mute">fuera</span></td><td>Cadencia al frío de Apify: ilegal.</td></tr>
+            </tbody></table></div></div>
           </div>
-        </div>
-        <div class="card">
-          <div class="ch"><h3>Métricas de envío</h3><div class="r"><span class="src none">sin envíos masivos</span></div></div>
-          <div class="cb"><div class="stat-row">
-            <div class="stat"><b>—</b><span>Open rate</span></div>
-            <div class="stat"><b>—</b><span>CTR</span></div>
-            <div class="stat"><b>—</b><span>Bajas</span></div>
-            <div class="stat"><b>0</b><span>Envíos masivos / mes</span></div>
-            <div class="stat"><b>76</b><span>Enviados · info@creatribe.es</span></div>
-          </div><p style="color:var(--muted);font-size:12.5px">Cuando haya boletín se conecta el proveedor y estas cuatro cifras pasan a ser reales. Hasta entonces no se inventan.</p></div>
+          <div class="card">
+            <div class="ch"><h3>Métricas de envío</h3><div class="r"><span class="src none">sin envíos masivos</span></div></div>
+            <div class="cb"><div class="stat-row"><div class="stat"><b>—</b><span>Open rate</span></div><div class="stat"><b>—</b><span>CTR</span></div><div class="stat"><b>—</b><span>Bajas</span></div><div class="stat"><b>0</b><span>Envíos masivos / mes</span></div></div><p style="color:var(--muted);font-size:12.5px">Cuando haya boletín se conecta el proveedor y estas cifras pasan a ser reales. Hasta entonces no se inventan.</p></div>
+          </div>
         </div>
       </section>
 
       <!-- ================= AJUSTES ================= -->
       <section class="view" id="v-ajustes" role="tabpanel" aria-labelledby="t-ajustes" hidden>
-        <div class="vhead">
-          <div><h2>Cuentas conectadas y preferencias</h2><p>Qué lee este panel y qué no. Cada fila dice de dónde sale el dato y cuándo se leyó.</p></div>
+        <div class="vhead"><div><h2>Cuentas conectadas y preferencias</h2><p>Qué lee este panel y qué no. Cada fila dice de dónde sale el dato y cuándo se leyó.</p></div></div>
+        <div class="grid g12">
+          <div class="card"><div class="ch"><h3>Conectores</h3></div><div class="cb"><div id="chartConn"></div></div></div>
+          <div class="card"><div class="ch"><h3>Detalle</h3></div><div class="cb flush" id="connectors"></div></div>
         </div>
         <div class="grid g2">
           <div class="card">
-            <div class="ch"><h3>Conectores</h3></div>
-            <div class="cb flush" id="connectors"></div>
-          </div>
-          <div class="card">
             <div class="ch"><h3>Preferencias</h3><span class="sub">Se guardan en este navegador.</span></div>
             <div class="cb">
-              <div class="opt"><div><b>Tema</b><span>Sistema, claro u oscuro.</span></div>
-                <div class="seg" role="group" aria-label="Tema" id="themeSeg"><button type="button" data-theme="system">Sistema</button><button type="button" data-theme="light">Claro</button><button type="button" data-theme="dark">Oscuro</button></div></div>
-              <div class="opt"><div><b>Barra lateral</b><span>Plegada muestra solo iconos.</span></div><button class="btn sm" type="button" id="collapseBtn2">Alternar</button></div>
-              <div class="opt"><div><b>Avisos hechos</b><span>Borra las marcas de «hecho» de la lista de avisos.</span></div><button class="btn sm" type="button" id="resetAlerts">Reiniciar</button></div>
+              <div class="opt"><div><b>Tema</b><span>Sistema, claro u oscuro.</span></div><div class="seg" role="group" aria-label="Tema" id="themeSeg"><button type="button" data-theme="system">Sistema</button><button type="button" data-theme="light">Claro</button><button type="button" data-theme="dark">Oscuro</button></div></div>
+              <div class="opt"><div><b>Barra lateral</b><span>Plegada muestra solo iconos.</span></div><button class="btn tool sm" type="button" id="collapseBtn2"><svg class="i"><use href="#i-side"/></svg>Alternar</button></div>
+              <div class="opt"><div><b>Avisos hechos</b><span>Borra las marcas de «hecho».</span></div><button class="btn danger sm" type="button" id="resetAlerts"><svg class="i"><use href="#i-reset"/></svg>Reiniciar</button></div>
               <div class="opt"><div><b>Atajos</b><span>Ctrl K buscar · 1–8 cambiar de módulo · Esc cerrar.</span></div></div>
             </div>
+          </div>
+          <div class="card">
+            <div class="ch"><h3>Sistema de botones</h3><span class="sub">Cada familia significa un tipo de acción. Así se leen en todo el panel.</span></div>
+            <div class="cb"><div class="btn-demo">
+              <button class="btn primary sm" type="button">Acción principal</button><span>Una por pantalla. Lo que quieres que hagas ahora.</span>
+              <a class="btn nav sm" href="#ajustes">Ir a otro sitio<svg class="i"><use href="#i-ext"/></svg></a><span>Abre otro artefacto o página. Borde granate y flecha.</span>
+              <button class="btn tool sm" type="button"><svg class="i"><use href="#i-copy"/></svg>Utilidad</button><span>Copiar, ver, alternar. Fondo hundido, sin borde.</span>
+              <button class="btn danger sm" type="button"><svg class="i"><use href="#i-reset"/></svg>Destructivo</button><span>Reiniciar o borrar. Siempre rojo, siempre con icono.</span>
+              <span><span class="chip aut"><i></i>Pilar</span></span><span>Categoría de contenido. Cinco colores fijos.</span>
+              <span><span class="pill warn">estado</span></span><span>Semáforo. No se pulsa.</span>
+              <span><span class="src real">real · fuente</span></span><span>Procedencia del dato. No se pulsa.</span>
+            </div></div>
           </div>
         </div>
         <div class="card">
           <div class="ch"><h3>De dónde sale cada dato</h3></div>
-          <div class="cb flush"><div class="tw"><table>
-            <thead><tr><th>Dato</th><th>Fuente</th><th>Lectura</th><th>Cómo se actualiza</th></tr></thead>
-            <tbody>
-              <tr><td>Calendario, decisiones, radar, métricas LinkedIn</td><td class="dom">linkedin/*.md</td><td>8 sep 2026</td><td>Maverick, en cada rutina y en cada pieza.</td></tr>
-              <tr><td>Sesiones del configurador y leads de bodas</td><td class="dom">Drive · Leads MAKERS Wedding</td><td>8 sep 00:20</td><td>La hoja la escribe el configurador. Este panel se regenera a petición.</td></tr>
-              <tr><td>Search Console, estado de webs, arreglos</td><td class="dom">Auditoría 30 ago</td><td>30 ago 2026</td><td>Nueva auditoría a petición.</td></tr>
-              <tr><td>Bandejas</td><td class="dom">Gmail · Hostinger API</td><td>8 sep 00:20</td><td>Conectores en vivo; el panel muestra la última lectura.</td></tr>
-              <tr><td>Redes</td><td class="dom">Identidad en redes · 12 ago</td><td>12 ago 2026</td><td>Pendiente conector orgánico en Windsor.</td></tr>
-              <tr><td>Reglas, embudo, oferta</td><td class="dom">docs/b2b-marketing-sales-rules.md</td><td>vigente</td><td>Regla operativa. No cambia sin decisión escrita.</td></tr>
-            </tbody>
-          </table></div></div>
+          <div class="cb flush"><div class="tw"><table><thead><tr><th>Dato</th><th>Fuente</th><th>Lectura</th><th>Cómo se actualiza</th></tr></thead><tbody>
+            <tr><td>Calendario, decisiones, radar, métricas LinkedIn</td><td class="dom">linkedin/*.md</td><td>8 sep 2026</td><td>Maverick, en cada rutina y en cada pieza.</td></tr>
+            <tr><td>Sesiones del configurador y leads de bodas</td><td class="dom">Drive · Leads MAKERS Wedding</td><td>8 sep 00:20</td><td>La hoja la escribe el configurador. Este panel se regenera a petición.</td></tr>
+            <tr><td>Search Console, estado de webs, arreglos</td><td class="dom">Auditoría 30 ago</td><td>30 ago 2026</td><td>Nueva auditoría a petición.</td></tr>
+            <tr><td>Bandejas</td><td class="dom">Gmail · Hostinger API</td><td>8 sep 00:20</td><td>Conectores en vivo; el panel muestra la última lectura.</td></tr>
+            <tr><td>Redes</td><td class="dom">Identidad en redes · 12 ago</td><td>12 ago 2026</td><td>Pendiente conector orgánico en Windsor.</td></tr>
+            <tr><td>Reglas, embudo, oferta</td><td class="dom">docs/b2b-marketing-sales-rules.md</td><td>vigente</td><td>Regla operativa.</td></tr>
+          </tbody></table></div></div>
         </div>
       </section>
-
     </main>
   </div>
 </div>
 
-<!-- notifications popover -->
+<nav class="tabbar" aria-label="Módulos" id="tabbar">
+  <button type="button" data-view="hub" aria-selected="true"><svg class="i"><use href="#i-grid"/></svg>Inicio</button>
+  <button type="button" data-view="linkedin" aria-selected="false"><svg class="i"><use href="#i-li"/></svg>LinkedIn</button>
+  <button type="button" data-view="funnel" aria-selected="false"><svg class="i"><use href="#i-funnel"/></svg>Ventas</button>
+  <button type="button" data-view="webs" aria-selected="false"><svg class="i"><use href="#i-globe"/></svg>Webs</button>
+  <button type="button" id="moreTab" aria-selected="false"><svg class="i"><use href="#i-more"/></svg>Más</button>
+</nav>
+
 <div class="pop" id="bellPop" hidden role="dialog" aria-label="Avisos">
-  <h4>Avisos <button type="button" id="goAlerts">Ver todos</button></h4>
+  <h4>Avisos <button class="btn tool xs" type="button" id="goAlerts">Ver todos</button></h4>
   <div class="feed" id="bellFeed"></div>
 </div>
-
-<!-- command palette -->
 <div class="pal-bg" id="palette" hidden role="dialog" aria-modal="true" aria-label="Buscar">
-  <div class="pal">
-    <input id="palInput" type="search" placeholder="Buscar módulos, piezas, webs, avisos…" autocomplete="off" aria-label="Buscar">
-    <ul id="palList" role="listbox"></ul>
-  </div>
+  <div class="pal"><input id="palInput" type="search" placeholder="Buscar módulos, piezas, webs, avisos…" autocomplete="off" aria-label="Buscar"><ul id="palList" role="listbox"></ul></div>
 </div>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="tip" id="tip" role="tooltip"></div>
 
 <script>
 /* ============================================================
@@ -970,7 +901,7 @@ const CAL = [
     {d:'2026-09-14',dow:'Lun',h:'08:15',pilar:'Autoridad',tipo:'A3',t:'El briefing de 40 páginas no es rigor, es miedo a decidir',st:'lista',v:'B · La frase',f:'Texto',i:'pura'},
     {d:'2026-09-15',dow:'Mar',h:'12:30',pilar:'Prueba',tipo:'B1',t:'Tu agencia no te engaña: te da exactamente lo que pediste',st:'block',f:'Carrusel',i:'método',v:'3 versiones · falta cliente y cifra'},
     {d:'2026-09-16',dow:'Mié',h:'08:15',pilar:'Actualidad',tipo:'N',t:'[Radar] IBC 2026: lo que cambia en un rodaje real',st:'plan',f:'Texto o vídeo',i:'método'},
-    {d:'2026-09-17',dow:'Jue',h:'12:30',pilar:'Oferta',tipo:'C3',t:'«El contenido lo hacemos dentro». Vale. ¿Cuánto os cuesta cada pieza?',st:'plan',f:'Texto + imagen',i:'método'},
+    {d:'2026-09-17',dow:'Jue',h:'12:30',pilar:'Oferta',tipo:'C3',t:'«El contenido lo hacemos dentro». Vale. ¿Cuánto os cuesta cada pieza?',st:'lista',v:'A · La cuenta en voz alta',f:'Texto + imagen',i:'método',dato:true},
     {d:'2026-09-18',dow:'Vie',h:'09:00',pilar:'Prueba',tipo:'B2',t:'Mismo presupuesto, otro sistema',st:'block',f:'Imagen o carrusel',i:'método',v:'requiere datos reales'},
   ]},
   {w:'Semana 3',r:'21 – 25 sep',days:[
@@ -991,10 +922,11 @@ const CAL = [
 
 const DECISIONS = [
   {p:'8 sep · El 90% del contenido corporativo…',v:'B · Los tres síntomas',w:'Acusación, cifra y dolor dentro de los 210 caracteres. La lista de autodiagnóstico retiene; «elige un síntoma» provoca comentarios largos y autoclasifica al ICP. Escena de los once segundos incrustada en el primer síntoma.'},
-  {p:'9 sep · Pieza de actualidad IA',v:'B+ · Sora caduca en quince días',w:'Radar del 8 sep: OpenAI apaga la API de Sora el 24. La B se ancla a esa fecha y suma el riesgo de proveedor. Nivel 2. Antes: '+''A y C canibalizaban las piezas del 21 y del 23. La B funciona sola o anclada a cualquier anuncio de vídeo generativo. Tercer punto pasado a riesgo contractual concreto.'},
+  {p:'9 sep · Pieza de actualidad IA',v:'B+ · Sora caduca en quince días',w:'Radar del 8 sep: OpenAI apaga la API de Sora el 24. La B se ancla a esa fecha y suma el riesgo de proveedor. Nivel 2. Antes, A y C canibalizaban las piezas del 21 y del 23; la B funciona sola o anclada a cualquier anuncio de vídeo generativo.'},
   {p:'10 sep · Carrusel SISTEMA MAKERS',v:'B · Te regalo el método',w:'La A repetía el movimiento del martes; la C llevaba cifra sin confirmar y su apertura está reservada al 24. Regalar las seis fases maximiza guardados; reciprocidad en el DM.'},
   {p:'11 sep · Rechacé un proyecto…',v:'D · El no que retuvo criterio',w:'Las tres primeras dependían de un importe no confirmado. La D mide la pérdida en semanas de rodaje reservadas y sostiene la tensión con un diálogo a tres réplicas.'},
   {p:'14 sep · El briefing de 40 páginas…',v:'B · La frase',w:'El dolor no dicho lo verbaliza el propio ICP. Mecanismo nuevo: una sola réplica. El CTA pide al cargo que firme. Las cinco preguntas de la A se reservan para un carrusel.'},
+  {p:'17 sep · El contenido lo hacemos dentro…',v:'A · La cuenta en voz alta',w:'Intensidad método: una cuenta con supuestos que el lector sustituye. El total, 430 € por pieza publicada, es lo citable. La B repite la escena del lunes; la C roza la confrontación pura.'},
 ];
 
 const KANBAN = [
@@ -1060,6 +992,8 @@ const CONNECTORS = [
   {k:'LV',n:'Lovable',s:'mute',x:'3 proyectos sin relación con este panel'},
 ];
 
+
+
 /* ============================================================
    UTILIDADES
    ============================================================ */
@@ -1072,77 +1006,149 @@ const toast=(m)=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clea
 const pill=(cls,txt)=>`<span class="pill ${cls}"><i></i>${esc(txt)}</span>`;
 const inBrand=b=>state.brand==='all'||!b||b==='all'||b===state.brand;
 const iso=d=>d.toISOString().slice(0,10);
+const PIL={Autoridad:'aut',Prueba:'pru',Actualidad:'act',Oferta:'ofe',Humano:'hum'};
+const PCOL=k=>`var(--p-${k})`;
+const PNAMES=['Autoridad','Prueba','Actualidad','Oferta','Humano'];
+
+/* ---- tooltip flotante (sirve para svg y html) ---- */
+const tip=$('#tip');
+function showTip(el,ev){const t=el.getAttribute('data-tip')||el.getAttribute('data-t');if(!t)return;tip.textContent=t;tip.classList.add('on');moveTip(ev,el);}
+function moveTip(ev,el){const r=el.getBoundingClientRect();tip.style.left=(r.left+r.width/2)+'px';tip.style.top=r.top+'px';}
+document.addEventListener('mouseover',e=>{const el=e.target.closest('[data-tip],[data-t]');if(el)showTip(el,e);});
+document.addEventListener('mouseout',e=>{if(e.target.closest('[data-tip],[data-t]'))tip.classList.remove('on');});
+document.addEventListener('focusin',e=>{const el=e.target.closest('[data-tip],[data-t]');if(el)showTip(el,e);});
+document.addEventListener('focusout',()=>tip.classList.remove('on'));
+
+/* ============================================================
+   GRÁFICOS · marcas finas, extremos redondeados, un solo eje
+   ============================================================ */
+function svgWrap(w,h,inner,label){return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">${inner}</svg>`;}
+/* columnas verticales */
+function columns(el,series,opt={}){
+  const W=opt.w||720,H=opt.h||200,P={l:30,r:8,t:16,b:26};
+  const max=Math.max(opt.min||1,...series.map(s=>s.v));
+  const iw=(W-P.l-P.r)/series.length, bw=Math.min(24,iw*.62);
+  const y=v=>P.t+(H-P.t-P.b)*(1-v/max);
+  let g='';[0,Math.ceil(max/2),max].forEach(t=>{g+=`<line class="gl" x1="${P.l}" x2="${W-P.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${P.l-6}" y="${y(t)+3}" text-anchor="end">${t}</text>`;});
+  let m='';series.forEach((s,i)=>{
+    const x=P.l+i*iw+(iw-bw)/2,h=Math.max(s.v?2:1.5,y(0)-y(s.v)),top=y(0)-h;
+    m+=`<path class="m ${s.v?'':'z'}" d="M${x} ${y(0)} v${-(h-4)} q0 -4 4 -4 h${bw-8} q4 0 4 4 v${h-4} z" fill="${s.v?(s.c||'var(--accent)'):'var(--sunk)'}" tabindex="0" data-t="${esc(s.t||s.l+': '+s.v)}"/>`;
+    const every=opt.every||1; if(i%every===0||i===series.length-1) m+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${esc(s.l)}</text>`;
+    if(s.v===max&&max>0&&opt.annotateMax!==false) m+=`<text class="ann" x="${x+bw/2}" y="${top-5}" text-anchor="middle">${s.v}</text>`;
+  });
+  el.innerHTML=svgWrap(W,H,`${g}${m}<line class="axis" x1="${P.l}" x2="${W-P.r}" y1="${y(0)}" y2="${y(0)}"/>`,opt.label||'');
+}
+/* barras horizontales */
+function hbars(el,rows,opt={}){
+  const W=opt.w||420,rh=28,P={l:opt.l||150,r:64,t:6,b:6},H=P.t+P.b+rows.length*rh;
+  const max=Math.max(1,...rows.map(r=>r.v||0));
+  let m='';rows.forEach((r,i)=>{
+    const y=P.t+i*rh+5,h=18,w=Math.max(r.v?4:2,(W-P.l-P.r)*(r.v||0)/max);
+    m+=`<text class="ann" x="${P.l-10}" y="${y+h/2+3}" text-anchor="end">${esc(r.l)}</text>`;
+    m+=`<path class="m ${r.v?'':'z'}" d="M${P.l} ${y} h${w-4} q4 0 4 4 v${h-8} q0 4 -4 4 h${-(w-4)} z" fill="${r.v?(r.c||'var(--accent)'):'var(--sunk)'}" tabindex="0" data-t="${esc(r.t||r.l+': '+(r.v==null?'sin dato':r.v))}"/>`;
+    m+=`<text x="${P.l+w+8}" y="${y+h/2+3}">${r.v==null?'sin dato':esc(r.txt||fmt(r.v))}</text>`;
+  });
+  el.innerHTML=svgWrap(W,H,m,opt.label||'');
+}
+/* donut */
+function donut(el,segs,opt={}){
+  const R=44,r=30,cx=52,cy=52,tot=segs.reduce((a,s)=>a+s.v,0)||1;
+  let a=-Math.PI/2,paths='';
+  segs.forEach(s=>{
+    if(!s.v)return;const f=s.v/tot,b=a+f*Math.PI*2,gap=0.035;
+    const a1=a+gap/2,b1=b-gap/2;if(b1<=a1){a=b;return;}
+    const p=(ang,rad)=>[cx+rad*Math.cos(ang),cy+rad*Math.sin(ang)];
+    const [x1,y1]=p(a1,R),[x2,y2]=p(b1,R),[x3,y3]=p(b1,r),[x4,y4]=p(a1,r),big=(b1-a1)>Math.PI?1:0;
+    paths+=`<path class="m" d="M${x1} ${y1} A${R} ${R} 0 ${big} 1 ${x2} ${y2} L${x3} ${y3} A${r} ${r} 0 ${big} 0 ${x4} ${y4} Z" fill="${s.c}" tabindex="0" data-t="${esc(s.l)}: ${s.v} (${Math.round(f*100)}%)"/>`;a=b;
+  });
+  if(!segs.some(s=>s.v)) paths=`<circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="var(--sunk)" stroke-width="${R-r}"/>`;
+  const center=opt.center!=null?`<text class="ann" x="${cx}" y="${cy+1}" text-anchor="middle" style="font-size:20px;font-family:var(--display);font-weight:800;fill:var(--ink)">${esc(opt.center)}</text><text x="${cx}" y="${cy+14}" text-anchor="middle">${esc(opt.sub||'')}</text>`:'';
+  el.innerHTML=`<div class="donut-wrap"><svg class="chart" viewBox="0 0 104 104" style="width:104px;height:104px" role="img" aria-label="${esc(opt.label||'')}">${paths}${center}</svg><div class="lg">${segs.map(s=>`<span><i style="background:${s.c}"></i>${esc(s.l)}<b>${s.v}</b></span>`).join('')}</div></div>`;
+}
+/* anillo de progreso (KPI) */
+function ring(v,max,c){const pct=max?Math.min(1,v/max):0,R=20,C=2*Math.PI*R;return `<svg viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="${v} de ${max}"><circle cx="24" cy="24" r="${R}" fill="none" stroke="var(--sunk)" stroke-width="5"/><circle cx="24" cy="24" r="${R}" fill="none" stroke="${c||'var(--accent)'}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}" transform="rotate(-90 24 24)" style="transition:stroke-dashoffset .8s"/><text x="24" y="28" text-anchor="middle" style="font:600 11px var(--mono);fill:var(--ink)">${Math.round(pct*100)}%</text></svg>`;}
+/* sparkline */
+function spark(vals,c){const w=72,h=28,max=Math.max(1,...vals),n=vals.length,bw=Math.max(2,w/n-2);return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${vals.map((v,i)=>{const bh=Math.max(1.5,(h-2)*v/max);return `<rect x="${i*(w/n)}" y="${h-bh}" width="${bw}" height="${bh}" rx="1.5" fill="${v?(c||'var(--accent)'):'var(--sunk)'}"/>`;}).join('')}</svg>`;}
+/* barras apiladas horizontales (mezcla) */
+function stacked(el,rows,keys){
+  const W=520,rh=34,P={l:88,r:10,t:4,b:4},H=P.t+P.b+rows.length*rh;
+  let m='';rows.forEach((r,i)=>{
+    const tot=keys.reduce((a,k)=>a+(r.v[k]||0),0)||1;let x=P.l;const y=P.t+i*rh+6,h=20;
+    m+=`<text class="ann" x="${P.l-10}" y="${y+h/2+3}" text-anchor="end">${esc(r.l)}</text>`;
+    keys.forEach(k=>{const v=r.v[k]||0;if(!v)return;const w=(W-P.l-P.r)*v/tot-2;m+=`<rect class="m" x="${x}" y="${y}" width="${Math.max(0,w)}" height="${h}" rx="3" fill="${PCOL(PIL[k])}" tabindex="0" data-t="${esc(r.l)} · ${k}: ${v}${r.pct?'%':''}"/>`;if(w>26)m+=`<text x="${x+w/2}" y="${y+h/2+3}" text-anchor="middle" style="fill:#fff;font-weight:600">${v}${r.pct?'%':''}</text>`;x+=w+2;});
+  });
+  el.innerHTML=svgWrap(W,H,m,'Mezcla de pilares');
+}
+/* línea de caída (drop-off) */
+function dropoff(el,steps){
+  const W=520,H=190,P={l:34,r:14,t:18,b:30},max=Math.max(1,...steps.map(s=>s.v));
+  const x=i=>P.l+(W-P.l-P.r)*i/(steps.length-1),y=v=>P.t+(H-P.t-P.b)*(1-v/max);
+  let g='';[0,Math.ceil(max/2),max].forEach(t=>{g+=`<line class="gl" x1="${P.l}" x2="${W-P.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${P.l-6}" y="${y(t)+3}" text-anchor="end">${t}</text>`;});
+  const pts=steps.map((s,i)=>`${x(i)},${y(s.v)}`).join(' ');
+  const area=`<polygon points="${P.l},${y(0)} ${pts} ${x(steps.length-1)},${y(0)}" fill="var(--accent)" opacity=".1"/>`;
+  const line=`<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const dots=steps.map((s,i)=>`<circle class="m" cx="${x(i)}" cy="${y(s.v)}" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2" tabindex="0" data-t="${esc(s.l)}: ${s.v} (${s.p})"/><text x="${x(i)}" y="${H-10}" text-anchor="middle">${esc(s.s)}</text>${i===0||i===1||s.v===0&&i===2?`<text class="ann" x="${x(i)}" y="${y(s.v)-10}" text-anchor="middle">${s.v}</text>`:''}`).join('');
+  el.innerHTML=svgWrap(W,H,g+area+line+dots,'Caída por paso del configurador');
+}
+/* línea de tiempo de la cadencia */
+function cadenceLine(el){
+  const W=720,H=70,P={l:20,r:20},days=30,x=d=>P.l+(W-P.l-P.r)*d/days;
+  const DAY={'0 min':0,'+15 min':0,'+30 min':0,'día 1':1,'día 3':3,'día 7':7,'día 14':14,'día 21':21,'día 30':30};
+  const col={tel:'var(--info)',wa:'var(--ok)',mail:'var(--warn)'};
+  let m=`<line class="axis" x1="${P.l}" x2="${W-P.r}" y1="40" y2="40"/>`;
+  [0,1,3,7,14,21,30].forEach(d=>{m+=`<line class="gl" x1="${x(d)}" x2="${x(d)}" y1="34" y2="46"/><text x="${x(d)}" y="62" text-anchor="middle">día ${d}</text>`;});
+  const seen={};CADENCE.forEach(c=>{const d=DAY[c.w];const k=d;seen[k]=(seen[k]||0);const off=seen[k]*11-((c.w.startsWith('+')||d===0)?0:0);const yy=d===0?(40-14+seen[k]*9):(40-seen[k]*12);seen[k]++;
+    m+=`<circle class="m" cx="${x(d)+(d===0?seen[k]*9:0)}" cy="${d===0?26:yy}" r="6" fill="${col[c.c]}" stroke="${c.auto?'var(--accent)':'var(--surface)'}" stroke-width="${c.auto?3:2}" tabindex="0" data-t="Toque ${c.n} · ${c.c==='tel'?'Llamada':c.c==='wa'?'WhatsApp':'Email'} · ${c.w}${c.auto?' · automático':''}"/>`;});
+  el.innerHTML=svgWrap(W,H,m,'Los 14 toques sobre 30 días');
+}
 
 /* ============================================================
    RENDER · visión general
    ============================================================ */
+function kpiCard(x){return `<div class="card kpi"><div class="k">${esc(x.k)}${x.src?`<span class="src real" style="margin-left:auto">${esc(x.src)}</span>`:''}</div><div class="v">${x.v}<small>${esc(x.s)}</small></div><div class="viz">${x.viz||''}</div><div class="d">${esc(x.d)}</div></div>`;}
 function renderKpis(){
-  const listas=CAL.flatMap(w=>w.days).filter(d=>d.st==='lista').length;
-  const versiones=20;
-  const kp=[
-    {k:'Reuniones de diagnóstico ICP',v:0,s:'/ 4 objetivo mes',d:'Primera métrica que importa. Arranca con LinkedIn el 8 de septiembre.',p:0,src:'real · CRM'},
-    {k:'Leads reales en el CRM',v:0,s:'+1 prueba',d:'0 leads en 4 días con 9 formularios activos. Es ausencia de dato, no de demanda.',p:0,src:'real · Drive/CRM'},
-    {k:'Ingreso recurrente',v:0,s:'retainers activos',d:'Objetivo comercial número uno. Plazas Q4 por confirmar.',p:0,src:'real'},
-    {k:'Piezas listas para publicar',v:listas,s:`de ${versiones} versiones`,d:'Cuatro piezas elegidas por Maverick. Una con [DATO] pendiente.',p:listas/5*100,src:'real · repo'},
-  ];
-  $('#kpis').innerHTML=kp.map(x=>`<div class="card kpi"><div class="k">${esc(x.k)}<span class="src real" style="margin-left:auto">${esc(x.src)}</span></div><div class="v">${x.v}<small>${esc(x.s)}</small></div><div class="bar"><i data-w="${x.p}"></i></div><div class="d">${esc(x.d)}</div></div>`).join('');
+  const all=CAL.flatMap(w=>w.days).filter(d=>d.st!=='skip');
+  const listas=all.filter(d=>d.st==='lista').length;
+  const sess=Object.values(SESSIONS);
+  $('#kpis').innerHTML=[
+    {k:'Reuniones de diagnóstico ICP',v:0,s:'/ 4 objetivo mes',d:'Primera métrica que importa. Arranca con LinkedIn el 8 de septiembre.',viz:ring(0,4),src:'real · CRM'},
+    {k:'Leads reales en el CRM',v:0,s:'+1 prueba',d:'0 leads en 4 días con 9 formularios activos. Es ausencia de dato, no de demanda.',viz:spark([2,1,8,0,0,0,0,0,3,1,4,2,0,0]),src:'real · Drive/CRM'},
+    {k:'Ingreso recurrente',v:0,s:'retainers activos',d:'Objetivo comercial número uno. Plazas Q4 por confirmar.',viz:ring(0,1),src:'real'},
+    {k:'Piezas listas para publicar',v:listas,s:`de ${all.length} en calendario`,d:'Elegidas por Maverick. Dos con [DATO] pendiente.',viz:ring(listas,all.length,'var(--ok)'),src:'real · repo'},
+  ].map(kpiCard).join('');
 }
-
 function renderToday(){
   const rows=[
-    {t:'06:08',b:'Rutina: radar + tres alternativas del post siguiente',s:'Maverick · sale a esta conversación y al repositorio'},
-    {t:'08:15',b:'Publicar la pieza del martes 8 · versión B',s:'Texto listo en el Banco de Posts con su primer comentario. Responder 60 min.'},
+    {t:'06:08',b:'Rutina: radar + tres alternativas del post siguiente',s:'Hecha hoy. Sora ancla el miércoles; el lunes 14 y el jueves 17 ya tienen versiones.'},
+    {t:'08:15',b:'Publicar la pieza del martes 8 · versión B',s:'Texto en el Banco de Posts con su primer comentario. Responder 60 min.'},
     {t:'13:04',b:'Rutina: barrido de ruptura',s:'Solo avisa si hay noticia de nivel 2 o 3'},
-    {t:'Mié 08:15',b:'«La demo dura ocho segundos» · versión B',s:'Si el radar trae algo mejor, lo sustituye. Comprobar duración contra fuente primaria.'},
+    {t:'Mié 08:15',b:'«Sora caduca en quince días» · versión B+',s:'Comprobar antes que la página de OpenAI siga diciendo 24 de septiembre.'},
     {t:'Jue 12:30',b:'Carrusel SISTEMA MAKERS · versión B',s:'Producir en Figma con el brief de cola/ (115 min). Confirmar [DATO] días de rodaje.'},
   ];
   $('#todayList').innerHTML=rows.map(r=>`<div class="slot"><time>${esc(r.t)}</time><div><b>${esc(r.b)}</b><span>${esc(r.s)}</span></div></div>`).join('');
 }
-
 function chartSessions(){
-  const days=state.days;
-  const end=new Date('2026-09-07T12:00:00');
-  const series=[];
-  for(let i=days-1;i>=0;i--){const d=new Date(end);d.setDate(d.getDate()-i);const k=iso(d);series.push({k,v:SESSIONS[k]||0,lbl:d.getDate()+'/'+(d.getMonth()+1)});}
-  const W=720,H=200,P={l:28,r:10,t:14,b:26};
-  const max=Math.max(4,...series.map(s=>s.v));
-  const iw=(W-P.l-P.r)/series.length;
-  const y=v=>P.t+(H-P.t-P.b)*(1-v/max);
-  let g='';
-  const ticks=[0,Math.ceil(max/2),max];
-  ticks.forEach(t=>{g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${P.l-6}" y="${y(t)+3}" text-anchor="end">${t}</text>`;});
-  let bars='';
-  series.forEach((s,i)=>{
-    const x=P.l+i*iw+iw*0.18,w=iw*0.64;
-    const h=Math.max(s.v?2:1.5,y(0)-y(s.v));
-    bars+=`<rect class="bar ${s.v?'':'z'}" x="${x.toFixed(1)}" y="${(y(0)-h).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2" tabindex="0" role="img" aria-label="${s.lbl}: ${s.v} sesiones"><title>${s.lbl} · ${s.v} sesiones</title></rect>`;
-    const every=days>30?Math.ceil(days/12):days>14?2:1;
-    if(i%every===0||i===series.length-1) bars+=`<text x="${(x+w/2).toFixed(1)}" y="${H-8}" text-anchor="middle">${s.lbl}</text>`;
-    if(s.v===max&&max>0) bars+=`<text class="ann" x="${(x+w/2).toFixed(1)}" y="${(y(s.v)-5).toFixed(1)}" text-anchor="middle">${s.v}</text>`;
-  });
-  $('#chartSessions').innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Sesiones diarias en el configurador de MOIX, últimos ${days} días"><g class="grid">${g}</g>${bars}<line class="axis" x1="${P.l}" x2="${W-P.r}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
-  const total=series.reduce((a,b)=>a+b.v,0);
-  $('#chartRangeLbl').textContent=`${days} días · ${total} sesiones`;
+  const days=state.days,end=new Date('2026-09-07T12:00:00'),series=[];
+  for(let i=days-1;i>=0;i--){const d=new Date(end);d.setDate(d.getDate()-i);const k=iso(d);series.push({k,v:SESSIONS[k]||0,l:d.getDate()+'/'+(d.getMonth()+1),t:`${d.getDate()}/${d.getMonth()+1} · ${SESSIONS[k]||0} sesiones`});}
+  columns($('#chartSessions'),series,{min:4,every:days>30?Math.ceil(days/12):days>14?2:1,label:`Sesiones diarias en el configurador, últimos ${days} días`});
+  $('#chartRangeLbl').textContent=`${days} días · ${series.reduce((a,b)=>a+b.v,0)} sesiones`;
 }
-
-function chartSC(){
-  const W=420,H=150,P={l:150,r:60,t:10,b:10};
-  const max=Math.max(...SC.map(s=>s.imp));
-  const rh=(H-P.t-P.b)/SC.length;
-  let out='';
-  SC.forEach((s,i)=>{
-    const y=P.t+i*rh+rh*0.2,h=rh*0.6;
-    const w=Math.max(2,(W-P.l-P.r)*s.imp/max);
-    out+=`<text x="${P.l-8}" y="${y+h/2+3}" text-anchor="end" class="ann">${s.site}</text>`;
-    out+=`<rect class="bar" x="${P.l}" y="${y}" width="${w}" height="${h}" rx="2" tabindex="0" role="img" aria-label="${s.site}: ${s.imp} impresiones, ${s.clk} clics"><title>${s.site} · ${s.imp} impresiones · ${s.clk} clics</title></rect>`;
-    out+=`<text x="${P.l+w+6}" y="${y+h/2+3}">${s.imp} · ${s.clk} clic${s.clk===1?'':'s'}</text>`;
-  });
-  $('#chartSC').innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Impresiones y clics de Search Console por web">${out}</svg>`;
+function chartSC(){const rows=SC.map(s=>({l:s.site,v:s.imp,txt:`${s.imp} · ${s.clk} clic${s.clk===1?'':'s'}`,t:`${s.site}: ${s.imp} impresiones, ${s.clk} clics`}));hbars($('#chartSC'),rows,{label:'Impresiones de Search Console por web'});hbars($('#chartSC2'),rows,{label:'Impresiones de Search Console por web'});}
+function chartWeek(){
+  const wk=CAL[0].days.filter(d=>d.st!=='skip');
+  const series=wk.map(d=>({l:d.dow+' '+d.d.slice(8),v:d.st==='lista'?3:d.st==='block'?1:2,c:PCOL(PIL[d.pilar]),t:`${d.dow} · ${d.pilar} · ${d.st==='lista'?'lista':d.st==='block'?'bloqueada':'planificada'} · ${d.t}`}));
+  columns($('#chartWeek'),series,{w:420,h:150,min:3,annotateMax:false,label:'Semana 1 por pilar y estado'});
+  const lg=PNAMES.map(p=>`<span><i style="background:${PCOL(PIL[p])}"></i>${p}</span>`).join('');
+  $('#pillarLegend').innerHTML=lg;$('#pillarLegend2').innerHTML=lg;
 }
-
+function chartMix(){
+  const all=CAL.flatMap(w=>w.days).filter(d=>d.st!=='skip');const cnt={};PNAMES.forEach(p=>cnt[p]=0);all.forEach(d=>cnt[d.pilar]++);
+  const plan={};PNAMES.forEach(p=>plan[p]=Math.round(cnt[p]/all.length*100));
+  stacked($('#chartMix'),[{l:'Planificado',v:plan,pct:true},{l:'Reglas B2B',v:{Autoridad:40,Prueba:30,Oferta:20,Humano:10},pct:true}],PNAMES);
+}
 function alertRow(a,compact){
   const done=!!state.done[a.id];
-  return `<div class="al ${a.sv} ${done?'done':''}" data-id="${a.id}"><span class="sv" aria-hidden="true"></span><div><div class="t">${esc(a.t)}</div>${compact?'':`<div class="x">${esc(a.x)}</div>`}<div class="meta">${pill(a.sv==='crit'?'crit':a.sv==='warn'?'warn':'info',a.sv==='crit'?'bloquea':a.sv==='warn'?'pendiente':'aviso')}<span class="pill mute">${esc(a.who)}</span>${a.b!=='all'?`<span class="pill mute">${esc(BRANDS[a.b])}</span>`:''}</div></div><label><input type="checkbox" data-done="${a.id}" ${done?'checked':''}>hecho</label></div>`;
+  return `<div class="al ${a.sv} ${done?'done':''}" data-id="${a.id}"><span class="sv" aria-hidden="true"></span><div><div class="t">${esc(a.t)}</div>${compact?'':`<div class="x">${esc(a.x)}</div>`}<div class="meta">${pill(a.sv==='crit'?'crit':a.sv==='warn'?'warn':'info',a.sv==='crit'?'bloquea':a.sv==='warn'?'pendiente':'aviso')}<span class="pill mute">${esc(a.who)}</span>${a.b!=='all'?`<span class="pill mute">${esc(BRANDS[a.b])}</span>`:''}</div></div><label class="check"><input type="checkbox" data-done="${a.id}" ${done?'checked':''}>${done?'hecho':'hecho'}</label></div>`;
 }
 function renderAlerts(){
   const list=ALERTS.filter(a=>inBrand(a.b)).filter(a=>state.showDone||!state.done[a.id]);
@@ -1150,32 +1156,38 @@ function renderAlerts(){
   const open=ALERTS.filter(a=>!state.done[a.id]);
   $('#bellFeed').innerHTML=open.slice(0,6).map(a=>alertRow(a,true)).join('')||'<div class="al ok"><span class="sv"></span><div><div class="t">Sin avisos</div></div></div>';
   $('#bellDot').hidden=!open.some(a=>a.sv==='crit');
-  $('#c-hub').textContent=open.filter(a=>a.sv==='crit').length;
-  $('#showDone').textContent=state.showDone?'Ocultar hechos':'Ver hechos';
+  setCnt('#c-hub',open.filter(a=>a.sv==='crit').length);
+  const sd=$('#showDone');sd.setAttribute('aria-pressed',state.showDone);sd.innerHTML=`<svg class="i"><use href="#i-eye"/></svg>${state.showDone?'Ocultar hechos':'Ver hechos'}`;
 }
+function setCnt(sel,n){const el=$(sel);if(!el)return;el.textContent=n;el.dataset.zero=n?'0':'1';}
 
 /* ============================================================
    RENDER · LinkedIn
    ============================================================ */
 function renderLinkedIn(){
   const all=CAL.flatMap(w=>w.days).filter(d=>d.st!=='skip');
-  const listas=all.filter(d=>d.st==='lista').length, block=all.filter(d=>d.st==='block').length, plan=all.filter(d=>d.st==='plan').length;
-  const kp=[
-    {k:'Piezas en calendario',v:all.length,s:'4 semanas',d:'30% autoridad · 20% prueba · 20% actualidad · 20% oferta · 10% humano',p:100},
-    {k:'Listas y elegidas',v:listas,s:'20 versiones',d:'Semana 1 completa y lunes 14. Cada una con primer comentario.',p:listas/all.length*100},
-    {k:'Bloqueadas por datos',v:block,s:'cliente y cifras',d:'Caso 15 sep, antes/después 18 sep, caso 2 el 22 sep.',p:block/all.length*100},
-    {k:'Publicadas',v:0,s:'de '+all.length,d:'La primera sale el martes 8 a las 08:15.',p:0},
-  ];
-  $('#liKpis').innerHTML=kp.map(x=>`<div class="card kpi"><div class="k">${esc(x.k)}</div><div class="v">${x.v}<small>${esc(x.s)}</small></div><div class="bar"><i data-w="${x.p}"></i></div><div class="d">${esc(x.d)}</div></div>`).join('');
-  $('#c-li').textContent=block+(all.some(d=>d.dato)?1:0);
+  const listas=all.filter(d=>d.st==='lista').length,block=all.filter(d=>d.st==='block').length,plan=all.filter(d=>d.st==='plan').length,pura=all.filter(d=>d.i==='pura').length;
+  $('#liKpis').innerHTML=[
+    {k:'Piezas en calendario',v:all.length,s:'4 semanas',d:'30% autoridad · 20% prueba · 20% actualidad · 20% oferta · 10% humano',viz:ring(all.length,all.length,'var(--muted)')},
+    {k:'Listas y elegidas',v:listas,s:'23 versiones',d:'Semana 1 completa, lunes 14 y jueves 17. Cada una con primer comentario.',viz:ring(listas,all.length,'var(--ok)')},
+    {k:'Bloqueadas por datos',v:block,s:'cliente y cifras',d:'Caso 15 sep, antes/después 18 sep, caso 2 el 22 sep.',viz:ring(block,all.length,'var(--warn)')},
+    {k:'Confrontación pura',v:pura,s:'de '+all.length,d:'Máximo una por semana. Cuatro semanas, cuatro piezas puras.',viz:ring(pura,all.length,'var(--p-aut)')},
+  ].map(kpiCard).join('');
+  setCnt('#c-li',block+(all.some(d=>d.dato)?1:0));
+  donut($('#chartState'),[{l:'Listas',v:listas,c:'var(--ok)'},{l:'Bloqueadas',v:block,c:'var(--warn)'},{l:'Planificadas',v:plan,c:'var(--faint)'}],{center:String(all.length),sub:'piezas',label:'Estado de las piezas del mes'});
+  /* pilares por semana: stacked columns */
+  const W=520,H=170,P={l:30,r:8,t:10,b:26},iw=(W-P.l-P.r)/CAL.length,bw=Math.min(40,iw*.6);
+  let m='';[0,5].forEach(t=>{const y=P.t+(H-P.t-P.b)*(1-t/5);m+=`<line class="gl" x1="${P.l}" x2="${W-P.r}" y1="${y}" y2="${y}"/><text x="${P.l-6}" y="${y+3}" text-anchor="end">${t}</text>`;});
+  CAL.forEach((w,i)=>{const ds=w.days.filter(d=>d.st!=='skip');let y0=P.t+(H-P.t-P.b);const x=P.l+i*iw+(iw-bw)/2;ds.forEach(d=>{const h=(H-P.t-P.b)/5-2;y0-=h+2;m+=`<rect class="m" x="${x}" y="${y0}" width="${bw}" height="${h}" rx="3" fill="${PCOL(PIL[d.pilar])}" ${d.i==='pura'?'stroke="var(--ink)" stroke-width="1.5"':''} tabindex="0" data-t="${esc(d.dow+' '+d.d.slice(8)+' · '+d.pilar+(d.i==='pura'?' · pura':'')+' · '+d.t)}"/>`;});m+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${esc(w.w)}</text>`;});
+  $('#chartWeeks').innerHTML=svgWrap(W,H,m,'Pilares por semana');
   const today=iso(new Date(TODAY.getTime()+2*3600e3));
   $('#calendar').innerHTML=CAL.map(w=>`<div class="wk"><h4>${esc(w.w)}<span>${esc(w.r)}</span></h4><div class="days">${w.days.map(d=>{
-    const past=d.d<today, isT=d.d===today;
+    const past=d.d<today,isT=d.d===today;
     const st=d.st==='lista'?pill('ok','lista'):d.st==='block'?pill('warn','bloqueada'):d.st==='plan'?'<span class="pill mute">planificada</span>':'<span class="pill mute">sin pieza</span>';
-    return `<div class="day ${d.st==='lista'?'pub':''} ${past&&!isT?'past':''}" ${isT?'aria-current="date"':''}>${isT?'<span class="today-tag">hoy</span>':''}<div class="dh"><b>${esc(d.dow)} ${d.d.slice(8)}</b><span>${esc(d.h)}</span></div><span class="pl">${esc(d.pilar)} · ${esc(d.tipo)}</span><div class="ti">${esc(d.t)}</div>${d.v?`<div style="font-size:12px;color:var(--muted)">${esc(d.v)}</div>`:''}<div class="ft">${st}${d.f?`<span class="pill mute">${esc(d.f)}</span>`:''}${d.i==='pura'?pill('acc','pura'):''}${d.dato?'<span class="pill warn" data-tip="Lleva una cifra propia marcada [DATO] que Angello debe confirmar">[DATO]</span>':''}</div></div>`;
+    return `<div class="day ${PIL[d.pilar]||''} ${past&&!isT?'past':''}" ${isT?'aria-current="date"':''}>${isT?'<span class="today-tag">hoy</span>':''}<div class="dh"><b>${esc(d.dow)} ${d.d.slice(8)}</b><span>${esc(d.h)}</span></div><span class="chip xs ${PIL[d.pilar]||''}"><i></i>${esc(d.pilar)} · ${esc(d.tipo)}</span><div class="ti">${esc(d.t)}</div>${d.v?`<div style="font-size:12px;color:var(--muted)">${esc(d.v)}</div>`:''}<div class="ft">${st}${d.f?`<span class="pill mute">${esc(d.f)}</span>`:''}${d.i==='pura'?pill('acc','pura'):''}${d.dato?'<span class="pill warn" data-tip="Lleva una cifra propia marcada [DATO] que Angello debe confirmar">[DATO]</span>':''}</div></div>`;
   }).join('')}</div></div>`).join('');
   $('#decisions').innerHTML=DECISIONS.map(d=>`<tr><td><b>${esc(d.p)}</b></td><td class="w">${pill('acc',d.v.split(' · ')[0])}<span class="sub">${esc(d.v.split(' · ')[1]||'')}</span></td><td style="color:var(--ink-2)">${esc(d.w)}</td></tr>`).join('');
-  const next=all.find(d=>d.d>=today&&d.st!=='skip');
+  const next=all.find(d=>d.d>=today);
   $('#nextPost').textContent=next?`${next.dow} ${next.d.slice(8)} · ${next.h} · ${next.tipo}`:'—';
 }
 
@@ -1184,16 +1196,17 @@ function renderLinkedIn(){
    ============================================================ */
 function renderWebs(){
   const sites=SITES.filter(s=>inBrand(s.id));
-  const open=FIXES.filter(f=>f.s==='open'&&inBrand(f.w)).length;
-  const done=FIXES.filter(f=>f.s==='ok'&&inBrand(f.w)).length;
-  const imp=sites.reduce((a,s)=>a+(s.imp||0),0), clk=sites.reduce((a,s)=>a+(s.clk||0),0);
+  const open=FIXES.filter(f=>f.s==='open'&&inBrand(f.w)).length,done=FIXES.filter(f=>f.s==='ok'&&inBrand(f.w)).length;
+  const imp=sites.reduce((a,s)=>a+(s.imp||0),0),clk=sites.reduce((a,s)=>a+(s.clk||0),0),act=sites.filter(s=>s.estado==='activa').length;
   $('#webKpis').innerHTML=[
-    {k:'Webs en producción',v:sites.filter(s=>s.estado==='activa').length,s:`de ${sites.length}`,d:'agenciamakers congelada, makerswedding redirige.',p:sites.length?sites.filter(s=>s.estado==='activa').length/sites.length*100:0},
-    {k:'Impresiones · 3 meses',v:fmt(imp),s:`${clk} clics`,d:'Búsqueda orgánica. Sin analítica de visitas en ninguna web.',p:imp?Math.min(100,imp/700*100):0},
-    {k:'Puertas al CRM',v:sites.reduce((a,s)=>a+s.forms,0),s:'formularios',d:'angellobenavides sigue sin ninguna.',p:60},
-    {k:'Arreglos',v:done,s:`hechos · ${open} abiertos`,d:'Los hechos están verificados en vivo.',p:done+open?done/(done+open)*100:0},
-  ].map(x=>`<div class="card kpi"><div class="k">${esc(x.k)}</div><div class="v">${x.v}<small>${esc(x.s)}</small></div><div class="bar"><i data-w="${x.p}"></i></div><div class="d">${esc(x.d)}</div></div>`).join('');
-  $('#c-webs').textContent=open;
+    {k:'Webs en producción',v:act,s:`de ${sites.length}`,d:'agenciamakers congelada, makerswedding redirige.',viz:ring(act,sites.length)},
+    {k:'Impresiones · 3 meses',v:fmt(imp),s:`${clk} clics`,d:'Búsqueda orgánica. Sin analítica de visitas en ninguna web.',viz:spark(SC.map(s=>s.imp))},
+    {k:'Puertas al CRM',v:sites.reduce((a,s)=>a+s.forms,0),s:'formularios',d:'angellobenavides sigue sin ninguna.',viz:spark(sites.map(s=>s.forms),'var(--info)')},
+    {k:'Arreglos hechos',v:done,s:`${open} abiertos`,d:'Los hechos están verificados en vivo.',viz:ring(done,done+open,'var(--ok)')},
+  ].map(kpiCard).join('');
+  setCnt('#c-webs',open);
+  hbars($('#chartForms'),SITES.map(s=>({l:s.dom.replace('.com','').replace('.es',''),v:s.forms,c:s.forms?'var(--info)':null})),{l:120,label:'Formularios por web'});
+  donut($('#chartFixes'),[{l:'Hechos',v:FIXES.filter(f=>f.s==='ok').length,c:'var(--ok)'},{l:'Abiertos',v:FIXES.filter(f=>f.s==='open').length,c:'var(--warn)'}],{center:String(FIXES.length),sub:'arreglos',label:'Arreglos hechos y abiertos'});
   const est=e=>e==='activa'?pill('ok','activa'):e==='congelada'?pill('warn','congelada'):pill('info','redirección');
   $('#sitesBody').innerHTML=sites.map(s=>`<tr><td class="w"><span class="dom">${esc(s.dom)}</span></td><td>${esc(s.rol)}</td><td class="w">${est(s.estado)}</td><td class="n">${esc(s.pages)}</td><td class="n">${s.forms}</td><td class="w">${s.an==='ninguna'?pill('crit','ninguna'):'<span class="pill mute">—</span>'}</td><td class="n">${fmt(s.imp)}</td><td class="n">${fmt(s.clk)}</td><td style="min-width:260px;color:var(--ink-2)">${esc(s.nota)}</td></tr>`).join('');
   $('#fixesBody').innerHTML=FIXES.filter(f=>inBrand(f.w)).map(f=>`<tr><td>${esc(f.q)}</td><td class="w"><span class="dom">${esc(f.w)}</span></td><td class="n">${esc(f.c)}</td><td class="w">${f.s==='ok'?pill('ok','hecho'):pill('warn','abierto')}</td></tr>`).join('');
@@ -1203,17 +1216,20 @@ function renderWebs(){
    RENDER · Contenido
    ============================================================ */
 function renderContent(){
-  const items=KANBAN.filter(k=>inBrand(k.b));
-  const c=col=>items.filter(k=>k.col===col);
+  const items=KANBAN.filter(k=>inBrand(k.b));const c=col=>items.filter(k=>k.col===col);
   $('#contKpis').innerHTML=[
-    {k:'Ideas con consulta',v:c('idea').length,s:'sin brief',d:'Cada una responde a una búsqueda con intención de compra.'},
-    {k:'En curso',v:c('curso').length,s:'con dueño',d:'Imanes de angellobenavides y limpieza del hub de moix.'},
-    {k:'Publicadas',v:c('pub').length,s:'verificadas',d:'Las 17 páginas del hub devuelven 200.'},
-    {k:'Citas de IA al dominio vigente',v:0,s:'2 al viejo',d:'Reindexar en Search Console las dos páginas citadas.'},
-  ].map(x=>`<div class="card kpi"><div class="k">${esc(x.k)}</div><div class="v">${x.v}<small>${esc(x.s)}</small></div><div class="d">${esc(x.d)}</div></div>`).join('');
-  $('#c-cont').textContent=c('idea').length;
-  const card=k=>`<div class="kc" tabindex="0"><b>${esc(k.t)}</b><div class="m"><span class="dom">${esc(BRANDS[k.b])}</span><span>·</span><span>${esc(k.who)}</span></div><div class="m"><span class="pill mute" data-tip="Consulta de búsqueda a la que responde">${esc(k.q)}</span></div></div>`;
-  $('#kanban').innerHTML=[['idea','Ideas','idea'],['curso','En curso','curso'],['pub','Publicado','pub']].map(([id,l])=>`<div class="kcol"><h4>${l}<span>${c(id).length}</span></h4>${c(id).map(card).join('')||'<div style="color:var(--faint);font-size:12px;padding:6px">Nada para esta marca</div>'}</div>`).join('');
+    {k:'Ideas con consulta',v:c('idea').length,s:'sin brief',d:'Cada una responde a una búsqueda con intención de compra.',viz:ring(c('idea').length,items.length||1,'var(--faint)')},
+    {k:'En curso',v:c('curso').length,s:'con dueño',d:'Imanes de angellobenavides y limpieza del hub de moix.',viz:ring(c('curso').length,items.length||1,'var(--warn)')},
+    {k:'Publicadas',v:c('pub').length,s:'verificadas',d:'Las 17 páginas del hub devuelven 200.',viz:ring(c('pub').length,items.length||1,'var(--ok)')},
+    {k:'Citas de IA al dominio vigente',v:0,s:'2 al viejo',d:'Reindexar en Search Console las dos páginas citadas.',viz:ring(0,2,'var(--crit)')},
+  ].map(kpiCard).join('');
+  setCnt('#c-cont',c('idea').length);
+  const byBrand={};KANBAN.forEach(k=>{byBrand[k.b]=byBrand[k.b]||{idea:0,curso:0,pub:0};byBrand[k.b][k.col]++;});
+  const W=300,rh=30,P={l:88,r:10,t:4,b:4},keys=Object.keys(byBrand),H=P.t+P.b+keys.length*rh;const colc={idea:'var(--faint)',curso:'var(--warn)',pub:'var(--ok)'};
+  let m='';keys.forEach((b,i)=>{let x=P.l;const y=P.t+i*rh+5,h=20,tot=Math.max(1,...keys.map(k=>Object.values(byBrand[k]).reduce((a,v)=>a+v,0)));m+=`<text class="ann" x="${P.l-10}" y="${y+h/2+3}" text-anchor="end">${esc(BRANDS[b].split('.')[0])}</text>`;['idea','curso','pub'].forEach(k=>{const v=byBrand[b][k];if(!v)return;const w=(W-P.l-P.r)*v/tot-2;m+=`<rect class="m" x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${colc[k]}" tabindex="0" data-t="${esc(BRANDS[b])} · ${k==='idea'?'ideas':k==='curso'?'en curso':'publicadas'}: ${v}"/>`;x+=w+2;});});
+  $('#chartKanBrand').innerHTML=svgWrap(W,H,m,'Piezas por web y estado')+`<div class="legend" style="margin-top:8px"><span><i style="background:var(--faint)"></i>Ideas</span><span><i style="background:var(--warn)"></i>En curso</span><span><i style="background:var(--ok)"></i>Publicadas</span></div>`;
+  const card=k=>`<div class="kc" tabindex="0"><b>${esc(k.t)}</b><div class="m"><span class="dom">${esc(BRANDS[k.b])}</span><span>·</span><span>${esc(k.who)}</span></div><div class="m"><span class="chip xs" data-tip="Consulta de búsqueda a la que responde">${esc(k.q)}</span></div></div>`;
+  $('#kanban').innerHTML=[['idea','Ideas'],['curso','En curso'],['pub','Publicado']].map(([id,l])=>`<div class="kcol"><h4>${l}<span>${c(id).length}</span></h4>${c(id).map(card).join('')||'<div style="color:var(--faint);font-size:12px;padding:6px">Nada para esta marca</div>'}</div>`).join('');
 }
 
 /* ============================================================
@@ -1221,58 +1237,43 @@ function renderContent(){
    ============================================================ */
 function renderSocial(){
   const idp=i=>i==='ok'?pill('ok','en vivo'):i==='wait'?pill('warn','desfasado'):pill('crit','sin sesión');
-  $('#socialBody').innerHTML=SOCIAL.map(s=>`<tr><td class="w"><b>${esc(s.acc)}</b></td><td class="w">${esc(s.p)}</td><td class="n">${s.f==null?'<span class="src none">sin dato</span>':fmt(s.f)}</td><td class="n" style="color:var(--faint)">—</td><td class="n" style="color:var(--faint)">—</td><td class="n" style="color:var(--faint)">—</td><td class="w">${idp(s.id)}</td><td style="color:var(--ink-2)">${esc(s.pend)}</td></tr>`).join('');
+  $('#socialBody').innerHTML=SOCIAL.map(s=>`<tr><td class="w"><b>${esc(s.acc)}</b></td><td class="w">${esc(s.p)}</td><td class="n">${s.f==null?'<span class="src none">sin dato</span>':fmt(s.f)}</td><td class="n" style="color:var(--faint)">—</td><td class="n" style="color:var(--faint)">—</td><td class="w">${idp(s.id)}</td><td style="color:var(--ink-2)">${esc(s.pend)}</td></tr>`).join('');
+  hbars($('#chartFollowers'),SOCIAL.filter(s=>s.f!=null).map(s=>({l:`${s.p} · ${s.acc}`,v:s.f,c:'var(--p-hum)'})),{l:170,w:460,label:'Seguidores por cuenta con cifra verificada'});
 }
 
 /* ============================================================
    RENDER · Embudo
    ============================================================ */
-function funnel(el,stages){
-  const max=Math.max(1,...stages.map(s=>s.v||0));
-  el.innerHTML=stages.map(s=>`<div class="fs"><div class="l">${esc(s.l)}<small>${esc(s.s||'')}</small></div><div class="t ${s.v?'':'empty'}"><i data-w="${s.v?Math.max(4,s.v/max*100):100}"></i></div><div class="v">${s.v==null?'—':s.v}${s.g?`<small>obj. ${s.g}</small>`:s.pct!=null?`<small>${s.pct}</small>`:''}</div></div>`).join('');
-}
+function funnel(el,stages){const max=Math.max(1,...stages.map(s=>s.v||0));el.innerHTML=stages.map(s=>`<div class="fs"><div class="l">${esc(s.l)}<small>${esc(s.s||'')}</small></div><div class="t ${s.v?'':'empty'}"><i data-w="${s.v?Math.max(4,s.v/max*100):100}"></i></div><div class="v">${s.v==null?'—':s.v}${s.g?`<small>obj. ${s.g}</small>`:s.pct!=null?`<small>${s.pct}</small>`:''}</div></div>`).join('');}
 function renderFunnel(){
   $('#funKpis').innerHTML=[
-    {k:'Reuniones agendadas',v:0,s:'/ 4 mes',d:'Métrica número uno de las reglas B2B.',p:0},
-    {k:'Propuestas enviadas',v:0,s:'tasa de cierre —',d:'Siempre tres opciones. Sin caso de referencia no sale ninguna.',p:0},
-    {k:'Retainers activos',v:0,s:'MRR 0 €',d:'Prioridad comercial número uno.',p:0},
-    {k:'Leads bodas · 12 días',v:0,s:'21 sesiones',d:'Nadie pasó del paso 1 salvo uno. Umbral IA: 20 leads/mes.',p:0},
-  ].map(x=>`<div class="card kpi"><div class="k">${esc(x.k)}</div><div class="v">${x.v}<small>${esc(x.s)}</small></div><div class="bar"><i data-w="${x.p}"></i></div><div class="d">${esc(x.d)}</div></div>`).join('');
-  funnel($('#funnelB2B'),[
-    {l:'Atracción',s:'clics a perfil · guardados',v:0,pct:'arranca 8 sep'},
-    {l:'Conversación',s:'comentarios de decisores',v:0},
-    {l:'Captación',s:'DM «sistema» · diagnóstico',v:0},
-    {l:'Diagnóstico',s:'llamada: se escucha',v:0,g:4},
-    {l:'Propuesta',s:'3 opciones en < 48 h',v:0},
-    {l:'Retainer',s:'contrato + calendario',v:0},
-  ]);
-  funnel($('#funnelMoix'),[
-    {l:'Sesiones',s:'entran al configurador',v:21,pct:'100%'},
-    {l:'Paso 1',s:'fecha y lugar',v:21,pct:'100%'},
-    {l:'Paso 2',s:'zona e invitados',v:1,pct:'5%'},
-    {l:'Paso 3 · precio',s:'se revela aquí',v:0,pct:'0%'},
-    {l:'Pasos 4–7',s:'extras, datos, consentimiento',v:0,pct:'0%'},
-    {l:'Presupuesto enviado',s:'lead en el CRM',v:0,pct:'0 reales · 1 prueba'},
-  ]);
+    {k:'Reuniones agendadas',v:0,s:'/ 4 mes',d:'Métrica número uno de las reglas B2B.',viz:ring(0,4)},
+    {k:'Propuestas enviadas',v:0,s:'tasa de cierre —',d:'Siempre tres opciones. Sin caso de referencia no sale ninguna.',viz:ring(0,1)},
+    {k:'Retainers activos',v:0,s:'MRR 0 €',d:'Prioridad comercial número uno.',viz:ring(0,1)},
+    {k:'Leads bodas · 12 días',v:0,s:'21 sesiones',d:'Nadie pasó del paso 1 salvo uno. Umbral IA: 20 leads/mes.',viz:spark([2,1,8,0,0,0,0,0,3,1,4,2])},
+  ].map(kpiCard).join('');
+  funnel($('#funnelB2B'),[{l:'Atracción',s:'clics a perfil · guardados',v:0,pct:'arranca 8 sep'},{l:'Conversación',s:'comentarios de decisores',v:0},{l:'Captación',s:'DM «sistema» · diagnóstico',v:0},{l:'Diagnóstico',s:'llamada: se escucha',v:0,g:4},{l:'Propuesta',s:'3 opciones en < 48 h',v:0},{l:'Retainer',s:'contrato + calendario',v:0}]);
+  dropoff($('#chartDrop'),[{l:'Sesiones',s:'entran',v:21,p:'100%'},{l:'Paso 1 · fecha y lugar',s:'paso 1',v:21,p:'100%'},{l:'Paso 2 · zona e invitados',s:'paso 2',v:1,p:'5%'},{l:'Paso 3 · precio',s:'paso 3',v:0,p:'0%'},{l:'Pasos 4 a 6',s:'4–6',v:0,p:'0%'},{l:'Paso 7 · presupuesto enviado',s:'paso 7',v:0,p:'0 reales'}]);
+  cadenceLine($('#chartCad'));
   $('#cadence').innerHTML=CADENCE.map(c=>`<div class="${c.c} ${c.auto?'auto':''}" data-tip="${c.c==='tel'?'Llamada':c.c==='wa'?'WhatsApp':'Email'} · ${c.w}${c.auto?' · sale sola':''}" tabindex="0"><b>${c.n}</b>${esc(c.w)}</div>`).join('');
   $('#phasesBody').innerHTML=PHASES.map(p=>`<tr><td class="w"><b>Fase ${p.f}</b></td><td>${esc(p.q)}</td><td class="w">${p.s==='ok'?pill('ok',p.l):p.s==='warn'?pill('warn',p.l):`<span class="pill mute">${esc(p.l)}</span>`}</td><td style="color:var(--muted)">${esc(p.b)}</td></tr>`).join('');
-  $('#c-fun').textContent=PHASES.filter(p=>p.s==='warn').length;
+  setCnt('#c-fun',PHASES.filter(p=>p.s==='warn').length);
 }
 
 /* ============================================================
    RENDER · Email
    ============================================================ */
 function renderMail(){
-  const boxes=BOXES.filter(b=>inBrand(b.b));
-  const unread=boxes.reduce((a,b)=>a+(b.u||0),0);
+  const boxes=BOXES.filter(b=>inBrand(b.b));const unread=boxes.reduce((a,b)=>a+(b.u||0),0);
   $('#mailKpis').innerHTML=[
-    {k:'Sin leer · bandejas conectadas',v:unread,s:'hilos',d:'Gmail y Hostinger, lectura en vivo a las 00:20.'},
-    {k:'Bandejas conectadas',v:boxes.filter(b=>b.ok).length,s:`de ${boxes.length}`,d:'moixandco y makerseuropa sin conector.'},
-    {k:'Acuses automáticos',v:3,s:'marcas',d:'Toque 4 de la cadencia. Único envío que sale solo.'},
-    {k:'Secuencias activas',v:1,s:'2 a mano · 2 paradas',d:'La cadencia no avanza sola sin el cron de hPanel.'},
-  ].map(x=>`<div class="card kpi"><div class="k">${esc(x.k)}</div><div class="v">${x.v}<small>${esc(x.s)}</small></div><div class="d">${esc(x.d)}</div></div>`).join('');
-  $('#c-mail').textContent=unread;
-  const ic='<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+    {k:'Sin leer · bandejas conectadas',v:unread,s:'hilos',d:'Gmail y Hostinger, lectura en vivo a las 00:20.',viz:ring(unread,10,'var(--info)')},
+    {k:'Bandejas conectadas',v:boxes.filter(b=>b.ok).length,s:`de ${boxes.length}`,d:'moixandco y makerseuropa sin conector.',viz:ring(boxes.filter(b=>b.ok).length,boxes.length)},
+    {k:'Acuses automáticos',v:3,s:'marcas',d:'Toque 4 de la cadencia. Único envío que sale solo.',viz:ring(3,3,'var(--ok)')},
+    {k:'Secuencias activas',v:1,s:'2 a mano · 2 paradas',d:'La cadencia no avanza sola sin el cron de hPanel.',viz:ring(1,5,'var(--warn)')},
+  ].map(kpiCard).join('');
+  setCnt('#c-mail',unread);
+  donut($('#chartFolders'),[{l:'Bandeja',v:183,c:'var(--info)'},{l:'Enviados',v:76,c:'var(--ok)'},{l:'Papelera',v:18,c:'var(--faint)'},{l:'Spam',v:11,c:'var(--crit)'}],{center:'288',sub:'mensajes',label:'Mensajes por carpeta en info@creatribe.es'});
+  const ic='<svg class="i"><use href="#i-mail"/></svg>';
   $('#boxes').innerHTML=boxes.map(b=>`<div class="box"><span class="ic">${ic}</span><div><div class="a">${esc(b.a)}</div><div class="r">${esc(b.r)} · ${esc(b.note)}</div></div><div class="u">${b.ok?`<b>${b.u}</b><span>sin leer</span>`:'<span class="pill crit">sin conector</span>'}</div></div>`).join('');
 }
 
@@ -1281,48 +1282,34 @@ function renderMail(){
    ============================================================ */
 function renderSettings(){
   $('#connectors').innerHTML=CONNECTORS.map(c=>`<div class="conn"><span class="ic">${esc(c.k)}</span><div><b>${esc(c.n)}</b><span>${esc(c.x)}</span></div>${c.s==='ok'?pill('ok','conectado'):c.s==='warn'?pill('warn','parcial'):c.s==='crit'?pill('crit','no disponible'):'<span class="pill mute">inactivo</span>'}</div>`).join('');
+  const n=s=>CONNECTORS.filter(c=>c.s===s).length;
+  donut($('#chartConn'),[{l:'Conectados',v:n('ok'),c:'var(--ok)'},{l:'Parciales',v:n('warn'),c:'var(--warn)'},{l:'No disponibles',v:n('crit'),c:'var(--crit)'},{l:'Inactivos',v:n('mute'),c:'var(--faint)'}],{center:String(CONNECTORS.length),sub:'cuentas',label:'Estado de los conectores'});
 }
 
 /* ============================================================
-   NAVEGACIÓN · pestañas accesibles + hash
+   NAVEGACIÓN
    ============================================================ */
 const TITLES={hub:'Visión general',linkedin:'LinkedIn',webs:'Webs y tráfico',contenido:'Contenido editorial',redes:'Redes sociales',funnel:'Embudo y ventas',email:'Email y bandejas',ajustes:'Ajustes y cuentas'};
 function show(view,focus){
-  if(!TITLES[view]) view='hub';
-  state.view=view;
-  $$('#tabs [role=tab]').forEach(b=>{const on=b.dataset.view===view;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus();});
+  if(!TITLES[view])view='hub';state.view=view;
+  $$('#tabs [role=tab]').forEach(b=>{const on=b.dataset.view===view;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;if(on&&focus&&window.innerWidth>900)b.focus();});
+  $$('#tabbar button[data-view]').forEach(b=>b.setAttribute('aria-selected',b.dataset.view===view));
   $$('.view').forEach(v=>{const on=v.id==='v-'+view;v.classList.toggle('on',on);v.hidden=!on;});
-  $('#crumb').textContent=TITLES[view];
-  $('#crumbSub').textContent=BRANDS[state.brand];
-  history.replaceState(null,'','#'+view);
-  document.title=TITLES[view]+' · Centro de Mando Makers';
-  animateBars();
-  $('#app').classList.remove('mobile-open');
-  if(focus)$('#app').classList.add('switched');
+  $('#crumb').textContent=TITLES[view];$('#crumbSub').textContent=BRANDS[state.brand];
+  history.replaceState(null,'','#'+view);document.title=TITLES[view]+' · Centro de Mando Makers';
+  animateBars();$('#app').classList.remove('mobile-open');if(focus)$('#app').classList.add('switched');
+  window.scrollTo({top:0,behavior:'instant'});
 }
 function animateBars(){requestAnimationFrame(()=>$$('.view.on [data-w]').forEach(i=>i.style.width=i.dataset.w+'%'));}
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('[role=tab]');if(b)show(b.dataset.view,true);});
-$('#tabs').addEventListener('keydown',e=>{
-  const tabs=$$('#tabs [role=tab]');const i=tabs.findIndex(t=>t.getAttribute('aria-selected')==='true');
-  let n=null;
-  if(e.key==='ArrowDown'||e.key==='ArrowRight')n=(i+1)%tabs.length;
-  if(e.key==='ArrowUp'||e.key==='ArrowLeft')n=(i-1+tabs.length)%tabs.length;
-  if(e.key==='Home')n=0; if(e.key==='End')n=tabs.length-1;
-  if(n!=null){e.preventDefault();show(tabs[n].dataset.view,true);}
-});
-document.addEventListener('keydown',e=>{
-  if(e.target.matches('input,select,textarea'))return;
-  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette();}
-  if(e.key>='1'&&e.key<='8'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){const t=$$('#tabs [role=tab]')[+e.key-1];if(t)show(t.dataset.view,true);}
-  if(e.key==='Escape'){closePalette();bellClose();}
-});
+$('#tabbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='moreTab'){$('#app').classList.toggle('mobile-open');return;}show(b.dataset.view,true);});
+$('#tabs').addEventListener('keydown',e=>{const tabs=$$('#tabs [role=tab]');const i=tabs.findIndex(t=>t.getAttribute('aria-selected')==='true');let n=null;if(e.key==='ArrowDown'||e.key==='ArrowRight')n=(i+1)%tabs.length;if(e.key==='ArrowUp'||e.key==='ArrowLeft')n=(i-1+tabs.length)%tabs.length;if(e.key==='Home')n=0;if(e.key==='End')n=tabs.length-1;if(n!=null){e.preventDefault();show(tabs[n].dataset.view,true);}});
+document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea'))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette();}if(e.key>='1'&&e.key<='8'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){const t=$$('#tabs [role=tab]')[+e.key-1];if(t)show(t.dataset.view,true);}if(e.key==='Escape'){closePalette();bellClose();$('#app').classList.remove('mobile-open');}});
 
-/* ---- filtros de cabecera ---- */
 $('#brandSel').value=state.brand;
 $('#brandSel').addEventListener('change',e=>{state.brand=e.target.value;store.set('brand',state.brand);renderAll();$('#crumbSub').textContent=BRANDS[state.brand];toast('Filtrado: '+BRANDS[state.brand]);});
 $$('#rangeSeg button').forEach(b=>{b.setAttribute('aria-pressed',+b.dataset.days===state.days);b.addEventListener('click',()=>{state.days=+b.dataset.days;store.set('days',state.days);$$('#rangeSeg button').forEach(x=>x.setAttribute('aria-pressed',x===b));chartSessions();});});
 
-/* ---- avisos ---- */
 document.addEventListener('change',e=>{const c=e.target.closest('[data-done]');if(!c)return;state.done[c.dataset.done]=c.checked;if(!c.checked)delete state.done[c.dataset.done];store.set('done',state.done);renderAlerts();toast(c.checked?'Marcado como hecho':'Reabierto');});
 $('#showDone').addEventListener('click',()=>{state.showDone=!state.showDone;renderAlerts();});
 $('#resetAlerts').addEventListener('click',()=>{state.done={};store.set('done',{});renderAlerts();toast('Avisos reiniciados');});
@@ -1331,24 +1318,18 @@ function bellClose(){pop.hidden=true;bell.setAttribute('aria-expanded','false');
 bell.addEventListener('click',()=>{const o=pop.hidden;pop.hidden=!o;bell.setAttribute('aria-expanded',o);});
 document.addEventListener('click',e=>{if(!pop.hidden&&!pop.contains(e.target)&&!bell.contains(e.target))bellClose();});
 $('#goAlerts').addEventListener('click',()=>{bellClose();show('hub',true);$('#alertFeed').scrollIntoView({block:'center'});});
-
-/* ---- copiar ---- */
 document.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(!b)return;navigator.clipboard?.writeText(b.dataset.copy).then(()=>toast('Copiado: «'+b.dataset.copy.slice(0,40)+'…»'),()=>toast('No se pudo copiar'));});
 
-/* ---- tema ---- */
 function applyTheme(t){const r=document.documentElement;if(t==='system')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);store.set('theme',t);$('#themeLbl').textContent=t==='system'?'sistema':t==='dark'?'oscuro':'claro';$$('#themeSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.theme===t));}
 applyTheme(store.get('theme','system'));
 $('#themeBtn').addEventListener('click',()=>{const cur=store.get('theme','system');applyTheme(cur==='system'?'dark':cur==='dark'?'light':'system');});
 $$('#themeSeg button').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.theme)));
-
-/* ---- sidebar ---- */
 function setCollapsed(v){$('#app').classList.toggle('collapsed',v);store.set('collapsed',v);}
 setCollapsed(store.get('collapsed',false));
 $('#collapseBtn').addEventListener('click',()=>setCollapsed(!$('#app').classList.contains('collapsed')));
 $('#collapseBtn2').addEventListener('click',()=>setCollapsed(!$('#app').classList.contains('collapsed')));
 $('#burger').addEventListener('click',()=>$('#app').classList.toggle('mobile-open'));
 
-/* ---- paleta de búsqueda ---- */
 const INDEX=[
   ...Object.entries(TITLES).map(([k,v])=>({kind:'módulo',t:v,go:()=>show(k,true)})),
   ...CAL.flatMap(w=>w.days).filter(d=>d.st!=='skip').map(d=>({kind:'pieza',t:d.t,s:`${d.dow} ${d.d.slice(8)} · ${d.tipo}`,go:()=>show('linkedin',true)})),
@@ -1363,28 +1344,14 @@ const pal=$('#palette'),palIn=$('#palInput'),palList=$('#palList');let palSel=0,
 function norm(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
 function openPalette(){pal.hidden=false;palIn.value='';renderPal('');palIn.focus();}
 function closePalette(){pal.hidden=true;}
-function renderPal(q){
-  const n=norm(q.trim());
-  palRes=(n?INDEX.filter(i=>norm(i.t+' '+(i.s||'')+' '+i.kind).includes(n)):INDEX.slice(0,10)).slice(0,14);
-  palSel=0;
-  palList.innerHTML=palRes.length?palRes.map((r,i)=>`<li role="option" aria-selected="${i===0}" data-i="${i}"><span class="kind">${esc(r.kind)}</span><b>${esc(r.t)}</b>${r.s?`<small>${esc(r.s)}</small>`:''}</li>`).join(''):'<li class="empty">Nada con ese texto.</li>';
-}
+function renderPal(q){const n=norm(q.trim());palRes=(n?INDEX.filter(i=>norm(i.t+' '+(i.s||'')+' '+i.kind).includes(n)):INDEX.slice(0,10)).slice(0,14);palSel=0;palList.innerHTML=palRes.length?palRes.map((r,i)=>`<li role="option" aria-selected="${i===0}" data-i="${i}"><span class="kind">${esc(r.kind)}</span><b>${esc(r.t)}</b>${r.s?`<small>${esc(r.s)}</small>`:''}</li>`).join(''):'<li class="empty">Nada con ese texto.</li>';}
 palIn.addEventListener('input',()=>renderPal(palIn.value));
-palIn.addEventListener('keydown',e=>{
-  if(e.key==='ArrowDown'){e.preventDefault();palSel=Math.min(palRes.length-1,palSel+1);}
-  else if(e.key==='ArrowUp'){e.preventDefault();palSel=Math.max(0,palSel-1);}
-  else if(e.key==='Enter'){e.preventDefault();if(palRes[palSel]){closePalette();palRes[palSel].go();}return;}
-  else return;
-  $$('#palList li').forEach((li,i)=>li.setAttribute('aria-selected',i===palSel));
-});
+palIn.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();palSel=Math.min(palRes.length-1,palSel+1);}else if(e.key==='ArrowUp'){e.preventDefault();palSel=Math.max(0,palSel-1);}else if(e.key==='Enter'){e.preventDefault();if(palRes[palSel]){closePalette();palRes[palSel].go();}return;}else return;$$('#palList li').forEach((li,i)=>li.setAttribute('aria-selected',i===palSel));});
 palList.addEventListener('click',e=>{const li=e.target.closest('li[data-i]');if(li){closePalette();palRes[+li.dataset.i].go();}});
 pal.addEventListener('click',e=>{if(e.target===pal)closePalette();});
 $('#searchBtn').addEventListener('click',openPalette);
 
-/* ============================================================
-   ARRANQUE
-   ============================================================ */
-function renderAll(){renderKpis();renderToday();chartSessions();chartSC();renderAlerts();renderLinkedIn();renderWebs();renderContent();renderSocial();renderFunnel();renderMail();renderSettings();animateBars();}
+function renderAll(){renderKpis();renderToday();chartSessions();chartSC();chartWeek();chartMix();renderAlerts();renderLinkedIn();renderWebs();renderContent();renderSocial();renderFunnel();renderMail();renderSettings();animateBars();}
 $('#todayLbl').textContent=MADRID.format(TODAY);
 renderAll();
 show((location.hash||'#hub').slice(1),false);
