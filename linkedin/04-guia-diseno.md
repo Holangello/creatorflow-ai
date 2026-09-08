@@ -53,3 +53,49 @@ fijan medidas y reglas de producción para que cualquier pieza se pueda ejecutar
 - Slides con más de 25 palabras.
 - Logos de clientes sin autorización escrita.
 - Vídeo sin subtítulos.
+
+## Color en el panel de mando (interfaz interna, no las piezas)
+
+Esta sección solo rige la interfaz del centro de mando. **En las piezas
+publicadas sigue mandando la regla de arriba: un solo acento de color.**
+
+Regla única: **el color señala lo que exige una acción hoy; el texto clasifica.**
+
+### Estado de una pieza — manda el color
+
+Es lo único accionable de un vistazo, así que se lleva el canal más visible de
+la tarjeta (el filo superior) y el punto de la matriz semanal.
+
+| Estado | Color | Refuerzo sin color |
+|---|---|---|
+| Retrasada | rojo `#ff2d1a` | late (animación) |
+| Lista por publicar | blanco | — |
+| Bloqueada por datos | ámbar | trazo discontinuo |
+| Publicada | verde | opacidad al 55 % |
+| Planificada / sin pieza | gris | — |
+
+Los dos extremos van doblemente codificados: no dependen del tono.
+
+### Pilares editoriales — solo en agregados etiquetados
+
+El pilar de una pieza ya está decidido y va escrito en su tarjeta, así que no
+gasta color ahí. Solo se colorea donde la pregunta es de reparto y hay leyenda
+al lado: la dona de "Estado del sistema" y las barras de mezcla.
+
+| Pilar | Token | Hex |
+|---|---|---|
+| Autoridad | `--pil-aut` | `#8ef9ff` |
+| Prueba | `--pil-pru` | `#4fceff` |
+| Actualidad | `--pil-act` | `#51a2f8` |
+| Oferta | `--pil-ofe` | `#6e74e6` |
+| Humano | `--pil-hum` | `#835cbe` |
+
+Rampa fría monótona en luminancia, de cian pálido a violeta. Ninguno cae cerca
+del rojo, el ámbar ni el verde de estado. La distinción entre ellos no descansa
+en el tono sino en la luminancia (cada peldaño ~1,5× el siguiente), y el tono
+solo se mueve por el eje azul-amarillo: un daltonismo rojo-verde los separa
+igual. Ordenados por peso estratégico descendente, así que una desviación del
+reparto se ve como una rampa rota.
+
+Los valores viven en `daily-command-center/static/v2/estilos.css` (`:root`).
+No se duplican en ningún otro fichero.
