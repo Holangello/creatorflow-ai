@@ -382,7 +382,11 @@ def leer_radar():
             continue
         dia, mes, hora = visto.groups()
         angulo = limpio(c[2])
-        codigo = next((v for k, v in CODIGO.items() if k in angulo.lower()), "—")
+        # El que aparezca ANTES en el texto, no el primero del diccionario: un
+        # angulo «Prueba en directo · traduccion a negocio» es prueba en directo.
+        bajo = angulo.lower()
+        pos = [(bajo.index(k), v) for k, v in CODIGO.items() if k in bajo]
+        codigo = min(pos)[1] if pos else "—"
         items.append({
             "visto": f"{today.year}-{mes}-{dia} {hora}",
             "t": limpio(c[1]), "angulo": angulo, "cod": codigo,
