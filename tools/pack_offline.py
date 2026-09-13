@@ -394,7 +394,22 @@ def leer_radar():
             # Una entrada ya usada no desaparece: se aparta, para no repetirla.
             "usada": bool(re.search(r"\busada\b", c[5], re.I)),
         })
+    # El sello es la marca «Detectado» mas reciente. Pero un barrido puede correr,
+    # mirar cuatro frentes y no encontrar nada de nivel: ese dia el radar esta
+    # igual de vivo y ninguna fila lo cuenta. Por eso se respeta tambien la linea
+    # «Ultimo barrido» del documento, con un limite: solo puede ADELANTAR el
+    # sello, nunca atrasarlo. Escribir la linea sin barrer sigue siendo mentir a
+    # mano, como lo era inventarse una fila; pero un barrido en seco deja de
+    # parecer una semana de silencio.
     barrido = max((i["visto"] for i in items), default=None)
+    m_b = re.search(r"\*\*.ltimo barrido:\*\*\s*(\d{2})-(\d{2})-(\d{4})", txt)
+    if m_b:
+        dia, mes, anio = m_b.groups()
+        # A las 00:00 y no a la hora real: la linea no declara hora, y poner una
+        # tarde dejaria el sello en el futuro durante medio dia. Se queda corto
+        # antes que adelantado.
+        decl = f"{anio}-{mes}-{dia} 00:00"
+        barrido = max(barrido, decl) if barrido else decl
     return {"barrido": barrido, "items": items}
 
 
