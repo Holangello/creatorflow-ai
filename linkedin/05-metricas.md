@@ -3,6 +3,12 @@
 Lo mantiene `linkedin-analyst`. Angello pega aquí (o envía a Maverick) las cifras de cada
 pieza a las 48 horas y a los 7 días.
 
+**Desde el 14-09 no hay que acordarse:** el aviso de las 19:30 pregunta por las piezas que cumplen
+48 horas o 7 días y escribe aquí lo que Angello conteste. Solo eso. Ninguna fila de esta tabla se
+rellena con una cifra estimada, redondeada o deducida: si el dato no ha llegado, la casilla se
+queda vacía. La línea base de las diez primeras piezas no vale nada si lleva dentro un número que
+nadie midió.
+
 ## Línea base
 Sin datos todavía. Se fija con las primeras 10 piezas.
 

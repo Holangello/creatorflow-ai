@@ -27,11 +27,24 @@ Maverick, redacta la pieza de actualidad de hoy sobre [noticia].
 petición de Angello. El cambio no es cosmético: una franja a la que no se llega despierto no es una
 franja, es una excusa para no publicar.
 
-**Recordatorios automáticos.** A las 09:20 y a las 12:20, de lunes a viernes, salta un aviso al móvil
-con la pieza del día, la versión elegida y dónde está el texto. Si la pieza está bloqueada por un
-[DATO] sin confirmar, el aviso lo dice en vez de mandar a publicar algo incompleto. Los días en que
-la franja no toca, el aviso no suena: el silencio es el resultado correcto tres días de cada cinco.
-Las horas van en UTC, así que al cambiar la hora a finales de octubre hay que correrlas una hora.
+**Recordatorios automáticos.** Tres avisos al móvil, de lunes a viernes:
+
+| Hora | Qué hace |
+| --- | --- |
+| 09:20 | Diez minutos antes de la franja de la mañana. Pieza del día, versión elegida y dónde está el texto |
+| 12:20 | Lo mismo para la franja de mediodía |
+| 19:30 | Cierra el día: ¿salió la pieza? Y pide las cifras de las que cumplen 48 horas o 7 días |
+
+Ninguno escribe contenido ni toca el radar. Si la pieza está bloqueada por un [DATO] sin confirmar,
+el aviso lo dice en vez de mandar a publicar algo incompleto. Y los días en que no hay nada que
+avisar, no suena nada: el silencio es el resultado correcto tres días de cada cinco.
+
+El de las 19:30 es el que cierra el circuito que llevaba vacío desde el principio. Escribe en la
+tabla de `05-metricas.md` solo lo que Angello conteste. Si no contesta, la casilla se queda vacía:
+una casilla vacía es un dato correcto y un cero inventado destruye la línea base. A las tres piezas
+medidas entra `linkedin-analyst` con el primer diagnóstico.
+
+Las horas van en UTC, así que al cambiar la hora a finales de octubre hay que correr las tres.
 
 Reparto resultante al mes: 30% autoridad, 20% prueba, 20% actualidad, 20% oferta, 10% humano.
 Máximo una pieza de confrontación pura por semana.
