@@ -6,8 +6,11 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 13-09-2026. Cuatro frentes (Adobe/Premiere, IBC, generativos de vídeo, publicidad en España).
-Nada nuevo de nivel 2 o superior entre el 11 y el 13. El hueco del miércoles 16 sigue anclado a Adobe.
+**Último barrido:** 14-09-2026. Cinco frentes (generativos de vídeo, formatos de LinkedIn, reglamento europeo de
+IA, publicidad en España, IBC). **Sin ruptura.** Nada de nivel 2 o superior en las últimas 48 horas: lo que
+devuelve la búsqueda es cobertura reciclada del anuncio de Adobe del 8, piezas de SEO sobre «el algoritmo de
+LinkedIn 2026» sin fuente ni fecha, y el reglamento europeo de transparencia, que entró en vigor el 2 de agosto y
+no es novedad. El hueco del miércoles 16 sigue anclado a Adobe, ahora con un caso español detrás.
 
 ## Candidatos activos
 
@@ -15,6 +18,16 @@ Nada nuevo de nivel 2 o superior entre el 11 y el 13. El hueco del miércoles 16
 | --- | --- | --- | --- | --- | --- |
 | 09-09 06:20 · revisada 13-09 | Adobe mete la generación de vídeo dentro de la línea de tiempo de Premiere. El montador ya no sale a buscar el plano que le falta: lo fabrica en el sitio | Traducción a negocio | El hueco que antes obligaba a repetir rodaje o a comprar stock se rellena en el montaje, con Firefly y con modelos de terceros (Veo, Kling, Runway, Luma) elegibles desde la propia herramienta. La cobertura del sector añade que la misma entrega trae generación de música y de ambientes de audio en la línea de tiempo, y un asistente en After Effects: no es un plano suelto, es la banda entera. La pregunta para un director de marketing no es si la herramienta es buena: es qué partidas de su presupuesto de producción dejan de tener sentido, y qué pasa con los presupuestos ya firmados a precio de rodaje | Adobe, «Generate and create directly in your timeline with new AI-powered innovations in Premiere and After Effects», blog.adobe.com, 8-09-2026 (fuente primaria, leída el 9-09). El detalle de audio y del asistente de After Effects viene de cobertura del sector (TV Tech, ProVideo Coalition, 8 y 9-09): **si entra en la pieza, se cita como cobertura, no como Adobe** | 16-09 08:00 (hueco de actualidad del miércoles) |
 | 08-09 06:15 · cerrada 13-09 | IBC 2026 (Ámsterdam, 11–14 sep): lo que enseñaron los fabricantes | Traducción a negocio · **degradada a refuerzo** | Barrido del 13-09 con la feria ya avanzada: Sony lleva la FX5, los controladores DP5 y DP7 y la versión de desarrollo del bloque de sensor RIALTO 65 para VENICE 2; RED y Nikon comparten stand con las V-RAPTOR en producción multicámara sobre IP; Canon deja su anuncio (EOS R8 Mark II) para el 15, después de la feria. Todo es material de rodaje: **ninguno de estos anuncios cambia una partida del presupuesto de un director de marketing**, que es el filtro de este radar. No sostiene una pieza; sirve como frase de contexto dentro de la de Adobe: mientras la feria enseñaba cámaras, la herramienta de montaje empezó a fabricar los planos | Programa oficial de IBC (ibc.org); Canon Europe (canon-europe.com/events/ibc); cobertura de British Cinematographer y RedShark (5 al 11-09) | 16-09 08:00 · no se usa sola |
+
+## Material de apoyo · no caduca
+
+Hechos públicos, verificables y con cifra que sirven DENTRO de una pieza, no como pieza. No son noticia y no
+compiten por el hueco del miércoles: son la prueba que se cita cuando hace falta bajar una tesis al suelo. Aquí
+no se aplica la regla de las 72 horas, porque un caso con cifras no envejece como envejece un anuncio.
+
+| Añadido | Qué es | La cifra que lo hace útil | Para qué sirve | Fuente |
+| --- | --- | --- | --- | --- |
+| 14-09 | El spot de Movistar con la Selección para el Mundial: 120 segundos emitidos en prime time en las grandes cadenas españolas, generados en un 95% con IA. Producido por ROMA y MITO AI, dirigido por Oriol Villar. Campaña en antena desde el 25 de mayo de 2026 | **Entre 55 y 65 rondas de iteración. Más de 5.130 recursos generados (4.000 imágenes y 800 vídeos). Más de 140 profesionales entre perfiles técnicos y creativos** | Es el contraejemplo del «la IA lo hace barato y rápido», y encima español, en abierto y con marca reconocible. Sostiene la tesis de que el trabajo real no es generar el plano, es la consistencia y la iteración. Sirve para la pieza del 16 (Adobe mete la generación en la línea de tiempo) y para cualquier pieza contra el hype | MITO AI, «Crafted Stories · Movistar World Cup», blog.mito.ai; cobertura de Panorama Audiovisual (1-07-2026) y Periódico de la Publicidad. **Las cifras vienen del desglose de la propia productora: se citan como suyas, no como dato independiente** |
 
 ## Formato de entrada
 
