@@ -7,7 +7,7 @@ gana una fecha y el cuerpo una cuarta cosa que nadie cuenta: el riesgo de provee
 **Fuente primaria:** OpenAI Help Center, «What to know about the Sora discontinuation». App y
 web cerradas el 26-04-2026; API con Sora 2 y Sora 2 Pro apagada el 24-09-2026; borrado de
 datos después. La noticia es de abril; la ventaja está en que faltan quince días para el apagado.
-**Publicar:** miércoles 9, 08:15. Primer comentario en el minuto 1. Responder 60 minutos.
+**Publicar:** miércoles 9, 09:30. Primer comentario en el minuto 1. Responder 60 minutos.
 **Comprobar antes de publicar:** que la página de OpenAI siga diciendo 24 de septiembre.
 
 ## Texto final

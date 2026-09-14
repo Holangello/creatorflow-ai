@@ -16,11 +16,22 @@ Maverick, redacta la pieza de actualidad de hoy sobre [noticia].
 
 | Día | Hora (Madrid) | Pilar | Función |
 | --- | --- | --- | --- |
-| Lunes | 08:15 | Autoridad | Tesis fuerte. La pieza más confrontativa de la semana |
+| Lunes | 09:30 | Autoridad | Tesis fuerte. La pieza más confrontativa de la semana |
 | Martes | 12:30 | Prueba | Caso, resultado o proceso con cifra |
-| Miércoles | 08:15 | **Actualidad** | Noticia de IA o audiovisual con opinión propia. Se sustituye si salta algo mayor |
+| Miércoles | 09:30 | **Actualidad** | Noticia de IA o audiovisual con opinión propia. Se sustituye si salta algo mayor |
 | Jueves | 12:30 | Oferta | Cómo trabajamos, para quién, objeciones, disponibilidad |
-| Viernes | 09:00 | Humano / Autoridad | Historia personal con lección de negocio, o encuesta |
+| Viernes | 09:30 | Humano / Autoridad | Historia personal con lección de negocio, o encuesta |
+
+**Dos franjas, las dos pasadas las nueve.** La mañana se publica a las 09:30 y el mediodía a las
+12:30. Antes la mañana estaba a las 08:15 y el viernes a las 09:00; se movió el 14 de septiembre a
+petición de Angello. El cambio no es cosmético: una franja a la que no se llega despierto no es una
+franja, es una excusa para no publicar.
+
+**Recordatorios automáticos.** A las 09:20 y a las 12:20, de lunes a viernes, salta un aviso al móvil
+con la pieza del día, la versión elegida y dónde está el texto. Si la pieza está bloqueada por un
+[DATO] sin confirmar, el aviso lo dice en vez de mandar a publicar algo incompleto. Los días en que
+la franja no toca, el aviso no suena: el silencio es el resultado correcto tres días de cada cinco.
+Las horas van en UTC, así que al cambiar la hora a finales de octubre hay que correrlas una hora.
 
 Reparto resultante al mes: 30% autoridad, 20% prueba, 20% actualidad, 20% oferta, 10% humano.
 Máximo una pieza de confrontación pura por semana.
@@ -29,7 +40,7 @@ Máximo una pieza de confrontación pura por semana.
 
 ## Semana 1 · 8 al 11 de septiembre
 
-> El sistema quedó listo la noche del lunes 7, pasada ya la franja de las 08:15, así que la
+> El sistema quedó listo la noche del lunes 7, pasada ya la franja de la mañana, así que la
 > semana arranca el martes. El caso de estudio (B1) sale de esta semana: está bloqueado por
 > datos de cliente y no conviene tenerlo en el camino crítico. Vuelve en la semana 2 en cuanto
 > Angello confirme las cifras.

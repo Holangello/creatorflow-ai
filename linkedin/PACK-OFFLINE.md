@@ -8,18 +8,18 @@ Regla de la casa mientras estés solo: **las escenas se pueden reconstruir, las 
 
 | Paso | Cuándo | Qué |
 | --- | --- | --- |
-| 1 | Hora de la pieza (08:15, 09:00 o 12:30) | Pega el texto tal cual, con sus saltos de línea. Sin enlaces en el cuerpo. Máximo 3 hashtags al final. |
+| 1 | Hora de la pieza (09:30 o 12:30) | Pega el texto tal cual, con sus saltos de línea. Sin enlaces en el cuerpo. Máximo 3 hashtags al final. |
 | 2 | Minuto 0 | Publica el primer comentario (está debajo de cada pieza). Los enlaces van ahí. |
 | 3 | Minutos 0 a 60 | Responde a todos los comentarios con más de cinco palabras. Esa hora decide la distribución. |
 | 4 | Después | Comenta en 5 publicaciones de directores de marketing o fundadores de agencia (tu ICP). Comentarios con criterio, no «gran post». |
 | 5 | Nunca | No edites el post en las 2 primeras horas. No borres comentarios críticos: contesta. |
 | 6 | A las 48 h y a los 7 días | Apunta las cifras en la tabla del final. Impresiones, comentarios, guardados, clics a perfil, mensajes. |
 
-**Franjas:** lunes 08:15 autoridad · martes 12:30 prueba · miércoles 08:15 actualidad · jueves 12:30 oferta · viernes 09:00 humano.
+**Franjas:** lunes 09:30 autoridad · martes 12:30 prueba · miércoles 09:30 actualidad · jueves 12:30 oferta · viernes 09:30 humano.
 
 ## 2 · Piezas listas para publicar
 
-### Martes 8 de septiembre · 08:15 · Autoridad · Atracción
+### Martes 8 de septiembre · 09:30 · Autoridad · Atracción
 
 **Formato:** Solo texto. **Intensidad:** confrontación pura. **Métrica que mide:** Clics a perfil a 48 h y comentarios en la primera hora.
 
@@ -178,7 +178,7 @@ Lo que cambió en mi forma de trabajar fue una regla, no una herramienta: ningú
 Me ha costado clientes, sobre todo los que querían cerrar rápido un encargo único. También ha hecho que los que entran se queden mucho más tiempo. No es generosidad, es cálculo: un cliente con sistema es rentable durante años, uno con encargos sueltos dura un trimestre.
 ```
 
-### Miércoles 9 de septiembre · 08:15 · Actualidad · Atracción
+### Miércoles 9 de septiembre · 09:30 · Actualidad · Atracción
 
 **Formato:** Texto o vídeo nativo. **Intensidad:** método. **Métrica que mide:** Comentarios de posición y clics a perfil.
 
@@ -686,7 +686,7 @@ antes que «6 fases», la jerarquía está mal.
    seis slides seguidos y mata la fuerza de «sistema» en el slide 10, que es la única palabra que
    tiene que producir un mensaje privado.
 
-### Viernes 11 de septiembre · 09:00 · Humano · Conversación
+### Viernes 11 de septiembre · 09:30 · Humano · Conversación
 
 **Formato:** Texto + foto propia. **Intensidad:** confrontación pura. **Métrica que mide:** Comentarios que toman postura y reacciones de agencias y fundadores.
 
@@ -906,7 +906,7 @@ La pregunta útil no es "¿digo que no?". Es "¿tengo algo mejor que ofrecer en 
 
 **Pieza visual:** Foto propia · 4:5 · «Angello en set o en reunión». Sin posado, sin filtro, luz natural. Una foto real de trabajo, no un retrato corporativo.
 
-### Lunes 14 de septiembre · 08:15 · Autoridad · Atracción
+### Lunes 14 de septiembre · 09:30 · Autoridad · Atracción
 
 **Formato:** Solo texto. **Intensidad:** confrontación pura. **Métrica que mide:** Clics a perfil y comentarios de directores de marketing en la primera hora.
 
@@ -1621,7 +1621,7 @@ Me llamaron arrogante por proponer empezar por el sistema antes de grabar. Perd�
 
 ## Semana 1 · 8 al 11 de septiembre
 
-> El sistema quedó listo la noche del lunes 7, pasada ya la franja de las 08:15, así que la
+> El sistema quedó listo la noche del lunes 7, pasada ya la franja de la mañana, así que la
 > semana arranca el martes. El caso de estudio (B1) sale de esta semana: está bloqueado por
 > datos de cliente y no conviene tenerlo en el camino crítico. Vuelve en la semana 2 en cuanto
 > Angello confirme las cifras.

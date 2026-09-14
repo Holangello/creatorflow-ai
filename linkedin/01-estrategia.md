@@ -84,11 +84,11 @@ Cinco piezas por semana. Horario Madrid.
 
 | Día | Hora | Pilar | Formato por defecto |
 | --- | --- | --- | --- |
-| Lunes | 08:15 | Autoridad | Texto largo |
+| Lunes | 09:30 | Autoridad | Texto largo |
 | Martes | 12:30 | Prueba | Carrusel PDF (caso) |
-| Miércoles | 08:15 | **Actualidad** | Noticia de IA o audiovisual con opinión propia |
+| Miércoles | 09:30 | **Actualidad** | Noticia de IA o audiovisual con opinión propia |
 | Jueves | 12:30 | Oferta | Texto + imagen o carrusel de proceso |
-| Viernes | 09:00 | Humano / Autoridad | Texto corto + foto propia, o encuesta |
+| Viernes | 09:30 | Humano / Autoridad | Texto corto + foto propia, o encuesta |
 
 **Reparto objetivo al mes: 30 % autoridad, 20 % prueba, 20 % actualidad, 20 % oferta,
 10 % humano.** Es el único reparto vigente y el que mide la dona del centro de mando.

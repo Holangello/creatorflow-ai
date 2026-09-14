@@ -1,7 +1,7 @@
 # 2026-09-14 · Autoridad · A3 · «El briefing de 40 páginas no es rigor, es miedo a decidir»
 
 **Estado:** creada. Tres versiones. **Elegida por Maverick: B, «La frase».**
-**Publicar:** lunes 14, 08:15. Intensidad pura (la única de la semana 2). Solo texto.
+**Publicar:** lunes 14, 09:30. Intensidad pura (la única de la semana 2). Solo texto.
 **Métrica:** clics a perfil y comentarios en la primera hora.
 
 **Criterio de la elección:**
