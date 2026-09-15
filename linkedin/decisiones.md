@@ -137,3 +137,25 @@ Criterio:
 
 **Sin modificación.** El [DATO: piezas por rodaje] se mantiene: es el mismo hecho propio de
 Makers que pide el carrusel del jueves 10. Confirmarlo una vez sirve para ambas piezas.
+
+## 2026-09-16 · «El plano que falta ya no se graba: se fabrica en el montaje»
+
+**Elegida: versión A, «La partida».**
+
+Criterio:
+
+1. Mecanismo nuevo. El 8 y el 14 abrieron con escena y diálogo; la B lo haría por tercera vez
+   en tres piezas y el lector reconoce la fórmula antes del corte.
+2. Es la traducción a negocio más limpia, que es el ángulo declarado del hueco de actualidad.
+3. Pone las cifras del spot de Movistar justo detrás de las partidas, que es donde pesan.
+4. El CTA pide nombrar una partida: quien comenta se autoclasifica como el que firma.
+
+**La C queda en reserva, no descartada.** Era la más original —mueve la conversación de
+presupuesto a gobernanza usando la obligación de transparencia europea—, pero apoya la pieza
+entera en una lectura legal cuyo alcance concreto para un anuncio no he podido verificar
+contra una fuente primaria que trate el caso. Firmar autoridad sobre una interpretación
+discutible es el riesgo que este sistema no corre. Se recupera para un hueco de actualidad
+posterior, con el artículo y su alcance citados sin rodeos.
+
+**Sin modificación del texto.** Ninguna cifra es de Makers ni de cliente: todas son del
+desglose público de la productora y van atribuidas como suyas.

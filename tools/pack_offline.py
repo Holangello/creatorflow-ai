@@ -22,10 +22,11 @@ COLA = {
     "mie": "2026-09-09-actualidad-sora.md",
     "jue": "2026-09-10-carrusel-sistema-makers.md",
     "lun14": "2026-09-14-briefing-40-paginas.md",
+    "mie16": "2026-09-16-actualidad-plano-en-el-montaje.md",
     "jue17": "2026-09-17-contenido-lo-hacemos-dentro.md",
 }
 FECHA = {"d1": "Martes 8 de septiembre", "mie": "Miércoles 9 de septiembre", "jue": "Jueves 10 de septiembre",
-         "vie": "Viernes 11 de septiembre", "lun14": "Lunes 14 de septiembre", "caso": "Martes 15 de septiembre",
+         "vie": "Viernes 11 de septiembre", "lun14": "Lunes 14 de septiembre", "caso": "Martes 15 de septiembre", "mie16": "Miércoles 16 de septiembre",
          "jue17": "Jueves 17 de septiembre"}
 
 def section(path, header):
@@ -298,7 +299,15 @@ def adapt_sections(kind):
         res[m.group(1)] = {"title": m.group(2).strip(), "html": md_to_html(m.group(3))[0]}
     return res
 adapts = adapt_sections("Adaptaciones"); guides = adapt_sections("Guía")
-DATE = {"d1": "2026-09-08", "mie": "2026-09-09", "jue": "2026-09-10", "vie": "2026-09-11", "lun14": "2026-09-14", "caso": "2026-09-15", "jue17": "2026-09-17"}
+DATE = {"d1": "2026-09-08", "mie": "2026-09-09", "jue": "2026-09-10", "vie": "2026-09-11", "lun14": "2026-09-14", "caso": "2026-09-15", "mie16": "2026-09-16", "jue17": "2026-09-17"}
+faltan = [d["id"] for d in days
+          if d["id"] not in DATE or d["id"] not in FECHA]
+if faltan:
+    raise SystemExit(
+        "Falta la fecha de estos dias en tools/pack_offline.py: " + ", ".join(faltan) +
+        ".\nAl anadir un dia al banco hay que darlo de alta en DATE (ISO), en FECHA "
+        "(texto largo) y, si tiene ficha, en COLA. No se genera nada hasta que esten.")
+
 pieces = []
 for d in days:
     ch = d.get("chosen"); a = d["alts"][ch] if ch is not None else None
