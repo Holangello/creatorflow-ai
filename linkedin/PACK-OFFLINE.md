@@ -1492,6 +1492,133 @@ antes de `430 €` (5) · auto-layout de tres filas con cifras tabulares (8) · 
 **Tres errores a evitar:** acento fuera de los dos `430 €`; centrar el titular o la columna
 (deja de parecer una cuenta a mano); cualquier adorno (icono, euro gigante, textura, foto).
 
+### Viernes 18 de septiembre · 09:30 · Prueba · Conversación
+
+**Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios en la primera hora y guardados.
+
+> **Antes de publicar:** Sin DATO. Ninguna cifra, ni de cliente ni de Makers. Sustituye a B2 «Mismo presupuesto, otro sistema», que sigue aparcada esperando cifras autorizadas.
+
+#### Versión B · El reloj · **ELEGIDA**
+
+_Elegida por Maverick. Eje de tiempo en vez de lista: mecanismo que el sistema no había usado, y la semana ya gastó escena, partidas y cuenta aritmética. El dolor no dicho es el más concreto —mirar las estadísticas a los diez minutos— y el CTA pide una hora, así que se contesta en la primera ventana, que es justo la métrica que la pieza defiende._
+
+**Texto del post:**
+
+```
+Casi todo el mundo mide su contenido al minuto siguiente de publicarlo.
+Es la hora exacta en la que un número miente más.
+
+La pregunta no es qué mides. Es cuándo lo lees. Cambia la hora y cambia la decisión.
+
+Así se lee una pieza en mi sistema.
+
+Minuto 0. No mide nada del contenido. Mide a quién tienes cerca. Si te fías de esto, acabas escribiendo para tus contactos, no para tu cliente.
+
+Primera hora. Comentarios. Es lo único que miro en caliente, porque un comentario largo es alguien posicionándose con su nombre encima.
+
+48 horas. Clics al perfil y guardados. Aquí se ve si la pieza movió a alguien a investigarte o a archivarte para una reunión futura.
+
+7 días. Mensajes privados con la palabra clave. Esa es la fila que se parece a negocio.
+
+Lo que no leo a ninguna hora es el alcance. No he tomado una sola decisión con ese número en toda mi carrera.
+
+Regla de la casa: ninguna pieza entra sin saber qué debe conseguir y qué pieza viene después.
+
+El informe mensual de treinta filas no falla por medir de más. Falla porque se escribió para justificar el gasto, no para decidir el mes siguiente. He entregado varios así.
+
+Una métrica leída a la hora equivocada no es información. Es ansiedad con formato de gráfico.
+
+¿A qué hora abres tú las estadísticas de una publicación? Contesta con la hora real, sin maquillarla.
+
+#MarketingB2B #ContenidoCorporativo #Branding
+```
+
+**Primer comentario:**
+
+```
+La mía, durante años: a los diez minutos. Y el daño no era perder el tiempo, era otro. A los diez minutos un número bajo te empuja a borrar una pieza que a los siete días te habría traído una conversación. Mirar demasiado pronto no es rigor. Es la forma más cara de cambiar de opinión.
+```
+
+#### Versión A · La lista negra
+
+_Se organiza por exclusión: tres cosas que no mira, defendidas una a una. Descartada porque la estructura de lista ya se usó dos veces en la semana 1._
+
+**Texto del post:**
+
+```
+Lo más revelador de una agencia no es la lista de métricas que mide.
+Es la lista de lo que ignora a propósito.
+
+Ahí está el criterio. Ignorar un número es una decisión, y hay que poder defenderla por escrito.
+
+Esto es lo que yo ignoro en un proyecto de contenido. Y por qué.
+
+Ignoro el alcance. Mide cuánta gente pasó por delante, no cuánta se quedó. Optimizar alcance te lleva a escribir para todos.
+
+Ignoro los likes. Un like es un gesto sin coste. Nadie aprobó nunca un presupuesto por un like.
+
+Ignoro los seguidores. Suben con una pieza afortunada y bajan con una semana de silencio. No dicen si el mensaje está afinado.
+
+Lo que sí miro, pieza a pieza: clics al perfil, comentarios en la primera hora, guardados y mensajes privados con una palabra clave.
+
+Cada una responde a una pregunta concreta. ¿Alguien me buscó, se posicionó, se lo guardó para una reunión o me escribió?
+
+El enemigo no es medir. Es el informe mensual de treinta filas que existe para justificar el gasto y no para decidir el mes siguiente.
+
+Yo he entregado informes así. Y los he cobrado.
+
+Un informe que no cambia lo que publicas el mes que viene no es un informe. Es una factura con gráficos.
+
+¿Cuál de tus métricas dejarías fuera mañana si tuvieras que defenderlo delante de dirección?
+
+#MarketingB2B #DirecciónCreativa #ContenidoCorporativo
+```
+
+**Primer comentario:**
+
+```
+La mía: el alcance. Lo dejé de mirar cuando me di cuenta de que subía justo las semanas en que peor escribía. Publicaba más suave, llegaba a más gente y no me escribía nadie. El número decía que iba bien y el negocio decía lo contrario. Cuando dos señales se contradicen, la que manda es la que trae reuniones.
+```
+
+#### Versión C · La pregunta que mata treinta filas
+
+_Convierte al lector en auditor de su propio informe con una sola pregunta. La más fuerte de posicionamiento, pero repite el registro confesional del viernes 11. Su gancho queda en reserva._
+
+**Texto del post:**
+
+```
+He entregado informes mensuales de treinta filas sin una sola decisión dentro.
+Y los he cobrado.
+
+El cliente los archivaba. Al mes siguiente publicábamos exactamente lo mismo. El informe no servía para decidir, servía para justificar la factura.
+
+En una revisión me preguntaron qué íbamos a cambiar con todo aquello. Tardé demasiado en contestar. Esa pausa me costó rehacer la forma de medir.
+
+Ahora hay una sola pregunta y la puedes usar hoy.
+
+Abre el último informe que te mandaron. Ve fila por fila y pregunta: si este número sube el mes que viene, ¿qué hago distinto?
+
+Si no hay respuesta, la fila sobra. No es información, es relleno que da sensación de control.
+
+Cuando pasé mi propio informe por esa pregunta sobrevivieron cuatro filas: clics al perfil, comentarios en la primera hora, guardados y mensajes privados con una palabra clave.
+
+El resto se quedó fuera. Y eso es lo incómodo del ejercicio.
+
+Ignorar una métrica es una decisión y hay que poder defenderla delante de quien firma. Por eso casi nadie la toma, y por eso los informes tienen treinta filas y ninguna conclusión.
+
+El criterio de un proveedor no está en lo que mide. Está en lo que se atreve a dejar fuera.
+
+Pasa tu último informe por la pregunta y dime cuántas filas sobreviven.
+
+#MarketingB2B #DirecciónCreativa #Agencias
+```
+
+**Primer comentario:**
+
+```
+Aviso de lo que vas a encontrar: las filas que caen primero suelen ser las que mejor quedaban en la presentación. Alcance, impresiones, seguidores nuevos. Y las que sobreviven son feas, pequeñas y difíciles de presumir. Un buen informe de contenido no impresiona a nadie en la sala. Solo dice qué se publica el mes que viene.
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -1800,7 +1927,12 @@ Me llamaron arrogante por proponer empezar por el sistema antes de grabar. Perd�
 | 15-09 | Mar | Prueba | B1 | Tu agencia no te engaña: te da exactamente lo que pediste | Caso real de Makers en carrusel, desplazado desde la semana 1. Contexto, problema, qué cambiamos, resultado con cifra, qué puede replicar. **Requiere cliente y cifras autorizadas**. Tres versiones ya escritas | Carrusel | Método | tres versiones listas |
 | 16-09 | Mié | Actualidad | N | El montador ya no busca el plano que falta: lo fabrica | Hueco fijo, **anclado tras el barrido del 13-09**. Adobe mete la generación de vídeo (y de música y ambientes) dentro de la línea de tiempo de Premiere y After Effects, con Veo, Kling, Runway y Luma elegibles desde la propia herramienta. Ángulo: traducción a negocio, no reseña de herramienta — qué partidas del presupuesto de producción dejan de sostenerse y qué pasa con lo ya firmado a precio de rodaje. IBC (11–14 sep) entra solo como frase de contraste: la feria enseñaba cámaras mientras el montaje empezaba a fabricar los planos; sus anuncios no mueven ninguna partida del ICP. **Refuerzo encontrado el 14-09:** el spot de Movistar con la Selección, 120 segundos al 95% con IA en prime time en España, necesitó entre 55 y 65 rondas de iteración, más de 5.130 recursos y más de 140 profesionales. Esa es la cifra que cierra la pieza: la herramienta se mete en la línea de tiempo, y aun así el trabajo real sigue siendo la iteración y la consistencia. Cifras de la propia productora, se citan como suyas. Redactada el 15 · `cola/2026-09-16-actualidad-plano-en-el-montaje.md` | Texto | Método | creada · tres versiones |
 | 17-09 | Jue | Oferta | C3 | "El contenido lo hacemos dentro". Vale. ¿Cuánto os cuesta cada pieza? · **elegida versión A** | Objeción respondida con aritmética: 25 €/h × 9 h, ÷ 0,7, 430 € por pieza publicada. Sin atacar al equipo interno. Imagen 4:5 con la cuenta. `cola/2026-09-17-contenido-lo-hacemos-dentro.md` | Texto + imagen | Método | creada · tres versiones |
-| 18-09 | Vie | Prueba | B2 | Mismo presupuesto, otro sistema | Antes y después con plazo y cifra. Formato visual de contraste. **Requiere datos reales** | Imagen o carrusel | Método | planificada |
+| 18-09 | Vie | Prueba | — | Qué mido en un proyecto y qué ignoro a propósito · **elegida versión B** | **Sustituye a B2**, que sigue bloqueada por cifras de cliente desde la semana 1. Sale del banco de reserva, que existe justo para esto. Eje de tiempo en vez de lista: qué se lee en el minuto 0, en la primera hora, a las 48 h y a los 7 días, y qué no se lee nunca. Enemigo: el informe mensual que justifica el gasto en vez de decidir el mes siguiente. Cero cifras. `cola/2026-09-18-que-mido-y-que-ignoro.md` | Texto | Método | creada · tres versiones |
+
+> **Aparcada:** B2 «Mismo presupuesto, otro sistema» (antes y después con cifra). Salió del 18-09 porque
+> lleva desde la semana 1 esperando cifras autorizadas de cliente. No está descartada: vuelve al primer hueco
+> de Prueba en cuanto Angello confirme presupuesto, plazo y resultado. Mientras tanto no ocupa fecha, para que
+> no vuelva a bloquear un viernes.
 
 ## Semana 3 · 21 al 25 de septiembre
 
@@ -2008,5 +2140,6 @@ No se duplican en ningún otro fichero.
 | Mar 15 sept | Tu agencia no te engaña |  |  |  |  |  |  |  |
 | Mié 16 sept | El plano se fabrica en el montaje |  |  |  |  |  |  |  |
 | Jue 17 sept | Lo hacemos dentro |  |  |  |  |  |  |  |
+| Vie 18 sept | Qué mido y qué ignoro |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.

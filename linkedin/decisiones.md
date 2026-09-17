@@ -159,3 +159,24 @@ posterior, con el artículo y su alcance citados sin rodeos.
 
 **Sin modificación del texto.** Ninguna cifra es de Makers ni de cliente: todas son del
 desglose público de la productora y van atribuidas como suyas.
+
+## 2026-09-18 · «Qué mido en un proyecto y qué ignoro a propósito»
+
+**Sustitución, antes que elección.** La pieza planificada era B2, un antes y después con cifra de
+cliente, bloqueada desde la semana 1. Se activa el banco de reserva, que el calendario define
+exactamente para esto. B2 se aparca sin fecha en vez de arrastrarla de viernes en viernes.
+
+**Elegida: versión B, «El reloj».**
+
+Criterio:
+
+1. Mecanismo nuevo. La semana gastó escena con frase de cliente, revisión de partidas y cuenta
+   aritmética. La A vuelve a la lista, que ya se usó dos veces en la semana 1. La B es un eje de
+   tiempo, que no se ha usado.
+2. El dolor no dicho más concreto de los tres: mirar las estadísticas a los diez minutos.
+3. Forma y fondo coinciden. Es una pieza sobre cuándo se leen las métricas y su CTA pide una hora:
+   se contesta en la primera ventana, que es la métrica que la propia pieza defiende.
+4. La C repite el registro confesional del 11-09. Su gancho queda en reserva.
+
+**Sin modificación.** Las tres salieron sin una sola cifra, que era el encargo: esta pieza existe
+para no depender de datos que llevan dos semanas sin llegar.
