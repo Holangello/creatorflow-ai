@@ -6,19 +6,18 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 17-09-2026. **Sin ruptura**, cuarto día seguido. Nada de nivel 2. Pero el barrido de mediodía ha
-sacado un hecho que no es noticia por fecha y sí importa: Avid y Google Cloud metieron Gemini Enterprise dentro
-de Media Composer el 11 de septiembre, tres días después del anuncio de Adobe. Va a material de apoyo, abajo.
+**Último barrido:** 21-09-2026. **Sin ruptura.** Nada de nivel 3. Pero el radar deja de estar vacío: aparece un
+estudio sobre el impacto de la IA en el audiovisual español, encargado por Google. Entra como candidato para el
+hueco de actualidad del miércoles 23, con una condición que va escrita en su fila.
 
-**Candidatos activos: ninguno, y eso es un dato.** El último se acaba de gastar en la pieza de hoy. Un radar
-vacío no es un radar roto: es lo que hay cuando ninguna noticia de la semana cambia una partida del presupuesto
-de un director de marketing. El siguiente hueco de actualidad es el miércoles 23 y se llenará con lo que salga,
-no con lo que quede.
+El radar estuvo vacío del 16 al 20, y quedó escrito que eso era un dato y no una avería. El 21 vuelve a tener
+un candidato, condicionado a verificar su fuente primaria.
 
 ## Candidatos activos
 
 | Detectado | Titular propuesto | Ángulo | Por qué le importa al ICP | Fuente | Caduca |
 | --- | --- | --- | --- | --- | --- |
+| 21-09 06:10 | Un estudio dice que la IA es buena para el audiovisual español. Lo ha pagado Google. Las dos cosas pueden ser verdad, y por eso hay que leerlo entero | Contra el hype · traducción a negocio | Llega en plena temporada de festivales y justo después de que España se consolidara como primer productor de cine de Europa. Para un director de marketing español la pregunta no es si el estudio acierta: es qué decisiones de presupuesto se van a justificar citándolo en los próximos seis meses. Y aquí hay criterio propio que aportar sin atacar a nadie: quién encarga un estudio forma parte del estudio | Estudio de Public First encargado por Google sobre el impacto de la IA en la industria audiovisual española; recogido por que.es el 18-09-2026. **FALTA LA FUENTE PRIMARIA:** hay que abrir el informe de Public First y verificar las cifras que circulan (se citan 390 horas y 150.000 empleos, sin contexto claro). Sin el informe delante no se cita ni una cifra, y si no aparece, la entrada se cae | 23-09 09:00 · es un estudio, no un anuncio: envejece más despacio que una noticia de producto, pero el hueco es el del miércoles |
 
 ## Material de apoyo · no caduca
 

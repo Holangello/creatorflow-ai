@@ -1619,6 +1619,66 @@ Pasa tu último informe por la pregunta y dime cuántas filas sobreviven.
 Aviso de lo que vas a encontrar: las filas que caen primero suelen ser las que mejor quedaban en la presentación. Alcance, impresiones, seguidores nuevos. Y las que sobreviven son feas, pequeñas y difíciles de presumir. Un buen informe de contenido no impresiona a nadie en la sala. Solo dice qué se publica el mes que viene.
 ```
 
+### Lunes 21 de septiembre · 09:30 · Autoridad · Atracción
+
+**Formato:** Solo texto. **Intensidad:** confrontación pura. **Métrica que mide:** Comentarios que tomen postura y clics a perfil.
+
+> **Antes de publicar:** Sin DATO. Esto no es una pieza nueva: es la versión A del 9 de septiembre, que no se eligió y quedó reservada en el calendario para hoy. Aguantó trece días porque no lleva fecha, ni noticia, ni cifra.
+
+#### Versión A · Sin sistema, más ruido · **ELEGIDA**
+
+_Reservada el 8 de septiembre para esta fecha exacta: su gancho es, literalmente, el título de la fila de hoy. No se eligió entonces porque el hueco del miércoles 9 pedía una noticia y esta no la necesita. Esa misma independencia es lo que la ha mantenido publicable dos semanas después._
+
+**Texto del post:**
+
+```
+La IA no va a sustituir a tu equipo creativo.
+Tu falta de sistema sí.
+
+Llevo meses viendo la misma reunión repetida. Cambio el sector para no señalar a nadie.
+
+Viernes, 18:40. Director de marketing.
+"Quiero meter IA en producción este trimestre."
+Le pregunto qué proceso concreto quiere acelerar.
+Once segundos de silencio.
+
+Ahí está el problema. No es la herramienta.
+Es que no hay proceso que acelerar.
+
+La IA amplifica lo que ya existe.
+Con criterio, produces más de lo que funciona.
+Sin criterio, produces ruido más rápido y más barato.
+
+El enemigo no es el vídeo generativo.
+Es el equipo que publica sin haber decidido para qué.
+
+Lo que hago antes de tocar una herramienta:
+
+1. Defino qué pieza sostiene qué objetivo comercial.
+2. Fijo quién aprueba y en cuántas horas.
+3. Solo entonces automatizo el tramo más repetitivo.
+
+Y me incluyo. Yo también compré herramientas antes de tener el proceso escrito.
+Perdí semanas de trabajo por eso.
+
+Una empresa sin sistema no tiene un problema de IA.
+Tiene un problema de decisión.
+
+Tu equipo: ¿el proceso está escrito o vive en la cabeza de alguien?
+
+#IA #ProduccionAudiovisual #MarketingB2B
+```
+
+**Primer comentario:**
+
+```
+Un matiz que no cabía arriba.
+
+El coste de la IA sin sistema no es el de la suscripción. Es el tiempo del equipo revisando material que nadie pidió.
+
+Ese tiempo no aparece en ninguna factura. Por eso nadie lo mide.
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -1938,7 +1998,7 @@ Me llamaron arrogante por proponer empezar por el sistema antes de grabar. Perd�
 
 | Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 21-09 | Lun | Autoridad | A1 | La IA no va a sustituir a tu equipo creativo. Tu falta de sistema sí | Contra el miedo. La IA amplifica lo que ya existe: si no hay criterio, produce más ruido más rápido. Tesis central del pilar de automatización | Texto | Pura | planificada |
+| 21-09 | Lun | Autoridad | A1 | La IA no va a sustituir a tu equipo creativo. Tu falta de sistema sí | Contra el miedo. La IA amplifica lo que ya existe: si no hay criterio, produce más ruido más rápido. Tesis central del pilar de automatización | Texto | Pura | creada · reserva del 8-09 · `cola/2026-09-21-ia-no-sustituye-tu-equipo.md` |
 | 22-09 | Mar | Prueba | B1 | Caso 2: [pendiente de elegir cliente] | Segundo caso de estudio. Angello elige el cliente y aporta cifras. Estructura obligatoria de caso | Carrusel | Método | planificada |
 | 23-09 | Mié | Actualidad | N | Lo que automatizo con IA y lo que no pienso automatizar nunca | Pieza de actualidad con ángulo de prueba en directo: el flujo real de Makers, herramienta por herramienta, con lo que falló. Se ancla a la noticia de IA más relevante de esa semana | Carrusel o vídeo | Método | planificada |
 | 24-09 | Jue | Oferta | C2 | Plazas de retainer para Q4: para quién no es | Disponibilidad con descalificadores por delante. Escasez real, no fabricada. **Confirmar número de plazas** | Texto | Método | planificada |
@@ -2141,5 +2201,6 @@ No se duplican en ningún otro fichero.
 | Mié 16 sept | El plano se fabrica en el montaje |  |  |  |  |  |  |  |
 | Jue 17 sept | Lo hacemos dentro |  |  |  |  |  |  |  |
 | Vie 18 sept | Qué mido y qué ignoro |  |  |  |  |  |  |  |
+| Lun 21 sept | La IA no sustituye a tu equipo |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.

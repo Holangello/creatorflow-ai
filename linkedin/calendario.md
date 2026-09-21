@@ -84,7 +84,7 @@ Máximo una pieza de confrontación pura por semana.
 
 | Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 21-09 | Lun | Autoridad | A1 | La IA no va a sustituir a tu equipo creativo. Tu falta de sistema sí | Contra el miedo. La IA amplifica lo que ya existe: si no hay criterio, produce más ruido más rápido. Tesis central del pilar de automatización | Texto | Pura | planificada |
+| 21-09 | Lun | Autoridad | A1 | La IA no va a sustituir a tu equipo creativo. Tu falta de sistema sí | Contra el miedo. La IA amplifica lo que ya existe: si no hay criterio, produce más ruido más rápido. Tesis central del pilar de automatización | Texto | Pura | creada · reserva del 8-09 · `cola/2026-09-21-ia-no-sustituye-tu-equipo.md` |
 | 22-09 | Mar | Prueba | B1 | Caso 2: [pendiente de elegir cliente] | Segundo caso de estudio. Angello elige el cliente y aporta cifras. Estructura obligatoria de caso | Carrusel | Método | planificada |
 | 23-09 | Mié | Actualidad | N | Lo que automatizo con IA y lo que no pienso automatizar nunca | Pieza de actualidad con ángulo de prueba en directo: el flujo real de Makers, herramienta por herramienta, con lo que falló. Se ancla a la noticia de IA más relevante de esa semana | Carrusel o vídeo | Método | planificada |
 | 24-09 | Jue | Oferta | C2 | Plazas de retainer para Q4: para quién no es | Disponibilidad con descalificadores por delante. Escasez real, no fabricada. **Confirmar número de plazas** | Texto | Método | planificada |

@@ -351,5 +351,27 @@
         "why": "Convierte al lector en auditor de su propio informe con una sola pregunta. La más fuerte de posicionamiento, pero repite el registro confesional del viernes 11. Su gancho queda en reserva."
       }
     ]
+  },
+  {
+    "id": "lun21",
+    "date": "Lun 21 sept",
+    "short": "La IA no sustituye a tu equipo",
+    "chosen": 0,
+    "hora": "09:30",
+    "pilar": "Autoridad · Atracción",
+    "formato": "Solo texto",
+    "tono": "pura",
+    "metrica": "Comentarios que tomen postura y clics a perfil",
+    "media": null,
+    "data": "Sin DATO. Esto no es una pieza nueva: es la versión A del 9 de septiembre, que no se eligió y quedó reservada en el calendario para hoy. Aguantó trece días porque no lleva fecha, ni noticia, ni cifra.",
+    "alts": [
+      {
+        "name": "Sin sistema, más ruido",
+        "tag": "A",
+        "text": "La IA no va a sustituir a tu equipo creativo.\nTu falta de sistema sí.\n\nLlevo meses viendo la misma reunión repetida. Cambio el sector para no señalar a nadie.\n\nViernes, 18:40. Director de marketing.\n\"Quiero meter IA en producción este trimestre.\"\nLe pregunto qué proceso concreto quiere acelerar.\nOnce segundos de silencio.\n\nAhí está el problema. No es la herramienta.\nEs que no hay proceso que acelerar.\n\nLa IA amplifica lo que ya existe.\nCon criterio, produces más de lo que funciona.\nSin criterio, produces ruido más rápido y más barato.\n\nEl enemigo no es el vídeo generativo.\nEs el equipo que publica sin haber decidido para qué.\n\nLo que hago antes de tocar una herramienta:\n\n1. Defino qué pieza sostiene qué objetivo comercial.\n2. Fijo quién aprueba y en cuántas horas.\n3. Solo entonces automatizo el tramo más repetitivo.\n\nY me incluyo. Yo también compré herramientas antes de tener el proceso escrito.\nPerdí semanas de trabajo por eso.\n\nUna empresa sin sistema no tiene un problema de IA.\nTiene un problema de decisión.\n\nTu equipo: ¿el proceso está escrito o vive en la cabeza de alguien?\n\n#IA #ProduccionAudiovisual #MarketingB2B",
+        "comment": "Un matiz que no cabía arriba.\n\nEl coste de la IA sin sistema no es el de la suscripción. Es el tiempo del equipo revisando material que nadie pidió.\n\nEse tiempo no aparece en ninguna factura. Por eso nadie lo mide.",
+        "why": "Reservada el 8 de septiembre para esta fecha exacta: su gancho es, literalmente, el título de la fila de hoy. No se eligió entonces porque el hueco del miércoles 9 pedía una noticia y esta no la necesita. Esa misma independencia es lo que la ha mantenido publicable dos semanas después."
+      }
+    ]
   }
 ]
