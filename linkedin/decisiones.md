@@ -180,3 +180,29 @@ Criterio:
 
 **Sin modificación.** Las tres salieron sin una sola cifra, que era el encargo: esta pieza existe
 para no depender de datos que llevan dos semanas sin llegar.
+
+## 2026-09-23 · «Quién encarga un estudio forma parte del estudio»
+
+**Elegida: versión A, «La regla de lectura».**
+
+La elección no ha sido de gusto. El 21 quedó escrito que este ángulo solo se escribía si se
+verificaban las cifras en el post de Google, y `blog.google` está bloqueado desde esta sesión.
+No llegó la verificación. La A es la única que no lleva ni una cifra, así que es la única
+publicable sin incumplir la condición. Las otras dos quedan con sus números marcados
+`[DATO: confirmar en el post de Google]`.
+
+Y además es la mejor de las tres:
+
+1. La tesis nunca necesitó cifras. «Quién encarga un estudio forma parte del estudio» es una
+   regla de lectura y se sostiene sola. La B y la C usan los números como gancho, lo que las
+   hace depender justo de lo que no se puede confirmar.
+2. El giro queda intacto: un informe que mide el ahorro no mide qué pasa con lo ahorrado. Los
+   tres destinos del tiempo ahorrado son observación propia, no dato de nadie.
+3. El CTA pide una confesión pequeña y concreta, y eso se contesta.
+
+**Lo que evita que sea un ataque:** «lo ha pagado Google» va en el gancho y queda desactivado
+dos renglones después («las dos frases son verdad al mismo tiempo»); del momento elegido dice
+«no es un truco, es oficio»; el enemigo nombrado es una costumbre y Angello se mete en ella
+antes de señalar a nadie.
+
+**Sin modificación.** Desplaza «Lo que automatizo y lo que no», que vuelve a reserva sin gastar.

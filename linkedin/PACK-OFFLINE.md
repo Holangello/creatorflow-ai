@@ -1679,6 +1679,145 @@ El coste de la IA sin sistema no es el de la suscripción. Es el tiempo del equi
 Ese tiempo no aparece en ninguna factura. Por eso nadie lo mide.
 ```
 
+### Miércoles 23 de septiembre · 09:30 · Actualidad · Atracción
+
+**Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios que confiesen y guardados.
+
+> **Antes de publicar:** La A no lleva ni una cifra y sale tal cual. La B y la C están BLOQUEADAS: sus números vienen de cobertura de prensa, no del informe. blog.google está bloqueado desde la sesión, así que si prefieres una de esas dos hay que abrir el post y verificar cada cifra antes.
+
+#### Versión A · La regla de lectura · **ELEGIDA**
+
+_Elegida por Maverick, y era la única posible: es la única sin cifras, y el 21 quedó escrito que sin verificar el post de Google no se publica un número. Además es la mejor — la tesis nunca necesitó cifras, y el giro (un informe que mide el ahorro no mide qué pasa con lo ahorrado) es observación propia._
+
+**Texto del post:**
+
+```
+Google ha publicado un estudio sobre lo que la IA va a hacerle al audiovisual español.
+Lo ha pagado Google.
+
+Las dos frases son verdad al mismo tiempo. Y ninguna anula a la otra.
+
+Lo ha elaborado la consultora Public First por encargo suyo. Se presenta con el Festival de San Sebastián en marcha, justo después de que España se consolidara el año pasado como primer productor de cine de Europa, por delante de Francia e Italia.
+
+El momento está muy bien elegido. Eso no es un truco. Es oficio.
+
+Mi regla de lectura es esta: quién encarga un estudio forma parte del estudio.
+
+No es una acusación. Un informe pagado por quien vende la herramienta puede ser riguroso y aun así elegir qué preguntas hace. Lo honesto es leerlo sabiendo eso. No descartarlo ni tragárselo.
+
+Lo que casi nadie dice en voz alta es lo que va a pasar con él. Se va a usar para defender presupuestos que nadie ha discutido. Y va a funcionar, porque una cifra grande en un PDF con logo ahorra la conversación difícil.
+
+Yo lo he hecho. He metido un estudio de sector en una propuesta para sostener una cifra que me convenía, sin haberme leído el informe entero. Funcionó. Por eso sé que funciona.
+
+El enemigo no es el estudio. Es la costumbre de aprobar presupuesto citando un informe que no se ha leído.
+
+Y hay algo que un estudio así no mide: qué pasa con lo que ahorras.
+
+Te dice cuánto trabajo te quitas de encima. No te dice dónde va. Por lo que yo veo, va a más rondas de revisión, a piezas que nadie pidió, o a ningún sitio: se lo queda el margen del proveedor.
+
+Un ahorro sin una decisión detrás no es un ahorro. Es un hueco en el calendario que alguien va a rellenar.
+
+Lo que te van a poner delante en los próximos meses no es una herramienta. Es un argumento. Y vas a tener que decidir si lo compras.
+
+El último estudio que citaste para defender un presupuesto: ¿lo leíste entero?
+
+#IA #ProduccionAudiovisual #MarketingB2B
+```
+
+**Primer comentario:**
+
+```
+La fuente, para que no te quedes con mi resumen: «El impacto de la IA en la industria audiovisual en España», publicado por Google en blog.google/intl/es-es, con estudio de la consultora Public First.
+
+Léelo tú. Es lo único que pido con un informe: que la cifra que vas a defender en una reunión la hayas visto en su sitio, no en un titular.
+```
+
+#### Versión B · Los días ahorrados
+
+_Entra por la cifra del ahorro. Bloqueada: depende de números sin verificar._
+
+**Texto del post:**
+
+```
+Unos 50 días de trabajo al año. [DATO: confirmar en el post de Google]
+Eso es lo que un estudio nuevo dice que la IA le ahorra a cada creador en España.
+
+La pregunta que el estudio no responde es en qué se van esos días.
+
+Lo ha publicado Google, lo ha elaborado Public First por encargo suyo, y se presenta con el Festival de San Sebastián en marcha. España se consolidó el año pasado como primer productor de cine de Europa, por delante de Francia e Italia. El momento no es casualidad, y no tiene por qué serlo.
+
+Las cifras que circulan son gruesas: hasta 9.400 millones anuales al PIB español en 2035 [DATO: confirmar en el post de Google] y un 20% más de productividad para quien produce contenido. [DATO: confirmar en el post de Google]
+
+Puede ser todo correcto. Mi problema no es el rigor del informe.
+
+Mi problema es que un estudio que mide el ahorro no mide qué pasa con lo ahorrado.
+
+Y por lo que veo en producción, el tiempo que te devuelve una herramienta acaba en uno de estos sitios: en más rondas de revisión, en piezas que nadie pidió, o en nada. Se lo queda el margen de tu proveedor y tú no lo notas.
+
+Ninguno de los tres aparece en un informe. Los tres aparecen en tu calendario.
+
+También te digo lo mío: yo he usado estudios de sector en propuestas para justificar una cifra que me venía bien, sin haber leído el informe completo. Nadie me lo discutió. Eso debería preocuparte más que el informe.
+
+Porque el enemigo aquí no es la IA ni la consultora. Es aprobar presupuesto citando un estudio que no te has leído.
+
+La IA no te devuelve tiempo. Te lo deja encima de la mesa para que decidas de quién es.
+
+Si esta semana te ahorras dos días de producción, ¿ya sabes en qué los vas a gastar? Dímelo concreto.
+
+#IA #ProduccionAudiovisual #MarketingB2B
+```
+
+**Primer comentario:**
+
+```
+Fuente: «El impacto de la IA en la industria audiovisual en España», Google, blog.google/intl/es-es, con estudio de Public First. Las cifras las cito de ahí; compruébalas en el documento antes de usarlas tú.
+
+Y un matiz que no cabía arriba: el ahorro que no se decide no desaparece. Se convierte en trabajo nuevo que nadie pidió, que es la forma más cara de ganar tiempo.
+```
+
+#### Versión C · 2035 y el martes que viene
+
+_Desajuste de escala, cifra macro contra decisión de octubre. Bloqueada por lo mismo._
+
+**Texto del post:**
+
+```
+9.400 millones al PIB español en 2035. [DATO: confirmar en el post de Google]
+Es la cifra del estudio nuevo sobre IA y audiovisual. Tu problema es el martes que viene.
+
+Las dos cosas no se tocan, y ahí está el negocio de este tipo de informes.
+
+Lo ha publicado Google, lo ha elaborado Public First por encargo suyo, y llega con el Festival de San Sebastián en marcha, un año después de que España se consolidara como primer productor de cine de Europa por delante de Francia e Italia. Contexto perfecto.
+
+Dentro hay más: un 20% de productividad para los creadores y hasta un 190% de alcance global con traducción asistida, con 370 millones de ingresos nuevos. [DATO: confirmar en el post de Google]
+
+Doy por bueno el rigor. Y aun así, ninguna de esas cifras aprueba un presupuesto.
+
+Un estudio de país mide un país. Tú no decides un país. Decides cuántas piezas firmas en octubre, con qué equipo y a qué coste.
+
+Por eso mi regla al leer cualquier informe es la misma: quién lo encarga forma parte de él. No para descartarlo. Un informe pagado por quien vende la herramienta puede ser impecable y a la vez elegir qué preguntas hace y cuáles no.
+
+Y hay una que este no hace: qué pasa con el tiempo que te ahorras. Va a más revisiones, a piezas que nadie pidió, o al margen de tu proveedor. Nunca vuelve solo a tu cuenta de resultados.
+
+Confieso la parte que me toca: he citado estudios de sector en propuestas para sostener una cifra que me convenía, sin leerme el informe entero. Formo parte de esta costumbre.
+
+Que es el verdadero enemigo: aprobar dinero citando un estudio que nadie de la reunión ha abierto.
+
+Ninguna cifra de 2035 firma un presupuesto de octubre. Eso lo firmas tú, con tu nombre.
+
+Lo que te van a poner delante estos meses no es una herramienta. Es un argumento. ¿Lo compras o lo discutes?
+
+#IA #ProduccionAudiovisual #MarketingB2B
+```
+
+**Primer comentario:**
+
+```
+Fuente, para que la lectura no sea la mía: «El impacto de la IA en la industria audiovisual en España», Google, blog.google/intl/es-es, con estudio de Public First.
+
+Leerlo entero cuesta menos que defender en una reunión una cifra que has visto en un titular. Lo digo por experiencia propia, no por prudencia.
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -2000,7 +2139,7 @@ Me llamaron arrogante por proponer empezar por el sistema antes de grabar. Perd�
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 21-09 | Lun | Autoridad | A1 | La IA no va a sustituir a tu equipo creativo. Tu falta de sistema sí | Contra el miedo. La IA amplifica lo que ya existe: si no hay criterio, produce más ruido más rápido. Tesis central del pilar de automatización | Texto | Pura | creada · reserva del 8-09 · `cola/2026-09-21-ia-no-sustituye-tu-equipo.md` |
 | 22-09 | Mar | Prueba | B1 | Caso 2: [pendiente de elegir cliente] | Segundo caso de estudio. Angello elige el cliente y aporta cifras. Estructura obligatoria de caso | Carrusel | Método | planificada |
-| 23-09 | Mié | Actualidad | N | Un estudio dice que la IA le da 9.400 millones al audiovisual español. Lo ha pagado Google | **Anclada el 21-09 con el radar.** Sustituye a «Lo que automatizo y lo que no», que pasa a reserva. Estudio de Public First encargado por Google, presentado en San Sebastián. Ángulo: contra el hype sin atacar a nadie — quién encarga un estudio forma parte del estudio, y un informe que mide el ahorro no mide qué pasa con lo ahorrado. **Condición innegociable: Angello abre el post de blog.google y verifica cada cifra antes de que se escriba nada.** Desde esta sesión ese dominio está bloqueado. Se redacta el 22 | Texto | Método | planificada · anclada |
+| 23-09 | Mié | Actualidad | N | Quién encarga un estudio forma parte del estudio · **elegida versión A** | Estudio de Public First encargado por Google, presentado con San Sebastián en marcha. **La A no lleva ni una cifra:** se eligió así porque la verificación en blog.google no llegó y ese dominio está bloqueado desde la sesión. La tesis no necesitaba números — quién encarga un estudio forma parte del estudio, y un informe que mide el ahorro no mide qué pasa con lo ahorrado. La B y la C quedan bloqueadas con sus cifras marcadas. `cola/2026-09-23-quien-paga-el-estudio.md` | Texto | Método | creada · tres versiones |
 | 24-09 | Jue | Oferta | C2 | Plazas de retainer para Q4: para quién no es | Disponibilidad con descalificadores por delante. Escasez real, no fabricada. **Confirmar número de plazas** | Texto | Método | planificada |
 | 25-09 | Vie | Autoridad | D2 | Encuesta: ¿qué frena de verdad vuestro contenido? | Encuesta con 4 opciones que dividen al ICP (presupuesto, tiempo, criterio, aprobaciones). En el primer comentario, el voto de Angello y por qué | Encuesta | Método | planificada |
 
@@ -2037,6 +2176,7 @@ Para rellenar huecos, sustituir una pieza bloqueada por falta de datos, o alimen
 
 **Actualidad (ángulos recurrentes)**
 - Cada anuncio de modelo generativo de vídeo: qué cambia y qué no en un rodaje real.
+- **Lo que automatizo con IA y lo que no pienso automatizar nunca** (vuelve a reserva el 22-09, sin gastar: la desplazó el estudio de Google en el hueco del 23. El tema no caduca y el texto existe como versión C del 9-09).
 - AI Act: plazos y qué debe tener firmado una empresa que usa IA en campañas.
 - Derechos de imagen y voz sintética en publicidad en España.
 - Cada actualización de formatos o especificaciones de vídeo en LinkedIn.
@@ -2202,5 +2342,6 @@ No se duplican en ningún otro fichero.
 | Jue 17 sept | Lo hacemos dentro |  |  |  |  |  |  |  |
 | Vie 18 sept | Qué mido y qué ignoro |  |  |  |  |  |  |  |
 | Lun 21 sept | La IA no sustituye a tu equipo |  |  |  |  |  |  |  |
+| Mié 23 sept | Quién paga el estudio |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
