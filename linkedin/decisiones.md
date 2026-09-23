@@ -1,0 +1,231 @@
+# Registro de decisiones editoriales
+
+Cada elección de versión, con su criterio. Sirve para que el analyst pueda cruzar decisiones
+con resultados y para que el copywriter aprenda qué se elige y por qué.
+
+## 2026-09-08 · "El 90% del contenido corporativo no lo vería nadie si no lo pagaran"
+
+**Elegida: versión B, «Los tres síntomas».** Decisión de Maverick, delegada por Angello.
+
+Criterio:
+
+1. Con red mínima, el post apenas sale del primer grado, así que el gancho tiene que cargar
+   solo. La B mete acusación, cifra y dolor no dicho dentro de los 210 caracteres previos al
+   corte. La A gasta ese espacio montando una escena sin contexto previo; la C se explica ante
+   gente que todavía no sabe quién es Angello.
+2. La lista numerada de autodiagnóstico retiene mejor que la narración: el lector se detiene a
+   contarse los síntomas.
+3. El cierre «elige un síntoma» provoca comentarios de más de cinco palabras y autoclasifica al
+   que responde como cliente ideal. El A/B de la versión A da respuestas de una letra.
+4. Posicionamiento: la B nombra el enemigo estructural (facturar piezas sueltas), que es la
+   tesis pública de la estrategia. La C convierte a Angello en el enemigo y fija el marco
+   "ex-proveedor arrepentido" en lugar de "director con criterio".
+
+**Modificación aplicada:** se incrusta la escena de los once segundos de silencio, comprimida
+en dos líneas, dentro del primer síntoma, para cubrir la palanca de escena sin perder el gancho.
+
+**Nota para Angello:** el 90% y el rango de 3.000 a 8.000 euros son observación propia de
+mercado, no estadística, y el texto lo dice así ("que veo"). El primer comentario lo explicita.
+Conviene que puedas sostener esa observación si alguien la discute en comentarios.
+
+## 2026-09-11 · "Rechacé un proyecto y me llamaron arrogante"
+
+**Elegida: versión D, «El no que retuvo criterio».** Escrita después de las tres primeras para
+desbloquear la pieza.
+
+Las versiones A, B y C dependían de un importe que Angello no había confirmado, y las reglas
+prohíben publicar cifras sin confirmar. La D mide la pérdida en semanas de producción ya
+reservadas y en tranquilidad de facturación hasta enero, en lugar de en euros. El diálogo a
+tres réplicas sostiene la tensión que antes sostenía el número.
+
+Las tres versiones con importe siguen en el banco por si Angello prefiere una de ellas y
+confirma la cifra.
+
+## Pendiente
+
+- **Caso de estudio (15 de septiembre).** Bloqueado: requiere cliente, autorización y cifras
+  reales.
+- **[DATO: nº] días de rodaje** en el carrusel del jueves 10.
+
+## 2026-09-09 · Pieza de actualidad sobre IA
+
+**Elegida: versión B, «La demo dura ocho segundos».** Ángulo: contra el hype. Intensidad: método.
+
+Criterio:
+
+1. **Canibalización.** La versión A es literalmente el título de la pieza del 21 de septiembre
+   ("La IA no va a sustituir a tu equipo creativo, tu falta de sistema sí") y la C es la del 23
+   ("Lo que automatizo con IA y lo que no pienso automatizar nunca"). Elegir cualquiera de las
+   dos obligaría a reescribir el calendario dos veces en tres semanas.
+2. **Cupo de confrontación.** El martes gasta la pieza pura de la semana y el viernes va marcado
+   como pura. La A es confrontación pura contra el miedo colectivo; nos dejaría en tres.
+3. **Aguante ante el radar.** Es la única que funciona igual publicada sola o anclada a una
+   noticia: su cuerpo vale contra cualquier anuncio de vídeo generativo y el gancho admite fecha
+   explícita sin tocar el resto.
+4. **Mecanismo sin repetir.** El martes retiene con lista de autodiagnóstico y el viernes con
+   diálogo. La B retiene desmontando un objeto externo, con cifra en el gancho.
+
+**Modificación aplicada:** el tercer punto pasa de hablar de regulación en abstracto a hablar de
+riesgo contractual concreto para el cliente ("si la marca sale en campaña, alguien firma los
+derechos de imagen y voz; ese alguien eres tú, no la herramienta").
+
+**Pendiente de verificar:** si la pieza se ancla a una demo concreta, comprobar la duración real
+contra la fuente primaria antes de publicar.
+
+## 2026-09-10 · Carrusel SISTEMA MAKERS
+
+**Elegida: versión B, «Te regalo el método».** Intensidad: método.
+
+Criterio:
+
+1. **Variedad de mecanismo.** La A abre acusando al sector y se autoinculpa, que es exactamente
+   el movimiento del martes. Dos días después el lector reconoce la fórmula.
+2. **Coherencia con la decisión del martes.** Descartamos la C del martes por convertir a Angello
+   en el enemigo; la A del jueves comete el mismo error, y encima en una pieza de oferta, donde
+   la autoinculpación erosiona la confianza que el CTA necesita.
+3. **Riesgo y duplicidad de la C.** Lleva una cifra sin confirmar, y su apertura por expulsión ya
+   está reservada para la pieza del 24 de septiembre.
+4. **Formato.** Un carrusel se optimiza para guardados. Regalar las seis fases en los primeros
+   slides maximiza guardado y dwell; la acusación a mitad genera el comentario. La C filtra en el
+   slide 1 y reduce la base que llega al slide 10, que es donde vive el CTA.
+5. **Reciprocidad.** Quien ha recibido el método entero y entiende que no puede ejecutarlo solo
+   escribe el mensaje con más intención.
+
+**Modificaciones aplicadas:** el enemigo se enuncia con otras palabras que el martes ("un método
+se cobra una vez; un encargo detrás de otro, todos los meses"), y se añade un punto de prueba
+propio de Makers sobre ritmo de producción, marcado como [DATO] para que Angello lo confirme.
+
+**Brief de producción:** `cola/2026-09-10-carrusel-sistema-makers.md`.
+
+## 2026-09-09 · Actualidad anclada a Sora (radar del 8 de septiembre)
+
+**Elegida: B+, «Sora caduca en quince días».** La B con la fecha del apagado de la API en el
+gancho y una cuarta cosa que nadie cuenta: el riesgo de proveedor. Nivel 2 del protocolo.
+
+Criterio: el radar solo devuelve una noticia con fuente primaria y consecuencia directa para
+un director de marketing con campaña en Q4. Es de abril, pero la ventaja está en la fecha
+límite, no en la novedad. Ni una línea contra la empresa: el enemigo sigue siendo la práctica.
+Comprobar antes de publicar que la página de OpenAI mantenga el 24 de septiembre.
+
+## 2026-09-14 · "El briefing de 40 páginas no es rigor, es miedo a decidir"
+
+**Elegida: versión B, «La frase».**
+
+Criterio:
+
+1. El dolor no dicho lo verbaliza el propio ICP («así nadie me lo puede tirar»). Divide en dos
+   bandos desde la segunda línea.
+2. Mecanismo nuevo: una sola réplica. La semana 1 ya gastó lista de síntomas, desmontaje de un
+   objeto, método regalado y diálogo a tres.
+3. El CTA apunta al cargo que queremos en comentarios y le pide firmar.
+4. Las cinco preguntas de la A se reservan para un carrusel A4 en octubre; quemarlas en la pieza
+   de confrontación desperdicia un formato de guardado.
+
+**Modificación aplicada:** fuera los dos [DATO] de la B; la escena se sostiene sin cifra.
+La A y la C conservan los suyos por si Angello prefiere una de ellas.
+
+## 2026-09-17 · "El contenido lo hacemos dentro. Vale. ¿Cuánto os cuesta cada pieza?"
+
+**Elegida: versión A, «La cuenta en voz alta».**
+
+Criterio:
+
+1. Intensidad método de verdad: una cuenta con supuestos redondos que el lector sustituye.
+2. El total (430 € por pieza publicada, 3.400 € al mes) es lo citable y lo que se comparte.
+3. La B abre con videollamada y réplica única, el mismo mecanismo del lunes 14.
+4. La C («y lo aprobaste tú») roza la confrontación pura; su gancho queda en reserva.
+
+**Sin modificación.** El [DATO: piezas por rodaje] se mantiene: es el mismo hecho propio de
+Makers que pide el carrusel del jueves 10. Confirmarlo una vez sirve para ambas piezas.
+
+## 2026-09-16 · «El plano que falta ya no se graba: se fabrica en el montaje»
+
+**Elegida: versión A, «La partida».**
+
+Criterio:
+
+1. Mecanismo nuevo. El 8 y el 14 abrieron con escena y diálogo; la B lo haría por tercera vez
+   en tres piezas y el lector reconoce la fórmula antes del corte.
+2. Es la traducción a negocio más limpia, que es el ángulo declarado del hueco de actualidad.
+3. Pone las cifras del spot de Movistar justo detrás de las partidas, que es donde pesan.
+4. El CTA pide nombrar una partida: quien comenta se autoclasifica como el que firma.
+
+**La C queda en reserva, no descartada.** Era la más original —mueve la conversación de
+presupuesto a gobernanza usando la obligación de transparencia europea—, pero apoya la pieza
+entera en una lectura legal cuyo alcance concreto para un anuncio no he podido verificar
+contra una fuente primaria que trate el caso. Firmar autoridad sobre una interpretación
+discutible es el riesgo que este sistema no corre. Se recupera para un hueco de actualidad
+posterior, con el artículo y su alcance citados sin rodeos.
+
+**Sin modificación del texto.** Ninguna cifra es de Makers ni de cliente: todas son del
+desglose público de la productora y van atribuidas como suyas.
+
+## 2026-09-18 · «Qué mido en un proyecto y qué ignoro a propósito»
+
+**Sustitución, antes que elección.** La pieza planificada era B2, un antes y después con cifra de
+cliente, bloqueada desde la semana 1. Se activa el banco de reserva, que el calendario define
+exactamente para esto. B2 se aparca sin fecha en vez de arrastrarla de viernes en viernes.
+
+**Elegida: versión B, «El reloj».**
+
+Criterio:
+
+1. Mecanismo nuevo. La semana gastó escena con frase de cliente, revisión de partidas y cuenta
+   aritmética. La A vuelve a la lista, que ya se usó dos veces en la semana 1. La B es un eje de
+   tiempo, que no se ha usado.
+2. El dolor no dicho más concreto de los tres: mirar las estadísticas a los diez minutos.
+3. Forma y fondo coinciden. Es una pieza sobre cuándo se leen las métricas y su CTA pide una hora:
+   se contesta en la primera ventana, que es la métrica que la propia pieza defiende.
+4. La C repite el registro confesional del 11-09. Su gancho queda en reserva.
+
+**Sin modificación.** Las tres salieron sin una sola cifra, que era el encargo: esta pieza existe
+para no depender de datos que llevan dos semanas sin llegar.
+
+## 2026-09-23 · «Quién encarga un estudio forma parte del estudio»
+
+**Elegida: versión A, «La regla de lectura».**
+
+La elección no ha sido de gusto. El 21 quedó escrito que este ángulo solo se escribía si se
+verificaban las cifras en el post de Google, y `blog.google` está bloqueado desde esta sesión.
+No llegó la verificación. La A es la única que no lleva ni una cifra, así que es la única
+publicable sin incumplir la condición. Las otras dos quedan con sus números marcados
+`[DATO: confirmar en el post de Google]`.
+
+Y además es la mejor de las tres:
+
+1. La tesis nunca necesitó cifras. «Quién encarga un estudio forma parte del estudio» es una
+   regla de lectura y se sostiene sola. La B y la C usan los números como gancho, lo que las
+   hace depender justo de lo que no se puede confirmar.
+2. El giro queda intacto: un informe que mide el ahorro no mide qué pasa con lo ahorrado. Los
+   tres destinos del tiempo ahorrado son observación propia, no dato de nadie.
+3. El CTA pide una confesión pequeña y concreta, y eso se contesta.
+
+**Lo que evita que sea un ataque:** «lo ha pagado Google» va en el gancho y queda desactivado
+dos renglones después («las dos frases son verdad al mismo tiempo»); del momento elegido dice
+«no es un truco, es oficio»; el enemigo nombrado es una costumbre y Angello se mete en ella
+antes de señalar a nadie.
+
+**Sin modificación.** Desplaza «Lo que automatizo y lo que no», que vuelve a reserva sin gastar.
+
+## 2026-09-24 · «Plazas de retainer para Q4: para quién no es»
+
+**Elegida: versión A, «Para quién no es».**
+
+El calendario pedía confirmar el número de plazas y ese dato no llegó, como los anteriores. En
+vez de dejar un cuarto hueco bloqueado, la A se escribió desde el principio para no necesitar
+ninguna cifra de oferta: ni plazas, ni precio, ni plazo.
+
+**El problema real y cómo se resolvió.** Una pieza de escasez sin cifra suena a escasez
+fabricada, que es justo lo que el pilar de oferta prohíbe. La salida no era insinuar un número
+vago sino cambiar el eje: la restricción de Q4 no es de agenda, es de criterio. No se entra
+porque quede hueco, se entra porque encaja. Eso es verdad y no obliga a contar nada.
+
+**Gasta la apertura reservada el 10-09.** Aquel día se descartó la versión que abría expulsando
+al lector, y quedó escrito que se guardaba para esta pieza. Una pieza titulada «para quién no
+es» tiene que empezar por ahí.
+
+Frente a las otras dos: la B es más confrontativa pero necesita el número para que su promesa
+(«voy a decir que no a gente dispuesta a pagarlas») pese; la C pone el triaje por delante, pero
+sus tres preguntas se parecen demasiado a la lista de tres pasos del lunes 21.
+
+**Sin modificación.**
