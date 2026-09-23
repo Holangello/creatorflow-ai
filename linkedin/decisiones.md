@@ -206,3 +206,26 @@ dos renglones después («las dos frases son verdad al mismo tiempo»); del mome
 antes de señalar a nadie.
 
 **Sin modificación.** Desplaza «Lo que automatizo y lo que no», que vuelve a reserva sin gastar.
+
+## 2026-09-24 · «Plazas de retainer para Q4: para quién no es»
+
+**Elegida: versión A, «Para quién no es».**
+
+El calendario pedía confirmar el número de plazas y ese dato no llegó, como los anteriores. En
+vez de dejar un cuarto hueco bloqueado, la A se escribió desde el principio para no necesitar
+ninguna cifra de oferta: ni plazas, ni precio, ni plazo.
+
+**El problema real y cómo se resolvió.** Una pieza de escasez sin cifra suena a escasez
+fabricada, que es justo lo que el pilar de oferta prohíbe. La salida no era insinuar un número
+vago sino cambiar el eje: la restricción de Q4 no es de agenda, es de criterio. No se entra
+porque quede hueco, se entra porque encaja. Eso es verdad y no obliga a contar nada.
+
+**Gasta la apertura reservada el 10-09.** Aquel día se descartó la versión que abría expulsando
+al lector, y quedó escrito que se guardaba para esta pieza. Una pieza titulada «para quién no
+es» tiene que empezar por ahí.
+
+Frente a las otras dos: la B es más confrontativa pero necesita el número para que su promesa
+(«voy a decir que no a gente dispuesta a pagarlas») pese; la C pone el triaje por delante, pero
+sus tres preguntas se parecen demasiado a la lista de tres pasos del lunes 21.
+
+**Sin modificación.**

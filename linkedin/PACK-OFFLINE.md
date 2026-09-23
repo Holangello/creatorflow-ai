@@ -1818,6 +1818,151 @@ Fuente, para que la lectura no sea la mía: «El impacto de la IA en la industri
 Leerlo entero cuesta menos que defender en una reunión una cifra que has visto en un titular. Lo digo por experiencia propia, no por prudencia.
 ```
 
+### Jueves 24 de septiembre · 12:30 · Oferta · Captación
+
+**Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Mensajes privados con «sistema» en 7 días.
+
+> **Antes de publicar:** La A sale tal cual: no lleva ninguna cifra de oferta. La B y la C esperan el número de plazas de Q4, que sigue sin confirmar.
+
+#### Versión A · Para quién no es · **ELEGIDA**
+
+_Elegida por Maverick. Única sin cifras, y es donde tocaba gastar la apertura por expulsión que quedó reservada el 10-09. Resuelve el problema de fondo cambiando el eje: la restricción de Q4 no es de agenda sino de criterio, así que la escasez no suena fabricada sin necesitar un número._
+
+**Texto del post:**
+
+```
+Antes de decirte que abro retainer para Q4, te digo para quién no es.
+Si lo que buscas es «un vídeo», ahórrate el mensaje. No te lo voy a vender.
+
+No es un filtro de marketing. Es la lista de errores que he cometido yo, pagando.
+
+No es para quien elige proveedor por precio. Siempre va a haber alguien más barato. Y lo pagas dos veces: la suya y la de rehacerlo.
+
+No es para quien dice «empezamos y luego ya vemos». Eso no es flexibilidad. Es un presupuesto que todavía no existe.
+
+No es para quien necesita que el criterio lo ponga un comité. Un sistema de marca no se vota.
+
+No es para quien no tiene a nadie que pueda decidir en singular. Si no hay una persona que firme, no hay sistema: hay reuniones.
+
+Y ahora mi parte. He dicho que sí a proyectos que no encajaban porque había que cerrar el mes.
+
+Entregué bien. Cobré. No hubo segunda pieza. A los noventa días era prescindible.
+
+Decir que no me costó aprenderlo.
+
+Por eso la restricción de Q4 no es de agenda. Es de criterio.
+
+No se entra porque quede hueco. Se entra porque encaja.
+
+Lo que hay al otro lado es SISTEMA MAKERS: inmersión estratégica, diseño del sistema, dirección creativa, producción audiovisual, implementación digital y escalado con IA. Seis fases, un calendario, una persona que decide.
+
+El que entra por precio sale por precio. El que entra por criterio se queda.
+
+Si te has leído la lista entera y sigues aquí, escríbeme «sistema» por privado.
+
+#MarketingB2B #DirecciónCreativa #ContenidoCorporativo
+```
+
+**Primer comentario:**
+
+```
+Qué pasa exactamente cuando escribes «sistema»: te hago tres preguntas por mensaje. Cuántas piezas necesitáis publicar al mes, quién decide y cuál es el plazo real. Si encaja, 30 minutos de diagnóstico. Si no encaja, te lo digo el mismo día y te digo por qué. Nadie debería perder un trimestre por educación. Cómo trabajamos: agenciamakers.com
+```
+
+#### Versión B · El no del mismo día
+
+_Más confrontativa, con los descalificadores en boca del lector. Necesita el número para que pese._
+
+**Texto del post:**
+
+```
+Abro [DATO: nº de plazas de Q4] plazas de retainer para Q4.
+Y voy a decir que no a gente dispuesta a pagarlas. No por agenda. Por encaje.
+
+El no lo mando el mismo día. Sin propuesta de cortesía, sin «te preparo algo y lo vemos».
+
+Estas son las frases que lo activan.
+
+«Necesito un vídeo». Eso es una pieza, no un sistema. Para eso hay gente más rápida y más barata que yo, y hacen bien su trabajo.
+
+«¿Qué precio me haces?». Siempre habrá alguien más barato. Ese alguien te va a salir por dos.
+
+«Empezamos y luego ya vemos». No es flexibilidad. Es un presupuesto que todavía no existe.
+
+«Lo tengo que pasar por comité». Un comité aprueba. Decidir es otra cosa.
+
+«Ya te diré quién lo lleva». Si no hay nadie que decida en singular, no hay sistema.
+
+Yo he firmado proyectos que entraban con tres de esas cinco frases. Había que cerrar el mes.
+
+Entregué bien y no hubo segunda pieza. A los noventa días era prescindible. Decir que no me costó aprenderlo.
+
+Las plazas son [DATO: nº de plazas de Q4], sí. Pero no es el calendario lo que las limita.
+
+Lo que las limita es que un retainer solo funciona cuando hay alguien al otro lado que puede decidir sin pedir permiso.
+
+Detrás hay SISTEMA MAKERS: seis fases, de la inmersión estratégica al escalado con IA.
+
+Un no el mismo día vale más que un sí que caduca a los noventa días.
+
+Escríbeme «sistema» por privado.
+
+#MarketingB2B #DirecciónCreativa #ContenidoCorporativo
+```
+
+**Primer comentario:**
+
+```
+El no del mismo día no es postureo: es lo que me habría ahorrado dos trimestres. Si escribes «sistema», te devuelvo tres preguntas (volumen mensual, quién decide, plazo real). Con eso sé si encaja. Si encaja, 30 minutos de diagnóstico. Si no, te lo digo ese día y te digo con quién hablaría yo en tu lugar. Qué incluye el retainer: agenciamakers.com
+```
+
+#### Versión C · Antes del calendario
+
+_Triaje por delante de la oferta. Sus tres preguntas rozan la lista de tres pasos del lunes 21._
+
+**Texto del post:**
+
+```
+Las plazas de retainer de Q4 no se dan por orden de llegada.
+Hay [DATO: nº de plazas de Q4] y no doy por hecho que se ocupen todas.
+
+Antes de mirar el calendario miro otra cosa. Tres preguntas que caben en un mensaje.
+
+La primera: ¿cuántas piezas necesitáis publicar al mes?
+
+Si la respuesta es «una, para el evento de noviembre», ya está. Eso es un encargo. No necesitas un sistema y no te lo voy a vender.
+
+La segunda: ¿quién decide?
+
+No quién aprueba. Quién decide. Si el criterio lo tiene que poner un comité, el sistema se muere la tercera semana, cuando hay que elegir entre dos caminos y nadie quiere firmar ninguno.
+
+La tercera: ¿cuál es el plazo real?
+
+«Empezamos y luego ya vemos» no es flexibilidad. Es un presupuesto que todavía no existe.
+
+Hay un cuarto filtro que no pregunto porque se ve solo: si la conversación arranca por el precio, ya sé cómo acaba. Siempre habrá alguien más barato y lo vas a pagar dos veces.
+
+Yo antes no preguntaba nada de esto. Cogía el proyecto porque había que cerrar el mes.
+
+Entregué bien y no hubo segunda pieza. A los noventa días era prescindible. Decir que no me costó aprenderlo.
+
+Por eso el límite de Q4 no está en la agenda. Está en el encaje.
+
+Si pasas las tres preguntas, hay 30 minutos de diagnóstico y detrás SISTEMA MAKERS: inmersión estratégica, diseño del sistema, dirección creativa, producción, implementación digital y escalado con IA.
+
+Un retainer no se vende. Se comprueba antes de empezar.
+
+Escríbeme «sistema» por privado y te hago las tres preguntas.
+
+#MarketingB2B #DirecciónCreativa #ContenidoCorporativo
+```
+
+**Primer comentario:**
+
+```
+Las tres preguntas están en ese orden por un motivo. El volumen dice si necesitas un sistema o un proveedor. Quién decide dice si va a sobrevivir a la tercera semana. El plazo dice si el presupuesto existe o está por pedir. Contestarlas cuesta cinco minutos. Un trimestre mal encajado cuesta el trimestre entero. Cómo funciona por dentro: agenciamakers.com
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -2140,7 +2285,7 @@ Me llamaron arrogante por proponer empezar por el sistema antes de grabar. Perd�
 | 21-09 | Lun | Autoridad | A1 | La IA no va a sustituir a tu equipo creativo. Tu falta de sistema sí | Contra el miedo. La IA amplifica lo que ya existe: si no hay criterio, produce más ruido más rápido. Tesis central del pilar de automatización | Texto | Pura | creada · reserva del 8-09 · `cola/2026-09-21-ia-no-sustituye-tu-equipo.md` |
 | 22-09 | Mar | Prueba | B1 | Caso 2: [pendiente de elegir cliente] | Segundo caso de estudio. Angello elige el cliente y aporta cifras. Estructura obligatoria de caso | Carrusel | Método | planificada |
 | 23-09 | Mié | Actualidad | N | Quién encarga un estudio forma parte del estudio · **elegida versión A** | Estudio de Public First encargado por Google, presentado con San Sebastián en marcha. **La A no lleva ni una cifra:** se eligió así porque la verificación en blog.google no llegó y ese dominio está bloqueado desde la sesión. La tesis no necesitaba números — quién encarga un estudio forma parte del estudio, y un informe que mide el ahorro no mide qué pasa con lo ahorrado. La B y la C quedan bloqueadas con sus cifras marcadas. `cola/2026-09-23-quien-paga-el-estudio.md` | Texto | Método | creada · tres versiones |
-| 24-09 | Jue | Oferta | C2 | Plazas de retainer para Q4: para quién no es | Disponibilidad con descalificadores por delante. Escasez real, no fabricada. **Confirmar número de plazas** | Texto | Método | planificada |
+| 24-09 | Jue | Oferta | C2 | Plazas de retainer para Q4: para quién no es · **elegida versión A** | **Sin cifra de plazas, y a propósito.** El dato no llegó, así que la A se construyó para no necesitarlo: la restricción de Q4 deja de ser de agenda y pasa a ser de criterio — no se entra porque quede hueco, se entra porque encaja. Así no suena a escasez fabricada, que es lo que el pilar prohíbe. Usa la apertura por expulsión que quedó reservada el 10-09. La B y la C llevan el número marcado y quedan disponibles. `cola/2026-09-24-para-quien-no-es.md` | Texto | Método | creada · tres versiones |
 | 25-09 | Vie | Autoridad | D2 | Encuesta: ¿qué frena de verdad vuestro contenido? | Encuesta con 4 opciones que dividen al ICP (presupuesto, tiempo, criterio, aprobaciones). En el primer comentario, el voto de Angello y por qué | Encuesta | Método | planificada |
 
 ## Semana 4 · 28 de septiembre al 2 de octubre
@@ -2343,5 +2488,6 @@ No se duplican en ningún otro fichero.
 | Vie 18 sept | Qué mido y qué ignoro |  |  |  |  |  |  |  |
 | Lun 21 sept | La IA no sustituye a tu equipo |  |  |  |  |  |  |  |
 | Mié 23 sept | Quién paga el estudio |  |  |  |  |  |  |  |
+| Jue 24 sept | Para quién no es |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
