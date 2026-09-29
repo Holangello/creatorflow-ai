@@ -94,9 +94,17 @@ Máximo una pieza de confrontación pura por semana.
 
 | Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+**Tres días sin redactar: 25, 28 y 29.** No fue una decisión editorial. Las rutinas de esos días se
+dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. Cuando hubo sesión para
+trabajarlos, los tres huecos ya habían pasado. **No se recuperan y no se rellenan a posteriori:** un post
+fechado hacia atrás no es una pieza publicada, es papel. Las tres ideas vuelven al banco de reserva y
+entran cuando toque su pilar — la encuesta del 25 y el dron del 28 no caducan, y el error de rodaje del 29
+tampoco. Queda escrito para que la fila vacía se lea como lo que es: un fallo de canal, no una semana sin
+nada que decir.
+
 | 28-09 | Lun | Autoridad | A1 | Si tu vídeo empieza con un dron sobre el edificio, ya has perdido | Ataque a un tópico visual que casi todos han pagado. Matemática de atención en los 3 primeros segundos. La decisión que se toma antes de encender la cámara | Vídeo | Pura | planificada |
 | 29-09 | Mar | Prueba | B3 | El error que costó un día entero de rodaje | Historia de un fallo propio y el sistema que se montó para que no se repita. Vulnerabilidad usada como prueba de proceso | Texto | Método | planificada |
-| 30-09 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar | Texto o vídeo | Método | planificada |
+| 30-09 | Mié | Actualidad | N | Pagaste por un vídeo y lo que generaste fue un dataset · **elegida versión A** | Hueco fijo, anclado en el barrido del 29-09. ALÍA reunió en las actividades de Industria del Festival de San Sebastián una mesa sobre IA en el pipeline audiovisual y la palabra que la atravesó fue *trazabilidad*. Ángulo: traducción a negocio, no crónica de mesa redonda — el sector lo discute como ingeniería y para el ICP es una cláusula del contrato de producción que firma sin leer. Enemigo: el modelo de contrato que solo habla del entregable final; nunca una productora. **Cero cifras en las tres versiones, y no por bloqueo: la noticia no tiene ninguna.** Maverick corrigió las tres antes de guardar: situaban la mesa «el lunes», que es la fecha de la crónica y no la del debate. `cola/2026-09-30-la-clausula-que-falta.md` | Texto | Método | creada · tres versiones |
 | 01-10 | Jue | Oferta | C1 | Qué recibe un cliente de Makers cada mes | Desglose literal del entregable mensual: calendario, piezas, informe. Transparencia como argumento de venta frente a agencias opacas | Carrusel | Método | planificada |
 | 02-10 | Vie | Humano | D1 | Por qué me fui de Perú a Madrid a montar esto | Historia personal con lección de negocio. Única pieza puramente biográfica del mes. **Angello: confirma los datos que quieres contar** | Texto + foto | Método | planificada |
 

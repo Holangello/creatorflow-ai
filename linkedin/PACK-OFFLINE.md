@@ -1963,6 +1963,166 @@ Escríbeme «sistema» por privado y te hago las tres preguntas.
 Las tres preguntas están en ese orden por un motivo. El volumen dice si necesitas un sistema o un proveedor. Quién decide dice si va a sobrevivir a la tercera semana. El plazo dice si el presupuesto existe o está por pedir. Contestarlas cuesta cinco minutos. Un trimestre mal encajado cuesta el trimestre entero. Cómo funciona por dentro: agenciamakers.com
 ```
 
+### Miércoles 30 de septiembre · 09:30 · Actualidad
+
+**Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios de decisor (el CTA pide abrir el último contrato firmado) y guardados.
+
+> **Antes de publicar:** Ninguno. Las tres versiones salen tal cual: la noticia no tiene una sola cifra y no le hace falta ninguna.
+
+#### Versión A · La cláusula que falta · **ELEGIDA**
+
+_Elegida por Maverick. Su gancho no depende de la noticia: funciona aunque el lector no haya oído hablar de la mesa. Y es la única que cierra pidiendo algo que se hace en treinta segundos y que además le revela al lector algo suyo — abrir el último contrato y buscar la palabra «brutos». Eso se contesta._
+
+**Texto del post:**
+
+```
+Tu contrato de producción dice quién es dueño del vídeo.
+No dice nada del material que se grabó ese día para hacerlo.
+
+Y el material es casi todo.
+
+En las actividades de Industria del Festival de San Sebastián, ALÍA juntó a técnicos, fabricantes y abogados para hablar de IA en el pipeline audiovisual.
+
+La palabra que más se repitió no fue creatividad. Fue trazabilidad.
+
+De dónde viene una imagen. Qué transformaciones ha sufrido. Qué herramientas y qué modelos han pasado por ella. Y en qué condiciones se usó el material original.
+
+Se citó C2PA, un estándar abierto para registrar la procedencia de un contenido desde la captura hasta la distribución.
+
+Suena a ingeniería. Es una cláusula.
+
+Cuando encargas un rodaje pagas por una pieza terminada. Lo que se genera ese día es otra cosa: horas de caras de tus empleados, de tus instalaciones, de tus productos.
+
+Tu contrato habla del montaje final. Del resto, silencio.
+
+No digo que nadie te robe nada. Digo algo más incómodo: que no está escrito.
+
+Los míos tampoco lo decían hasta hace poco. Años firmando contratos que solo hablaban del entregable.
+
+Tres líneas que caben en el próximo:
+
+1. Quién es dueño de los brutos y cuánto tiempo se conservan.
+2. Si pueden usarse para entrenar modelos, y con qué consentimiento de quien sale.
+3. Qué herramientas generativas han tocado la entrega final.
+
+Pagaste por un vídeo. Lo que generaste fue un dataset. El contrato solo cubre una de las dos cosas.
+
+Abre el último contrato de producción que firmaste: ¿aparece en algún sitio la palabra brutos?
+
+#IA #ProduccionAudiovisual #MarketingB2B
+```
+
+**Primer comentario:**
+
+```
+La fuente, para que no te quedes con mi lectura: crónica de Audiovisual451 del 28 de septiembre de 2026 sobre la mesa «IA en el pipeline audiovisual: creación, derechos y nuevos procesos», organizada por ALÍA en las actividades de Industria del 74º Festival de San Sebastián y moderada por Mabel Klimt (Elzaburu).
+
+Es prensa sectorial cubriendo la mesa, no una nota de ALÍA. Lo aclaro porque importa: las frases son de los ponentes, no un posicionamiento oficial de la asociación.
+
+https://www.audiovisual451.com/la-ia-entra-en-el-pipeline-audiovisual-la-industria-reclama-trazabilidad-derechos-y-criterio-profesional/
+```
+
+#### Versión B · El dataset
+
+_La mejor escrita de las tres, y por eso mismo la descartada: se apoya en Amoedo y en Bragado para sostener la tesis, y en una pieza de autoridad delegar resta. La cita va completa, partida en las dos primeras líneas — el copywriter la había abreviado cortando justo la mitad que hace la pieza._
+
+**Texto del post:**
+
+```
+«Un rodaje no es solamente una obra audiovisual: es un dataset que sirve para más cosas.»
+Y no hablaba de la película montada. Hablaba de los brutos.
+
+Lo dijo un director de fotografía en San Sebastián.
+
+La frase es de Migue Amoedo, en una mesa sobre IA en el pipeline audiovisual que organizó ALÍA dentro de las actividades de Industria del Festival.
+
+Tradúcelo a tu empresa.
+
+El día que rodáis la campaña no producís un anuncio. Producís horas de material con las caras de tu equipo, tus instalaciones y tus clientes.
+
+El anuncio dura treinta segundos. El material se queda.
+
+Marta Bragado, de Sony Professional, lo resumió sin adornos: el mayor riesgo del sector es perder la trazabilidad o la autoría de lo que estamos viendo.
+
+Y aquí está lo que a mí me interesa, que no es técnico.
+
+La trazabilidad no se compra. Se firma.
+
+Amoedo defendió tres cosas: transparencia, trazabilidad y consentimiento. Dijo además que él no crearía un actor con IA.
+
+En su lado de la mesa eso es una posición de oficio. En el tuyo son cláusulas.
+
+Yo he firmado contratos de producción por los dos lados que no decían una palabra de esto. Los míos incluidos, hasta hace poco.
+
+No porque nadie hiciera trampa. Porque el modelo de contrato venía así y nadie lo tocaba.
+
+Ese es el enemigo: un papel que solo habla del entregable y calla sobre todo lo demás.
+
+Pagas por una pieza y produces un archivo. Solo una de las dos cosas tiene dueño por escrito.
+
+De tu último rodaje, ¿sabrías decir hoy dónde están los brutos y quién puede usarlos?
+
+#IA #ProduccionAudiovisual #DireccionCreativa
+```
+
+**Primer comentario:**
+
+```
+Fuente: crónica de Audiovisual451 del 28 de septiembre de 2026 sobre la mesa «IA en el pipeline audiovisual: creación, derechos y nuevos procesos», organizada por ALÍA en las actividades de Industria del 74º Festival de San Sebastián y moderada por Mabel Klimt (Elzaburu). Es prensa sectorial cubriendo la mesa, no una nota de la propia ALÍA: las citas son de los ponentes.
+
+En la misma mesa estaban Javier Urosa (DO Technology), Ferran Piquer (Efectoscopio) y José Jaime Linares (APPA). Piquer dejó un aviso que no cabía arriba y que vale para cualquier equipo de marketing: no construyas un perfil profesional atado a una herramienta concreta, porque las herramientas quedan obsoletas en meses.
+
+https://www.audiovisual451.com/la-ia-entra-en-el-pipeline-audiovisual-la-industria-reclama-trazabilidad-derechos-y-criterio-profesional/
+```
+
+#### Versión C · Las cuatro preguntas
+
+_La pieza-checklist. Entra directamente por lo accionable y pide guardar en lugar de responder, así que optimiza guardados en vez de comentarios. Disponible si algún miércoles interesa más el guardado que la conversación._
+
+**Texto del post:**
+
+```
+Cuatro preguntas para el próximo contrato de producción que firmes.
+Ninguna va del vídeo. Las cuatro van de lo que queda después.
+
+Y las cuatro son nuevas. Hace dos años ninguna tenía sentido.
+
+En las actividades de Industria del Festival de San Sebastián, ALÍA sentó en la misma mesa a fabricantes, VFX, dirección de fotografía y abogados para hablar de IA en el pipeline audiovisual.
+
+La palabra que se repitió toda la sesión fue trazabilidad. Se citó C2PA, un estándar abierto que registra la procedencia de un contenido desde la captura hasta la distribución.
+
+El sector lo está tratando como un problema de ingeniería. En tu empresa es un problema de contrato.
+
+Las cuatro preguntas:
+
+1. ¿Quién es dueño de los brutos, cuánto tiempo se conservan y dónde?
+2. ¿Pueden reutilizarse para entrenar modelos? Si es que sí, ¿con qué consentimiento de quien aparece?
+3. ¿Qué herramientas generativas han tocado la entrega final?
+4. ¿Hay registro de procedencia, o vamos de palabra?
+
+Ninguna es hostil. Las cuatro son de administración.
+
+Y ninguna estaba en los contratos que yo firmaba hasta hace poco. Ni como cliente ni como proveedor. El formulario venía así.
+
+Por eso el enemigo no es nadie: es un modelo de contrato que solo habla del entregable.
+
+Un rodaje genera dos cosas. La pieza que ves y el material que nadie vuelve a mirar. Solo una de las dos tiene dueño por escrito.
+
+Guárdate las cuatro preguntas para el próximo contrato de producción que tengas encima de la mesa.
+
+#IA #MarketingB2B #Produccion
+```
+
+**Primer comentario:**
+
+```
+De dónde sale esto: crónica de Audiovisual451 del 28 de septiembre de 2026 sobre la mesa «IA en el pipeline audiovisual: creación, derechos y nuevos procesos», organizada por ALÍA en las actividades de Industria del 74º Festival de San Sebastián y moderada por Mabel Klimt (Elzaburu). Prensa sectorial cubriendo la mesa, no una nota de ALÍA.
+
+Las cuatro preguntas son mías, no de la mesa. Lo que la mesa aporta es la palabra: trazabilidad. Yo solo la he traducido al único sitio donde un director de marketing puede hacer algo con ella, que es el contrato.
+
+https://www.audiovisual451.com/la-ia-entra-en-el-pipeline-audiovisual-la-industria-reclama-trazabilidad-derechos-y-criterio-profesional/
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -2292,9 +2452,17 @@ Me llamaron arrogante por proponer empezar por el sistema antes de grabar. Perd�
 
 | Fecha | Día | Pilar | Tipo | Título de trabajo | Descripción y ángulo | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+**Tres días sin redactar: 25, 28 y 29.** No fue una decisión editorial. Las rutinas de esos días se
+dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. Cuando hubo sesión para
+trabajarlos, los tres huecos ya habían pasado. **No se recuperan y no se rellenan a posteriori:** un post
+fechado hacia atrás no es una pieza publicada, es papel. Las tres ideas vuelven al banco de reserva y
+entran cuando toque su pilar — la encuesta del 25 y el dron del 28 no caducan, y el error de rodaje del 29
+tampoco. Queda escrito para que la fila vacía se lea como lo que es: un fallo de canal, no una semana sin
+nada que decir.
+
 | 28-09 | Lun | Autoridad | A1 | Si tu vídeo empieza con un dron sobre el edificio, ya has perdido | Ataque a un tópico visual que casi todos han pagado. Matemática de atención en los 3 primeros segundos. La decisión que se toma antes de encender la cámara | Vídeo | Pura | planificada |
 | 29-09 | Mar | Prueba | B3 | El error que costó un día entero de rodaje | Historia de un fallo propio y el sistema que se montó para que no se repita. Vulnerabilidad usada como prueba de proceso | Texto | Método | planificada |
-| 30-09 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar | Texto o vídeo | Método | planificada |
+| 30-09 | Mié | Actualidad | N | Pagaste por un vídeo y lo que generaste fue un dataset · **elegida versión A** | Hueco fijo, anclado en el barrido del 29-09. ALÍA reunió en las actividades de Industria del Festival de San Sebastián una mesa sobre IA en el pipeline audiovisual y la palabra que la atravesó fue *trazabilidad*. Ángulo: traducción a negocio, no crónica de mesa redonda — el sector lo discute como ingeniería y para el ICP es una cláusula del contrato de producción que firma sin leer. Enemigo: el modelo de contrato que solo habla del entregable final; nunca una productora. **Cero cifras en las tres versiones, y no por bloqueo: la noticia no tiene ninguna.** Maverick corrigió las tres antes de guardar: situaban la mesa «el lunes», que es la fecha de la crónica y no la del debate. `cola/2026-09-30-la-clausula-que-falta.md` | Texto | Método | creada · tres versiones |
 | 01-10 | Jue | Oferta | C1 | Qué recibe un cliente de Makers cada mes | Desglose literal del entregable mensual: calendario, piezas, informe. Transparencia como argumento de venta frente a agencias opacas | Carrusel | Método | planificada |
 | 02-10 | Vie | Humano | D1 | Por qué me fui de Perú a Madrid a montar esto | Historia personal con lección de negocio. Única pieza puramente biográfica del mes. **Angello: confirma los datos que quieres contar** | Texto + foto | Método | planificada |
 
@@ -2489,5 +2657,6 @@ No se duplican en ningún otro fichero.
 | Lun 21 sept | La IA no sustituye a tu equipo |  |  |  |  |  |  |  |
 | Mié 23 sept | Quién paga el estudio |  |  |  |  |  |  |  |
 | Jue 24 sept | Para quién no es |  |  |  |  |  |  |  |
+| Mié 30 sept | La cláusula que falta |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
