@@ -6,25 +6,26 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 29-09-2026. **Sin ruptura de nivel 3, pero con candidato firme para el miércoles 30.**
+**Último barrido:** 30-09-2026. **Sin ruptura y sin candidato nuevo que sirva.** El hueco de actualidad ya está
+cubierto con la pieza de hoy, así que el barrido no tenía que anclar nada, y aun así se hizo entero.
 
-**Aviso de honestidad sobre este barrido.** El radar llevaba sin barrerse desde el 21-09. Las rutinas del
-24, 25, 28 y 29 se dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. No se
-barrió ocho días: eso es una avería del canal, no una decisión editorial, y queda escrito aquí para que
-dentro de tres meses nadie lo lea como «no había nada». Consecuencia real: los huecos del 25, 28 y 29 se
-quedaron sin redactar y ya no se recuperan.
+**Aviso de honestidad sobre el barrido anterior.** El radar estuvo sin barrerse del 21 al 29. Las rutinas del
+24, 25, 28 y 29 se dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. No fue una
+decisión editorial: fue una avería del canal, y queda escrito para que dentro de tres meses nadie lo lea como
+«no había nada». Consecuencia real: los huecos del 25, 28 y 29 se quedaron sin redactar y no se recuperan.
 
 ## Candidatos activos
 
-| Detectado | Titular propuesto | Ángulo | Por qué le importa al ICP | Fuente | Caduca |
-| --- | --- | --- | --- | --- | --- |
-| 29-09 19:50 | Pagaste por un vídeo y lo que generaste fue un dataset. Tu contrato solo cubre una de las dos cosas | Traducción a negocio | **Nivel 2.** ALÍA reunió en las actividades de Industria del Festival de San Sebastián una mesa sobre IA en el pipeline audiovisual, y la palabra que la atravesó entera fue *trazabilidad*: de dónde viene una imagen, qué la ha tocado y bajo qué condiciones se usó el material original. El sector técnico lo discute como problema de ingeniería. Para un director de marketing es una cláusula que firma sin leer: su contrato de producción dice quién es dueño de la pieza montada y calla sobre los brutos —horas de caras de sus empleados, sus instalaciones, sus clientes—, sobre qué herramientas generativas han tocado la entrega y sobre si algo de eso puede reutilizarse para entrenar modelos. Criterio propio servido sin atacar a nadie: la práctica que falla es el modelo de contrato, no ninguna productora. **Cero cifras en toda la entrada, y no por bloqueo: la noticia no tiene ninguna** | **Audiovisual451, «La IA entra en el pipeline audiovisual: la industria reclama trazabilidad, derechos y criterio profesional», 28-09-2026**, firmado por Redacción A451, con cita directa de los ponentes. Mesa «IA en el pipeline audiovisual: creación, derechos y nuevos procesos», organizada por ALÍA, moderada por Mabel Klimt (Elzaburu), con Marta Bragado (Sony Professional), Javier Urosa (DO Technology), Ferran Piquer (Efectoscopio), Migue Amoedo (AEC) y José Jaime Linares (APPA). **Limitación declarada:** es prensa sectorial cubriendo una mesa pública, no una nota de la propia ALÍA; no se ha localizado comunicado oficial. Las citas son de los ponentes, no posición de la asociación. Va dicho así en el primer comentario de la pieza | 30-09 09:30 · ancla el hueco del miércoles |
+**Ninguno.** El candidato del 21-09 se gastó en la pieza del 23 y el del 29-09 en la pieza de hoy. Los dos
+están en el archivo. La tabla vacía es un dato, no una avería.
 
-**Lo que se miró y no entró.** Iberseries & Platino Industria arrancó el 29 en Matadero Madrid con la IA
-entre sus ejes. Se descarta como pieza por la misma razón que se descartó IBC en septiembre: un encuentro
-del sector no es automáticamente una noticia para el cliente del sector, y un programa de mesas no mueve
-ninguna partida del presupuesto del ICP. Si de ahí sale un informe con cifras —EGEDA y FIPCA presentan el
-Panorama Audiovisual Iberoamericano el 1 de octubre—, eso sí es candidato, pero cuando exista el documento.
+**Lo que se miró el 30 y por qué no entró.**
+
+| Mirado | Qué era | Por qué se descarta |
+| --- | --- | --- |
+| El País, 29-09: la regulación de la IA generativa en la cultura «se le atraganta al Gobierno» | La crónica de un intento de regular por real decreto el uso de IA generativa en cultura que viene de 2024 y sigue sin cerrarse | **Se descarta por la regla de la casa, no por falta de interés.** Una obligación que ya existe y cambia el trabajo del ICP es material publicable; la crónica de un Gobierno que no consigue legislar es política. La frontera es esa y no se cruza aunque el tema sea del sector |
+| OpenAI presenta «dots», agentes que trabajan en segundo plano (29-09) | Agentes personales dentro de ChatGPT | No es vídeo, imagen ni voz, y no mueve ninguna partida del presupuesto de un director de marketing. Nivel 1 |
+| Obligaciones de transparencia del Reglamento europeo de IA | Varias fuentes secundarias sitúan en el 2 de agosto de 2026 el refuerzo de las obligaciones de revelar el origen artificial de un contenido | **Pendiente de verificar y por eso NO se sube a material de apoyo.** La fecha viene de prensa y de posts, nunca de EUR-Lex, y una fecha de entrada en vigor mal citada en una pieza de autoridad es un error que no se perdona. Si Angello abre el Reglamento (UE) 2024/1689 y confirma qué obligación aplica desde cuándo, esto se convierte en la mejor prueba que existe para la pieza de ayer sobre trazabilidad |
 
 ## Material de apoyo · no caduca
 
@@ -54,6 +55,7 @@ Temas ya usados o caducados, para no repetir.
 | --- | --- | --- |
 | 29-09 | Un estudio dice que la IA le va a dar 9.400 millones al año al audiovisual español. Lo ha pagado Google | Usada y cerrada. Ancló la pieza del miércoles 23, versión A «La regla de lectura» · `cola/2026-09-23-quien-paga-el-estudio.md`. Se eligió la única versión sin una sola cifra, porque la verificación en `blog.google` nunca llegó y ese dominio sigue bloqueado desde esta sesión. La condición que se escribió el 21 se cumplió sin relajarla: las cifras no se publicaron. La B y la C siguen bloqueadas con sus números marcados y así se quedan |
 | 09-09 · cerrada el 29-09 | La herramienta de vídeo con IA apaga su API el 24 de septiembre | **Escrita, nunca publicada, y ahora caducada sin decisión.** Ancló la pieza del miércoles 9, versión B+ · `cola/2026-09-09-actualidad-sora.md`. Se escribió con el gancho «te quedan quince días». El 23 se avisó de que caducaba al día siguiente y se dejaron dos salidas honestas: sacarla ese mismo día tal cual, o archivarla y recuperar el tema en pasado con otro ángulo. No llegó respuesta. El 24 pasó, y con él la única de las dos que tenía fecha. Queda archivada por el paso del tiempo, no porque nadie eligiera. El tema es recuperable como ejemplo de riesgo de proveedor dentro de una pieza de autoridad, nunca ya como aviso |
+| 29-09 | La mesa de ALÍA en San Sebastián: la industria audiovisual reclama trazabilidad, derechos y criterio profesional | Usada. Ancló la pieza del miércoles 30, versión A «La cláusula que falta» · `cola/2026-09-30-la-clausula-que-falta.md`. Duró menos de un día como candidata, que es lo normal en este radar. Lo que la hizo publicable no fue la mesa: fue que existía una traducción a negocio que nadie había hecho — el sector discutía ingeniería y el ICP tenía delante una cláusula de contrato |
 | 16-09 | Adobe mete la generación de vídeo dentro de la línea de tiempo de Premiere | Usada. Ancló la pieza del miércoles 16, versión A «La partida» · `cola/2026-09-16-actualidad-plano-en-el-montaje.md`. Aguantó ocho días como candidata, que es mucho para este radar: se sostuvo porque no era un anuncio de producto sino un cambio en dónde ocurre el trabajo |
 | 16-09 | IBC 2026: lo que enseñaron los fabricantes | Sin usar como pieza. Degradada a refuerzo el 13 y al final ni eso: la versión elegida no necesitó la frase de contraste. Cámaras y controladores no mueven una partida del ICP, y ese fue el aprendizaje — una feria del sector no es automáticamente una noticia para el cliente del sector |
 | 13-09 | Un fabricante de coches estrena en España su primer spot hecho íntegramente con IA (Lepas L8, agencia Figari Candy Store, emisión desde el 1-09) | Caducada sin usar. Aguantó desde el 8-09 esperando la nota de prensa de la marca, que nunca salió: sin ella no había una sola cifra citable y el caso se quedaba en opinión sobre publicidad ajena. A los 7 días ya no tenía ventaja. Recuperable como ejemplo de apoyo en una pieza de autoridad, nunca como noticia |

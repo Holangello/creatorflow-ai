@@ -2123,6 +2123,105 @@ Las cuatro preguntas son mías, no de la mesa. Lo que la mesa aporta es la palab
 https://www.audiovisual451.com/la-ia-entra-en-el-pipeline-audiovisual-la-industria-reclama-trazabilidad-derechos-y-criterio-profesional/
 ```
 
+### Jueves 1 de octubre · 12:30 · Oferta · Captación
+
+**Formato:** Carrusel PDF · 10 slides. **Intensidad:** método. **Métrica que mide:** Mensajes privados con la palabra «sistema».
+
+> **Antes de publicar:** La A sale tal cual: no lleva ninguna cifra, ningún precio ni ningún plazo en días. Para desbloquear la B hace falta el número de piezas producidas al mes; para la C, los días de antelación con que se cierra el calendario. Ninguno de los dos es dato de cliente: son datos de la propia oferta.
+
+#### Versión A · El mes por dentro · **ELEGIDA**
+
+_Elegida por Maverick. El encargo pedía el desglose literal del entregable mensual y ese entregable no está documentado en el repositorio: número de piezas, formato del informe y plazos solo los sabe Angello. Inventárselos habría sido la misma falta que inventarse una cifra de cliente. La salida fue cambiar el eje — describir la forma del entregable y no su cantidad. «Lo que las hace valiosas no es que existan» convierte una lista de features en un argumento, que era el riesgo principal de esta pieza._
+
+**Texto del post:**
+
+```
+«¿Y qué me entregáis exactamente cada mes?»
+Tres cosas: un calendario, las piezas y un informe. Lo que las hace valiosas no es que existan.
+
+El calendario llega cerrado antes de que empiece el mes. No está para ordenar la producción. Está para que nadie improvise qué se publica el martes.
+
+Las piezas llegan listas. No «a falta de un detalle». Ese detalle bloquea la publicación una semana.
+
+El informe es el que más se malinterpreta. Yo he mandado informes con gráficas que no sirvieron para decidir nada.
+
+Un informe que justifica el gasto del mes pasado no sirve. El único útil es el que decide el mes siguiente.
+
+Escríbeme «sistema» por privado y te digo qué llegaría tu primer mes.
+
+#MarketingB2B #DirecciónCreativa
+```
+
+**Primer comentario:**
+
+```
+El orden importa más que el contenido. Primero el calendario, porque decide la producción. Después las piezas, porque ya no hay que discutir qué se hace. Y al final el informe, que no cierra el mes: abre el siguiente. Si llega en otro orden, lo que tienes es un proveedor con buena entrega, no un sistema. Cómo trabajamos por dentro: agenciamakers.com
+```
+
+#### Versión B · El informe que decide
+
+_La más afilada de las tres y la que mejor conecta con la pieza del 18-09, pero su slide de entrega queda hueco sin el número de piezas al mes. Aviso: su gancho atribuye una frase literal («lo archivo») a un director de marketing real — si Angello no recuerda esa conversación tal cual, hay que desatribuirla antes de publicar._
+
+**Texto del post:**
+
+```
+«El informe mensual, ¿lo lee alguien?»
+Se lo pregunté a un director de marketing este año. Tardó en contestar. Luego dijo: «lo archivo».
+
+Ahí está el problema. Casi todos los informes de agencia existen para defender la factura.
+
+Yo he mandado informes así. Maquetados, con gráficas. No sirvieron para decidir nada.
+
+Un informe que justifica el gasto del mes pasado no sirve para nada. El único útil es el que decide el mes siguiente.
+
+El nuestro responde tres cosas: qué movió algo, qué se repite y qué se retira.
+
+Y llega junto al calendario del mes siguiente ya cerrado y a [DATO: nº de piezas producidas al mes] piezas listas para publicar.
+
+Escríbeme «informe» por privado y te enseño el formato, sin datos de cliente.
+
+#MarketingB2B #ContenidoCorporativo
+```
+
+**Primer comentario:**
+
+```
+El informe del mes pasado no es un resumen: es el briefing del mes que viene. Si lo lees y no cambia ni una línea del calendario siguiente, no era un informe, era una memoria. Esto conecta con lo que conté hace dos semanas sobre qué mido y qué ignoro a propósito: mido lo que puede cambiar una decisión, el resto lo dejo fuera. Qué incluye cada mes: agenciamakers.com
+```
+
+#### Versión C · Dos facturas iguales
+
+_La única construida como comparación de dos modelos en paralelo, y su golpe es de coste oculto —quién acaba decidiendo gratis— no de definición del entregable. Bloqueada por los días de antelación del calendario, que es el dato más fácil de confirmar de los tres._
+
+**Texto del post:**
+
+```
+Dos facturas del mismo importe. En una recibes archivos. En la otra, decisiones ya tomadas.
+Nadie te explica la diferencia, porque explicarla obliga a decir qué entregas exactamente.
+
+Así se ve mes a mes.
+
+El calendario. O se rellena sobre la marcha, o llega cerrado [DATO: días de antelación con que se cierra el calendario] días antes de que empiece el mes.
+
+Las piezas. O llegan «a falta de un detalle», o llegan listas para publicar. Ese detalle bloquea una semana.
+
+El informe. O justifica el gasto del mes pasado, o decide el mes siguiente.
+
+Yo he estado en la primera columna. Mandaba informes bonitos que nadie usó.
+
+Escríbeme «sistema» por privado y te digo en qué columna estás.
+
+#MarketingB2B #DirecciónCreativa
+```
+
+**Primer comentario:**
+
+```
+La trampa de la primera columna es que nadie entrega mal: los archivos llegan, la calidad está, la factura se paga. Lo que no llega es la decisión. Y cuando no llega, la pone marketing el lunes por la mañana, gratis, sin datos y con prisa. Eso es el coste que no aparece en ningún presupuesto. Qué llega cada mes: agenciamakers.com
+```
+
+**Pieza visual:** Carrusel · slide 1 de 10 · «QUÉ RECIBE UN CLIENTE CADA MES». Tres cosas. Ninguna vale por existir. Ritmo de pares: entregable, error, entregable, error. Solo tipografía, color y espacio — sin fotografía y sin iconos.
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -2463,7 +2562,7 @@ nada que decir.
 | 28-09 | Lun | Autoridad | A1 | Si tu vídeo empieza con un dron sobre el edificio, ya has perdido | Ataque a un tópico visual que casi todos han pagado. Matemática de atención en los 3 primeros segundos. La decisión que se toma antes de encender la cámara | Vídeo | Pura | planificada |
 | 29-09 | Mar | Prueba | B3 | El error que costó un día entero de rodaje | Historia de un fallo propio y el sistema que se montó para que no se repita. Vulnerabilidad usada como prueba de proceso | Texto | Método | planificada |
 | 30-09 | Mié | Actualidad | N | Pagaste por un vídeo y lo que generaste fue un dataset · **elegida versión A** | Hueco fijo, anclado en el barrido del 29-09. ALÍA reunió en las actividades de Industria del Festival de San Sebastián una mesa sobre IA en el pipeline audiovisual y la palabra que la atravesó fue *trazabilidad*. Ángulo: traducción a negocio, no crónica de mesa redonda — el sector lo discute como ingeniería y para el ICP es una cláusula del contrato de producción que firma sin leer. Enemigo: el modelo de contrato que solo habla del entregable final; nunca una productora. **Cero cifras en las tres versiones, y no por bloqueo: la noticia no tiene ninguna.** Maverick corrigió las tres antes de guardar: situaban la mesa «el lunes», que es la fecha de la crónica y no la del debate. `cola/2026-09-30-la-clausula-que-falta.md` | Texto | Método | creada · tres versiones |
-| 01-10 | Jue | Oferta | C1 | Qué recibe un cliente de Makers cada mes | Desglose literal del entregable mensual: calendario, piezas, informe. Transparencia como argumento de venta frente a agencias opacas | Carrusel | Método | planificada |
+| 01-10 | Jue | Oferta | C1 | Qué recibe un cliente cada mes · **elegida versión A** | **El encargo pedía un desglose literal del entregable mensual, y ese entregable no está documentado en el repositorio:** no consta el número de piezas, ni el formato del informe, ni los días de antelación del calendario. Inventárselo habría sido la misma falta que inventarse una cifra de cliente. La salida fue cambiar el eje — **describir la forma del entregable y no su cantidad**: qué llega, en qué orden y para qué sirve cada cosa. La A no lleva ninguna cifra, ningún precio ni ningún plazo. Ritmo de pares: entregable, error, entregable, error. Enemigo doble: el informe que defiende la factura y la opacidad como modelo. No repite las seis fases del 10-09 ni la apertura por expulsión del 24-09. `cola/2026-10-01-que-recibe-cada-mes.md` | Carrusel · 10 slides | Método | creada · tres versiones |
 | 02-10 | Vie | Humano | D1 | Por qué me fui de Perú a Madrid a montar esto | Historia personal con lección de negocio. Única pieza puramente biográfica del mes. **Angello: confirma los datos que quieres contar** | Texto + foto | Método | planificada |
 
 ---
@@ -2658,5 +2757,6 @@ No se duplican en ningún otro fichero.
 | Mié 23 sept | Quién paga el estudio |  |  |  |  |  |  |  |
 | Jue 24 sept | Para quién no es |  |  |  |  |  |  |  |
 | Mié 30 sept | La cláusula que falta |  |  |  |  |  |  |  |
+| Jue 1 oct | Qué recibe un cliente cada mes |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
