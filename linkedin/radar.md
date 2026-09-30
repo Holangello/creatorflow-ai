@@ -6,8 +6,11 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 30-09-2026. **Sin ruptura y sin candidato nuevo que sirva.** El hueco de actualidad ya está
-cubierto con la pieza de hoy, así que el barrido no tenía que anclar nada, y aun así se hizo entero.
+**Último barrido:** 30-09-2026, dos veces. **Sin ruptura y sin candidato nuevo que sirva.** El hueco de actualidad
+ya estaba cubierto con la pieza de hoy, así que ninguno de los dos barridos tenía que anclar nada, y aun así se
+hicieron enteros. El de las 06:00 dejó escrito lo que se miró y por qué no entró. El segundo, el de las 13:00,
+no encontró nada nuevo en las siete horas siguientes: ni un anuncio de vídeo, imagen o voz, ni un cambio de
+formato de plataforma, ni una campaña con cifras propias. Nada de nivel 3, nada de nivel 2.
 
 **Aviso de honestidad sobre el barrido anterior.** El radar estuvo sin barrerse del 21 al 29. Las rutinas del
 24, 25, 28 y 29 se dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. No fue una
