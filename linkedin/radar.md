@@ -6,9 +6,10 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 01-10-2026. **Sin ruptura y sin candidato publicable como noticia.** El hueco de mañana es
-Humano, no actualidad, así que el radar no tenía que anclar nada. Se hizo entero igualmente y deja una cosa:
-un hecho verificable con cifra que sube a material de apoyo, no a candidato.
+**Último barrido:** 01-10-2026, dos veces. **Sin ruptura y sin candidato publicable como noticia.** El hueco de
+mañana es Humano, no actualidad, así que el radar no tenía que anclar nada. Los dos barridos se hicieron
+enteros igualmente. El de las 06:00 deja un hecho verificable con cifra que sube a material de apoyo, no a
+candidato. El de las 13:00 no encuentra nada de nivel 3 y deja un hilo vigilado que no llega a candidato.
 
 **Aviso de honestidad que se mantiene.** El radar estuvo sin barrerse del 21 al 29 de septiembre porque las
 rutinas del 24 al 29 se dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. Fue una
@@ -22,10 +23,17 @@ archivo. La tabla vacía es un dato, no una avería.
 **Lo que se miró el 01-10 y por qué no entró.** Barrido de IA aplicada a vídeo, imagen y voz, de cambios de
 formato en LinkedIn, Instagram, TikTok y YouTube, y de industria audiovisual y publicitaria en España. Ni un
 anuncio con fuente primaria fechada en las últimas 48 horas. Lo que aparece son listados, formaciones y
-agregadores, que no son noticia. **Dos cosas quedan vigiladas sin entrar:** Iberseries & Platino Industria
-sigue en Matadero hasta el 2 de octubre, y EGEDA y FIPCA presentan el informe Panorama Audiovisual
-Iberoamericano el 1 de octubre — ese informe sí es candidato en cuanto exista el documento y se puedan leer
-sus cifras, no antes.
+agregadores, que no son noticia. **Tres cosas quedan vigiladas sin entrar.** Iberseries & Platino Industria cierra mañana en Matadero. El
+informe **Panorama Audiovisual Iberoamericano 2026 de EGEDA y FIPCA** se presentaba hoy allí: la convocatoria
+está confirmada en varios medios del sector, pero **del documento no hay nada publicado todavía**, así que no
+hay una sola cifra que leer y por tanto no hay candidato — lo será cuando exista el informe, no cuando exista
+la nota de que se va a presentar. Y en el barrido de mediodía aparece un **hilo que sí interesa a esta cuenta
+y aun así se descarta**: circula que el Tribunal de Distrito de Tokio ha reconocido por primera vez en Japón
+que la voz de una persona puede estar protegida. Encaja de lleno con la línea de derechos de voz que la cuenta
+está construyendo y con el dato de los diez segundos de ElevenLabs, pero **la única fuente localizable es un
+post en redes de un medio que no conozco, no hay resolución ni nota judicial que leer, y es otra jurisdicción:
+no cambia el contrato que firma un director de marketing en España.** Nivel 1. Queda anotado porque el tema va
+a volver, no porque se pueda publicar.
 
 ## Material de apoyo · no caduca
 
