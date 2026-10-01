@@ -2222,6 +2222,155 @@ La trampa de la primera columna es que nadie entrega mal: los archivos llegan, l
 
 **Pieza visual:** Carrusel · slide 1 de 10 · «QUÉ RECIBE UN CLIENTE CADA MES». Tres cosas. Ninguna vale por existir. Ritmo de pares: entregable, error, entregable, error. Solo tipografía, color y espacio — sin fotografía y sin iconos.
 
+### Viernes 2 de octubre · 09:30 · Humano · Conversación
+
+**Formato:** Solo texto. **Intensidad:** confrontación pura. **Métrica que mide:** Comentarios con un número de piezas en espera. Primera pieza cuyo resultado se puede leer sin pedirle nada a nadie.
+
+> **Antes de publicar:** Ninguno. Cero cifras en las tres versiones. La 1 sale tal cual. **La 2 queda bloqueada y no por un dato:** está en pasado sobre algo que es presente y afirma un cambio de métrica que todavía no ha ocurrido. Se desbloquea el día que el informe mensual cuente publicadas y no listas.
+
+#### Versión 1 · El último metro · **ELEGIDA**
+
+_Elegida por Maverick, con una línea corregida. La versión original traía «Abro el documento. Lo leo entero. Lo cierro. Y no ha pasado una sola vez.»: buena prosa y un comportamiento que nadie me ha contado. Da textura a cambio de afirmar algo que no sé que pasara, que es la misma falta que el sistema no comete con las cifras. Sustituida por una frase que solo afirma el estado del banco. Es la única en presente y sin resolución, y la única cuya publicación es la prueba de su propia tesis. También la única que caduca hoy: solo funciona mientras el banco siga parado._
+
+**Texto del post:**
+
+```
+Diseño sistemas de contenido para otras empresas.
+Y tengo un banco de piezas escritas, terminadas, sin publicar.
+
+Lo escribo en presente porque sigue siendo verdad hoy.
+
+Tengo el calendario. Tengo el radar diario. Tengo las piezas, con varias versiones de cada una.
+
+Todo lo que le pediría a un cliente que tuviera, lo tengo montado.
+
+Lo que no tengo es el post publicado.
+
+No es que falten. Están terminadas, con su primer comentario escrito y su hora de publicación decidida.
+
+No te voy a dar el motivo, porque no lo tengo.
+
+Lo que sí tengo es el diagnóstico de negocio, y ese no admite excusa.
+
+El problema no está donde todos miramos. No está en producir. Está en el último metro.
+
+Y ese metro no es falta de herramientas, ni de calendario, ni de recursos. Los tenía todos.
+
+Hay una práctica que se come a los equipos de marketing que sí tienen criterio: confundir estar preparado con estar publicando.
+
+Un calendario lleno de cosas listas es la forma más elegante de no exponerse. Nadie te puede acusar de no trabajar.
+
+Mientras tanto, el perfil no se mueve.
+
+Lo que hago con clientes y me acabo de aplicar: el calendario se cierra antes de que empiece el mes, y cada pieza entra con fecha de publicación. No de entrega.
+
+Una pieza terminada y sin publicar vale exactamente lo mismo que una pieza que no existe.
+
+¿Cuántas piezas aprobadas tienes ahora mismo esperando? Dímelo en comentarios, aunque sea una.
+
+#MarketingB2B #DirecciónCreativa
+```
+
+**Primer comentario:**
+
+```
+Mi propia respuesta, porque si pregunto tengo que contestar: más de las que me gustaría, y llevo semanas con el sistema funcionando. Producir se me da bien. Publicar es otro músculo. La diferencia entre las dos cosas es que una la controlas tú y la otra la ve todo el mundo. Lo publico hoy precisamente para romper la racha por el único sitio por el que se rompe: publicando.
+```
+
+#### Versión 2 · El inventario
+
+_BLOQUEADA, y no por un dato. Está escrita en pasado sobre algo que es presente, y su primer comentario añade un cambio de métrica que no ha ocurrido. No es una dramatización temporal: es una confesión en primera persona que afirma una resolución que no existe, y si alguien pregunta en comentarios «¿y ya publicas?» no hay respuesta coherente. Se publica el día que el informe cuente publicadas y no listas: entonces es la mejor de las tres, porque la lección de métrica es más útil que la confesión._
+
+**Texto del post:**
+
+```
+Tuve un banco entero de piezas escritas y sin publicar.
+Yo, que monto sistemas de contenido para otras empresas.
+
+El sistema estaba completo. Calendario, radar diario, piezas con varias versiones de cada una.
+
+Le faltaba el último paso. El único que cuenta.
+
+No tengo una explicación limpia de por qué no salían. La he buscado y no la encuentro.
+
+Y da igual, porque el coste no cambia según el motivo.
+
+Por fuera aquello parecía productividad. Material de sobra, todo ordenado, todo revisado.
+
+Era inventario. Un almacén de piezas que no habían visto a nadie.
+
+Es exactamente lo que veo en departamentos de marketing con criterio. Carpetas llenas de material aprobado y un calendario público vacío.
+
+La práctica tiene nombre: confundir estar preparado con estar publicando.
+
+Estar preparado es cómodo. Tienes el trabajo hecho y el riesgo intacto.
+
+Cómo salí, y es lo mismo que aplico con clientes: cambié qué cuenta el informe del mes.
+
+Antes miraba lo que estaba listo. Ahora el informe solo cuenta lo que se publicó. Lo demás no entra en la tabla.
+
+El día que lo que está listo deja de puntuar, publicas.
+
+Un sistema de contenido se evalúa por lo que sale, no por lo que está preparado.
+
+Si contaras solo tus piezas publicadas, ¿qué número te sale este mes? Ponlo en comentarios.
+
+#MarketingB2B #ContenidoCorporativo
+```
+
+**Primer comentario:**
+
+```
+El mío este mes es bajo, y por eso cambié la forma de medirlo. El truco no es disciplina: es que la métrica dejara de premiarme por tener cosas listas. Mientras «listo» contaba como avance, tenía incentivo para seguir revisando. Un indicador mal elegido te mantiene ocupado y quieto a la vez.
+```
+
+#### Versión 3 · Donde nadie mira
+
+_La red de seguridad. Su caso aparece en una sola frase y no es el centro: el sujeto es la práctica y el lector. La más segura, la menos memorable, y la única con un CTA que apunta a un responsable interno. Se puede publicar cualquier otro día porque no depende de que el banco siga parado._
+
+**Texto del post:**
+
+```
+El cuello de botella de tu contenido no está en producir.
+Está en publicar. Y nadie lo mide, porque medirlo señala a alguien con nombre.
+
+Un equipo con criterio no se queda sin ideas.
+
+Se queda con las ideas terminadas dentro de una carpeta.
+
+Lo veo en empresas que tienen de todo: calendario, aprobaciones, piezas revisadas, material de sobra. Y un perfil que lleva semanas sin moverse.
+
+Yo también tengo piezas escritas sin publicar, así que esto no es un sermón.
+
+La práctica que lo causa es del sector entero: confundir estar preparado con estar publicando.
+
+Es cómoda, por eso aguanta. Tienes el trabajo hecho y el riesgo intacto.
+
+Y lo que cuesta no es abstracto:
+
+La pieza pierde vigencia dentro de la carpeta mientras espera.
+
+El equipo sigue produciendo sobre un hueco que nunca se llena.
+
+Y el mes cierra sin una sola publicación que mirar para decidir el siguiente.
+
+Lo que hago con clientes para cortarlo: ninguna pieza entra en producción sin la siguiente ya definida. Si no hay siguiente, no hay primera.
+
+Eso obliga a cerrar la que tienes delante. No puedes acumular.
+
+Una pieza terminada y sin publicar vale exactamente lo mismo que una pieza que no existe.
+
+¿Quién decide en tu empresa que una pieza se publica? Si no tiene nombre y apellido, ahí está el cuello. Dímelo en comentarios.
+
+#MarketingB2B #DirecciónCreativa
+```
+
+**Primer comentario:**
+
+```
+El matiz que no cabía arriba: casi siempre ese nombre existe pero no está escrito, y acaba siendo quien más tiene que perder si la pieza no funciona. Por eso tarda. Cuando la fecha de publicación la fija el calendario y no una persona, el bloqueo desaparece sin tener que tener la conversación incómoda.
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -2563,7 +2712,8 @@ nada que decir.
 | 29-09 | Mar | Prueba | B3 | El error que costó un día entero de rodaje | Historia de un fallo propio y el sistema que se montó para que no se repita. Vulnerabilidad usada como prueba de proceso | Texto | Método | planificada |
 | 30-09 | Mié | Actualidad | N | Pagaste por un vídeo y lo que generaste fue un dataset · **elegida versión A** | Hueco fijo, anclado en el barrido del 29-09. ALÍA reunió en las actividades de Industria del Festival de San Sebastián una mesa sobre IA en el pipeline audiovisual y la palabra que la atravesó fue *trazabilidad*. Ángulo: traducción a negocio, no crónica de mesa redonda — el sector lo discute como ingeniería y para el ICP es una cláusula del contrato de producción que firma sin leer. Enemigo: el modelo de contrato que solo habla del entregable final; nunca una productora. **Cero cifras en las tres versiones, y no por bloqueo: la noticia no tiene ninguna.** Maverick corrigió las tres antes de guardar: situaban la mesa «el lunes», que es la fecha de la crónica y no la del debate. `cola/2026-09-30-la-clausula-que-falta.md` | Texto | Método | creada · tres versiones |
 | 01-10 | Jue | Oferta | C1 | Qué recibe un cliente cada mes · **elegida versión A** | **El encargo pedía un desglose literal del entregable mensual, y ese entregable no está documentado en el repositorio:** no consta el número de piezas, ni el formato del informe, ni los días de antelación del calendario. Inventárselo habría sido la misma falta que inventarse una cifra de cliente. La salida fue cambiar el eje — **describir la forma del entregable y no su cantidad**: qué llega, en qué orden y para qué sirve cada cosa. La A no lleva ninguna cifra, ningún precio ni ningún plazo. Ritmo de pares: entregable, error, entregable, error. Enemigo doble: el informe que defiende la factura y la opacidad como modelo. No repite las seis fases del 10-09 ni la apertura por expulsión del 24-09. `cola/2026-10-01-que-recibe-cada-mes.md` | Carrusel · 10 slides | Método | creada · tres versiones |
-| 02-10 | Vie | Humano | D1 | Por qué me fui de Perú a Madrid a montar esto | Historia personal con lección de negocio. Única pieza puramente biográfica del mes. **Angello: confirma los datos que quieres contar** | Texto + foto | Método | planificada |
+| 02-10 | Vie | Humano | D1 | El sistema estaba montado. Lo que faltaba era publicar | **Sustituye a la pieza biográfica**, que queda aparcada: su fila pedía desde el principio que Angello confirmara los datos que quería contar y no han llegado. Una biografía no se inventa, y tampoco se escribe con marcas de [DATO] — un relato personal con huecos no es una pieza, es un formulario. Lo que sí hay es material verdadero y comprobable: el sistema lleva semanas funcionando con calendario, radar, banco y panel, y hay piezas escritas sin publicar. Eje: el sistema no falla donde todos miran, falla en el último metro. Enemigo: confundir estar preparado con estar publicando. Cero cifras y cero psicología inventada. Las tres versiones son **tres grados de exposición personal**, no tres estilos, porque cuánto contar es decisión suya. **Pasa a solo texto:** una confesión no necesita retrato, y la foto se queda con la pieza biográfica para cuando vuelva | Texto | Pura o método según versión | creada · tres versiones |
+| — | — | Humano | D1 | **Aparcada:** «Por qué me fui de Perú a Madrid a montar esto» | Vuelve al primer hueco Humano **en cuanto Angello dé tres cosas:** qué parte de la historia quiere contar en público, qué detalle concreto hace de bisagra (la decisión, no el trayecto) y qué lección de negocio quiere que se lleve el lector. Sin esas tres, no se escribe. Mantiene el formato texto + foto propia | Texto + foto | Método | bloqueada |
 
 ---
 
@@ -2758,5 +2908,6 @@ No se duplican en ningún otro fichero.
 | Jue 24 sept | Para quién no es |  |  |  |  |  |  |  |
 | Mié 30 sept | La cláusula que falta |  |  |  |  |  |  |  |
 | Jue 1 oct | Qué recibe un cliente cada mes |  |  |  |  |  |  |  |
+| Vie 2 oct | El último metro |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
