@@ -6,29 +6,26 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 30-09-2026, dos veces. **Sin ruptura y sin candidato nuevo que sirva.** El hueco de actualidad
-ya estaba cubierto con la pieza de hoy, así que ninguno de los dos barridos tenía que anclar nada, y aun así se
-hicieron enteros. El de las 06:00 dejó escrito lo que se miró y por qué no entró. El segundo, el de las 13:00,
-no encontró nada nuevo en las siete horas siguientes: ni un anuncio de vídeo, imagen o voz, ni un cambio de
-formato de plataforma, ni una campaña con cifras propias. Nada de nivel 3, nada de nivel 2.
+**Último barrido:** 01-10-2026. **Sin ruptura y sin candidato publicable como noticia.** El hueco de mañana es
+Humano, no actualidad, así que el radar no tenía que anclar nada. Se hizo entero igualmente y deja una cosa:
+un hecho verificable con cifra que sube a material de apoyo, no a candidato.
 
-**Aviso de honestidad sobre el barrido anterior.** El radar estuvo sin barrerse del 21 al 29. Las rutinas del
-24, 25, 28 y 29 se dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. No fue una
-decisión editorial: fue una avería del canal, y queda escrito para que dentro de tres meses nadie lo lea como
-«no había nada». Consecuencia real: los huecos del 25, 28 y 29 se quedaron sin redactar y no se recuperan.
+**Aviso de honestidad que se mantiene.** El radar estuvo sin barrerse del 21 al 29 de septiembre porque las
+rutinas del 24 al 29 se dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. Fue una
+avería del canal, no una decisión editorial. Los huecos del 25, 28 y 29 se perdieron y no se rellenan.
 
 ## Candidatos activos
 
-**Ninguno.** El candidato del 21-09 se gastó en la pieza del 23 y el del 29-09 en la pieza de hoy. Los dos
-están en el archivo. La tabla vacía es un dato, no una avería.
+**Ninguno.** El candidato del 21-09 se gastó en la pieza del 23 y el del 29-09 en la del 30. Los dos están en el
+archivo. La tabla vacía es un dato, no una avería.
 
-**Lo que se miró el 30 y por qué no entró.**
-
-| Mirado | Qué era | Por qué se descarta |
-| --- | --- | --- |
-| El País, 29-09: la regulación de la IA generativa en la cultura «se le atraganta al Gobierno» | La crónica de un intento de regular por real decreto el uso de IA generativa en cultura que viene de 2024 y sigue sin cerrarse | **Se descarta por la regla de la casa, no por falta de interés.** Una obligación que ya existe y cambia el trabajo del ICP es material publicable; la crónica de un Gobierno que no consigue legislar es política. La frontera es esa y no se cruza aunque el tema sea del sector |
-| OpenAI presenta «dots», agentes que trabajan en segundo plano (29-09) | Agentes personales dentro de ChatGPT | No es vídeo, imagen ni voz, y no mueve ninguna partida del presupuesto de un director de marketing. Nivel 1 |
-| Obligaciones de transparencia del Reglamento europeo de IA | Varias fuentes secundarias sitúan en el 2 de agosto de 2026 el refuerzo de las obligaciones de revelar el origen artificial de un contenido | **Pendiente de verificar y por eso NO se sube a material de apoyo.** La fecha viene de prensa y de posts, nunca de EUR-Lex, y una fecha de entrada en vigor mal citada en una pieza de autoridad es un error que no se perdona. Si Angello abre el Reglamento (UE) 2024/1689 y confirma qué obligación aplica desde cuándo, esto se convierte en la mejor prueba que existe para la pieza de ayer sobre trazabilidad |
+**Lo que se miró el 01-10 y por qué no entró.** Barrido de IA aplicada a vídeo, imagen y voz, de cambios de
+formato en LinkedIn, Instagram, TikTok y YouTube, y de industria audiovisual y publicitaria en España. Ni un
+anuncio con fuente primaria fechada en las últimas 48 horas. Lo que aparece son listados, formaciones y
+agregadores, que no son noticia. **Dos cosas quedan vigiladas sin entrar:** Iberseries & Platino Industria
+sigue en Matadero hasta el 2 de octubre, y EGEDA y FIPCA presentan el informe Panorama Audiovisual
+Iberoamericano el 1 de octubre — ese informe sí es candidato en cuanto exista el documento y se puedan leer
+sus cifras, no antes.
 
 ## Material de apoyo · no caduca
 
@@ -38,6 +35,7 @@ no se aplica la regla de las 72 horas, porque un caso con cifras no envejece com
 
 | Añadido | Qué es | La cifra que lo hace útil | Para qué sirve | Fuente |
 | --- | --- | --- | --- | --- |
+| 01-10 | ElevenLabs publica Eleven v4 y v4 Turbo, su modelo de texto a voz más expresivo, con mejoras de latencia, más de 90 idiomas y conservación de la identidad de la voz al cambiar de idioma | **Clonación de voz con 10 segundos de audio.** Es el dato que lo hace útil, y viene de la propia página del fabricante | Es la cifra que baja al suelo la conversación de consentimiento y derechos de voz. Diez segundos es menos de lo que dura un saludo en una reunión grabada, un mensaje de voz o cualquier vídeo corporativo ya publicado. Sirve para la pieza del 30 sobre trazabilidad, para responder a sus comentarios y para cualquier pieza futura sobre derechos de imagen y voz en un rodaje | ElevenLabs, «Eleven v4: nuestro modelo de IA de texto a voz más expresivo hasta la fecha», elevenlabs.io/es/blog/eleven-v4 (fuente primaria del fabricante). **Limitación declarada: la página no muestra fecha de publicación visible.** Por eso entra como material de apoyo y no como noticia: la cifra se puede citar, el «acaba de salir» no. Y la cifra se cita como del fabricante, no como dato independiente |
 | 17-09 | Avid y Google Cloud meten Gemini Enterprise dentro de Media Composer, con Media Composer en navegador y agentes de IA en el entorno de postproducción. Anunciado el 11 de septiembre, tres días después de Adobe | **No es una noticia, es la confirmación de que hay categoría.** La pieza del 16 se apoyaba en un solo fabricante y eso deja flanco: siempre se puede contestar «es Adobe vendiendo Adobe». Con dos de las plataformas de montaje profesional moviéndose igual en la misma semana, deja de ser la jugada de una empresa y pasa a ser hacia dónde va la herramienta. Sirve para responder comentarios en la pieza del 16 y para cualquier pieza futura sobre generación dentro del flujo | Google Cloud, «Avid and Google Cloud Expand Strategic Partnership to Deliver Browser-Based Media Composer and Agentic Creative Workflows», googlecloudpresscorner.com, 11-09-2026 (fuente primaria). Antes, el acuerdo inicial de abril: avid.com, press room, 16-04-2026 |
 | 14-09 | El spot de Movistar con la Selección para el Mundial: 120 segundos emitidos en prime time en las grandes cadenas españolas, generados en un 95% con IA. Producido por ROMA y MITO AI, dirigido por Oriol Villar. Campaña en antena desde el 25 de mayo de 2026 | **Entre 55 y 65 rondas de iteración. Más de 5.130 recursos generados (4.000 imágenes y 800 vídeos). Más de 140 profesionales entre perfiles técnicos y creativos** | Es el contraejemplo del «la IA lo hace barato y rápido», y encima español, en abierto y con marca reconocible. Sostiene la tesis de que el trabajo real no es generar el plano, es la consistencia y la iteración. Sirve para la pieza del 16 (Adobe mete la generación en la línea de tiempo) y para cualquier pieza contra el hype | MITO AI, «Crafted Stories · Movistar World Cup», blog.mito.ai; cobertura de Panorama Audiovisual (1-07-2026) y Periódico de la Publicidad. **Las cifras vienen del desglose de la propia productora: se citan como suyas, no como dato independiente** |
 
