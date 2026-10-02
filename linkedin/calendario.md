@@ -111,6 +111,22 @@ nada que decir.
 
 ---
 
+
+## Semana 5 · 5 al 9 de octubre
+
+**Planificada el 02-10.** Cuatro de las cinco piezas no necesitan ni un dato sin confirmar, y eso es
+deliberado: después de un mes en el que cuatro piezas se quedaron esperando cifras que no llegaron, la
+semana se construye con material que ya existe o que es criterio propio de Angello. Las tres que salen
+del banco de reserva se eligen por eso.
+
+| Fecha | Día | Pilar | Tipo | Titular de trabajo | Notas | Formato | Intensidad | Estado |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 05-10 | Lun | Autoridad | A1 | El volumen dejó de ser el cuello de botella. El criterio no | **Anclada en material de apoyo, no en noticia.** Runway anuncia Runway Ads, un motor que genera creatividades de vídeo e imagen desde las guías de marca, las publica en Meta, Google y TikTok, lee el rendimiento de vuelta y produce la siguiente ronda con lo que se ha llevado la inversión. La frase que lo convierte en pieza de autoridad la dice el propio fabricante: las empresas están limitadas por su capacidad de producir creatividades, no por su analítica ni por su intuición. La tesis de Angello es la vuelta de esa frase — cuando el volumen sale gratis, lo único escaso que queda es saber qué decir, y eso no lo da ningún agente. Cifras del propio Runway sobre su propio programa, citadas como suyas | Texto | Pura | planificada |
+| 06-10 | Mar | Prueba | B1 | El sistema de nombres de archivo que nos ahorra horas | Sale del banco de reserva. **Cero dependencia de datos de cliente:** el sistema existe en este repositorio, en `tools/rename_clips.py`, así que la prueba es el propio script y no una cifra que haya que pedir. Prueba de proceso en lo más pequeño y más aburrido del oficio, que es justo donde se demuestra que hay sistema | Texto | Método | planificada |
+| 07-10 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar. **Si llega vacío**, entra la pieza de reserva «Lo que automatizo con IA y lo que no pienso automatizar nunca», que lleva esperando desde el 22-09 sin gastarse y cuyo texto ya existe como versión C del 9-09 | Texto o vídeo | Método | planificada |
+| 08-10 | Jue | Oferta | C3 | Las tres opciones de propuesta y por qué nunca doy una sola cifra | Sale del banco de reserva. Objeción respondida desde el método de presupuestar, no desde el precio. **No necesita ninguna cifra de cliente:** lo que se explica es la estructura de la propuesta, no lo que cuesta | Texto | Método | planificada |
+| 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. Criterio propio de Angello, sin datos y sin señalar a ningún cliente: las señales son de comportamiento en una llamada, nunca de empresa identificable. Cierra la semana con la pieza más personal y la más fácil de comentar | Texto | Método | planificada |
+
 ## Temas en reserva (banco de ideas)
 
 Para rellenar huecos, sustituir una pieza bloqueada por falta de datos, o alimentar octubre.
