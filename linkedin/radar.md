@@ -6,7 +6,11 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 02-10-2026. **Sin ruptura, y el hallazgo del día no entra como noticia sino como prueba.**
+**Último barrido:** 02-10-2026, dos veces. **Sin ruptura, y el hallazgo del día no entra como noticia sino como
+prueba.** El segundo barrido, el de las 13:00, no encuentra nada de nivel 3 en las siete horas siguientes al
+primero. Lo único que aparece es un modelo de transcripción en vivo de Microsoft, anunciado el 1 de octubre:
+solo localizado en prensa secundaria y, sobre todo, la transcripción no mueve ninguna partida del presupuesto
+de un director de marketing. Nivel 1.
 Runway ha anunciado Runway Ads y tiene fuente primaria con cifras propias, pero **su página no declara fecha de
 publicación**: por la ruta del archivo de su imagen de portada se deduce el 28 de septiembre, y una deducción a
 partir de un nombre de asset no es un dato publicado. Sin fecha firme no se puede decir «acaba de salir», así
