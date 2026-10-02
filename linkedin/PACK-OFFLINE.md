@@ -2371,6 +2371,145 @@ Una pieza terminada y sin publicar vale exactamente lo mismo que una pieza que n
 El matiz que no cabía arriba: casi siempre ese nombre existe pero no está escrito, y acaba siendo quien más tiene que perder si la pieza no funciona. Por eso tarda. Cuando la fecha de publicación la fija el calendario y no una persona, el bloqueo desaparece sin tener que tener la conversación incómoda.
 ```
 
+### Lunes 5 de octubre · 09:30 · Autoridad · Atracción
+
+**Formato:** Solo texto. **Intensidad:** confrontación pura. **Métrica que mide:** Comentarios de decisor. El CTA obliga a defender una de dos posiciones delante de su propio comité.
+
+> **Antes de publicar:** Ninguno. Las tres versiones salen tal cual. Todas las cifras son de Runway sobre su propio programa de marketing y van atribuidas como tales. **Aviso:** la fuente está en inglés, así que la versión A, que entrecomilla a Runway, lleva en su primer comentario que la cita es una traducción y no una transcripción.
+
+#### Versión B · La aritmética · **ELEGIDA**
+
+_Elegida por Maverick, con una frase cortada. La variante de gancho terminaba con «Mismo equipo.», afirmando que Runway multiplicó su volumen sin crecer: la página no dice nada sobre el tamaño de su equipo, así que era una frase buenísima sobre un dato que nadie ha publicado. Se eligió esta porque su mecanismo es nuevo y difícil de rebatir sin hacer la cuenta uno mismo — 900 a la semana son unos 128 al día y ningún equipo decide 128 cosas al día, de donde sale la tesis entera: lo que se multiplica por doce es la producción, no el número de decisiones. Y su segunda línea ya convierte la noticia en un problema del lector._
+
+**Texto del post:**
+
+```
+De 77 anuncios semanales a unos 900. Retorno publicitario doblado. Son cifras de Runway sobre su propio marketing, y me las creo.
+La pregunta no es cómo lo han hecho. Es qué pasa cuando tu competencia tiene lo mismo.
+
+Hago la cuenta, porque esa parte nadie la hace.
+
+900 a la semana son unos 128 al día. Ningún equipo decide 128 cosas al día. Tampoco revisa 128 mensajes distintos.
+
+Lo que se multiplica por doce es la producción. No el número de decisiones.
+
+Así que la decisión se mueve hacia arriba y se queda sola: un mensaje, 900 envoltorios. El motor publica, mide y vuelve a producir alrededor de lo que se llevó la inversión. Optimiza dentro de lo que alguien decidió antes de encender nada.
+
+Runway también cuenta que la conversión subió un 34% y el coste por suscriptor bajó un 41%, gastando más. Eso es ejecución seria.
+
+Y es exactamente el motivo por el que la ventaja se agota: lo que se compra por suscripción lo compra cualquiera.
+
+Me incluyo en el aprieto. Yo vendo criterio y produzco vídeo. Si mi valor fuera la capacidad de entregar piezas, acabo de perder la mitad del argumento.
+
+El volumen se multiplica por suscripción. El criterio sigue costando lo mismo: una decisión difícil que alguien firma.
+
+Lo escaso ya no es producir mil variantes. Es saber qué se está diciendo en las mil.
+
+Dos opciones para tu presupuesto del año que viene: A, duplicar producción. B, decidir el mensaje. ¿Cuál defenderías en tu comité?
+
+#MarketingB2B #IA #Publicidad
+```
+
+**Primer comentario:**
+
+```
+Fuente, con todas las cifras y el detalle del producto: runwayml.com/news/introducing-runway-ads
+
+Un dato que no cabía arriba y que me parece el más relevante del anuncio: localiza cada pieza por reglas que fija el equipo, incluido el texto en pantalla y las capturas de producto, no solo la locución. Y redimensiona a cada formato.
+
+Eso es el trabajo que más horas se come en una productora. Que se automatice no me asusta. Que alguien crea que ahí estaba el valor, sí.
+```
+
+#### Versión A · La premisa
+
+_La más citable y la más segura, pero arranca con una cita ajena y pierde medio segundo de atención. Su giro es temporal: la premisa de Runway era verdad y deja de serlo cuando la capacidad se democratiza. Es la única que entrecomilla al fabricante, así que su primer comentario avisa de que la cita está traducida del inglés._
+
+**Texto del post:**
+
+```
+Runway lo escribe en su propio anuncio: encontrar el anuncio que funciona «es menos una cuestión de gusto o de criterio» y más de cuántas variantes puede producir un equipo.
+Tienen razón. Y ahí empieza el problema.
+
+Antes de opinar, lo pongo encima de la mesa: yo vendo criterio y produzco vídeo. Esto me toca la factura.
+
+Runway Ads conecta tu cuenta publicitaria y tu kit de marca. Genera vídeo e imagen con tus guías, tus anuncios pasados y tus fotos de producto. Publica en Meta, Google y TikTok. Lee el rendimiento. Produce la siguiente ronda alrededor de lo que se llevó la inversión.
+
+Las cifras que da Runway de su propio marketing: desde julio, de 77 anuncios semanales a unos 900. Retorno publicitario doblado. Conversión un 34% arriba con el CTR estable. Coste por suscriptor un 41% abajo, gastando más.
+
+Me las creo. Eso es un motor, no una demo.
+
+Pero su premisa tiene fecha de caducidad. Si el cuello de botella era la capacidad de producir, y producir se vuelve barato y automático para cualquiera, el cuello de botella se mueve de sitio.
+
+El volumen deja de ser una ventaja el día en que lo tiene todo el mundo.
+
+Un motor que itera sobre lo que convirtió optimiza dentro de un mensaje. Alguien decidió ese mensaje antes. Si ese mensaje es flojo, ahora sale flojo 900 veces por semana. Más rápido y más barato.
+
+El enemigo no es la herramienta. Es confundir capacidad de producción con criterio.
+
+Cuando el volumen sale gratis, lo único escaso que queda es saber qué decir.
+
+Si mañana tuvieras 900 anuncios a la semana, ¿qué dirían? Respóndeme eso en un comentario.
+
+#MarketingB2B #IA #Publicidad
+```
+
+**Primer comentario:**
+
+```
+La fuente es la página del propio anuncio de Runway, y merece leerse entera antes de opinar: runwayml.com/news/introducing-runway-ads
+
+Está en inglés: la frase que cito arriba es mi traducción, no una transcripción. Ahí tienes el original para comprobarla.
+
+Su co-CEO lo explica sin marketing: lo construyeron porque lo necesitaban ellos, y meter generación, publicación y medición en un solo sistema, en vez de tres herramientas cosidas a mano, les dio visibilidad completa y velocidad.
+
+Ese argumento es el bueno. No es «más anuncios»: es un circuito cerrado. Lo que el circuito no hace es decidir qué entra en él.
+```
+
+#### Versión C · El mensaje malo a escala
+
+_La más confrontativa y la de autocrítica más dura. El mecanismo es que el coste de producir era la última protección contra el mensaje vacío. Se descarta solo porque su «aprobar no es decidir» hace eco de vocabulario con la pieza del 14-09: no hay solape estructural, pero se nota. Disponible tal cual si algún lunes interesa subir la intensidad._
+
+**Texto del post:**
+
+```
+Hasta ahora, un mensaje vacío tenía una protección: era caro de publicar.
+Esa protección desaparece. Ahora se puede publicar 900 veces por semana, bien localizado y sin salirse de la marca.
+
+Runway Ads pasa cada variante por un control de marca automático antes de la cola de aprobación. Con aprobación humana activada por defecto. Está bien resuelto.
+
+Pero un control de marca comprueba que el logo está donde toca. No comprueba que la frase merezca existir.
+
+Y aprobar no es decidir. Aprobar 900 piezas es mirar que nada esté roto. Decidir es elegir qué se dice y asumir que, si falla, es tuyo.
+
+Runway cuenta que con esto pasaron de 77 anuncios semanales a unos 900, doblaron el retorno publicitario y bajaron un 41% el coste por suscriptor, gastando más. Son sus cifras sobre su propio marketing y no las discuto.
+
+Lo que digo es qué pasa cuando ese motor se enciende encima de un mensaje que nadie decidió.
+
+No sale ruido nuevo. Sale el mismo mensaje flojo, impecable de forma, en todos los formatos, en todos los idiomas y en tres plataformas a la vez.
+
+El enemigo es viejo y ahora es más barato: confundir capacidad de producción con criterio.
+
+Mi parte: he entregado piezas perfectas de acabado y huecas de fondo. Las facturé. Mi firma está ahí.
+
+La escala no corrige un mensaje. Lo subraya.
+
+Cuando el volumen sale gratis, lo único escaso es saber qué decir.
+
+Pregunta para tu lunes: ¿quién, con nombre y apellidos, decide hoy el mensaje de vuestros anuncios? Si la respuesta es «el comité», dímelo en comentarios.
+
+#MarketingB2B #IA #Publicidad
+```
+
+**Primer comentario:**
+
+```
+La fuente, para quien quiera verlo sin intermediarios: runwayml.com/news/introducing-runway-ads
+
+Quiero dejar claro una cosa: esto no es una pieza contra Runway. Han construido algo serio y lo han probado primero en su propia cuenta, que es la forma honesta de lanzar una herramienta.
+
+Mi pega no es con el producto. Es con la lectura que va a hacer la mitad del sector: comprar el motor antes de tener decidido el mensaje. Lo barato ya no es la producción. Lo caro sigue siendo elegir.
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -2717,6 +2856,22 @@ nada que decir.
 
 ---
 
+
+## Semana 5 · 5 al 9 de octubre
+
+**Planificada el 02-10.** Cuatro de las cinco piezas no necesitan ni un dato sin confirmar, y eso es
+deliberado: después de un mes en el que cuatro piezas se quedaron esperando cifras que no llegaron, la
+semana se construye con material que ya existe o que es criterio propio de Angello. Las tres que salen
+del banco de reserva se eligen por eso.
+
+| Fecha | Día | Pilar | Tipo | Titular de trabajo | Notas | Formato | Intensidad | Estado |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 05-10 | Lun | Autoridad | A1 | El volumen dejó de ser el cuello de botella · **elegida versión B** | **Anclada en material de apoyo, no en noticia.** Runway anuncia Runway Ads, un motor que genera creatividades de vídeo e imagen desde las guías de marca, las publica en Meta, Google y TikTok, lee el rendimiento de vuelta y produce la siguiente ronda con lo que se ha llevado la inversión. La frase que lo convierte en pieza de autoridad la dice el propio fabricante: las empresas están limitadas por su capacidad de producir creatividades, no por su analítica ni por su intuición. La tesis de Angello es la vuelta de esa frase — cuando el volumen sale gratis, lo único escaso que queda es saber qué decir, y eso no lo da ningún agente. Cifras del propio Runway sobre su propio programa, citadas como suyas. Maverick cortó una frase inventada de la versión elegida: afirmaba que Runway multiplicó su volumen «con el mismo equipo», y la página no dice nada del tamaño de su equipo. `cola/2026-10-05-volumen-gratis-criterio-escaso.md` | Texto | Pura | creada · tres versiones |
+| 06-10 | Mar | Prueba | B1 | El sistema de nombres de archivo que nos ahorra horas | Sale del banco de reserva. **Cero dependencia de datos de cliente:** el sistema existe en este repositorio, en `tools/rename_clips.py`, así que la prueba es el propio script y no una cifra que haya que pedir. Prueba de proceso en lo más pequeño y más aburrido del oficio, que es justo donde se demuestra que hay sistema | Texto | Método | planificada |
+| 07-10 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar. **Si llega vacío**, entra la pieza de reserva «Lo que automatizo con IA y lo que no pienso automatizar nunca», que lleva esperando desde el 22-09 sin gastarse y cuyo texto ya existe como versión C del 9-09 | Texto o vídeo | Método | planificada |
+| 08-10 | Jue | Oferta | C3 | Las tres opciones de propuesta y por qué nunca doy una sola cifra | Sale del banco de reserva. Objeción respondida desde el método de presupuestar, no desde el precio. **No necesita ninguna cifra de cliente:** lo que se explica es la estructura de la propuesta, no lo que cuesta | Texto | Método | planificada |
+| 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. Criterio propio de Angello, sin datos y sin señalar a ningún cliente: las señales son de comportamiento en una llamada, nunca de empresa identificable. Cierra la semana con la pieza más personal y la más fácil de comentar | Texto | Método | planificada |
+
 ## Temas en reserva (banco de ideas)
 
 Para rellenar huecos, sustituir una pieza bloqueada por falta de datos, o alimentar octubre.
@@ -2909,5 +3064,6 @@ No se duplican en ningún otro fichero.
 | Mié 30 sept | La cláusula que falta |  |  |  |  |  |  |  |
 | Jue 1 oct | Qué recibe un cliente cada mes |  |  |  |  |  |  |  |
 | Vie 2 oct | El último metro |  |  |  |  |  |  |  |
+| Lun 5 oct | El volumen dejó de ser el cuello de botella |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
