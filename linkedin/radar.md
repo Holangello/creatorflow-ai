@@ -6,17 +6,14 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 02-10-2026, dos veces. **Sin ruptura, y el hallazgo del día no entra como noticia sino como
-prueba.** El segundo barrido, el de las 13:00, no encuentra nada de nivel 3 en las siete horas siguientes al
-primero. Lo único que aparece es un modelo de transcripción en vivo de Microsoft, anunciado el 1 de octubre:
-solo localizado en prensa secundaria y, sobre todo, la transcripción no mueve ninguna partida del presupuesto
-de un director de marketing. Nivel 1.
-Runway ha anunciado Runway Ads y tiene fuente primaria con cifras propias, pero **su página no declara fecha de
-publicación**: por la ruta del archivo de su imagen de portada se deduce el 28 de septiembre, y una deducción a
-partir de un nombre de asset no es un dato publicado. Sin fecha firme no se puede decir «acaba de salir», así
-que sube a material de apoyo —donde no corre la regla de las 72 horas— y desde ahí ancla la pieza de autoridad
-del lunes 5. Es la decisión correcta y además la más útil: como noticia habría caducado el miércoles; como
-prueba de una tesis, no caduca.
+**Último barrido:** 05-10-2026. **Sin ruptura y sin candidato.** Nada con fuente primaria en las últimas 48
+horas: lo que sale son generadores de voz comerciales, entrevistas de Iberseries ya cerrado, estrenos de
+plataforma y ofertas de empleo. Ninguna de esas cosas es noticia para un director de marketing.
+
+**La pieza del miércoles tiene red.** El hueco de actualidad del 7 de octubre entra con la reserva «Lo que
+automatizo con IA y lo que no pienso automatizar nunca» si el radar sigue vacío el martes. Lleva esperando
+desde el 22-09 sin gastarse y su texto ya existe como versión C del 9-09, así que el hueco no se queda en
+blanco por falta de noticia.
 
 **Aviso de honestidad que se mantiene.** El radar estuvo sin barrerse del 21 al 29 de septiembre porque las
 rutinas del 24 al 29 se dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. Fue una
@@ -24,18 +21,14 @@ avería del canal, no una decisión editorial. Los huecos del 25, 28 y 29 se per
 
 ## Candidatos activos
 
-**Ninguno.** Los candidatos del 21-09 y del 29-09 se gastaron en las piezas del 23 y del 30. Los dos están en
-el archivo. La tabla vacía es un dato, no una avería: en un mes, este radar ha dado dos candidatos publicables
-y los dos se usaron.
+**Ninguno.** Los dos candidatos publicables que ha dado este radar en un mes —el estudio de Google el 21-09 y
+la mesa de ALÍA el 29-09— se usaron los dos. La tabla vacía es un dato, no una avería.
 
-**Lo que se miró el 02-10 y por qué no entró como noticia.**
-
-| Mirado | Qué era | Por qué no entra |
-| --- | --- | --- |
-| **Runway Ads** | Motor autónomo de marketing de resultados: genera creatividades desde las guías de marca, publica en Meta, Google y TikTok, lee el rendimiento y regenera con lo que se llevó la inversión | **No se descarta: se recoloca.** Fuente primaria y cifras propias, pero sin fecha declarada en la página. Sube a material de apoyo y ancla la pieza de autoridad del lunes 5 |
-| Amazon Ads Agent | IA agéntica para crear, analizar y optimizar campañas publicitarias por conversación | Mismo tema que Runway Ads y una semana del mismo asunto es monotema. Se guarda: si el miércoles el radar llega vacío, este es el refuerzo que convierte la pieza del lunes en una categoría y no en el movimiento de una empresa — igual que Avid hizo con Adobe en septiembre. **Fuente primaria pendiente de localizar: lo visto es prensa secundaria** |
-| Instagram integra un asistente conversacional de IA en Edits | Cambio de producto en una plataforma | Solo localizado en un post de redes, sin nota de la plataforma. Sin fuente primaria se descarta, que es la regla |
-| Panorama Audiovisual Iberoamericano 2026 de EGEDA y FIPCA | El informe anual del sector, que se presentaba el 1 de octubre en Iberseries | **Sigue sin documento publicado.** Circula una cifra de prensa secundaria —la asistencia a los cines en Iberoamérica cayendo un 6,98% en 2025— que además no mueve ninguna partida del presupuesto del ICP. Se deja de vigilar como candidato: si el informe se publica, vuelve |
+**Lo mirado el 05-10 y descartado:** generadores comerciales de voz (producto de catálogo, no anuncio),
+entrevistas y balances de Iberseries & Platino Industria, ya clausurado el 2 de octubre (un encuentro cerrado
+no es noticia), estrenos de plataformas de streaming (no mueve el presupuesto del ICP) y una nota secundaria
+sobre novedades de IA en Premiere y After Effects fechada el 29 de septiembre, que es **el mismo movimiento de
+Adobe que ya ancló la pieza del 16 de septiembre**: no es nuevo, y volver a él sería repetirse.
 
 ## Material de apoyo · no caduca
 
