@@ -6,14 +6,16 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 05-10-2026. **Sin ruptura y sin candidato.** Nada con fuente primaria en las últimas 48
-horas: lo que sale son generadores de voz comerciales, entrevistas de Iberseries ya cerrado, estrenos de
-plataforma y ofertas de empleo. Ninguna de esas cosas es noticia para un director de marketing.
+**Último barrido:** 05-10-2026, dos veces. **El barrido de las 06:00 vino vacío y el de las 13:00 ha traído la
+mejor candidata del mes.** OpenAI abre ChatGPT a publicidad con formato visual, Ads Manager de autoservicio en
+beta y medición por pixel y Conversions API. Fuente primaria confirmada en openai.com.
 
-**La pieza del miércoles tiene red.** El hueco de actualidad del 7 de octubre entra con la reserva «Lo que
-automatizo con IA y lo que no pienso automatizar nunca» si el radar sigue vacío el martes. Lleva esperando
-desde el 22-09 sin gastarse y su texto ya existe como versión C del 9-09, así que el hueco no se queda en
-blanco por falta de noticia.
+**No es una ruptura y por eso no consume techo:** su sitio natural es el hueco fijo de actualidad del miércoles
+7, que estaba vacío. No desplaza nada, no toca el carrusel de captación y la pieza de reserva se queda sin
+gastar. El radar haciendo su trabajo normal, que es justo lo que no había pasado en dos semanas.
+
+**No la redacto hoy.** El miércoles es pasado mañana y la rutina de las 06:00 de mañana la escribe con un día
+más de fuentes. Anotarla y anclar la fila es lo que toca ahora.
 
 **Aviso de honestidad que se mantiene.** El radar estuvo sin barrerse del 21 al 29 de septiembre porque las
 rutinas del 24 al 29 se dispararon y sus avisos llegaron todos juntos, ya caducados, la tarde del 29. Fue una
@@ -21,14 +23,9 @@ avería del canal, no una decisión editorial. Los huecos del 25, 28 y 29 se per
 
 ## Candidatos activos
 
-**Ninguno.** Los dos candidatos publicables que ha dado este radar en un mes —el estudio de Google el 21-09 y
-la mesa de ALÍA el 29-09— se usaron los dos. La tabla vacía es un dato, no una avería.
-
-**Lo mirado el 05-10 y descartado:** generadores comerciales de voz (producto de catálogo, no anuncio),
-entrevistas y balances de Iberseries & Platino Industria, ya clausurado el 2 de octubre (un encuentro cerrado
-no es noticia), estrenos de plataformas de streaming (no mueve el presupuesto del ICP) y una nota secundaria
-sobre novedades de IA en Premiere y After Effects fechada el 29 de septiembre, que es **el mismo movimiento de
-Adobe que ya ancló la pieza del 16 de septiembre**: no es nuevo, y volver a él sería repetirse.
+| Detectado | Titular propuesto | Ángulo | Por qué le importa al ICP | Fuente | Caduca |
+| --- | --- | --- | --- | --- | --- |
+| 05-10 13:15 · **fuente primaria verificada** | Acaba de abrirse un sitio donde anunciarse y nadie sabe todavía qué decir en él | Traducción a negocio | **Nivel 3 por tres de los cuatro criterios.** Cambia el trabajo del ICP: aparece una superficie publicitaria nueva, con su propio formato, su propia forma de comprar y su propia medición, y alguien de su equipo va a tener que decidir si entra. Hay fuente primaria ya. Y Angello tiene criterio propio y no resumen, porque es el cierre exacto de lo que viene diciendo esta semana: el lunes, que el volumen dejó de ser ventaja y lo escaso es saber qué decir; el martes, que automatizar antes de decidir esconde el trabajo. Aquí la superficie es nueva, comprar es trivial —se crean y analizan campañas escribiendo en lenguaje natural— y por tanto **lo único que queda por resolver es el mensaje**. El cuarto criterio, las menos de 12 horas, se cumple hoy y no el miércoles: por eso la pieza no puede apoyarse en la novedad sino en la lectura | **OpenAI, fuente primaria:** `openai.com/index/new-ways-to-buy-chatgpt-ads` (socios de agencia Dentsu, Omnicom, Publicis y WPP, más Ads Manager de autoservicio en beta; Conversions API y medición por pixel), `openai.com/index/reimagining-advertising-with-ai` (crear, actualizar y analizar campañas con instrucciones en lenguaje natural desde el propio ChatGPT) y el centro de ayuda `help.openai.com`, que documenta el formato del anuncio, el etiquetado como patrocinado separado de la respuesta orgánica y el precio — puja máxima de CPM en campañas de alcance y de CPC en campañas de clic. **Limitación declarada: la fecha del 5 de octubre viene de prensa secundaria** (unite.ai), no de una fecha visible en las páginas de OpenAI. La sustancia está verificada en primaria; el «acaba de salir» no, y la pieza no lo necesita | 07-10 09:30 · ancla el hueco del miércoles |
 
 ## Material de apoyo · no caduca
 
