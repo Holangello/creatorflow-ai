@@ -2510,6 +2510,167 @@ Quiero dejar claro una cosa: esto no es una pieza contra Runway. Han construido 
 Mi pega no es con el producto. Es con la lectura que va a hacer la mitad del sector: comprar el motor antes de tener decidido el mensaje. Lo barato ya no es la producción. Lo caro sigue siendo elegir.
 ```
 
+### Martes 6 de octubre · 12:30 · Prueba · Conversación
+
+**Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios con un script propio confesado. El CTA pide un inventario incómodo.
+
+> **Antes de publicar:** Nada que confirmar para publicar la A, pero una línea marcada: «Yo quería dejar de perder tiempo buscando planos» es un motivo, no un hecho — confírmala o cámbiala por «Quería encontrar los planos más rápido». **La B queda bloqueada** hasta que confirmes que la escena de la búsqueda te pasó de verdad: escribir el script está comprobado, sufrir esa búsqueda no me consta.
+
+#### Versión A · El código a la vista · **ELEGIDA**
+
+_Elegida por Maverick. El eje de esta pieza cambió por un error mío: el viernes planifiqué la fila diciendo que el script era «el sistema de nombres que nos ahorra horas», y lo escribí sin abrir el archivo. Son catorce líneas que renumeran y borran fecha, proyecto, cámara, escena y toma, y que recorren la carpeta sin ordenarla. El eje nuevo es el único honesto y es mejor: el script es la prueba de automatizar antes de decidir qué problema se resuelve. Esta versión es la más verificable de las tres —todo lo que afirma se comprueba abriendo el archivo— y entra describiendo el código sin juzgarlo, dejando que el lector vea el agujero antes de que nadie lo nombre._
+
+**Texto del post:**
+
+```
+En este sistema hay un script mío de catorce líneas. Pide una carpeta y renombra todos los vídeos a clip_0001, clip_0002, clip_0003.
+
+Funciona sin un fallo. Y es lo peor que he escrito en años.
+
+Lo que hace, exacto: coge el nombre de cada archivo y lo tira.
+
+La fecha fuera. El proyecto fuera. La cámara, la escena, la toma, fuera. Deja un número y la extensión.
+
+Después de pasarlo, un plano se llama clip_0073. No hay manera de saber de qué rodaje salió.
+
+Hay un detalle peor. Recorre la carpeta sin ordenarla antes.
+
+Así que el número que asigna no es el orden de grabación. Ni el alfabético. Es el orden que el disco tenga ese día.
+
+Resumiendo: borré la única información que servía y la cambié por un número que no significa nada.
+
+El código no tiene ningún error. El error es anterior al código.
+
+Yo quería dejar de perder tiempo buscando planos. Y automaticé lo único que era fácil de automatizar: poner números.
+
+La parte difícil nunca la decidí. Qué información tiene que llevar el nombre de un archivo para poder encontrarlo dentro de seis meses.
+
+Ayer escribí que el volumen ya no es ventaja y que lo escaso es saber qué decir. Esto es el mismo error en su versión pequeña y tonta: una carpeta de clips y catorce líneas de Python.
+
+Si lo cometes ahí, lo cometes en todo.
+
+Automatizar antes de decidir no te ahorra el trabajo. Te lo esconde.
+
+¿Qué script tienes funcionando que no deberías estar usando? Dímelo en comentarios.
+
+#Automatización #Procesos #MarketingB2B
+```
+
+**Primer comentario:**
+
+```
+El mío sigue en el repositorio. No lo he borrado todavía y lo cuento a propósito: no tengo un sustituto montado, tengo una decisión pendiente.
+
+La decisión no es qué herramienta uso. Es qué tengo que poder encontrar, y en cuánto tiempo.
+
+Un nombre de archivo existe para una sola cosa: que puedas localizar un plano sin abrirlo. Si tienes que abrirlo para saber qué es, el nombre no está haciendo su trabajo. Da igual lo bien que se ejecute el renombrado.
+```
+
+#### Versión B · La búsqueda imposible
+
+_BLOQUEADA, y no por un dato. Escenifica una búsqueda concreta con diálogo de tres réplicas y afirma «la he vivido más de una vez»: es la mejor escrita de las tres y escenifica un incidente del que no tengo constancia. Si Angello confirma que le pasó, sale tal cual. Si no, hay que quitar el diálogo y entonces se parece demasiado a la A. Su CTA pide guardar en vez de comentar, así que es también la única que rompe el patrón de CTA._
+
+**Texto del post:**
+
+```
+Busco un plano concreto. Sé que lo grabé. En la carpeta se llama clip_0073.
+
+No puedo saber de qué rodaje es, ni de qué día, ni qué toma era. Esa información la borré yo, con un script mío.
+
+La escena es ridícula y la he vivido más de una vez.
+
+— ¿Lo tienes?
+— Sé que lo tengo.
+— Pues mándalo.
+
+Y entonces empiezas a abrir archivos de uno en uno para ver qué hay dentro. clip_0071. clip_0072. clip_0073.
+
+El culpable son catorce líneas de Python que escribí para ahorrarme tiempo.
+
+Pide una carpeta y renumera todo: clip_0001, clip_0002, clip_0003. Conserva la extensión y nada más.
+
+No es un sistema de nombres. Es un renumerador.
+
+Y borra exactamente lo que un sistema de nombres existe para conservar: fecha, proyecto, cámara, escena, toma.
+
+Por si faltaba algo, lee la carpeta sin ordenarla. El número tampoco corresponde al orden de grabación. Es el orden del sistema de ficheros ese día.
+
+El script hace impecablemente lo que le pedí. Yo le pedí mal.
+
+Quería no perder tiempo buscando planos, y automaticé poner números, que era la parte fácil. Decidir qué tiene que decir un nombre para encontrarlo en seis meses, eso no lo decidí.
+
+Un nombre de archivo sirve para una cosa: localizar un plano sin abrirlo. Ese es el criterio, y es una decisión, no una herramienta.
+
+Un script que funciona perfectamente puede estar resolviendo el problema equivocado. Y como funciona, nadie lo revisa.
+
+Guarda esto para la próxima vez que vayas a automatizar algo.
+
+#Automatización #Procesos #MarketingB2B
+```
+
+**Primer comentario:**
+
+```
+Lo que me parece más incómodo del asunto: si el script hubiera dado un error, lo habría arreglado el primer día.
+
+Al funcionar, pasó a la categoría de cosa resuelta. Y las cosas resueltas no se auditan.
+
+Ayer hablaba de esto mismo a escala de cientos de anuncios a la semana, donde lo escaso es saber qué decir. Aquí es una carpeta de vídeos y catorce líneas. El tamaño cambia, el error es el mismo: ejecutar a toda velocidad una decisión que nadie tomó.
+```
+
+#### Versión C · El diagnóstico
+
+_Corregida: venía con «Lo he hecho yo esta semana» y no sé cuándo escribió el script — la fecha del archivo no es la fecha de la decisión. Eliminada esa frase. Entra por la práctica y no por el objeto, y cierra en criterio accionable numerado: qué tengo que poder encontrar y en cuánto tiempo. La más útil para el decisor y la más larga._
+
+**Texto del post:**
+
+```
+Automatizamos la parte fácil para no tener que decidir la difícil.
+
+Lo he hecho yo. Catorce líneas de Python, cero errores, y destruyendo justo el dato que me hacía falta.
+
+El script es mío y sigue en el repositorio.
+
+Pide una carpeta y renombra todo a clip_0001, clip_0002, clip_0003. Deja el número y la extensión.
+
+Lo que se lleva por delante: fecha, proyecto, cámara, escena, toma. Un plano pasa a llamarse clip_0073 y ya no sabes de dónde viene.
+
+Y como recorre la carpeta sin ordenarla, el número no corresponde a ningún orden real. Ni grabación ni alfabético. El del disco ese día.
+
+Ahora la parte que importa, porque el código es solo la prueba.
+
+Yo no tenía un problema de nombres. Tenía un problema de búsqueda. Y nunca lo definí.
+
+Automaticé poner números, que era lo único trivial. Decidir qué información necesita un nombre para encontrar un plano dentro de seis meses, eso quedó sin decidir.
+
+Lo agravante es esto: que la herramienta funcione bien es lo que impide darte cuenta.
+
+Si fallara, la revisas. Al funcionar, la das por buena y sigues.
+
+Así que antes de automatizar nada, dos preguntas, en este orden:
+
+1. Qué tengo que poder encontrar.
+2. En cuánto tiempo tengo que poder encontrarlo.
+
+La herramienta se elige después. Para un nombre de archivo el criterio es simple: tiene que dejarte localizar un plano sin abrirlo.
+
+Automatizar antes de decidir no te ahorra el trabajo. Te lo esconde, y encima te cobra intereses.
+
+¿Qué tenéis automatizado sin haber decidido antes para qué? Respóndeme con uno.
+
+#Automatización #Procesos #MarketingB2B
+```
+
+**Primer comentario:**
+
+```
+Respondo yo primero, que para eso lo pregunto: el renombrado de clips. Y no tengo un sistema nuevo funcionando. Tengo la decisión sobre la mesa, que es distinto.
+
+Ayer escribía que a escala de cientos de anuncios por semana lo escaso es saber qué decir. Esto es el mismo fallo en miniatura: una carpeta de vídeos y catorce líneas.
+
+Si el error se comete en algo así de pequeño, se comete en todo lo demás. Por eso lo enseño.
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -2867,7 +3028,7 @@ del banco de reserva se eligen por eso.
 | Fecha | Día | Pilar | Tipo | Titular de trabajo | Notas | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 05-10 | Lun | Autoridad | A1 | El volumen dejó de ser el cuello de botella · **elegida versión B** | **Anclada en material de apoyo, no en noticia.** Runway anuncia Runway Ads, un motor que genera creatividades de vídeo e imagen desde las guías de marca, las publica en Meta, Google y TikTok, lee el rendimiento de vuelta y produce la siguiente ronda con lo que se ha llevado la inversión. La frase que lo convierte en pieza de autoridad la dice el propio fabricante: las empresas están limitadas por su capacidad de producir creatividades, no por su analítica ni por su intuición. La tesis de Angello es la vuelta de esa frase — cuando el volumen sale gratis, lo único escaso que queda es saber qué decir, y eso no lo da ningún agente. Cifras del propio Runway sobre su propio programa, citadas como suyas. Maverick cortó una frase inventada de la versión elegida: afirmaba que Runway multiplicó su volumen «con el mismo equipo», y la página no dice nada del tamaño de su equipo. `cola/2026-10-05-volumen-gratis-criterio-escaso.md` | Texto | Pura | creada · tres versiones |
-| 06-10 | Mar | Prueba | B1 | El sistema de nombres de archivo que nos ahorra horas | Sale del banco de reserva. **Cero dependencia de datos de cliente:** el sistema existe en este repositorio, en `tools/rename_clips.py`, así que la prueba es el propio script y no una cifra que haya que pedir. Prueba de proceso en lo más pequeño y más aburrido del oficio, que es justo donde se demuestra que hay sistema | Texto | Método | planificada |
+| 06-10 | Mar | Prueba | B1 | El código a la vista · **elegida versión A** | **Corrección de Maverick del 05-10, y es un error mío.** El viernes planifiqué esta fila diciendo que «el sistema existe en este repositorio, en `tools/rename_clips.py`, así que la prueba es el propio script». **Lo escribí sin abrir el archivo.** Al abrirlo: son catorce líneas que renombran todos los ficheros de una carpeta a `clip_0001`, `clip_0002`… Eso no es un sistema de nombres. Es un renumerador que **borra** la información que un sistema de nombres existe para conservar: fecha, proyecto, cámara, escena, toma. Y además recorre `os.listdir` sin ordenar, así que el número que te asigna no corresponde a ningún orden real. No se puede escribir «el sistema que nos ahorra horas» sobre esto sin inventarse el sistema. **El eje nuevo es el único honesto y además es mejor:** el script es la prueba, pero la prueba de otra cosa — de automatizar antes de haber decidido qué problema se resuelve. Catorce líneas que ejecutan perfectamente una decisión que nunca se tomó. Enlaza con la pieza del lunes sin repetirla: allí el mismo error a escala de 900 anuncios por semana, aquí a escala de una carpeta. El script es público en el repositorio, así que cualquiera puede comprobar las catorce líneas. `cola/2026-10-06-script-problema-no-definido.md` | Texto | Método | creada · tres versiones |
 | 07-10 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar. **Si llega vacío**, entra la pieza de reserva «Lo que automatizo con IA y lo que no pienso automatizar nunca», que lleva esperando desde el 22-09 sin gastarse y cuyo texto ya existe como versión C del 9-09 | Texto o vídeo | Método | planificada |
 | 08-10 | Jue | Oferta | C3 | Las tres opciones de propuesta y por qué nunca doy una sola cifra | Sale del banco de reserva. Objeción respondida desde el método de presupuestar, no desde el precio. **No necesita ninguna cifra de cliente:** lo que se explica es la estructura de la propuesta, no lo que cuesta | Texto | Método | planificada |
 | 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. Criterio propio de Angello, sin datos y sin señalar a ningún cliente: las señales son de comportamiento en una llamada, nunca de empresa identificable. Cierra la semana con la pieza más personal y la más fácil de comentar | Texto | Método | planificada |
@@ -3065,5 +3226,6 @@ No se duplican en ningún otro fichero.
 | Jue 1 oct | Qué recibe un cliente cada mes |  |  |  |  |  |  |  |
 | Vie 2 oct | El último metro |  |  |  |  |  |  |  |
 | Lun 5 oct | El volumen dejó de ser el cuello de botella |  |  |  |  |  |  |  |
+| Mar 6 oct | El código a la vista |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
