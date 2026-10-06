@@ -2671,6 +2671,149 @@ Ayer escribía que a escala de cientos de anuncios por semana lo escaso es saber
 Si el error se comete en algo así de pequeño, se comete en todo lo demás. Por eso lo enseño.
 ```
 
+### Miércoles 7 de octubre · 09:30 · Actualidad · Atracción
+
+**Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Guardados. El CTA pide guardar una regla de lectura para la próxima reunión.
+
+> **Antes de publicar:** Nada que confirmar para publicar la 1: todas las cifras llevan su autor delante y los 1.200 millones semanales van atribuidos a OpenAI. **La 2 necesita una comprobación de un minuto** en ads.openai.com — si un anunciante español puede darse de alta — porque afirmaba de más sobre la disponibilidad. **La 3 queda bloqueada** hasta que confirmes que la conversación de la reunión es tuya.
+
+#### Versión 1 · La firma · **ELEGIDA**
+
+_Elegida por Maverick, con una fecha falsa corregida: abría con «circulan desde el domingo» y el anuncio es del lunes 5, además de que «circulan desde» es una afirmación sobre difusión que no puedo comprobar. Se eligió porque su afirmación central es inatacable y no depende de ninguna fecha ni de ninguna disponibilidad — cada una de las tres cifras la firma un socio de medición que aparece en la misma nota como socio del lanzamiento, y eso está literal en la fuente. Extiende la regla del 23-09 sin repetirla: allí quien pagaba el informe vendía la herramienta, aquí el que mide es socio del que vende, que es un grado más difícil de ver porque viene con sello de independencia encima. Y no caduca: va a servir con el próximo canal que se abra._
+
+**Texto del post:**
+
+```
+Tres cifras de ChatGPT Ads ya están circulando: -15,3% de coste por adquisición, 93% de visitantes nuevos, 67% de compras de gente nueva.
+Las firma, cada una, un socio del lanzamiento.
+
+No digo que sean falsas. Digo que así no hay forma de saberlo.
+
+El 5 de octubre OpenAI anunció su formato de anuncio visual en ChatGPT. Imágenes que muestran el producto o su uso, probadas durante la generación de imágenes, etiquetadas y separadas de la imagen que estás creando. La publicidad no influye en las respuestas.
+
+Las pruebas empiezan este mes, en Estados Unidos, con un grupo inicial de anunciantes.
+
+Las cifras, cada una con su autor.
+
+DV Rockerbox dice que el coste por adquisición de WeightWatchers fue un 15,3% menor que su referencia de búsqueda pagada. WorkMagic reporta para Dose un incremento significativo, con el 67% de las compras incrementales de clientes nuevos. Triple Whale dice que el 93% de los visitantes de Portland Leather desde ahí eran nuevos.
+
+Una marca cada una. Sin método publicado. Y los tres aparecen en la misma nota como socios de medición del lanzamiento.
+
+En septiembre escribí una regla: quién encarga un estudio forma parte del estudio. Esta es la versión difícil de ver. Aquí el que mide es socio del que vende.
+
+Yo he citado cifras de proveedor en una propuesta sin mirar quién las firmaba. Por eso lo veo rápido.
+
+Y digo lo otro: OpenAI etiqueta los anuncios, los separa de la respuesta y ha abierto pilotos con DoubleVerify e IAS para que terceros evalúen sus estándares. Es más de lo que hace la mayoría.
+
+Antes de mirar la cifra, mira la firma. Si quien mide cobra del canal, no tienes evidencia. Tienes folleto.
+
+Guarda esto y úsalo con la próxima cifra que te pongan delante en una reunión.
+
+#MarketingB2B #IA #Publicidad
+```
+
+**Primer comentario:**
+
+```
+Fuente, para que no te quedes con mi lectura: openai.com/index/new-chatgpt-ads-format-and-measurement, publicado el 5 de octubre de 2026.
+
+Un detalle que no cabía arriba y que explica por qué estas cifras aparecen tan pronto: en la misma nota hay integraciones de conversión con Hightouch, Tealium y LiveRamp, socios de atribución como AppsFlyer, Adjust, Branch o Northbeam, y medición de incrementalidad con Haus, Measured y WorkMagic.
+
+Es un buen montaje de medición. Y es, a la vez, la lista de quienes firman los primeros resultados. Las dos cosas son verdad al mismo tiempo.
+```
+
+#### Versión 2 · Este mes no hay nada que comprar
+
+_Era la recomendación del copywriter y afirmaba de más. Decía «este mes no hay nada que comprar» en general y su variante de gancho añadía que hoy no se pueden comprar anuncios en ChatGPT desde España. La fuente solo sostiene que el formato visual nuevo es una prueba de EE. UU. con un grupo inicial de anunciantes: el Ads Manager de autoservicio existe desde mayo y se abre gradualmente a más empresas, y no sé si eso alcanza ya a España. Texto ajustado al formato visual y variante de gancho eliminada. Es la más útil para el decisor y la única con lista de acciones, pero antes de publicarla hay que comprobar el alta en ads.openai.com._
+
+**Texto del post:**
+
+```
+El formato de anuncio visual de ChatGPT no se puede comprar todavía.
+Es una prueba en Estados Unidos, con un grupo inicial de anunciantes, solo durante la generación de imágenes.
+
+Y aun así, la decisión que cuenta es de este mes.
+
+Lo que anunció OpenAI el 5 de octubre: un formato visual que enseña el producto, su uso o la experiencia que permite. Etiquetado y separado de la imagen que se está generando. Dicen que la publicidad no influye en las respuestas, y que ChatGPT llega a 1.200 millones de personas por semana.
+
+Ya circulan tres cifras buenas. Un 15,3% menos de coste por adquisición en WeightWatchers, según DV Rockerbox. El 93% de visitantes nuevos en Portland Leather, según Triple Whale. El 67% de compras incrementales de clientes nuevos en Dose, según WorkMagic.
+
+Una marca cada una, sin método a la vista, y cada cifra firmada por un socio de medición del propio lanzamiento.
+
+No son mentira. Son insuficientes para mover un presupuesto. Yo he citado cifras de proveedor sin mirar quién las firmaba, así que no hablo desde la grada.
+
+Lo que sí haría en octubre, antes de que se pueda pagar nada:
+
+1. Escribir en una frase qué dirías ahí. No un brief de veinte páginas. Una frase.
+2. Decidir qué enseña esa imagen: el producto, su uso o lo que te deja hacer. Son tres mensajes distintos.
+3. Definir qué cuenta como cliente nuevo para ti y medirlo con tu herramienta. Antes de que te lo mida el canal.
+
+Nada de eso necesita que el canal esté abierto.
+
+Cuando se abra, el que llegue con el mensaje decidido tendrá dos semanas de ventaja sobre el que llegue a decidirlo.
+
+Un canal nuevo no se gana comprando primero. Se gana sabiendo antes qué decir.
+
+Dime que me equivoco en comentarios si crees que aquí gana el que compre antes.
+
+#MarketingB2B #IA #Publicidad
+```
+
+**Primer comentario:**
+
+```
+La fuente, con todo el detalle del formato y de la medición: openai.com/index/new-chatgpt-ads-format-and-measurement, del 5 de octubre de 2026.
+
+Dos cosas que reconozco del anuncio y que suelen faltar: los anuncios van etiquetados y separados de la respuesta, y hay pilotos de idoneidad de marca con DoubleVerify e IAS para que evaluadores independientes revisen cómo se aplican sus estándares sin entrar en conversaciones privadas. Para anunciantes que cualifiquen hay además control por frases negativas.
+
+Eso no me dice si funciona. Me dice que se puede trabajar ahí con cabeza cuando abra.
+```
+
+#### Versión 3 · El sitio vacío
+
+_BLOQUEADA. Abre con una reunión fechada a las 10:40, diálogo de tres réplicas y «esa conversación la he tenido cuatro veces este año». El propio copywriter la marca como escena compuesta. Es la más viral de las tres y escenifica algo de lo que no tengo constancia. Si Angello confirma que la conversación es suya, sale tal cual._
+
+**Texto del post:**
+
+```
+Acaba de aparecer un sitio nuevo donde poner anuncios: dentro de ChatGPT, mientras alguien genera una imagen.
+Lo que va a faltar ahí no es presupuesto. Va a faltar qué decir.
+
+Reunión, 10:40. Alguien lee la noticia en voz alta.
+
+— ¿Nos metemos?
+— ¿Para decir qué?
+— Eso ya lo vemos cuando esté.
+
+Esa conversación la he tenido cuatro veces este año, cambiando el nombre del canal.
+
+Los hechos, del anuncio del 5 de octubre: formato visual que muestra el producto o su uso, etiquetado y separado de la imagen que se está creando, y la publicidad no influye en las respuestas. Pruebas este mes, en Estados Unidos, con un grupo inicial de anunciantes. OpenAI dice que ChatGPT llega a 1.200 millones de personas por semana.
+
+Ya hay tres cifras circulando: un 15,3% menos de coste por adquisición en WeightWatchers según DV Rockerbox, un 93% de visitantes nuevos en Portland Leather según Triple Whale, un 67% de compras incrementales de clientes nuevos en Dose según WorkMagic.
+
+Cada una de una marca, y cada una firmada por un socio de medición del lanzamiento. Sirven para pedir presupuesto. No sirven para decidir el mensaje.
+
+Yo también he usado cifras de proveedor sin mirar de quién eran.
+
+El lunes escribí que lo escaso ya no es producir. Aquí se ve dónde: una superficie nueva, con 1.200 millones de personas al otro lado, y nadie tiene decidido qué poner.
+
+Un canal vacío no premia al que llega primero. Premia al que llega decidido.
+
+Una frase, en comentarios: qué pondrías tú ahí si mañana se abriera.
+
+#MarketingB2B #IA #Publicidad
+```
+
+**Primer comentario:**
+
+```
+Fuente: openai.com/index/new-chatgpt-ads-format-and-measurement, publicado el 5 de octubre de 2026. La fecha está en la propia página.
+
+Y el matiz que más me interesa del formato: no es un banner pegado a la respuesta. Es una imagen que compite con la imagen que la persona está creando en ese momento. Eso no se gana con más presupuesto, se gana sabiendo qué enseñas: el producto, su uso, o lo que le permite hacer.
+
+Tres decisiones distintas. Ninguna la toma el canal por ti.
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -3029,7 +3172,7 @@ del banco de reserva se eligen por eso.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 05-10 | Lun | Autoridad | A1 | El volumen dejó de ser el cuello de botella · **elegida versión B** | **Anclada en material de apoyo, no en noticia.** Runway anuncia Runway Ads, un motor que genera creatividades de vídeo e imagen desde las guías de marca, las publica en Meta, Google y TikTok, lee el rendimiento de vuelta y produce la siguiente ronda con lo que se ha llevado la inversión. La frase que lo convierte en pieza de autoridad la dice el propio fabricante: las empresas están limitadas por su capacidad de producir creatividades, no por su analítica ni por su intuición. La tesis de Angello es la vuelta de esa frase — cuando el volumen sale gratis, lo único escaso que queda es saber qué decir, y eso no lo da ningún agente. Cifras del propio Runway sobre su propio programa, citadas como suyas. Maverick cortó una frase inventada de la versión elegida: afirmaba que Runway multiplicó su volumen «con el mismo equipo», y la página no dice nada del tamaño de su equipo. `cola/2026-10-05-volumen-gratis-criterio-escaso.md` | Texto | Pura | creada · tres versiones |
 | 06-10 | Mar | Prueba | B1 | El código a la vista · **elegida versión A** | **Corrección de Maverick del 05-10, y es un error mío.** El viernes planifiqué esta fila diciendo que «el sistema existe en este repositorio, en `tools/rename_clips.py`, así que la prueba es el propio script». **Lo escribí sin abrir el archivo.** Al abrirlo: son catorce líneas que renombran todos los ficheros de una carpeta a `clip_0001`, `clip_0002`… Eso no es un sistema de nombres. Es un renumerador que **borra** la información que un sistema de nombres existe para conservar: fecha, proyecto, cámara, escena, toma. Y además recorre `os.listdir` sin ordenar, así que el número que te asigna no corresponde a ningún orden real. No se puede escribir «el sistema que nos ahorra horas» sobre esto sin inventarse el sistema. **El eje nuevo es el único honesto y además es mejor:** el script es la prueba, pero la prueba de otra cosa — de automatizar antes de haber decidido qué problema se resuelve. Catorce líneas que ejecutan perfectamente una decisión que nunca se tomó. Enlaza con la pieza del lunes sin repetirla: allí el mismo error a escala de 900 anuncios por semana, aquí a escala de una carpeta. El script es público en el repositorio, así que cualquiera puede comprobar las catorce líneas. `cola/2026-10-06-script-problema-no-definido.md` | Texto | Método | creada · tres versiones |
-| 07-10 | Mié | Actualidad | N | [Radar] Noticia de IA o audiovisual de la semana | Hueco fijo. Ver radar. **Si llega vacío**, entra la pieza de reserva «Lo que automatizo con IA y lo que no pienso automatizar nunca», que lleva esperando desde el 22-09 sin gastarse y cuyo texto ya existe como versión C del 9-09 | Texto o vídeo | Método | planificada |
+| 07-10 | Mié | Actualidad | N | Las primeras cifras del sitio nuevo las firman los socios de quien lo abrió | **Reverificada y corregida el 06-10.** Ayer anclé esta fila sobre la página equivocada de OpenAI: la que cité está fechada el 5 de **mayo** y de ahí salían el Ads Manager y la puja por CPC. El anuncio del 5 de octubre es otro, «Building advertising for the way people use AI», y lleva la fecha visible en la propia página. **El anuncio real es más pequeño y mejor para la pieza:** formato de anuncio visual en ChatGPT, probado solo durante la generación de imágenes, **este mes, en EE. UU. y con un grupo inicial de anunciantes.** Doble eje: las tres cifras que avalan el canal las firma cada una un socio de medición que es socio del propio lanzamiento, sobre una sola marca y sin método a la vista —el «quién encarga un estudio» del 23-09 con sello de independencia encima—; y el dato accionable que nadie le va a dar a un director de marketing en España es que **este mes no hay nada que comprar**. Cierra la trilogía de la semana. `cola/2026-10-07-cifras-de-los-socios.md` | Texto | Método | creada · tres versiones |
 | 08-10 | Jue | Oferta | C3 | Las tres opciones de propuesta y por qué nunca doy una sola cifra | Sale del banco de reserva. Objeción respondida desde el método de presupuestar, no desde el precio. **No necesita ninguna cifra de cliente:** lo que se explica es la estructura de la propuesta, no lo que cuesta | Texto | Método | planificada |
 | 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. Criterio propio de Angello, sin datos y sin señalar a ningún cliente: las señales son de comportamiento en una llamada, nunca de empresa identificable. Cierra la semana con la pieza más personal y la más fácil de comentar | Texto | Método | planificada |
 
@@ -3227,5 +3370,6 @@ No se duplican en ningún otro fichero.
 | Vie 2 oct | El último metro |  |  |  |  |  |  |  |
 | Lun 5 oct | El volumen dejó de ser el cuello de botella |  |  |  |  |  |  |  |
 | Mar 6 oct | El código a la vista |  |  |  |  |  |  |  |
+| Mié 7 oct | La firma |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.

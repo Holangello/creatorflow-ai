@@ -33,6 +33,7 @@ COLA = {
     "vie02": "2026-10-02-el-ultimo-metro.md",
     "lun05": "2026-10-05-volumen-gratis-criterio-escaso.md",
     "mar06": "2026-10-06-script-problema-no-definido.md",
+    "mie07": "2026-10-07-cifras-de-los-socios.md",
 }
 FECHA = {"d1": "Martes 8 de septiembre", "mie": "Miércoles 9 de septiembre", "jue": "Jueves 10 de septiembre",
          "vie": "Viernes 11 de septiembre", "lun14": "Lunes 14 de septiembre", "caso": "Martes 15 de septiembre", "mie16": "Miércoles 16 de septiembre",
@@ -41,7 +42,8 @@ FECHA = {"d1": "Martes 8 de septiembre", "mie": "Miércoles 9 de septiembre", "j
          "jue01": "Jueves 1 de octubre",
          "vie02": "Viernes 2 de octubre",
          "lun05": "Lunes 5 de octubre",
-         "mar06": "Martes 6 de octubre"}
+         "mar06": "Martes 6 de octubre",
+         "mie07": "Miércoles 7 de octubre"}
 
 def section(path, header):
     """Devuelve el bloque de un archivo de cola desde un encabezado ## hasta el siguiente ##."""
@@ -313,7 +315,7 @@ def adapt_sections(kind):
         res[m.group(1)] = {"title": m.group(2).strip(), "html": md_to_html(m.group(3))[0]}
     return res
 adapts = adapt_sections("Adaptaciones"); guides = adapt_sections("Guía")
-DATE = {"d1": "2026-09-08", "mie": "2026-09-09", "jue": "2026-09-10", "vie": "2026-09-11", "lun14": "2026-09-14", "caso": "2026-09-15", "mie16": "2026-09-16", "jue17": "2026-09-17", "vie18": "2026-09-18", "lun21": "2026-09-21", "mie23": "2026-09-23", "jue24": "2026-09-24", "mie30": "2026-09-30", "jue01": "2026-10-01", "vie02": "2026-10-02", "lun05": "2026-10-05", "mar06": "2026-10-06"}
+DATE = {"d1": "2026-09-08", "mie": "2026-09-09", "jue": "2026-09-10", "vie": "2026-09-11", "lun14": "2026-09-14", "caso": "2026-09-15", "mie16": "2026-09-16", "jue17": "2026-09-17", "vie18": "2026-09-18", "lun21": "2026-09-21", "mie23": "2026-09-23", "jue24": "2026-09-24", "mie30": "2026-09-30", "jue01": "2026-10-01", "vie02": "2026-10-02", "lun05": "2026-10-05", "mar06": "2026-10-06", "mie07": "2026-10-07"}
 faltan = [d["id"] for d in days
           if d["id"] not in DATE or d["id"] not in FECHA]
 if faltan:
