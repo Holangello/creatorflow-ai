@@ -2814,6 +2814,166 @@ Y el matiz que más me interesa del formato: no es un banner pegado a la respues
 Tres decisiones distintas. Ninguna la toma el canal por ti.
 ```
 
+### Jueves 8 de octubre · 12:30 · Oferta · Captación
+
+**Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Mensajes privados. El CTA pide un DM con la palabra «alcance», que además deja el buzón filtrable.
+
+> **Antes de publicar:** **Nada que confirmar en ninguna de las tres.** Cero cifras: los únicos números del texto son los ordinales 1, 2 y 3 de la estructura. Es la primera pieza de la semana que no espera a nadie. **Solo una advertencia, y es sobre la 2:** lleva la frase «he trabajado con briefings que nadie había cerrado y los he aceptado igual», que es una admisión de conducta pasada, no una práctica del sector. Si eliges la 2, lee esa frase y decide si la firmas; si no, se cae sola y el párrafo sigue funcionando.
+
+#### Versión 1 · El documento que cierra el briefing · **ELEGIDA**
+
+_Entra por la regla de método y explica el instrumento de forma casi documental, que es lo que convierte una pieza de Oferta en algo que se guarda en vez de algo que se lee. **Elegida por ser la única sin una sola frase que necesite un sí tuyo:** su único «yo» es «el sector ha entrenado al cliente a pedir una cifra antes de nada. Yo incluido», y decir que formas parte del sector que te ha entrenado es una posición, no un hecho comprobable. Gancho de 146 caracteres. Sentencia: «Una propuesta no es un precio. Es la última oportunidad de cerrar el briefing.»_
+
+**Texto del post:**
+
+```
+Nunca doy una sola cifra por un proyecto de vídeo.
+No es táctica de venta. Una cifra sobre un briefing sin cerrar no es un precio: es una apuesta.
+
+Si aciertas, has acertado de suerte. Si fallas, la conversación se convierte en un regateo.
+
+Y un regateo no se discute en alcance. Se discute en precio. Son dos conversaciones distintas y solo una sirve.
+
+Así que toda propuesta que sale de aquí lleva tres opciones. Siempre.
+
+No para que elijas la de arriba. Para que elijas alcance.
+
+Qué pregunta responde cada una:
+
+1. La mínima. Resuelve el problema que me has declarado, tal cual, sin añadidos.
+2. La real. Resuelve el problema que aparece cuando pregunto para qué lo necesitas.
+3. La continuidad. Asume que esto no es una pieza, es un calendario.
+
+La uno y la dos casi nunca coinciden. Ahí está el trabajo del documento.
+
+Porque al elegir, dices en voz alta qué necesitas de verdad. Eso es justo lo que faltaba en el briefing.
+
+El sector ha entrenado al cliente a pedir una cifra antes de nada. Yo incluido.
+
+Y pedirla no es rigor presupuestario. Es cerrar el alcance por adelantado sin haberlo definido.
+
+Una propuesta no es un precio. Es la última oportunidad de cerrar el briefing.
+
+Si estás a punto de pedir "una cifra" a alguien, escríbeme "alcance" por privado y te digo qué tendría que preguntarte antes.
+
+#MarketingB2B #Producción #Compras
+```
+
+**Primer comentario:**
+
+```
+Desarrollo la tercera opción, que es la que más se malinterpreta.
+
+La continuidad no es "lo mismo pero más veces". Cambia la unidad de compra: dejas de comprar una pieza y empiezas a comprar capacidad de producir la siguiente.
+
+Lo que se decide ahí no es volumen. Es quién mantiene el criterio entre pieza y pieza, y si eso vive dentro o fuera de tu equipo.
+
+Pregunta para quien firme presupuestos: ¿compras piezas o compras calendario? Porque el documento que te mandan debería cambiar entero según la respuesta.
+```
+
+#### Versión 2 · El presupuesto que creció
+
+_Entra por el dolor ya vivido del decisor —el presupuesto que se amplió— y usa la estructura como remedio en vez de como tema. Es la más comercial de las tres y probablemente la que más DM genera. **Lo que la deja en segundo lugar es una sola frase:** «he trabajado con briefings que nadie había cerrado y los he aceptado igual» afirma algo sobre tu historia profesional, no sobre una práctica del sector, y eso solo lo puedes firmar tú. Gancho de 116 caracteres, el más corto de los tres. Sentencia: «Un presupuesto no se descontrola por caro. Se descontrola por indefinido.»_
+
+**Texto del post:**
+
+```
+Has aprobado presupuestos que luego crecieron.
+No fue el precio. Fue que nadie había decidido qué estabas comprando.
+
+Eso no se dice en la reunión de cierre. Se piensa después, cuando llegan los extras.
+
+Y el origen está siempre antes: en el momento en que alguien pidió "una cifra" y alguien la dio.
+
+Dar una cifra con el problema sin definir parece profesional. Es lo contrario.
+
+Es apostar. Si sale bien, fue suerte. Si sale mal, el proyecto se come la diferencia o tú te la comes.
+
+Por eso aquí no sale ninguna propuesta con una sola cifra. Salen tres opciones.
+
+Y no van ordenadas por precio. Van ordenadas por pregunta:
+
+1. Lo mínimo que resuelve el problema que me has contado.
+2. Lo que resuelve el problema que aparece cuando pregunto para qué.
+3. Lo que hace falta si esto se repite cada mes.
+
+Esa es la trampa útil del documento: para elegir, tienes que decidir.
+
+Y en cuanto decides, el briefing queda cerrado por escrito. Ya no hay extras, hay alcance.
+
+Me incluyo en el problema: he trabajado con briefings que nadie había cerrado y los he aceptado igual.
+
+Un presupuesto no se descontrola por caro. Se descontrola por indefinido.
+
+Si tienes un proyecto de vídeo sin alcance cerrado, escríbeme "alcance" por privado y lo cerramos antes de hablar de dinero.
+
+#MarketingB2B #Presupuestos #Producción
+```
+
+**Primer comentario:**
+
+```
+Una pregunta concreta, para quien aprueba: ¿cuántas veces has firmado algo sabiendo que el alcance estaba abierto, y lo has firmado igual porque el plazo apretaba?
+
+Lo pregunto sin trampa. Ese es el punto exacto donde se decide si el proyecto va a crecer o no, y casi nunca se mira.
+
+Lo que hemos entrenado en el sector es esto: el proveedor parece ágil dando una cifra rápido y el cliente parece ordenado pidiéndola. Los dos quedan bien en esa llamada y los dos pagan la factura más tarde.
+```
+
+#### Versión 3 · No es un truco de anclaje
+
+_La única que ataca la práctica desde dentro: se desmarca del uso tramposo de las tres opciones antes de defender el suyo, y su primer comentario trae una prueba que el lector puede aplicar hoy a la propuesta que tenga encima de la mesa. Le pega al decisor escéptico que ya ha visto el truco. **Es el techo de confrontación de la semana:** la pieza de confrontación ya se gastó el lunes 5, y aunque esta no es confrontación pura —ataca cuatro líneas y el resto es método explicado—, si se elige la semana queda cerrada a cualquier otra pieza confrontativa. Gancho de 170 caracteres. Sentencia: «Tres opciones que no se pueden ejecutar no son opciones. Son decoración de precio.»_
+
+**Texto del post:**
+
+```
+Las tres opciones de una propuesta se han convertido en un truco de anclaje.
+Una carísima arriba para que la del medio parezca sensata. Eso no es criterio: es escaparate.
+
+Y funciona el tiempo justo. Hasta que el cliente lo reconoce, y lo reconoce siempre.
+
+Yo mando tres opciones en cada propuesta y no es por eso.
+
+La diferencia está en qué varía entre ellas.
+
+En el truco, varía el precio y el alcance es decoración.
+En una propuesta seria, varía el alcance y el precio es consecuencia.
+
+Cada opción responde a una pregunta distinta:
+
+1. ¿Y si el problema es exactamente el que me has descrito?
+2. ¿Y si el problema es el que aparece cuando pregunto para qué lo necesitas?
+3. ¿Y si esto no es una pieza suelta, sino algo que vas a necesitar cada mes?
+
+Ninguna está puesta para que elijas otra. Las tres se pueden ejecutar.
+
+Si la de arriba existe solo para que la del medio brille, el documento está mintiendo.
+
+Lo mismo con la cifra única: parece transparencia y es una apuesta sobre un briefing abierto.
+
+Autocrítica incluida: el sector enseña a presentar precio antes que alcance, y yo aprendí ahí.
+
+Tres opciones que no se pueden ejecutar no son opciones. Son decoración de precio.
+
+Si te han mandado una propuesta y no sabes qué cambia entre opciones, escríbeme "alcance" por privado y te digo qué preguntarle a tu proveedor.
+
+#MarketingB2B #Compras #Propuestas
+```
+
+**Primer comentario:**
+
+```
+La prueba del algodón de cualquier propuesta de tres opciones, y la puedes aplicar hoy a la que tengas encima de la mesa:
+
+Tapa los precios. Lee solo lo que incluye cada opción.
+
+Si sin ver el dinero sabes perfectamente qué problema resuelve cada una y por qué son distintas, el documento está bien hecho.
+
+Si al tapar los precios las tres se parecen, lo que te han mandado no es una propuesta. Es una lista de precios con tres filas.
+
+¿Alguien se atreve a hacer la prueba con la última que recibió?
+```
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -3173,7 +3333,7 @@ del banco de reserva se eligen por eso.
 | 05-10 | Lun | Autoridad | A1 | El volumen dejó de ser el cuello de botella · **elegida versión B** | **Anclada en material de apoyo, no en noticia.** Runway anuncia Runway Ads, un motor que genera creatividades de vídeo e imagen desde las guías de marca, las publica en Meta, Google y TikTok, lee el rendimiento de vuelta y produce la siguiente ronda con lo que se ha llevado la inversión. La frase que lo convierte en pieza de autoridad la dice el propio fabricante: las empresas están limitadas por su capacidad de producir creatividades, no por su analítica ni por su intuición. La tesis de Angello es la vuelta de esa frase — cuando el volumen sale gratis, lo único escaso que queda es saber qué decir, y eso no lo da ningún agente. Cifras del propio Runway sobre su propio programa, citadas como suyas. Maverick cortó una frase inventada de la versión elegida: afirmaba que Runway multiplicó su volumen «con el mismo equipo», y la página no dice nada del tamaño de su equipo. `cola/2026-10-05-volumen-gratis-criterio-escaso.md` | Texto | Pura | creada · tres versiones |
 | 06-10 | Mar | Prueba | B1 | El código a la vista · **elegida versión A** | **Corrección de Maverick del 05-10, y es un error mío.** El viernes planifiqué esta fila diciendo que «el sistema existe en este repositorio, en `tools/rename_clips.py`, así que la prueba es el propio script». **Lo escribí sin abrir el archivo.** Al abrirlo: son catorce líneas que renombran todos los ficheros de una carpeta a `clip_0001`, `clip_0002`… Eso no es un sistema de nombres. Es un renumerador que **borra** la información que un sistema de nombres existe para conservar: fecha, proyecto, cámara, escena, toma. Y además recorre `os.listdir` sin ordenar, así que el número que te asigna no corresponde a ningún orden real. No se puede escribir «el sistema que nos ahorra horas» sobre esto sin inventarse el sistema. **El eje nuevo es el único honesto y además es mejor:** el script es la prueba, pero la prueba de otra cosa — de automatizar antes de haber decidido qué problema se resuelve. Catorce líneas que ejecutan perfectamente una decisión que nunca se tomó. Enlaza con la pieza del lunes sin repetirla: allí el mismo error a escala de 900 anuncios por semana, aquí a escala de una carpeta. El script es público en el repositorio, así que cualquiera puede comprobar las catorce líneas. `cola/2026-10-06-script-problema-no-definido.md` | Texto | Método | creada · tres versiones |
 | 07-10 | Mié | Actualidad | N | Las primeras cifras del sitio nuevo las firman los socios de quien lo abrió | **Reverificada y corregida el 06-10.** Ayer anclé esta fila sobre la página equivocada de OpenAI: la que cité está fechada el 5 de **mayo** y de ahí salían el Ads Manager y la puja por CPC. El anuncio del 5 de octubre es otro, «Building advertising for the way people use AI», y lleva la fecha visible en la propia página. **El anuncio real es más pequeño y mejor para la pieza:** formato de anuncio visual en ChatGPT, probado solo durante la generación de imágenes, **este mes, en EE. UU. y con un grupo inicial de anunciantes.** Doble eje: las tres cifras que avalan el canal las firma cada una un socio de medición que es socio del propio lanzamiento, sobre una sola marca y sin método a la vista —el «quién encarga un estudio» del 23-09 con sello de independencia encima—; y el dato accionable que nadie le va a dar a un director de marketing en España es que **este mes no hay nada que comprar**. Cierra la trilogía de la semana. `cola/2026-10-07-cifras-de-los-socios.md` | Texto | Método | creada · tres versiones |
-| 08-10 | Jue | Oferta | C3 | Las tres opciones de propuesta y por qué nunca doy una sola cifra | Sale del banco de reserva. Objeción respondida desde el método de presupuestar, no desde el precio. **No necesita ninguna cifra de cliente:** lo que se explica es la estructura de la propuesta, no lo que cuesta | Texto | Método | planificada |
+| 08-10 | Jue | Oferta | C3 | Las tres opciones de propuesta y por qué nunca doy una sola cifra | Sale del banco de reserva. Objeción respondida desde el método de presupuestar, no desde el precio. **Escrita el 07-10 y es la primera pieza de la semana que no espera a nadie:** cero cifras, cero `[DATO]`, las tres versiones publicables tal cual. El eje es que una cifra única sobre un briefing sin cerrar no es un precio, es una apuesta, y que las tres opciones existen para que el cliente elija **alcance** y no precio — la propuesta como último sitio donde el briefing se cierra por escrito. Elegida A, la única sin ninguna frase que necesite un sí de Angello. `cola/2026-10-08-tres-opciones-de-propuesta.md` | Texto | Método | creada · tres versiones |
 | 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. Criterio propio de Angello, sin datos y sin señalar a ningún cliente: las señales son de comportamiento en una llamada, nunca de empresa identificable. Cierra la semana con la pieza más personal y la más fácil de comentar | Texto | Método | planificada |
 
 ## Temas en reserva (banco de ideas)
@@ -3371,5 +3531,6 @@ No se duplican en ningún otro fichero.
 | Lun 5 oct | El volumen dejó de ser el cuello de botella |  |  |  |  |  |  |  |
 | Mar 6 oct | El código a la vista |  |  |  |  |  |  |  |
 | Mié 7 oct | La firma |  |  |  |  |  |  |  |
+| Jue 8 oct | Cierra el briefing |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
