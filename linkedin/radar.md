@@ -6,8 +6,9 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 07-10-2026. **Barrido hecho y sin candidata nueva. Lo escribo tal cual porque es
-el resultado, no un hueco.**
+**Último barrido:** 07-10-2026, dos veces. **Sin ruptura en el segundo barrido:** nada de nivel 3 ni de
+nivel 2 en las siete horas siguientes al primero. **Barrido hecho y sin candidata nueva. Lo escribo tal cual
+porque es el resultado, no un hueco.**
 
 Cinco consultas: IA generativa de vídeo, imagen y voz en las últimas 48 horas; lanzamientos de modelos de
 vídeo con fecha; derechos de imagen y voz y regulación de IA en España; cambios de formato en LinkedIn; e
