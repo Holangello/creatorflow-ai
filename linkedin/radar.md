@@ -6,33 +6,55 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 07-10-2026, dos veces. **Sin ruptura en el segundo barrido:** nada de nivel 3 ni de
-nivel 2 en las siete horas siguientes al primero. **Barrido hecho y sin candidata nueva. Lo escribo tal cual
-porque es el resultado, no un hueco.**
+**Último barrido:** 08-10-2026. **Ninguna candidata nueva, pero esta vez no es porque no haya nada: es
+porque no he podido verificar lo que hay.**
 
-Cinco consultas: IA generativa de vídeo, imagen y voz en las últimas 48 horas; lanzamientos de modelos de
-vídeo con fecha; derechos de imagen y voz y regulación de IA en España; cambios de formato en LinkedIn; e
-industria audiovisual y publicitaria española. **Nada de lo que ha vuelto está dentro de la ventana de 48
-horas con fuente primaria verificable.** Lo que ha vuelto es de meses atrás y ya conocido: el anteproyecto
-español contra los deepfakes y el aviso de la AEPD son del 13 de enero; el fin del directo no programado en
-LinkedIn se anunció el 29 de marzo; el plan audiovisual de Madrid y los datos de Iberseries son de
-septiembre y de la semana pasada. **Ninguna de esas cosas es noticia hoy, y presentar como novedad algo de
-enero es exactamente el error que se corrigió ayer.** Así que hoy no sube ninguna candidata.
+Han salido dos cosas que a este ICP le tocan de lleno, las dos del **1 de octubre**, o sea **siete días**, muy
+fuera de la ventana de 72 horas. Las anoto abajo en un bloque aparte, porque el motivo por el que no entran
+importa más que ellas:
 
-**Esto no deja ningún hueco abierto.** La pieza del jueves es de Oferta, no de Actualidad: se escribe
-sobre el método de presupuestar y no necesitaba radar. El próximo hueco de actualidad es el miércoles 14, y
-hay una semana entera de barridos por delante para llenarlo.
+**Una.** Microsoft AI publica tres modelos de voz, entre ellos un texto a voz multilingüe que —según la prensa
+y la ficha de catálogo— mantiene la misma identidad de voz al cambiar de idioma y se guía con una grabación
+corta de referencia.
+**Dos.** Tavus presenta un modelo de vídeo a vídeo para conversación en tiempo real, con una cifra que es
+exactamente del tipo que esta cuenta usa: el porcentaje de gente que, tras una llamada de un minuto, creyó
+estar hablando con una persona.
 
-**Lo que sí queda pendiente de mirar con calma cuando haya ventana:** el anteproyecto de ley español sobre
-deepfakes y consentimiento de imagen y voz no es noticia, pero cuando se apruebe lo será, y afecta
-directamente a lo que se firma en un rodaje. Va anotado abajo, en material de apoyo, como tema a vigilar y
-no como candidata. Si pasa el trámite, es la pieza de actualidad más relevante del trimestre para este ICP.
+**Lo que no he podido hacer, y por eso no se publica nada sobre ellas: abrir la fuente primaria.** Los seis
+dominios que harían falta —`microsoft.ai`, `ai.azure.com`, `www.businesswire.com`, `openrouter.ai`,
+`tavus.io` y `www.tavus.io`— **están todos inalcanzables desde esta sesión.** Lo he comprobado uno por uno y
+los seis fallan igual. Todo lo que tengo es prensa secundaria y agregadores, y de ahí ya salen discrepancias
+visibles: una ficha dice «10+ idiomas» y el resto dicen 23, y la fecha de versión del catálogo no coincide con
+la del anuncio.
+
+**No escribo una cifra que no he visto en su fuente.** Es la misma regla que impidió publicar las cifras del
+estudio de Google el 23 de septiembre, y es la que falló el 5 de octubre cuando di por buena una fecha de
+prensa secundaria. Quedan anotadas abajo como pendientes, con sus cifras entre comillas y con autor, para el
+día en que los dominios se puedan abrir.
+
+**Esto no deja ningún hueco.** La pieza del viernes es de Humano y no necesita radar. El próximo hueco de
+actualidad es el miércoles 14, y quedan tres barridos antes.
+
+**Nota de infraestructura, no editorial.** El contenedor de esta sesión se reconstruyó con un clon antiguo del
+repositorio y durante unos minutos no existía ni `linkedin/`. No se perdió nada: todo estaba subido a la rama.
+Lo apunto porque explica por qué el barrido de hoy empieza con un `git fetch` y no con una búsqueda.
 
 ## Candidatos activos
 
 | Detectado | Titular propuesto | Ángulo | Por qué le importa al ICP | Fuente | Caduca |
 | --- | --- | --- | --- | --- | --- |
 | 06-10 | Alquilar tu cara por cuarenta euros, y la letra pequeña de la autorización | Traducción a negocio · derechos de imagen | **Nivel 2, y no entra esta semana.** El Mundo publica un reportaje sobre la fábrica de microdramas chinos hechos con IA, donde se escanea el rostro de una persona para que su doble digital actúe sin ella. Lo que lo hace relevante para el ICP es la grieta que señala una abogada especializada: **la imprecisión de las autorizaciones** — quien alquila su cara para un anuncio puede descubrir que su doble vende mañana un producto que no usaría. Recoge además que un tribunal de Pekín dictaminó en marzo que insertar la apariencia de alguien en un drama generado con IA vulnera su derecho a la imagen aunque se le modifiquen las facciones. **Riesgo declarado: se solapa con la pieza del 30-09**, que ya iba de lo que el contrato no dice sobre los brutos. Si se escribe, tiene que entrar por el otro lado — la autorización del que sale en cámara, no la propiedad del material — y no antes de que haya distancia con el 30-09 | El Mundo, 6-10-2026, sección Futuro. **Prensa secundaria sobre un fenómeno extranjero:** cita a Sun Bin (Universidad de Comunicación de China) y a la abogada Yile Deng, pero la resolución del tribunal de Pekín no está localizada en primaria. Si se usa, va atribuido al reportaje y nunca como hecho verificado por mí | 09-10 · se archiva si no se usa |
+
+## Pendientes de verificar · no usar todavía
+
+Cosas detectadas cuya fuente primaria no se ha podido abrir desde esta sesión. **No se escribe una línea sobre
+ellas, ni se cita ninguna de sus cifras, hasta haber leído la primaria.** Viven aquí para que no se pierdan y
+para que quede escrito por qué no se usaron.
+
+| Detectado | Qué es, según prensa secundaria | Las cifras que habría que verificar | Qué falta |
+| --- | --- | --- | --- |
+| 08-10 · anunciado el 01-10 | Microsoft AI publica tres modelos de voz: un texto a voz multilingüe, una variante rápida y uno de transcripción en streaming. Lo relevante para el ICP es que, según la prensa, **mantiene la misma identidad de voz al cambiar de idioma** y se guía con una **grabación corta de referencia**, con guardarraíles de consentimiento documentados | «23 idiomas y 26 locales», «22 dólares por millón de caracteres», «150 ms de latencia» en la variante rápida. **Todas de prensa y agregadores, ninguna leída en primaria.** Y ya hay contradicción dentro de las propias fuentes: una ficha habla de «10+ idiomas» frente a 23, y la fecha de versión del catálogo no coincide con la del anuncio | `microsoft.ai` y `ai.azure.com` inalcanzables desde esta sesión. **Si se verifica, es la mejor pareja de la cifra de ElevenLabs** que ya está en material de apoyo: dos fabricantes distintos diciendo que una voz se reproduce desde una muestra mínima. Eso deja de ser una anécdota de un proveedor y pasa a ser cómo funciona la categoría |
+| 08-10 · anunciado el 01-10 | Tavus presenta un modelo de vídeo a vídeo para conversación en tiempo real, en una sola tubería en lugar de encadenar transcripción, modelo de lenguaje y síntesis. Acceso limitado a un grupo de desarrolladores, con despliegue amplio anunciado para más adelante | «48% de los participantes creyeron hablar con una persona tras una llamada de un minuto» —un medio lo describe como 26 de 54 participantes y referido a una versión reducida de investigación, no al modelo completo— y «3,83 frente a 3,92 de referencia humana» en un banco de pruebas de NVIDIA. **Cifra del fabricante sobre sí mismo, muestra pequeña, y sobre un modelo que no es el que se vende** | `tavus.io` y `www.businesswire.com` inalcanzables desde esta sesión. Y aunque se verifique: con muestra de 54 y cifra propia, tendría que ir con esas dos advertencias delante del número o no ir. Un 48% sobre 54 personas no es un 48% |
 
 ## Material de apoyo · no caduca
 
