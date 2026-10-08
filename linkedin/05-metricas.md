@@ -26,7 +26,7 @@ respuesta vuelve a cero y la rutina de las 19:30 sale del silencio.
 nada que diagnosticar, y un diagnóstico sobre cero datos solo se puede escribir inventando. Entra cuando
 haya tres piezas medidas, como dice el protocolo.
 
-**Lo que sí se ha revisado hoy sin datos de rendimiento, y es un hallazgo de estructura.** Las dieciocho
+**Lo que sí se ha revisado hoy sin datos de rendimiento, y es un hallazgo de estructura.** Las diecinueve
 fichas declaran todas su métrica principal y son coherentes con su fase del embudo: las de captación piden
 mensajes privados, las de atracción piden guardados y clics a perfil, las de conversación piden comentarios.
 **Pero casi ninguna métrica declarada cabe en las columnas de esta tabla.** Las fichas no piden

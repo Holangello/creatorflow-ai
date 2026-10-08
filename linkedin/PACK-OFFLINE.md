@@ -3126,6 +3126,319 @@ No es un recargo por castigo. Es que esas horas existen y alguien las paga. Hast
 Pregunta para quien está al otro lado: ¿sabes cuántas personas tienen que decir sí a tu próximo proyecto? Si tardas en contestar, ya tienes el dato.
 ```
 
+### Lunes 12 de octubre · 09:30 · Autoridad · Atracción
+
+**Formato:** Solo texto. **Intensidad:** confrontación pura. **Métrica que mide:** Clics a perfil y comentarios de decisores en la primera hora. CTA sin estrenar: guardar para la conversación de renovación.
+
+> **Antes de publicar:** **Nada que confirmar en ninguna de las tres. Cero cifras y ningún `[DATO]`**, y en esta pieza costaba: la tentación era un rango de euros del coste de arranque. El coste se cuenta en lo que se vuelve a pagar —el aprendizaje de la marca, el criterio que se fue con el anterior— y nunca en dinero. **Una sola frase que leer, y solo si eliges la 3:** su primer comentario dice «he trabajado así durante años sin llamarlo de ninguna manera», sobre guardar la memoria de la marca en la cabeza como ventaja comercial. Es la autocrítica más dura que ha escrito este sistema y el párrafo la desactiva en la línea siguiente, pero decide si la firmas.
+
+#### Versión 1 · La mitad que nadie firma · **ELEGIDA**
+
+_**Elegida.** La única que no culpa a nadie, y en confrontación pura eso es ventaja: absuelve por escrito al responsable de compras —le miden por ahorro conseguido, está haciendo su trabajo— y ataca el sistema de incentivos en lugar de la decisión, así que el lector no tiene que defenderse antes de poder darte la razón. Y se lleva un argumento usable en su propio comité. Gancho de 156 caracteres. Sentencia: «Volver a concurso cada año no es disciplina de compras. Es disciplina solo en la mitad que se puede medir.»_
+
+**Texto del post:**
+
+```
+El ahorro de cambiar de proveedor tiene dueño y se mide.
+Los meses en los que nadie acierta el tono no tienen dueño. Por eso el concurso anual gana siempre.
+
+No es un fallo de criterio. Es un problema de contabilidad.
+
+El ahorro en tarifa se presenta arriba. Tiene nombre y tiene a alguien que lo defiende.
+
+El coste de volver a explicar tu marca desde cero no se presenta en ningún sitio.
+
+Se reparte en revisiones de más, en piezas que no se publican y en reuniones que repiten lo de hace un año.
+
+Nadie lleva ese marcador. Así que no existe.
+
+Y quito un culpable falso: el responsable de compras no está haciendo nada raro.
+
+Le miden por ahorro conseguido. Está haciendo su trabajo tal y como se lo pidieron.
+
+El problema es que la mitad de la cuenta no tiene a nadie que la firme.
+
+Ahora lo que no me conviene decir, porque defiendo la continuidad y la continuidad me paga.
+
+Hay un momento en el que cambiar es la decisión correcta, y es incómodo admitirlo desde mi lado.
+
+Cuando el proveedor dejó de decidir y pasó a ser un par de manos.
+
+Cuando ya no te dice que no, ni te discute un brief, ni te propone nada que no hayas pedido.
+
+Ahí no compras criterio. Pagas disponibilidad.
+
+Y entonces la curva está bien pagada, aunque los primeros meses duelan.
+
+Volver a concurso cada año no es disciplina de compras. Es disciplina solo en la mitad que se puede medir.
+
+Guarda esto para la conversación de renovación de proveedor.
+
+#MarketingB2B #Compras #DireccionCreativa
+```
+
+**Primer comentario:**
+
+```
+La mitad que no se mide se puede medir. Nadie lo hace porque deja mal a quien pregunta.
+
+Dos cosas que yo pediría si estuviera en el otro lado:
+
+Cuántas revisiones de media lleva una pieza ahora, y cuántas llevaba antes del cambio.
+Cuánto tiempo pasa desde que se pide una pieza hasta que se publica.
+
+Las dos se sacan de tu propio histórico. No las tiene que dar el proveedor.
+
+Si tras un cambio esas dos empeoran y la tarifa baja, el ahorro existe. En otro presupuesto.
+```
+
+#### Versión 2 · La curva
+
+_La más lineal y la más segura. Entra por el coste invisible y lo traduce a horas del equipo propio, no a factura del proveedor. Le pega al director de marketing que sufre la rotación y no sabe argumentarla hacia arriba. Gancho de 142 caracteres, el más corto de los tres. Sentencia: «La continuidad no es lealtad. Es no volver a pagar lo que ya pagaste.»_
+
+**Texto del post:**
+
+```
+Cambiar de proveedor cada año no es optimizar el gasto.
+Es volver a pagar la curva, pero esta vez no aparece en ninguna línea del presupuesto.
+
+Lo que se ahorra en tarifa se ve. Lo que se vuelve a pagar, no.
+
+Un proveedor con recorrido sabe cosas que no están escritas en ningún sitio.
+
+Sabe qué se probó y no funcionó. Sabe qué palabra no usa nunca la dirección. Sabe a quién hay que enseñar una pieza antes del comité.
+
+Eso no está en el briefing. Está en la cabeza de alguien.
+
+Cuando ese alguien se va, no se va con un archivo. Se va con el criterio.
+
+Después llegan los primeros meses del nuevo. Nadie acierta el tono. Todo se revisa dos veces.
+
+Eso también cuesta. Solo que lo paga tu equipo en horas, no el proveedor en factura.
+
+Ahora la parte que no me conviene decir.
+
+Hay un caso en el que cambiar es lo correcto, y pasa más de lo que el sector admite.
+
+Cuando el proveedor dejó de decidir y se convirtió en un par de manos.
+
+Si entrega lo que le piden y no discute nada, ya no acumula criterio. Acumula costumbre.
+
+Ahí la continuidad no te protege. Te acomoda.
+
+Y entonces la curva está bien pagada. Estás comprando que alguien vuelva a decirte no.
+
+Me incluyo. He sido el proveedor cómodo que entrega sin preguntar. Se factura muy bien.
+
+La continuidad no es lealtad. Es no volver a pagar lo que ya pagaste.
+
+Guarda esto para tu próxima conversación de renovación de proveedor.
+
+#MarketingB2B #DireccionCreativa #Compras
+```
+
+**Primer comentario:**
+
+```
+Cómo sé si un proveedor dejó de decidir, porque "aportar criterio" no es un criterio.
+
+Tres comprobaciones, y ninguna va de calidad de entrega:
+
+¿Cuándo fue la última vez que te dijo que una idea tuya era mala?
+¿Cuántas de las últimas piezas las propuso él y no tú?
+¿Qué te ha dicho que dejes de hacer?
+
+Si las tres respuestas son flojas, no tienes un proveedor consolidado. Tienes un ejecutor con antigüedad.
+
+Y ahí el concurso anual no es el problema. Es la única herramienta que te queda.
+```
+
+#### Versión 3 · La lista de noes
+
+_La más concreta y la más guardable: no habla de coste ni de comité, **nombra el activo exacto que se pierde** — el criterio de una marca no es una lista de síes, es una lista de noes con motivo, y esa lista no vive en ningún documento. Le pega a quien nota que su marca ha vuelto atrás y no sabe por qué. **Lleva la frase que conviene leer antes de publicar.** Gancho de 156 caracteres. Sentencia: «Lo caro de cambiar de proveedor nunca fue la tarifa nueva. Es la lista de noes que se va por la puerta.»_
+
+**Texto del post:**
+
+```
+Todo se puede traspasar: los archivos, los accesos, el manual de marca.
+El historial de lo que ya se probó y no funcionó no se traspasa. Se vuelve a probar.
+
+El traspaso ordenado es una ficción cómoda. Yo también la he firmado.
+
+Un manual de marca te dice qué hacer. No te dice qué se descartó y por qué.
+
+Y el criterio de una marca no es una lista de síes. Es una lista de noes.
+
+Noes con motivo. Este tono con este público no. Este formato se probó y no funcionó.
+
+Esa lista no está en ningún documento. Está en quien la vivió.
+
+Cuando el proveedor sale, la lista sale con él. El siguiente llega con energía y sin memoria.
+
+Así que propone cosas buenas que ya se rechazaron. Y alguien de tu equipo vuelve a explicar por qué no.
+
+Eso es la curva. No se paga en tarifa. Se paga en que tu marca retrocede a su versión de hace un año.
+
+Y ahora la parte que me deja en mal sitio.
+
+Hay una razón para cambiar que lo justifica todo, y es culpa del proveedor, no de compras.
+
+Cuando dejó de decidir y se convirtió en un par de manos.
+
+Un proveedor con antigüedad que ya no discute nada no está guardando tu memoria. Está guardando tu comodidad.
+
+A ese cámbialo sin pensarlo. Esa curva es una inversión, no un peaje.
+
+Lo caro de cambiar de proveedor nunca fue la tarifa nueva. Es la lista de noes que se va por la puerta.
+
+Guarda esto para la conversación de renovación de proveedor.
+
+#DireccionCreativa #MarketingB2B #Branding
+```
+
+**Primer comentario:**
+
+```
+Digo por qué esa lista casi nunca se entrega, y me señalo.
+
+Un proveedor que guarda la memoria de tu marca en su cabeza tiene una ventaja comercial. Es más difícil de sustituir. He trabajado así durante años sin llamarlo de ninguna manera.
+
+No es mala fe. Es que documentar lo que se descartó no se factura y nadie lo pide.
+
+Si lo pides, se hace. Una línea por decisión rechazada, con el motivo, en el mismo sitio donde vive el manual.
+
+Es trabajo aburrido. Y es lo único que hace que cambiar de proveedor te cueste solo dinero.
+```
+
+### Jueves 15 de octubre · 12:30 · Oferta · Captación
+
+**Formato:** Carrusel PDF · 8 slides. **Intensidad:** método. **Métrica que mide:** Mensajes privados con la palabra «mitad», y guardados del carrusel.
+
+> **Antes de publicar:** **Nada que confirmar. Cero cifras y ningún `[DATO]`:** no dice cuántas piezas, ni plazos, ni precios, ni número de personas. Los únicos dígitos de toda la pieza son los ordinales 01/02/03 de la lista y la numeración 0X/08 de los slides. **Lo único que decidir es de diseño, no de dato:** el diseñador mantiene esos ordinales porque son el único refuerzo no cromático del orden de la serie, que es requisito de accesibilidad; si los quieres fuera, la sustitución limpia es llevar el ticker de tres barras al kicker y el carrusel se queda sin un solo dígito más. **Y la versión 3 no es elegible**, por un defecto de premisa explicado en la ficha.
+
+#### Versión 1 · La mitad que no se factura · **ELEGIDA**
+
+_**Elegida, y es la primera pieza del sistema que ha pasado por la cadena completa: copy del redactor, brief visual del director de arte.** Es la que mejor protege al ICP —abre asumiendo la culpa del proveedor y solo después mira al lector, así que el giro llega cuando ya está de tu lado— y la más guardable. Gancho de 111 caracteres, el más corto que ha escrito este sistema. Sentencia: «Si no te lo pidió por escrito, no planificó: improvisó con tu calendario.»_
+
+**Texto del post:**
+
+```
+La mitad de un proyecto de vídeo no la hace el proveedor.
+La hace el cliente. Y casi nadie la pide por escrito.
+
+Vender producción como «llave en mano» es cómodo para los dos. Y es falso.
+
+No lo pedimos por no parecer complicados en la llamada de cierre. Me incluyo.
+
+Tres cosas tienen que estar de tu lado:
+
+1. El material que ya existe, localizado.
+2. Alguien que conteste. Una persona, con nombre.
+3. Quién decide. Una firma, no un comité.
+
+Esto no es una exigencia para ti. Es una prueba del algodón para tu proveedor: si no te lo pidió, no planificó.
+
+Escríbeme «mitad» por privado y te paso lo que debería haberte pedido.
+
+#MarketingB2B #Producción #Compras
+```
+
+**Primer comentario:**
+
+```
+La parte incómoda de esto no es la lista. Es por qué los proveedores no la pedimos.
+
+Pedir material, accesos y un decisor por escrito suena a desconfianza justo en el momento en que estás cerrando. Así que no se pide, se firma, y luego se persigue por correo.
+
+Yo he firmado así. Y cuando el proyecto se mueve, el que queda mal no es quien no lo tenía: es quien no lo pidió.
+
+Cómo lo pedimos nosotros ahora: agenciamakers.com
+```
+
+#### Versión 2 · La prueba del algodón
+
+_La única que abre acusando directamente al proveedor actual del lector: el giro está en el gancho y no en el cierre. Genera más DM que la 1 y también más riesgo de que el lector se sienta auditado. Su primer comentario desarrolla «quién decide», que es el elemento que rompe más calendarios. Gancho de 133 caracteres. Sentencia: «Un plazo prometido sin pedir nada a cambio no es un plazo. Es un deseo.»_
+
+**Texto del post:**
+
+```
+Si tu proveedor de vídeo no te ha pedido nada por escrito, no ha planificado nada.
+Te ha dado un calendario que depende de tu suerte.
+
+Hay media producción que no se factura. Y no la hace él. La haces tú.
+
+Tres cosas, y son las tres que debería pedirte antes de firmar:
+
+1. Accesos. Marca, archivos, espacios. Concedidos, no prometidos.
+2. Un interlocutor que conteste en plazo. Uno.
+3. Quién decide. Nombre, no departamento.
+
+No te lo digo para exigirte nada. Te lo digo para que mires lo último que firmaste y veas si alguien se molestó en pedírtelo.
+
+Callarse esto en el cierre es costumbre del sector. También mía.
+
+Escríbeme «mitad» por privado y te digo qué te falta pedir.
+
+#MarketingB2B #Producción #Compras
+```
+
+**Primer comentario:**
+
+```
+Desarrollo la tercera, que es la que rompe más calendarios: quién decide.
+
+No es quién paga ni quién convoca. Es quién puede dar un no definitivo sin consultar a nadie.
+
+Cuando esa persona no está identificada, cada entrega vuelve con tres opiniones y ninguna decisión. Y eso no se arregla produciendo más rápido.
+
+Si tu proveedor nunca te preguntó eso, el plazo lo calculó suponiendo que decidías tú. Casi nunca es verdad.
+
+Cómo lo cerramos antes de empezar: agenciamakers.com
+```
+
+#### Versión 3 · El retraso no empieza en producción
+
+_**NO ELEGIBLE, y el defecto es de premisa y no de redacción:** pone en boca de Angello el dolor del cliente —«se retrasó por mi lado, y dentro de casa lo conté como retraso del proveedor»— cuando tres líneas más abajo él es el proveedor que vende llave en mano. En el mismo texto es el que culpó a su proveedor y el proveedor acusado. Se conserva entera porque el ángulo es bueno y es recuperable desde otra voz, **y porque su primer comentario sí vale**: el material disperso entre carpetas de gente que ya no está es una observación que ninguna otra versión hace. Gancho de 115 caracteres._
+
+**Texto del post:**
+
+```
+Un proyecto de vídeo casi nunca se retrasa en producción.
+Se retrasa en una decisión que nadie tomó, semanas antes.
+
+Y hay algo que no se dice en voz alta: se retrasó por mi lado, y dentro de casa lo conté como retraso del proveedor.
+
+Pasa porque el sector vende «llave en mano». Yo también lo he vendido así.
+
+La mitad que no se factura tiene tres piezas:
+
+1. El material que ya existe, localizado antes de empezar.
+2. Los accesos concedidos, no prometidos.
+3. Quién decide, con nombre.
+
+No es una lista para ti. Es la lista que tu proveedor tendría que haberte dado el primer día.
+
+Escríbeme «mitad» por privado y te digo cuál de las tres te va a romper el calendario.
+
+#MarketingB2B #Producción #Compras
+```
+
+**Primer comentario:**
+
+```
+Desarrollo la primera, que parece la más tonta y es la que más tiempo cuesta: el material que ya existe.
+
+Casi siempre existe. Logos en condiciones, grabaciones anteriores, fotos de producto, la versión buena del manual de marca. El problema es que vive repartido entre carpetas de gente que ya no está.
+
+Buscarlo no es una tarea. Es una semana sin fecha, en medio de un calendario que sí tiene fecha.
+
+Si nadie te pidió inventario al empezar, esa semana no estaba contada por nadie.
+
+Cómo lo inventariamos nosotros: agenciamakers.com
+```
+
+**Pieza visual:** Carrusel · slide 1 de 8 · «LA MITAD DE UN PROYECTO DE VÍDEO NO LA HACE TU PROVEEDOR». Tipografía pura sobre negro, un solo acento por slide, el 07 sin nada de color. Brief completo de linkedin-designer en la ficha.
+
 ## 3 · Adaptaciones a otras redes y guías de las piezas pendientes
 
 ### Cómo usar esta sección
@@ -3486,7 +3799,7 @@ del banco de reserva se eligen por eso.
 | 06-10 | Mar | Prueba | B1 | El código a la vista · **elegida versión A** | **Corrección de Maverick del 05-10, y es un error mío.** El viernes planifiqué esta fila diciendo que «el sistema existe en este repositorio, en `tools/rename_clips.py`, así que la prueba es el propio script». **Lo escribí sin abrir el archivo.** Al abrirlo: son catorce líneas que renombran todos los ficheros de una carpeta a `clip_0001`, `clip_0002`… Eso no es un sistema de nombres. Es un renumerador que **borra** la información que un sistema de nombres existe para conservar: fecha, proyecto, cámara, escena, toma. Y además recorre `os.listdir` sin ordenar, así que el número que te asigna no corresponde a ningún orden real. No se puede escribir «el sistema que nos ahorra horas» sobre esto sin inventarse el sistema. **El eje nuevo es el único honesto y además es mejor:** el script es la prueba, pero la prueba de otra cosa — de automatizar antes de haber decidido qué problema se resuelve. Catorce líneas que ejecutan perfectamente una decisión que nunca se tomó. Enlaza con la pieza del lunes sin repetirla: allí el mismo error a escala de 900 anuncios por semana, aquí a escala de una carpeta. El script es público en el repositorio, así que cualquiera puede comprobar las catorce líneas. `cola/2026-10-06-script-problema-no-definido.md` | Texto | Método | creada · tres versiones |
 | 07-10 | Mié | Actualidad | N | Las primeras cifras del sitio nuevo las firman los socios de quien lo abrió | **Reverificada y corregida el 06-10.** Ayer anclé esta fila sobre la página equivocada de OpenAI: la que cité está fechada el 5 de **mayo** y de ahí salían el Ads Manager y la puja por CPC. El anuncio del 5 de octubre es otro, «Building advertising for the way people use AI», y lleva la fecha visible en la propia página. **El anuncio real es más pequeño y mejor para la pieza:** formato de anuncio visual en ChatGPT, probado solo durante la generación de imágenes, **este mes, en EE. UU. y con un grupo inicial de anunciantes.** Doble eje: las tres cifras que avalan el canal las firma cada una un socio de medición que es socio del propio lanzamiento, sobre una sola marca y sin método a la vista —el «quién encarga un estudio» del 23-09 con sello de independencia encima—; y el dato accionable que nadie le va a dar a un director de marketing en España es que **este mes no hay nada que comprar**. Cierra la trilogía de la semana. `cola/2026-10-07-cifras-de-los-socios.md` | Texto | Método | creada · tres versiones |
 | 08-10 | Jue | Oferta | C3 | Las tres opciones de propuesta y por qué nunca doy una sola cifra | Sale del banco de reserva. Objeción respondida desde el método de presupuestar, no desde el precio. **Escrita el 07-10 y es la primera pieza de la semana que no espera a nadie:** cero cifras, cero `[DATO]`, las tres versiones publicables tal cual. El eje es que una cifra única sobre un briefing sin cerrar no es un precio, es una apuesta, y que las tres opciones existen para que el cliente elija **alcance** y no precio — la propuesta como último sitio donde el briefing se cierra por escrito. Elegida A, la única sin ninguna frase que necesite un sí de Angello. `cola/2026-10-08-tres-opciones-de-propuesta.md` | Texto | Método | creada · tres versiones |
-| 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. **Escrita el 08-10, y el enemigo quedó girado 180 grados respecto a lo planificado.** La forma fácil de esta pieza era quejarse de clientes, y eso rompe dos reglas a la vez: el enemigo tiene que ser una práctica, y el ICP *es* el cliente. Las señales no son defectos de nadie, son formas de decidir; y el que sale señalado es el proveedor —Angello— que las ve y firma igual porque hay que cerrar el mes. Segunda pieza seguida sin cifras y sin `[DATO]`. Elegida C, la única en la que el conflicto está dentro de él. **Las tres versiones las escribí yo: los subagentes no estaban disponibles en la sesión.** **Auditada el 08-10 a petición de Angello, por ser la única de las dieciocho fichas que no pasó por el redactor, y con una corrección:** la versión elegida decía «lo que aprendí no fue que *aquel proyecto* fuera difícil… y después *lo conté* como mala suerte». Eso no es admisión en patrón, es un **episodio** — afirma un proyecto singular y afirma algo que Angello habría dicho en público sobre él. Corregido a patrón («los he firmado sabiendo cómo iban a acabar») y partida la frase de 22 palabras del pivote. Lo demás aguanta: ganchos remedidos (A 149, B 120, C 137), enemigo girado al proveedor, cero cifras, cero `[DATO]`, un solo CTA. **La longitud de frase no era un defecto de esta pieza:** 20 frases de más de 15 palabras sobre 105, y el 7-10 va en 24 sobre 101 — es una deriva de toda la casa. **La auditoría también la hice yo: el tool de agentes tampoco existe hoy.** `cola/2026-10-09-la-senal-y-la-factura.md` | Texto | Método | creada · tres versiones |
+| 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. **Escrita el 08-10, y el enemigo quedó girado 180 grados respecto a lo planificado.** La forma fácil de esta pieza era quejarse de clientes, y eso rompe dos reglas a la vez: el enemigo tiene que ser una práctica, y el ICP *es* el cliente. Las señales no son defectos de nadie, son formas de decidir; y el que sale señalado es el proveedor —Angello— que las ve y firma igual porque hay que cerrar el mes. Segunda pieza seguida sin cifras y sin `[DATO]`. Elegida C, la única en la que el conflicto está dentro de él. **Las tres versiones las escribí yo: los subagentes no estaban disponibles en la sesión.** **Auditada el 08-10 a petición de Angello, por ser la única pieza del sistema que no pasó por el redactor, y con una corrección:** la versión elegida decía «lo que aprendí no fue que *aquel proyecto* fuera difícil… y después *lo conté* como mala suerte». Eso no es admisión en patrón, es un **episodio** — afirma un proyecto singular y afirma algo que Angello habría dicho en público sobre él. Corregido a patrón («los he firmado sabiendo cómo iban a acabar») y partida la frase de 22 palabras del pivote. Lo demás aguanta: ganchos remedidos (A 149, B 120, C 137), enemigo girado al proveedor, cero cifras, cero `[DATO]`, un solo CTA. **La longitud de frase no era un defecto de esta pieza:** 20 frases de más de 15 palabras sobre 105, y el 7-10 va en 24 sobre 101 — es una deriva de toda la casa. **La auditoría también la hice yo: el tool de agentes tampoco existe hoy.** `cola/2026-10-09-la-senal-y-la-factura.md` | Texto | Método | creada · tres versiones |
 
 ## Semana 6 · 12 al 16 de octubre
 
@@ -3513,40 +3826,74 @@ Angello la pide. Y hoy, además, no podría hacerla el redactor — el tool de a
 
 | Fecha | Día | Pilar | Tipo | Titular de trabajo | Notas | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 12-10 | Lun | Autoridad | A1 | Cambiar de proveedor cada año no es optimizar el gasto. Es volver a pagar la curva | Sale del banco de Autoridad («el coste real de cambiar de proveedor audiovisual cada año»). **Es la confrontación pura de la semana y la única.** Enemigo: la práctica de volver a concurso cada año y decidir por precio; jamás un proveedor, un sector ni una empresa identificable. Dolor no dicho: «cada enero vuelvo a explicar mi marca desde cero y lo presento en comité como un ahorro». **Cero cifras, y esta vez cuesta:** la tentación de esta pieza es un rango de euros de coste de arranque, y Angello no ha dado ninguno — así que el coste se cuenta en lo que se vuelve a pagar (el aprendizaje de la marca, el criterio que se fue con el anterior, los dos primeros meses en los que nadie acierta el tono), nunca en dinero. **Riesgo declarado, y se desactiva dentro del post, no en esta ficha:** es un argumento que beneficia a quien lo firma, un proveedor defendiendo la continuidad. Si no concede en voz alta cuándo cambiar **sí** es lo correcto —cuando el proveedor dejó de decidir y se convirtió en un par de manos— la pieza suena a defensa de su propio retainer y no sale. No solapa con 24-09 ni con 08-10: allí se hablaba de entrar y de presupuestar, aquí de salir y de lo que se queda por el camino. CTA de atracción sin estrenar en la cuenta: guardarla para la conversación de renovación. No repite dilema A/B (5-10), inventario (6-10), DM (8-10) ni señal propia (9-10) | Texto | Pura | planificada |
+| 12-10 | Lun | Autoridad | A1 | Cambiar de proveedor cada año no es optimizar el gasto. Es volver a pagar la curva | Sale del banco de Autoridad («el coste real de cambiar de proveedor audiovisual cada año»). **Es la confrontación pura de la semana y la única.** Enemigo: la práctica de volver a concurso cada año y decidir por precio; jamás un proveedor, un sector ni una empresa identificable. Dolor no dicho: «cada enero vuelvo a explicar mi marca desde cero y lo presento en comité como un ahorro». **Cero cifras, y esta vez cuesta:** la tentación de esta pieza es un rango de euros de coste de arranque, y Angello no ha dado ninguno — así que el coste se cuenta en lo que se vuelve a pagar (el aprendizaje de la marca, el criterio que se fue con el anterior, los dos primeros meses en los que nadie acierta el tono), nunca en dinero. **Riesgo declarado, y se desactiva dentro del post, no en esta ficha:** es un argumento que beneficia a quien lo firma, un proveedor defendiendo la continuidad. Si no concede en voz alta cuándo cambiar **sí** es lo correcto —cuando el proveedor dejó de decidir y se convirtió en un par de manos— la pieza suena a defensa de su propio retainer y no sale. No solapa con 24-09 ni con 08-10: allí se hablaba de entrar y de presupuestar, aquí de salir y de lo que se queda por el camino. CTA de atracción sin estrenar en la cuenta: guardarla para la conversación de renovación. No repite dilema A/B (5-10), inventario (6-10), DM (8-10) ni señal propia (9-10). **Escrita el 08-10 por `linkedin-copywriter`, que hoy sí estaba disponible.** Elegida la B, «La mitad que nadie firma»: es la única que no culpa a nadie —absuelve por escrito al responsable de compras, al que le miden por ahorro conseguido— y ataca el sistema de incentivos en lugar de la decisión, así que el lector no tiene que defenderse antes de poder estar de acuerdo. La concesión está en el cuerpo de las tres, como exigía el brief. Cero cifras y ningún `[DATO]`. Ganchos medidos: 142, 156 y 156. `cola/2026-10-12-volver-a-pagar-la-curva.md` | Texto | Pura | creada · tres versiones |
 | 13-10 | Mar | Prueba | B3 | Un mes de contenido no se graba pieza a pieza | Sale del banco de Prueba, **y entra sin su cifra.** La entrada decía «cómo montamos un mes entero de contenido en dos días de rodaje» y **los dos días se caen**: es un dato sobre la operación de Makers que Angello no ha confirmado. La pieza se escribe sin él y no se nota; si lo confirma, entra como refuerzo. **Por qué no un caso:** B1 y B2 llevan bloqueadas por cifras de cliente desde la semana 1 y no se vuelve a poner una Prueba en el camino crítico. **Por qué no el repositorio otra vez:** el 02-10 y el 06-10 ya usaron este repo como prueba — una tercera vez seguida deja de ser transparencia y se convierte en un tic. La prueba aquí es el método propio, que Angello puede validar de un vistazo porque es su oficio: el orden de decisiones que permite agrupar un mes (bloque de mensaje, localización, luz, vestuario) frente a producir bajo pedido. Enemigo: el encargo suelto, la pieza pedida de una en una, que multiplica arranques, traslados y rondas de aprobación. Dolor no dicho: «las pido de una en una y luego discuto el coste por pieza». **Sin escena:** presente de método, no el relato de un rodaje concreto. **Texto y no vídeo, a propósito:** un B3 en vídeo depende de material de rodaje de Angello, que es exactamente la dependencia que mantiene bloqueadas dos piezas desde el 10-09. CTA de conversación, binario y contestable en tres segundos | Texto | Método | planificada |
 | 14-10 | Mié | Actualidad | N | **[Hueco abierto al radar · sin tema fijo]** | **Esta fila se queda abierta a propósito.** Ancla en el barrido del 13-10 y quedan tres barridos antes (9, 12 y 13). Condición de entrada, sin excepción: **fuente primaria abierta y leída**, nunca prensa secundaria ni agregador. Es la regla que impidió publicar las cifras del estudio de Google el 23-09 y la que falló el 5-10 al dar por buena una fecha de prensa. **Lo que hay hoy y por qué no sirve:** las dos pendientes del 1-10 (los tres modelos de voz de Microsoft AI y el vídeo a vídeo de Tavus) tienen seis dominios inalcanzables desde esta sesión y ninguna de sus cifras leída en primaria; ya hay contradicciones entre secundarias («10+ idiomas» frente a 23) y la cifra de Tavus es del fabricante, sobre 54 participantes y sobre un modelo que no es el que vende. **Escalera de respaldo para la noche del 13, por orden:** (1) noticia nueva verificada en primaria en cualquiera de los tres barridos; (2) si los dominios se abren, la de voz **como categoría y no como anuncio de producto** — dos fabricantes distintos diciendo que una voz se reproduce desde una muestra mínima, con los 10 segundos de ElevenLabs al lado y cada cifra con su autor delante; Tavus solo con sus dos advertencias delante del número; (3) derechos de imagen y voz **por el lado de la autorización de quien sale en cámara**, nunca por la propiedad de los brutos, que es el 30-09 — a 14 de octubre hay dos semanas de distancia, que es lo que el radar pedía, y solo con material de apoyo ya verificado; (4) si no hay nada de eso, **el hueco no se rellena con una reseña de producto ni con un resumen sin tesis**: pasa a la Autoridad del banco («por qué la coherencia vende más que la creatividad») y esa semana el miércoles deja de ser actualidad. **Lo que no se hace en ningún caso es publicar una cifra no leída en primaria para no dejar el miércoles vacío.** La ley española de protección civil del honor sigue **no citable**: no se ha localizado la referencia del Consejo de Ministros ni el texto en el Boletín de las Cortes | Texto | Método | planificada · hueco abierto |
-| 15-10 | Jue | Oferta | C3 | Lo que tiene que estar de tu lado para que esto salga | **Carrusel por decisión de formato** (ver punto 3 arriba). **Ángulo nuevo para un pilar saturado:** Oferta lleva cinco ángulos seguidos de precio o de propuesta (10-09, 17-09, 24-09, 01-10, 08-10), así que este **no toca el dinero por ningún lado.** Va de la mitad del trabajo que no se factura y que casi nadie pide por escrito: material, accesos, una persona que conteste en plazo, quién decide. **Enemigo doble, las dos prácticas:** vender producción como llave en mano, y la costumbre del propio proveedor de no pedir nada por escrito para no parecer complicado en la llamada de cierre. Dolor no dicho, y es el que evita que esto sea un reproche al cliente: «el proyecto se retrasó por mi lado y dentro de casa lo conté como retraso del proveedor». **El giro que mantiene al ICP a salvo:** la lista no es una exigencia, es una prueba del algodón que el lector aplica a su proveedor actual — si no te ha pedido esto, no ha planificado. Semilla ya sembrada el 09-10 («nadie pregunta qué hace falta de su lado») y sin solape: allí era una señal en una llamada, aquí es el contenido de un documento. **Cero cifras y ningún `[DATO]`:** no dice cuántas piezas, ni plazos, ni precios. La lección del 01-10 —el entregable mensual no estaba documentado en el repositorio— es que se describe la forma y no la cantidad. CTA de captación por DM con palabra distinta de «alcance», gastada el 08-10. Brief visual completo debajo de esta tabla | Carrusel · 8 slides | Método | planificada |
-| 16-10 | Vie | Humano | D1 | Lo que hago los días en que no tengo ninguna idea | **Humano nueva, no del banco, y el banco es justamente el motivo.** De las dos entradas Humano que quedaban: «qué le diría al Angello que empezaba» está escrita para el público equivocado —es consejo a creadores, y aquí no se escribe nunca para colegas— y «el proyecto del que más aprendí y menos cobré» **es un episodio**, imposible sin que Angello diga qué proyecto y qué se puede contar. La regla de no-episodio no se relaja: ha tumbado versiones el 1, el 6, el 7 y el 9 de octubre. Las dos se quedan en el banco con su motivo escrito. Lo que sí se puede escribir hoy es criterio en presente, que es lo único que ha funcionado este mes. Tesis: lo que una empresa compra no es inspiración, es un procedimiento que funciona el día en que nadie tiene una idea. Enemigo: la práctica de vender —y de comprar— creatividad como inspiración, con el briefing que dice «sorpréndeme». Dolor no dicho: «mi calendario depende de que a alguien se le ocurra algo». **Es la primera pieza Humana que defiende de frente la frase de posicionamiento del documento maestro:** sistemas que se sostienen sin depender de la inspiración de nadie. **Una frase para que Angello lea y firme**, sin `[DATO]` porque no hay nada que verificar: la admisión de que la mayoría de los días no tiene ninguna idea. Es posición, no episodio. **Solo texto:** D1 pide texto + foto propia y la foto sigue aparcada con la pieza biográfica de Perú→Madrid; pedir una foto nueva crearía una dependencia de material, y esta semana se ha construido para no tener ninguna. CTA de conversación | Texto | Método | planificada |
+| 15-10 | Jue | Oferta | C3 | Lo que tiene que estar de tu lado para que esto salga | **Carrusel por decisión de formato** (ver punto 3 arriba). **Ángulo nuevo para un pilar saturado:** Oferta lleva cinco ángulos seguidos de precio o de propuesta (10-09, 17-09, 24-09, 01-10, 08-10), así que este **no toca el dinero por ningún lado.** Va de la mitad del trabajo que no se factura y que casi nadie pide por escrito: material, accesos, una persona que conteste en plazo, quién decide. **Enemigo doble, las dos prácticas:** vender producción como llave en mano, y la costumbre del propio proveedor de no pedir nada por escrito para no parecer complicado en la llamada de cierre. Dolor no dicho, y es el que evita que esto sea un reproche al cliente: «el proyecto se retrasó por mi lado y dentro de casa lo conté como retraso del proveedor». **El giro que mantiene al ICP a salvo:** la lista no es una exigencia, es una prueba del algodón que el lector aplica a su proveedor actual — si no te ha pedido esto, no ha planificado. Semilla ya sembrada el 09-10 («nadie pregunta qué hace falta de su lado») y sin solape: allí era una señal en una llamada, aquí es el contenido de un documento. **Cero cifras y ningún `[DATO]`:** no dice cuántas piezas, ni plazos, ni precios. La lección del 01-10 —el entregable mensual no estaba documentado en el repositorio— es que se describe la forma y no la cantidad. CTA de captación por DM con palabra distinta de «alcance», gastada el 08-10: la palabra es **«mitad»**. **Escrita el 08-10: copy de `linkedin-copywriter`, brief visual de `linkedin-designer`. Es la primera pieza del sistema que ha pasado por la cadena completa como está diseñada.** Elegida la A, la que mejor protege al ICP porque asume la culpa del proveedor antes de mirar al lector. **Retipada: no es un C3.** No hay objeción literal, ni coste de la alternativa, ni CTA de precio; con la etiqueta C3 habría sido el cuarto C3 consecutivo y el recuento de tipos habría mentido. Abre el **eje 4 de Oferta, «Responsabilidad compartida»**, que se ha escrito en `02-tipos-de-contenido.md` a partir de esta pieza. **La versión 3 queda declarada no elegible por un defecto de premisa**, no de redacción: pone en boca de Angello el dolor del cliente («se retrasó por mi lado y lo conté como retraso del proveedor») cuando él es el proveedor de esa misma historia. Ganchos medidos: 111, 133 y 115. `cola/2026-10-15-lo-que-tiene-que-estar-de-tu-lado.md` | Carrusel · 8 slides | Método | creada · tres versiones |
+| 16-10 | Vie | **Autoridad** | A2 | Por qué un logo no es una marca y qué es lo que sí | **Esta fila cambió de pilar el 08-10, y el motivo está en la nota de reparto de abajo.** Era Humano con «Lo que hago los días en que no tengo ninguna idea», lo que habría dejado **tres viernes Humanos seguidos** (02-10, 09-10, 16-10) y Autoridad en 24,1 % frente al 30 % objetivo. **No rompe ninguna franja:** el viernes es «Humano / Autoridad» en `01-estrategia.md` §6, y la nota anterior afirmaba lo contrario sin comprobarlo. La pieza Humana desplazada **no se pierde: se va al siguiente viernes Humano, el 30-10**, por la cláusula de desplazamiento que acaba de escribirse — no caduca y no depende de ningún dato. Candidato de Autoridad elegido por ser el único del banco **sin una sola dependencia**: criterio propio en presente, cero cifras, cero `[DATO]`, y preserva intacta la propiedad que define esta semana. Intensidad método, porque la confrontación pura ya se gastó el lunes 12 | Texto | Método | planificada |
 
 ### Brief visual · jueves 15 · carrusel «Lo que tiene que estar de tu lado»
 
-**Lo escribo yo y conviene que conste:** esto lo tendría que firmar `linkedin-designer` y **el tool de
-agentes no existe en esta sesión.** Va contra `04-guia-diseno.md`, 1080 × 1350 px (4:5), PDF por debajo de
-10 MB, un solo acento de marca, máximo 25 palabras por slide, numeración «0X/08» abajo a la derecha,
-alineación izquierda. Nombre de archivo: `linkedin_2026-10-15_lo-que-tiene-que-estar-de-tu-lado.pdf`.
+**Sustituido el 08-10 por el brief real de `linkedin-designer`, que vive en la ficha de la pieza:**
+`cola/2026-10-15-lo-que-tiene-que-estar-de-tu-lado.md`. El borrador que había aquí lo escribió Maverick
+porque ese día el tool de agentes no existía, y él mismo lo marcó como orientativo. El diseñador lo
+contradice en cuatro puntos con razones mejores: el orden de la lista, el número de slides dedicados al
+problema, y sobre todo **qué palabra exacta lleva el acento en cada slide** — dejarlo a criterio del
+maquetador es lo que produce carruseles con acento en cinco sitios.
 
-| Slide | Función | Contenido (orientativo, el texto exacto lo pone el redactor) |
-| --- | --- | --- |
-| 01/08 | Portada · gancho de 8-12 palabras | La mitad de tu proyecto de vídeo no la hace tu proveedor. Palabra clave en acento, sin logo grande |
-| 02/08 | Problema · la frase más dura | El retraso casi nunca empieza en producción. Empieza en una decisión que nadie tomó |
-| 03/08 | El enemigo nombrado | «Llave en mano» es una promesa de venta, no un modo de producir |
-| 04/08 | Autocrítica del proveedor | Y el que no lo pide por escrito es quien vende. Por no parecer complicado en la llamada de cierre |
-| 05/08 | Lo que tiene que estar · 1 | Quién decide. Un nombre, no un comité |
-| 06/08 | Lo que tiene que estar · 2 | El material y los accesos, con fecha. Lo que no llega, no se graba |
-| 07/08 | Lo que tiene que estar · 3 | Una persona que conteste en plazo. La respuesta es parte del entregable |
-| 08/08 | Tesis + CTA + firma | La prueba del algodón: si tu proveedor no te ha pedido esto, no ha planificado. CTA de DM con la palabra acordada + «Angello Benavides · Makers» + flecha «desliza y guarda» |
+Lo que queda aquí es solo el encabezado operativo: **PDF de 8 páginas, 1080 × 1350 px, por debajo de 2 MB,
+tipografía pura sobre negro, un solo acento por slide y el 07 sin nada de color.** Todo lo demás —escala
+tipográfica de nueve niveles, coordenadas slide a slide, contrastes medidos y los once pasos de
+producción— está en la ficha.
 
-**Tres cosas que no van en el carrusel:** ninguna cifra (ni número de piezas, ni plazos, ni precios),
-ningún logo de cliente, y ninguna foto de banco. Y la regla de 3 elementos de la guía de copywriting se
-respeta: la lista son tres, no cuatro ni cinco — «quién decide» va en la lista y el resto son contexto.
+**Lo que esta semana desequilibraba, y la corrección. Esta nota se reescribió entera el 08-10 porque la
+versión anterior se equivocaba en sus tres afirmaciones**, y las tres se verificaron contra los archivos:
 
-**Lo que esta semana desequilibra, y cómo se corrige en la 7.** Reparto de la semana: uno por pilar. Eso
-deja **dos viernes seguidos de Humano** y empuja el mes hacia el 20 % humano frente al 10 % objetivo, con
-Autoridad por debajo del 30 %. No se arregla moviendo el viernes 16, que es franja Humano: se arregla
-poniendo **Autoridad el viernes 23**, y el candidato lleva esperando desde el 25 de septiembre — la
-encuesta D2 «¿qué frena de verdad vuestro contenido?», que se perdió por un fallo de canal, no caduca y
-sigue sin escribirse. Entra ahí y salda la deuda.
+1. **No eran dos viernes seguidos de Humano. Eran tres:** 02-10, 09-10 y 16-10. La nota anterior se olvidaba
+   del 02-10, que es `D1 Humano`.
+2. **El «20 % humano» no sale en ninguna ventana defendible.** Sobre las seis semanas es 13,8 %; sobre el mes
+   rodante, 15 %; sobre octubre al día 16, 25 %. El 20 % era el único número que no aparecía en ninguna
+   cuenta.
+3. **«No se arregla moviendo el viernes 16, que es franja Humano» era falso.** La franja del viernes es
+   literalmente **«Humano / Autoridad»**, en `01-estrategia.md` §6 y en la tabla de estructura de este mismo
+   documento. Poner Autoridad el 16 **no rompe ninguna franja: no había nada que romper.** Toda la
+   justificación para aplazar la corrección a la semana 7 se apoyaba en una franja que no existe.
+
+**Recuento real, semanas 1 a 6, 29 piezas:**
+
+| Pilar | Piezas | Real | Objetivo | Desvío |
+| --- | --- | --- | --- | --- |
+| Autoridad | 7 | 24,1 % | 30 % | **−1,7 piezas** |
+| Prueba | 6 | 20,7 % | 20 % | +0,2 |
+| Actualidad | 6 | 20,7 % | 20 % | +0,2 |
+| Oferta | 6 | 20,7 % | 20 % | +0,2 |
+| Humano | 4 | 13,8 % | 10 % | **+1,1 piezas** |
+
+El desvío es **pequeño en magnitud y grande en concentración**: todo el exceso de Humano estaba en tres
+viernes consecutivos.
+
+**La causa no era una pieza mal colocada: era una regla que no estaba escrita.** La parrilla de cinco franjas
+produce el 30/20/20/20/10 exacto, pero solo si el viernes **alterna estrictamente** Humano / Autoridad. Sin
+esa regla, nada impide que el viernes se llene con lo que haya disponible, y es exactamente lo que pasó: el
+18-09 el viernes tapó una Prueba bloqueada, y desde el 02-10 el viernes era Humano por defecto, no por
+alternancia. **La barra de «Humano / Autoridad» sin regla detrás era la grieta.** Ya está escrita, arriba en
+la tabla de estructura y en `01-estrategia.md` §6.
+
+**Y la corrección que se había propuesto no corregía nada, por un error de clasificación.**
+`02-tipos-de-contenido.md` coloca **D2 «Encuesta con criterio» dentro de «D. Humano»**, junto a D1. La fila
+del 25-09 la etiquetó «Autoridad» y esta nota heredó el error. D2 tiene **fase** de atracción, y la fase no
+es el pilar. Consecuencia: poner la encuesta el viernes 23 habría sido un **cuarto viernes Humano
+consecutivo** presentado como corrección del exceso de Humano. Eso es contabilidad creativa, no corrección.
+
+**Lo que se hace en su lugar, y se hace dentro de la semana 6:** el **viernes 16 pasa a Autoridad** y «Lo que
+hago los días en que no tengo ninguna idea» **se mueve al siguiente viernes Humano, el 30-10**, según la
+cláusula de desplazamiento que acaba de escribirse. No caduca y no pierde nada esperando dos semanas.
+Resultado: **Autoridad 27,6 %, Humano 10,3 %** — Humano clavado en objetivo, Autoridad a media pieza del
+suyo. Y octubre al día 16 pasa de 16,7/25 a 25/16,7 en Autoridad/Humano.
+
+**El 23-10 no se puede dar por corregido** hasta que se decida qué es D2: o vuelve a Humano, que es donde la
+pone el catálogo, o se reescribe como pieza de Autoridad con tipo propio y se dice. Con la etiqueta actual no
+vale.
 
 ---
 
@@ -3767,5 +4114,7 @@ No se duplican en ningún otro fichero.
 | Mié 7 oct | La firma |  |  |  |  |  |  |  |
 | Jue 8 oct | Cierra el briefing |  |  |  |  |  |  |  |
 | Vie 9 oct | La señal y la factura |  |  |  |  |  |  |  |
+| Lun 12 oct | La mitad que nadie firma |  |  |  |  |  |  |  |
+| Jue 15 oct | La mitad que no se factura |  |  |  |  |  |  |  |
 
 Cuando vuelvan los créditos, pega esta tabla y escribe: «Maverick, registra las métricas». El analista actualiza `05-metricas.md` y ajusta la estrategia.
