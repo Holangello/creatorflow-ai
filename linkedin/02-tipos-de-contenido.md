@@ -39,6 +39,9 @@ tipo; el copywriter y el designer lo ejecutan.
 
 ## B. Prueba (20 %)
 
+> **Redefinida el 08-10-2026.** Prueba no es «caso de cliente con cifra». Es **artefacto
+> verificable**: algo que el lector puede abrir y comprobar. Ver `B4` al final de esta sección.
+
 ### B1. Caso de estudio — Carrusel PDF
 - **Fase:** conversación. **Métrica:** comentarios de decisores, clics a perfil.
 - **Estructura obligatoria (reglas B2B):** contexto del cliente → problema de negocio → qué
@@ -52,6 +55,43 @@ tipo; el copywriter y el designer lo ejecutan.
 - **Fase:** conversación. **Métrica:** dwell, guardados.
 - **Estructura:** un momento real de producción → la decisión que no se ve en el resultado →
   por qué importa al cliente.
+
+### B4. Artefacto verificable — Texto, o texto + captura del artefacto
+- **Fase:** conversación. **Métrica:** comentarios de decisor, guardados.
+- **Estructura:** el artefacto, descrito con precisión → qué decisión prueba (o qué decisión
+  demuestra que nunca se tomó) → el coste de esa decisión para quien contrata → qué puede
+  comprobar el lector por su cuenta → pregunta.
+
+**Qué es y por qué existe. Decisión de Maverick, 08-10-2026, y es una redefinición del pilar,
+no un tipo más.**
+
+El pilar de Prueba no ha disparado nunca. De sus seis franjas, tres no se escribieron (B1 y B2,
+bloqueadas desde la semana 1 por cliente y cifras que no han llegado), dos son método con chapa
+de Prueba, y solo una es prueba de verdad: la del 06-10, y lo es **porque el artefacto es
+público y el lector puede abrirlo**. Un pilar que no puede disparar no es un pilar, es un hueco
+con nombre. **Así que Prueba se redefine: prueba es todo artefacto que el lector pueda abrir y
+comprobar sin pedirnos permiso.** Ese es el camino que abrió el 06-10 y ahora tiene tipo.
+
+**Material legítimo:** este repositorio y sus scripts; los documentos del propio sistema
+(calendario, radar, catálogo, guías); los briefs de diseño; una plantilla; un contrato tipo con
+los datos fuera; un artefacto del propio Angello que se pueda publicar entero.
+
+**Las cuatro condiciones, y no se relajan:**
+
+1. **El artefacto se puede abrir.** Una captura no es un artefacto. Una descripción tampoco. Si
+   el lector no puede llegar a él, es un B3 contando un proceso, y se etiqueta B3.
+2. **Solo se afirma lo que el artefacto sostiene.** El artefacto prueba una decisión, no un
+   resultado. Del script de catorce líneas se podía afirmar que la decisión no se tomó; no se
+   podía afirmar ni una hora ahorrada. **Ningún B4 lleva cifra de resultado.**
+3. **Antiticio.** No dos B4 seguidos sobre el mismo artefacto, y si el artefacto es este
+   repositorio, no más de uno cada tres Pruebas. El 02-10 y el 06-10 ya lo usaron: una tercera
+   vez seguida deja de ser transparencia y se convierte en un tic.
+4. **El enemigo sigue siendo una práctica.** Un B4 que exhibe el artefacto para quedar bien es
+   un folleto. El artefacto entra porque delata algo.
+
+**B1 y B2 no se tocan y no se descartan.** Siguen siendo la prueba más fuerte que este sistema
+puede dar, y vuelven al primer hueco de Prueba el día que Angello autorice cliente y cifras.
+Lo que cambia es que **dejan de estar en el camino crítico**: el martes ya no espera a nadie.
 
 ## C. Oferta (20 %)
 
@@ -98,9 +138,29 @@ hablar con nosotros.
 - **Estructura:** situación real → lo que pensé → lo que aprendí → cómo lo aplico con clientes.
 
 ### D2. Encuesta con criterio
-- **Fase:** atracción. **Métrica:** votos y comentarios.
+- **Pilar: Humano.** **Fase:** atracción. **Métrica:** votos y comentarios.
 - **Estructura:** pregunta con 3-4 opciones que dividen al ICP → en el texto, por qué importa
   → en el primer comentario, tu voto y por qué.
+
+**Decisión de Maverick, 08-10-2026: D2 se queda en Humano, que es donde este catálogo la puso
+siempre.** Había dos salidas y esta es la elegida.
+
+Por qué no la otra. Convertir D2 en un tipo de Autoridad exigía darle lo que define a Autoridad:
+una tesis citable y un coste explicado. Una encuesta no tiene eso — tiene cuatro opciones y un
+voto propio en el primer comentario. Si se le añade la tesis, deja de ser una encuesta y se
+convierte en un A1 con una votación pegada encima, y entonces el tipo nuevo no haría falta.
+**Crear un tipo para que una pieza Humana cuente como Autoridad es la contabilidad creativa que
+el calendario acababa de rechazar**, solo que escrita en el catálogo en vez de en una fila.
+
+**Consecuencias, y hay que leerlas enteras:**
+
+1. **El viernes 23-10 no es «la corrección» de nada.** La corrección del exceso de Humano ya
+   está hecha, y está hecha en otro sitio: el viernes 16-10 pasó a Autoridad. El 23-10 es, por
+   alternancia estricta, un viernes Humano — y eso es lo correcto, no un residuo.
+2. **La encuesta no tiene fecha asignada.** Deja de estar «asignada al viernes 23-10», porque
+   ese viernes se cubre con inventario ya escrito. Vuelve al banco como Humano disponible y
+   entra en el primer viernes Humano que no tenga inventario detrás. Una encuesta no caduca.
+3. **La fila del 25-09 queda reetiquetada** de Autoridad a Humano en `calendario.md`.
 
 ## N. Actualidad (20 %)
 
@@ -123,6 +183,33 @@ que la publica. El análisis es de producto, de precio y de impacto en el flujo 
 
 **Caducidad:** 72 horas. Pasado eso se archiva o se reescribe en pasado con otro ángulo. Un post
 fechado hacia atrás no es una pieza publicada, es papel.
+
+### Qué se hace con una pieza de actualidad escrita y no publicada
+
+**Añadido el 08-10-2026, después de decidir las cuatro que estaban en decadencia.** Esta regla
+existe porque una pieza del sistema se murió de vieja sin que nadie decidiera: la del 09-09,
+escrita con el gancho «te quedan quince días», quedó archivada «por el paso del tiempo, no
+porque nadie eligiera». **La tercera opción se toma sola si no se toma ninguna, y por eso ahora
+tiene plazo.**
+
+Pasadas las 72 horas, una pieza de actualidad escrita y no publicada tiene **tres salidas, y hay
+que elegir una el mismo día en que se detecta**:
+
+1. **Se publica ya**, si su tesis sigue siendo verdad y su texto no contiene ninguna marca
+   temporal falsa. Se le pone **fecha de caducidad explícita**: el día en que su dato accionable
+   deja de ser cierto. Si llega ese día sin publicarse, se archiva ese día, sin reabrir el debate.
+2. **Se reasigna a criterio.** **Una pieza de actualidad que no contiene ninguna cifra y ninguna
+   marca temporal deja de ser actualidad: es criterio, y puede ocupar una franja de Autoridad.**
+   Esa es la condición completa, y se comprueba leyendo el texto, no la ficha. Si lleva un ancla
+   de noticia («con el festival en marcha», «la semana pasada», «desde el domingo»), **no se
+   publica así y no se desancla a mano**: va al redactor como reescritura corta.
+3. **Se archiva**, con fecha y motivo escritos en `radar.md` y en la fila del calendario. El
+   motivo tiene que ser el verdadero, incluido «no hay hueco y hay dos reescrituras por delante».
+
+**Lo que no se hace nunca:** dejar que pase el plazo. Y **el hueco del miércoles no se precarga
+con una de estas piezas**; una pieza de actualidad escrita y sin publicar puede entrar en la
+escalera de respaldo del miércoles, que es otra cosa: la fila sigue abierta y el radar sigue
+decidiendo primero.
 
 ## Prohibido en todos los tipos
 - Contenido dirigido a videógrafos o creadores.

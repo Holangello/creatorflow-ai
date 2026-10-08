@@ -13,8 +13,17 @@ nadie midió.
 
 Escrito al cerrar la planificación de la semana 6, para que esta tabla vacía se lea como lo que es.
 
-**Dieciocho fichas escritas en `cola/`. Ninguna publicada. Ninguna cifra recibida. Ninguna fila rellenada.**
-Las tres primeras son comprobables contando archivos; la cuarta se ve sola. **No se añade ni un número
+**Veintidós piezas escritas. Ninguna publicada. Ninguna cifra recibida. Ninguna fila rellenada.**
+Las tres primeras son comprobables contando archivos; la cuarta se ve sola.
+
+**Recuento corregido el 08-10, segunda vez en el mismo día y esta es la buena.** Este archivo decía
+«dieciocho fichas» en este párrafo y «diecinueve fichas» dos párrafos más abajo, y las dos cifras eran de
+`cola/`. El recuento bueno, idéntico al de `calendario.md` y `cola/README.md`: **21 archivos en `cola/`, uno
+es el README y dos son briefs** (`2026-10-01-carrusel-tres-cosas-cada-mes.md`, visual, y
+`2026-09-10-carrusel-sistema-makers.md`, de producción) → **18 fichas de pieza**. Y `cola/` no es todo: hay
+**cuatro piezas más cuyo copy vive solo en el banco** (08-09, 10-09, 11-09, 15-09). **Total escrito: 22**, y
+el banco tiene exactamente 22 entradas, que es la comprobación independiente. Ninguno de estos números es
+una estimación: se cuentan archivos. **No se añade ni un número
 estimado, redondeado o deducido**, y eso incluye los ceros: un cero inventado no es un dato neutro, es una
 línea base falsa. Una casilla vacía es un dato correcto.
 
@@ -26,8 +35,8 @@ respuesta vuelve a cero y la rutina de las 19:30 sale del silencio.
 nada que diagnosticar, y un diagnóstico sobre cero datos solo se puede escribir inventando. Entra cuando
 haya tres piezas medidas, como dice el protocolo.
 
-**Lo que sí se ha revisado hoy sin datos de rendimiento, y es un hallazgo de estructura.** Las diecinueve
-fichas declaran todas su métrica principal y son coherentes con su fase del embudo: las de captación piden
+**Lo que sí se ha revisado hoy sin datos de rendimiento, y es un hallazgo de estructura.** Las dieciocho
+fichas de `cola/` declaran todas su métrica principal y son coherentes con su fase del embudo: las de captación piden
 mensajes privados, las de atracción piden guardados y clics a perfil, las de conversación piden comentarios.
 **Pero casi ninguna métrica declarada cabe en las columnas de esta tabla.** Las fichas no piden
 «comentarios»: piden *comentarios de decisor*, *comentarios que confiesen una cantidad*, *comentarios que
@@ -38,6 +47,14 @@ fuera de este archivo y los toca Angello.
 
 ## Línea base
 Sin datos todavía. Se fija con las primeras 10 piezas **publicadas**, no escritas.
+
+**Lo primero que estas filas tendrán que contestar, decidido el 08-10.** Las semanas 6 y 7 pasan a
+inventario: ocho de las diez piezas llevan escritas entre dos y seis semanas, y dos se escribieron ayer.
+**Eso es un experimento, no solo una medida de orden**, y va al lado de la hipótesis H1-H3: si una pieza
+escrita hace tres semanas rinde como una escrita ayer, la velocidad de redacción nunca fue el cuello de
+botella de esta cuenta. **No se escribe aquí ninguna expectativa numérica**; se deja la pregunta escrita
+para que la primera tanda de datos la pueda contestar. Columna «Nota»: anotar en cada pieza **cuántos días
+pasaron entre redacción y publicación**. Es el único campo nuevo que hace falta y cabe en la nota.
 
 ## Registro por pieza
 

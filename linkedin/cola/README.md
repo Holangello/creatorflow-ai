@@ -1,16 +1,26 @@
 # Cola de piezas
 
-**Ya no está vacía: hay 18 piezas.** Esta línea decía «vacía a propósito, todavía no se redactan
-piezas» y era falsa desde hace semanas. Se corrigió el 08-10-2026, cuando una auditoría la encontró.
-No es un detalle cosmético: un documento que miente sobre el estado del sistema es de donde salen los
+**Ya no está vacía, y lleva semanas sin estarlo.** Esta línea decía «vacía a propósito, todavía no se
+redactan piezas» y era falsa. Un documento que miente sobre el estado del sistema es de donde salen los
 errores de recuento, y esta sección ya produjo uno.
 
-**Cómo se cuentan las piezas, porque se contó mal.** En esta carpeta hay 20 archivos `.md`. Uno es este
-README y otro es `2026-10-01-carrusel-tres-cosas-cada-mes.md`, que es un **brief visual** y no una pieza.
-Piezas reales: **18**. Durante un tiempo el calendario y las métricas dijeron «dieciocho fichas» cuando
-eran diecisiete, por contar el brief visual como pieza.
+**Cómo se cuentan las piezas, porque se ha contado mal tres veces. Recuento del 08-10-2026, el mismo en
+este archivo, en `../calendario.md` y en `../05-metricas.md`:**
 
-Fase actual del sistema: **estructura y planning**. Todavía no se redactan piezas.
+- En esta carpeta hay **21 archivos `.md`**. La versión anterior de esta nota decía 20.
+- Uno es este README. **Y dos son briefs, no piezas:** `2026-10-01-carrusel-tres-cosas-cada-mes.md`
+  (brief visual) y `2026-09-10-carrusel-sistema-makers.md` (brief de producción; su copy vive en el banco).
+  La versión anterior contaba uno solo de los dos.
+- **Fichas de pieza aquí: 18.**
+- **Y esta carpeta no es todo el inventario:** cuatro piezas escritas no tienen ficha aquí porque su copy
+  vive solo en el banco (08-09, 10-09, 11-09, 15-09). **Piezas escritas en total: 22**, y el banco tiene
+  exactamente 22 entradas, que es la comprobación independiente.
+
+**Fase actual del sistema: inventario.** Hay 22 piezas escritas y ninguna publicada. **Ninguna franja se
+rellena con una pieza nueva si hay inventario escrito que la cubra, y no se redacta ninguna pieza nueva
+hasta que haya una publicada.** Lo que sí se autoriza es recuperar inventario: desanclar una pieza escrita
+para que pueda publicarse. La regla entera está al principio de la semana 6 de `../calendario.md`.
+
 El calendario (`../calendario.md`) define título y descripción de cada publicación; la
 redacción se hará a demanda, día a día, cuando Angello la pida:
 

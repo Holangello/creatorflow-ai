@@ -73,6 +73,20 @@ Toda pieza de actualidad usa uno de estos cuatro. Nunca resumen neutro.
 [CTA que obliga a posicionarse]
 ```
 
+## Qué se hace con una pieza escrita y no publicada
+
+**Añadido el 08-10-2026.** La regla completa, con sus tres salidas obligatorias y su plazo, vive en
+`02-tipos-de-contenido.md`, sección «Qué se hace con una pieza de actualidad escrita y no publicada».
+Aquí queda lo que no se puede olvidar al hacer el barrido:
+
+1. Pasadas las 72 horas hay que **elegir una de tres el mismo día**: se publica con caducidad escrita, se
+   reasigna a criterio, o se archiva con fecha y motivo. **No decidir es archivar, y ya pasó una vez.**
+2. **Una pieza de actualidad sin ninguna cifra y sin ninguna marca temporal deja de ser actualidad: es
+   criterio y puede ocupar una franja de Autoridad.** Se comprueba leyendo el texto, no la ficha.
+3. Si lleva un ancla de noticia, **no se desancla a mano**: va al redactor como reescritura corta.
+4. Una pieza escrita y sin publicar puede entrar en la **escalera de respaldo** del miércoles, por delante
+   de sustituir el pilar. Eso no es precargar el hueco: la fila sigue abierta y el radar decide primero.
+
 ## Reglas duras
 
 - **Verificación antes que velocidad.** Se cita la fuente primaria (el anuncio oficial, el
