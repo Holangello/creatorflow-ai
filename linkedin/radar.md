@@ -6,8 +6,12 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 08-10-2026. **Ninguna candidata nueva, pero esta vez no es porque no haya nada: es
-porque no he podido verificar lo que hay.**
+**Último barrido:** 08-10-2026, dos veces. **Sin ruptura en el segundo barrido:** nada de nivel 3 ni de nivel 2
+en las siete horas siguientes al primero. Lo que devuelven las búsquedas es de junio y de febrero, no de esta
+mañana.
+
+**Ninguna candidata nueva en todo el día, y el motivo del primer barrido sigue en pie: no es que no haya nada,
+es que no he podido verificar lo que hay.**
 
 Han salido dos cosas que a este ICP le tocan de lleno, las dos del **1 de octubre**, o sea **siete días**, muy
 fuera de la ventana de 72 horas. Las anoto abajo en un bloque aparte, porque el motivo por el que no entran
