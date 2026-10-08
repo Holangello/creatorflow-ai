@@ -1679,11 +1679,11 @@ El coste de la IA sin sistema no es el de la suscripción. Es el tiempo del equi
 Ese tiempo no aparece en ninguna factura. Por eso nadie lo mide.
 ```
 
-### Miércoles 23 de septiembre · 09:30 · Actualidad · Atracción
+### Miércoles 23 de septiembre · 09:30 · Autoridad · Atracción
 
 **Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios que confiesen y guardados.
 
-> **Antes de publicar:** La A no lleva ni una cifra y sale tal cual. La B y la C están BLOQUEADAS: sus números vienen de cobertura de prensa, no del informe. blog.google está bloqueado desde la sesión, así que si prefieres una de esas dos hay que abrir el post y verificar cada cifra antes.
+> **Antes de publicar:** **Desanclada el 08-10 y reubicada al viernes 30-10 como Autoridad de método.** Se escribió como actualidad el 23-09, nunca se publicó, y a las tres semanas el techo de 72 horas la había matado. **Cuatro anclas temporales retiradas**, una de ellas blanda y que no estaba en el encargo («en los próximos meses»): era una fecha de caducidad implícita. **El gancho alternativo de la ficha no servía** —llevaba «nuevo» y «este otoño»— así que el redactor escribió uno nuevo conservando la puerta de entrada, la advertencia y no el momento. **Cero cifras nuevas:** al caerse la comparación de España con Francia e Italia no se sustituyó por nada. Nada que confirmar para publicar.
 
 #### Versión A · La regla de lectura · **ELEGIDA**
 
@@ -1692,14 +1692,16 @@ _Elegida por Maverick, y era la única posible: es la única sin cifras, y el 21
 **Texto del post:**
 
 ```
-Google ha publicado un estudio sobre lo que la IA va a hacerle al audiovisual español.
-Lo ha pagado Google.
+Hay un estudio sobre la IA en el audiovisual español que te van a citar en una reunión.
+Antes de que te lo citen, mira quién lo paga.
+
+Lo ha publicado Google. Y lo ha pagado Google.
 
 Las dos frases son verdad al mismo tiempo. Y ninguna anula a la otra.
 
-Lo ha elaborado la consultora Public First por encargo suyo. Se presenta con el Festival de San Sebastián en marcha, justo después de que España se consolidara el año pasado como primer productor de cine de Europa, por delante de Francia e Italia.
+Lo ha elaborado la consultora Public First por encargo suyo.
 
-El momento está muy bien elegido. Eso no es un truco. Es oficio.
+Encargar un estudio que respalda lo que vendes no es un truco. Es oficio.
 
 Mi regla de lectura es esta: quién encarga un estudio forma parte del estudio.
 
@@ -1709,7 +1711,7 @@ Lo que casi nadie dice en voz alta es lo que va a pasar con él. Se va a usar pa
 
 Yo lo he hecho. He metido un estudio de sector en una propuesta para sostener una cifra que me convenía, sin haberme leído el informe entero. Funcionó. Por eso sé que funciona.
 
-El enemigo no es el estudio. Es la costumbre de aprobar presupuesto citando un informe que no se ha leído.
+El enemigo no es el estudio. Es usarlo de aval sin haberlo abierto, porque el logo de quien lo firma cubre lo que tú no quieres discutir.
 
 Y hay algo que un estudio así no mide: qué pasa con lo que ahorras.
 
@@ -1717,7 +1719,7 @@ Te dice cuánto trabajo te quitas de encima. No te dice dónde va. Por lo que yo
 
 Un ahorro sin una decisión detrás no es un ahorro. Es un hueco en el calendario que alguien va a rellenar.
 
-Lo que te van a poner delante en los próximos meses no es una herramienta. Es un argumento. Y vas a tener que decidir si lo compras.
+Lo que te van a poner delante no es una herramienta. Es un argumento. Y vas a tener que decidir si lo compras.
 
 El último estudio que citaste para defender un presupuesto: ¿lo leíste entero?
 
@@ -2514,7 +2516,7 @@ Mi pega no es con el producto. Es con la lectura que va a hacer la mitad del sec
 
 **Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios con un script propio confesado. El CTA pide un inventario incómodo.
 
-> **Antes de publicar:** Nada que confirmar para publicar la A, pero una línea marcada: «Yo quería dejar de perder tiempo buscando planos» es un motivo, no un hecho — confírmala o cámbiala por «Quería encontrar los planos más rápido». **La B queda bloqueada** hasta que confirmes que la escena de la búsqueda te pasó de verdad: escribir el script está comprobado, sufrir esa búsqueda no me consta.
+> **Antes de publicar:** **Reubicada al martes 20-10 y desatada de la pieza del 5.** Su versión 1 arrancaba con un puente —«Ayer escribí que el volumen ya no es ventaja…»— que apuntaba a una pieza **que no se ha publicado**, más el remate que colgaba de él. Puente y remate fuera; el escalón se recuperó con una formulación autónoma que ya existía en esta misma ficha, así que no es texto nuevo ni un puente disfrazado. **Y queda cerrada la única marca que tenía pendiente:** de las dos frases de motivo se queda «Quería encontrar los planos más rápido», que elimina el motivo no confirmado. **Ya no hay nada que confirmar para publicar.** Es además el **primer `B4` real del sistema**: las catorce líneas están en el repositorio y cualquiera puede abrirlas y contarlas.
 
 #### Versión A · El código a la vista · **ELEGIDA**
 
@@ -2541,13 +2543,11 @@ Resumiendo: borré la única información que servía y la cambié por un númer
 
 El código no tiene ningún error. El error es anterior al código.
 
-Yo quería dejar de perder tiempo buscando planos. Y automaticé lo único que era fácil de automatizar: poner números.
+Quería encontrar los planos más rápido. Y automaticé lo único que era fácil de automatizar: poner números.
 
 La parte difícil nunca la decidí. Qué información tiene que llevar el nombre de un archivo para poder encontrarlo dentro de seis meses.
 
-Ayer escribí que el volumen ya no es ventaja y que lo escaso es saber qué decir. Esto es el mismo error en su versión pequeña y tonta: una carpeta de clips y catorce líneas de Python.
-
-Si lo cometes ahí, lo cometes en todo.
+Si el error se comete en algo así de pequeño, se comete en todo lo demás.
 
 Automatizar antes de decidir no te ahorra el trabajo. Te lo esconde.
 

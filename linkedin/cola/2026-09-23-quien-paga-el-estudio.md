@@ -1,7 +1,7 @@
-# 2026-09-23 · Actualidad · N · «Quién encarga un estudio forma parte del estudio»
+# 2026-09-23 → publicar el 30-10 · **Autoridad de método** · «Quién encarga un estudio forma parte del estudio»
 
 **Estado:** creada. Tres versiones. **Elegida por Maverick: A, «La regla de lectura».**
-**Publicar:** miércoles 23, 09:30. Intensidad método. Solo texto.
+**Publicar:** ~~miércoles 23 de septiembre~~ → **viernes 30 de octubre, 09:30.** Intensidad método. Solo texto.
 **Métrica:** comentarios que confiesen (el CTA pregunta si leyeron el último estudio que citaron)
 y guardados.
 
@@ -37,6 +37,79 @@ marcha; España se consolidó el año pasado como primer productor de cine de Eu
 de Francia e Italia.
 
 ---
+
+## Desanclada el 08-10. Dejó de ser actualidad y pasó a Autoridad
+
+**Se escribió como pieza de actualidad el 23 de septiembre y nunca se publicó.** A las tres semanas el techo
+de 72 horas la había matado como noticia, pero la tesis no caduca: lo que caducaba eran las anclas. Se aplicó
+la regla nueva de `08-actualidad-newsjacking.md` — **una pieza de actualidad sin ninguna cifra y sin ninguna
+marca temporal deja de ser actualidad, es criterio, y puede ocupar una franja de Autoridad**, y se comprueba
+leyendo el texto y no la ficha.
+
+**Cuatro anclas retiradas, y la cuarta no estaba en el encargo:**
+
+| Quitado | Qué hay en su lugar |
+| --- | --- |
+| «Se presenta **con el Festival de San Sebastián en marcha**» | Nada. El párrafo queda en el único hecho sin fecha: lo elaboró Public First por encargo de Google |
+| «**justo después de que España se consolidara el año pasado** como primer productor de cine de Europa, por delante de Francia e Italia» | Nada. **Se cae entera y no se sustituye por ninguna cifra**: era la única comparación de país de la pieza |
+| «**El momento está muy bien elegido.** Eso no es un truco. Es oficio.» | «Encargar un estudio que respalda lo que vendes no es un truco. Es oficio.» El reproche desactivado se mantiene y cambia de objeto: ya no absuelve el *cuándo*, absuelve el *encargo* |
+| «Lo que te van a poner delante **en los próximos meses**…» | «Lo que te van a poner delante…». **Esta la encontró el redactor y no estaba en el encargo**: es una fecha de caducidad implícita, y el objetivo era que la pieza no tuviera ninguna |
+
+**El gancho alternativo que había en esta ficha no servía.** Decía «Hay un estudio **nuevo**… que te van a citar
+en una reunión **este otoño**»: dos anclas, una dura y una blanda. El gancho es nuevo y conserva la puerta de
+entrada —la advertencia, no el momento—. **133 caracteres.** Y el par Google/Google no se pierde: baja íntegro
+al segundo bloque, así que la desactivación a dos renglones sigue funcionando igual.
+
+**Guardarraíl de solape con el martes 13, resuelto.** Esa pieza enuncia su enemigo como «el informe mensual de
+treinta filas que existe para justificar el gasto». La frase original de esta compartía con ella las dos
+palabras que importan —*informe* y *gasto*— y sonaba a la misma tesis. La nueva mueve el eje a **aval** y a lo
+que el logo tapa: el 13 ataca un documento propio que no sirve para decidir, el 30 ataca un documento ajeno
+que se usa para no discutir. Distinto objeto, distinto verbo, distinto dolor.
+
+**Longitud: ~1.790 caracteres, por encima de los 1.600 de la guía.** No se ha recortado porque el original ya
+estaba en ~1.960 y se aprobó así, de modo que esto es una mejora y no una concesión. **Pero conviene decir que
+es deriva de toda la casa y no de esta pieza**, igual que la longitud de frase: si algún día se corrige, se
+corrige en la guía y en todas, no reescribiendo esta.
+
+**Intacto:** la tesis, la regla de lectura entera, la autocrítica, los tres destinos del tiempo ahorrado, la
+sentencia citable, el CTA, los hashtags y el primer comentario — que no llevaba ancla y se publica tal cual.
+
+### Versión A, desanclada y lista para pegar
+
+```
+Hay un estudio sobre la IA en el audiovisual español que te van a citar en una reunión.
+Antes de que te lo citen, mira quién lo paga.
+
+Lo ha publicado Google. Y lo ha pagado Google.
+
+Las dos frases son verdad al mismo tiempo. Y ninguna anula a la otra.
+
+Lo ha elaborado la consultora Public First por encargo suyo.
+
+Encargar un estudio que respalda lo que vendes no es un truco. Es oficio.
+
+Mi regla de lectura es esta: quién encarga un estudio forma parte del estudio.
+
+No es una acusación. Un informe pagado por quien vende la herramienta puede ser riguroso y aun así elegir qué preguntas hace. Lo honesto es leerlo sabiendo eso. No descartarlo ni tragárselo.
+
+Lo que casi nadie dice en voz alta es lo que va a pasar con él. Se va a usar para defender presupuestos que nadie ha discutido. Y va a funcionar, porque una cifra grande en un PDF con logo ahorra la conversación difícil.
+
+Yo lo he hecho. He metido un estudio de sector en una propuesta para sostener una cifra que me convenía, sin haberme leído el informe entero. Funcionó. Por eso sé que funciona.
+
+El enemigo no es el estudio. Es usarlo de aval sin haberlo abierto, porque el logo de quien lo firma cubre lo que tú no quieres discutir.
+
+Y hay algo que un estudio así no mide: qué pasa con lo que ahorras.
+
+Te dice cuánto trabajo te quitas de encima. No te dice dónde va. Por lo que yo veo, va a más rondas de revisión, a piezas que nadie pidió, o a ningún sitio: se lo queda el margen del proveedor.
+
+Un ahorro sin una decisión detrás no es un ahorro. Es un hueco en el calendario que alguien va a rellenar.
+
+Lo que te van a poner delante no es una herramienta. Es un argumento. Y vas a tener que decidir si lo compras.
+
+El último estudio que citaste para defender un presupuesto: ¿lo leíste entero?
+
+#IA #ProduccionAudiovisual #MarketingB2B
+```
 
 ## Versión A · La regla de lectura · ELEGIDA
 

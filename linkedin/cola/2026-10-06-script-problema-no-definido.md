@@ -1,9 +1,72 @@
-# 2026-10-06 · Prueba · B1 · «El código a la vista»
+# 2026-10-06 → publicar el 20-10 · Prueba · **B4 · artefacto verificable** · «El código a la vista»
 
 **Estado:** creada. Tres versiones. **Elegida por Maverick: A, «El código a la vista».**
-**Publicar:** martes 6 de octubre, 12:30. Intensidad método. Solo texto.
+**Publicar:** ~~martes 6 de octubre~~ → **martes 20 de octubre, 12:30.** Intensidad método. Solo texto.
 **Métrica:** comentarios con un script propio confesado. El CTA pide un inventario incómodo, que es
 el tipo de comentario que identifica a alguien con procesos de verdad.
+
+## Desatada de la pieza del 5, y es el primer B4 real del sistema
+
+**La versión A arrancaba con un puente a la pieza del 5 de octubre** —«Ayer escribí que el volumen ya no es
+ventaja y que lo escaso es saber qué decir. Esto es el mismo error en su versión pequeña y tonta»— más el
+remate que colgaba de él, «si lo cometes ahí, lo cometes en todo». **Pero la pieza del 5 no se ha publicado**,
+así que el puente apuntaba a algo que el lector no ha visto nunca y el «ahí» no señalaba a nada.
+
+**Puente y remate fuera.** El remate era el escalón de la pieza, lo que la saca de ser la anécdota de una
+carpeta, así que quitarlo a secas dejaba la sentencia final sin rampa. Se recuperó con **una formulación
+autónoma que ya existía en esta misma ficha**, en el primer comentario de la versión C: «si el error se comete
+en algo así de pequeño, se comete en todo lo demás». No es texto nuevo ni un puente disfrazado — no menciona
+nada anterior, y «algo así de pequeño» se refiere al script que el lector acaba de leer.
+
+**Y queda cerrada la única marca que esta pieza tenía pendiente.** De las dos frases de motivo se queda
+**«Quería encontrar los planos más rápido»**, que elimina el motivo no confirmado. **Ya no hay nada que
+confirmar para publicarla.**
+
+**Es el primer `B4` del sistema, y el tipo acaba de nacer para esto.** `02-tipos-de-contenido.md` redefine el
+pilar de Prueba como *artefacto verificable*, con cuatro condiciones, y la primera es que el artefacto **se
+pueda abrir**. Aquí se puede: las catorce líneas están en el repositorio y cualquiera las cuenta. Prueba una
+**decisión**, no un resultado, y no lleva ni una cifra de resultado. El contraste que lo demuestra es el
+martes 13, que **no** se etiqueta B4 porque su artefacto es un informe interno que el lector no puede abrir.
+
+**Gancho: 192 caracteres.** No se tocó: ya arrancaba solo.
+
+**Intacto:** las catorce líneas, los `clip_000X`, la destrucción de fecha, proyecto, cámara, escena y toma, el
+recorrido de la carpeta sin ordenar, los seis meses, la sentencia citable, el CTA de inventario, los hashtags
+y el primer comentario — el puente estaba en los de las versiones B y C, no en el de la A.
+
+### Versión A, desatada y lista para pegar
+
+```
+En este sistema hay un script mío de catorce líneas. Pide una carpeta y renombra todos los vídeos a clip_0001, clip_0002, clip_0003.
+
+Funciona sin un fallo. Y es lo peor que he escrito en años.
+
+Lo que hace, exacto: coge el nombre de cada archivo y lo tira.
+
+La fecha fuera. El proyecto fuera. La cámara, la escena, la toma, fuera. Deja un número y la extensión.
+
+Después de pasarlo, un plano se llama clip_0073. No hay manera de saber de qué rodaje salió.
+
+Hay un detalle peor. Recorre la carpeta sin ordenarla antes.
+
+Así que el número que asigna no es el orden de grabación. Ni el alfabético. Es el orden que el disco tenga ese día.
+
+Resumiendo: borré la única información que servía y la cambié por un número que no significa nada.
+
+El código no tiene ningún error. El error es anterior al código.
+
+Quería encontrar los planos más rápido. Y automaticé lo único que era fácil de automatizar: poner números.
+
+La parte difícil nunca la decidí. Qué información tiene que llevar el nombre de un archivo para poder encontrarlo dentro de seis meses.
+
+Si el error se comete en algo así de pequeño, se comete en todo lo demás.
+
+Automatizar antes de decidir no te ahorra el trabajo. Te lo esconde.
+
+¿Qué script tienes funcionando que no deberías estar usando? Dímelo en comentarios.
+
+#Automatización #Procesos #MarketingB2B
+```
 
 ## El eje cambió, y fue por un error mío
 
