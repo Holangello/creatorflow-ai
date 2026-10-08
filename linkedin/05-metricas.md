@@ -9,8 +9,35 @@ rellena con una cifra estimada, redondeada o deducida: si el dato no ha llegado,
 queda vacía. La línea base de las diez primeras piezas no vale nada si lleva dentro un número que
 nadie midió.
 
+## Estado al 08-10-2026 · lo que hay y lo que falta
+
+Escrito al cerrar la planificación de la semana 6, para que esta tabla vacía se lea como lo que es.
+
+**Dieciocho fichas escritas en `cola/`. Ninguna publicada. Ninguna cifra recibida. Ninguna fila rellenada.**
+Las tres primeras son comprobables contando archivos; la cuarta se ve sola. **No se añade ni un número
+estimado, redondeado o deducido**, y eso incluye los ceros: un cero inventado no es un dato neutro, es una
+línea base falsa. Una casilla vacía es un dato correcto.
+
+La línea base de diez piezas **no ha empezado**, y no puede empezar: necesita piezas publicadas, no piezas
+escritas. El circuito arranca con una sola cifra real de Angello, y con ella la cuenta de avisos sin
+respuesta vuelve a cero y la rutina de las 19:30 sale del silencio.
+
+**`linkedin-analyst` no se ha activado hoy, y es una decisión, no un olvido.** Sin una sola cifra no hay
+nada que diagnosticar, y un diagnóstico sobre cero datos solo se puede escribir inventando. Entra cuando
+haya tres piezas medidas, como dice el protocolo.
+
+**Lo que sí se ha revisado hoy sin datos de rendimiento, y es un hallazgo de estructura.** Las dieciocho
+fichas declaran todas su métrica principal y son coherentes con su fase del embudo: las de captación piden
+mensajes privados, las de atracción piden guardados y clics a perfil, las de conversación piden comentarios.
+**Pero casi ninguna métrica declarada cabe en las columnas de esta tabla.** Las fichas no piden
+«comentarios»: piden *comentarios de decisor*, *comentarios que confiesen una cantidad*, *comentarios que
+aporten una señal propia*, *comentarios que nombren una partida concreta*. Esa distinción es el objetivo
+real de cada pieza y aquí se perdería entera dentro de un número. **Mientras no se añada una columna, va en
+la columna «Nota» con sus palabras, junto al recuento.** No se cambia la tabla hoy: tiene mapas paralelos
+fuera de este archivo y los toca Angello.
+
 ## Línea base
-Sin datos todavía. Se fija con las primeras 10 piezas.
+Sin datos todavía. Se fija con las primeras 10 piezas **publicadas**, no escritas.
 
 ## Registro por pieza
 

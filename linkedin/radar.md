@@ -35,6 +35,17 @@ día en que los dominios se puedan abrir.
 **Esto no deja ningún hueco.** La pieza del viernes es de Humano y no necesita radar. El próximo hueco de
 actualidad es el miércoles 14, y quedan tres barridos antes.
 
+**Añadido el 08-10 al planificar la semana 6:** la fila del miércoles 14 queda **explícitamente abierta y sin
+tema fijo** en `calendario.md`, y allí está escrita la escalera de respaldo para la noche del 13 por si
+ninguno de los tres barridos (9, 12 y 13) trae algo verificable en primaria. Resumen para quien barra: si se
+abren los dominios, la mejor candidata es la de voz, **y no como anuncio de producto sino como categoría** —
+dos fabricantes distintos diciendo que una voz se reproduce desde una muestra mínima, con los 10 segundos de
+ElevenLabs al lado y cada cifra con su autor delante. Si no se abren, el respaldo es derechos de imagen y voz
+**por el lado de la autorización de quien sale en cámara**, nunca por la propiedad de los brutos, que ya es
+el 30-09; el 14 de octubre hay dos semanas de distancia, que es lo que este radar pedía. Y si tampoco hay
+eso, el miércoles **no se rellena con una reseña**: cede el hueco a una pieza de Autoridad del banco. Ningún
+respaldo autoriza publicar una cifra que no se haya leído en su fuente primaria.
+
 **Nota de infraestructura, no editorial.** El contenedor de esta sesión se reconstruyó con un clon antiguo del
 repositorio y durante unos minutos no existía ni `linkedin/`. No se perdió nada: todo estaba subido a la rama.
 Lo apunto porque explica por qué el barrido de hoy empieza con un `git fetch` y no con una búsqueda.

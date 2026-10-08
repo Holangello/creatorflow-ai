@@ -14,6 +14,13 @@ copywriter y no he podido, así que lo he hecho yo con las mismas reglas y con e
 encima. Lo escribo aquí porque la trazabilidad de quién escribe qué es parte del sistema, y porque si el
 viernes algo suena distinto al resto de la semana, esta es la razón.
 
+**Actualización del 08-10, y es el segundo día igual.** Angello pidió que el redactor auditara esta ficha
+precisamente por eso, y **el tool de agentes tampoco existe hoy en esta sesión**: `Agent` y `Task` los he
+llamado los dos y los dos devuelven «no such tool available». Así que la auditoría del punto 8 y la
+corrección del bloque también son mías. Dos sesiones seguidas sin equipo deja de ser una incidencia: el
+pipeline de `maverick.md` no se puede ejecutar como está escrito, y eso es un problema de sistema que no se
+arregla desde dentro de una pieza.
+
 ## El riesgo de esta pieza, y cómo está resuelto
 
 Una pieza titulada «cómo sé si un cliente va a ser un problema» tiene una forma fácil y mala: quejarse de
@@ -57,7 +64,37 @@ que no llega**, que es nueva y además más difícil de rebatir.
 **6. No es confrontación pura.** La semana ya gastó esa casilla el lunes 5. Esta es una pieza humana con
 autocrítica: el único que sale señalado es quien la escribe.
 
-**7. Parentesco con el jueves, sin solape.** Ayer se habló de la estructura de la propuesta; hoy, de lo que se
+**8. Auditoría del 08-10, con la pieza ya cerrada, y una corrección en la versión elegida.**
+Angello pidió revisar expresamente esta ficha porque es la única de las dieciocho de `cola/` que no pasó
+por el redactor. He vuelto a medir y a leerla entera con el estándar de la casa encima. Resultado: **los
+ganchos están bien** (A 149, B 120, C 137 caracteres, medidos de nuevo, no estimados), el enemigo sigue
+girado al proveedor en las tres versiones, no hay cifras, no hay `[DATO]`, hay un solo CTA por versión,
+tres hashtags y ningún enlace en el cuerpo. **Y la longitud de frase, que sonaba a sospecha, no lo era:**
+esta pieza tiene 20 frases por encima de 15 palabras sobre 105, con un máximo de 33, y el perfil del
+resto de octubre es el mismo o peor (el 7-10 va en 24 sobre 101 con un máximo de 47). Eso es una deriva
+de toda la casa, no un defecto de este viernes, y no se arregla reescribiendo esta pieza.
+
+**El único fallo real era uno, y estaba en la versión elegida.** Decía: «lo que aprendí no fue que *aquel
+proyecto* fuera difícil. Fue que lo acepté sabiendo cómo iba a acabar, y después *lo conté* como mala
+suerte». Eso no es una admisión en patrón: **es un episodio.** Afirma un proyecto singular concreto y
+afirma además algo que Angello habría dicho en público sobre él. Es exactamente el filtro que tumbó
+versiones el 1, el 6, el 7 y el 9 de octubre, y se me coló por dentro de mi propia pieza. **Corregido el
+08-10:** el bloque pasa a patrón —«los he firmado sabiendo cómo iban a acabar»— y el juicio sobre cómo se
+cuenta queda impersonal. La admisión que queda es de la misma categoría que «llevo años facturando así»
+(8-09) y «he roto esa norma varias veces» (11-09), que ya están en la voz de la cuenta. **Nada más se ha
+tocado:** ni el gancho, ni las tres señales, ni la sentencia, ni el CTA, ni el primer comentario, ni las
+versiones A y B. De paso se ha partido la frase de 22 palabras del pivote en tres frases cortas, que es lo
+que manda `03-guia-copywriting.md` cuando una frase necesita comas.
+
+**Las tres frases de admisión que quedan, y en qué categoría cae cada una:** «las he visto y he seguido
+adelante igual» (A) y «hasta hace no mucho las pagaba yo sin decirlo» (primer comentario de B) son
+conducta en patrón: se escriben, pero conviene que Angello las lea una vez. **La que sí conviene mirar con
+más cuidado es «me ha costado encargos. También ha hecho que los que entran duren mucho más»** (primer
+comentario de C): no lleva número, pero es una afirmación de resultado sobre su propio negocio. No la
+marco como `[DATO]` porque no hay cifra que verificar, pero **si Angello no la firma, el párrafo funciona
+sin la segunda mitad.**
+
+**9. Parentesco con el jueves, sin solape.** Ayer se habló de la estructura de la propuesta; hoy, de lo que se
 decide antes de que exista propuesta. Son dos momentos distintos de la misma conversación y ninguna de las dos
 se refiere a la otra, así que funcionan en cualquier orden y por separado.
 
@@ -85,13 +122,17 @@ Las tres aparecen en los primeros minutos. Ninguna requiere intuición.
 
 Lo que requiere carácter es lo que viene después.
 
-Porque la llamada en la que aparecen esas señales es, casi siempre, la del mes en el que hace falta cerrar algo. Y ahí la cuenta es sencilla y mala: la señal es futura, la factura es de este mes.
+Porque esa llamada suele caer en el mes en el que hace falta cerrar algo.
+
+Y ahí la cuenta es sencilla y mala. La señal es futura. La factura es de este mes.
 
 He elegido la factura. No una vez.
 
-Y lo que aprendí no fue que aquel proyecto fuera difícil. Fue que lo acepté sabiendo cómo iba a acabar, y después lo conté como mala suerte.
+Y el aprendizaje no es que haya proyectos difíciles. Es que los he firmado sabiendo cómo iban a acabar.
 
-Eso no es mala suerte. Es una decisión mal contada.
+Eso después se cuenta como mala suerte. No lo es.
+
+Es una decisión mal contada.
 
 Lo que cambié no fue el filtro. El filtro ya lo tenía. Cambié qué hago cuando el filtro dice que no.
 

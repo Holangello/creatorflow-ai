@@ -3486,44 +3486,126 @@ del banco de reserva se eligen por eso.
 | 06-10 | Mar | Prueba | B1 | El código a la vista · **elegida versión A** | **Corrección de Maverick del 05-10, y es un error mío.** El viernes planifiqué esta fila diciendo que «el sistema existe en este repositorio, en `tools/rename_clips.py`, así que la prueba es el propio script». **Lo escribí sin abrir el archivo.** Al abrirlo: son catorce líneas que renombran todos los ficheros de una carpeta a `clip_0001`, `clip_0002`… Eso no es un sistema de nombres. Es un renumerador que **borra** la información que un sistema de nombres existe para conservar: fecha, proyecto, cámara, escena, toma. Y además recorre `os.listdir` sin ordenar, así que el número que te asigna no corresponde a ningún orden real. No se puede escribir «el sistema que nos ahorra horas» sobre esto sin inventarse el sistema. **El eje nuevo es el único honesto y además es mejor:** el script es la prueba, pero la prueba de otra cosa — de automatizar antes de haber decidido qué problema se resuelve. Catorce líneas que ejecutan perfectamente una decisión que nunca se tomó. Enlaza con la pieza del lunes sin repetirla: allí el mismo error a escala de 900 anuncios por semana, aquí a escala de una carpeta. El script es público en el repositorio, así que cualquiera puede comprobar las catorce líneas. `cola/2026-10-06-script-problema-no-definido.md` | Texto | Método | creada · tres versiones |
 | 07-10 | Mié | Actualidad | N | Las primeras cifras del sitio nuevo las firman los socios de quien lo abrió | **Reverificada y corregida el 06-10.** Ayer anclé esta fila sobre la página equivocada de OpenAI: la que cité está fechada el 5 de **mayo** y de ahí salían el Ads Manager y la puja por CPC. El anuncio del 5 de octubre es otro, «Building advertising for the way people use AI», y lleva la fecha visible en la propia página. **El anuncio real es más pequeño y mejor para la pieza:** formato de anuncio visual en ChatGPT, probado solo durante la generación de imágenes, **este mes, en EE. UU. y con un grupo inicial de anunciantes.** Doble eje: las tres cifras que avalan el canal las firma cada una un socio de medición que es socio del propio lanzamiento, sobre una sola marca y sin método a la vista —el «quién encarga un estudio» del 23-09 con sello de independencia encima—; y el dato accionable que nadie le va a dar a un director de marketing en España es que **este mes no hay nada que comprar**. Cierra la trilogía de la semana. `cola/2026-10-07-cifras-de-los-socios.md` | Texto | Método | creada · tres versiones |
 | 08-10 | Jue | Oferta | C3 | Las tres opciones de propuesta y por qué nunca doy una sola cifra | Sale del banco de reserva. Objeción respondida desde el método de presupuestar, no desde el precio. **Escrita el 07-10 y es la primera pieza de la semana que no espera a nadie:** cero cifras, cero `[DATO]`, las tres versiones publicables tal cual. El eje es que una cifra única sobre un briefing sin cerrar no es un precio, es una apuesta, y que las tres opciones existen para que el cliente elija **alcance** y no precio — la propuesta como último sitio donde el briefing se cierra por escrito. Elegida A, la única sin ninguna frase que necesite un sí de Angello. `cola/2026-10-08-tres-opciones-de-propuesta.md` | Texto | Método | creada · tres versiones |
-| 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. **Escrita el 08-10, y el enemigo quedó girado 180 grados respecto a lo planificado.** La forma fácil de esta pieza era quejarse de clientes, y eso rompe dos reglas a la vez: el enemigo tiene que ser una práctica, y el ICP *es* el cliente. Las señales no son defectos de nadie, son formas de decidir; y el que sale señalado es el proveedor —Angello— que las ve y firma igual porque hay que cerrar el mes. Segunda pieza seguida sin cifras y sin `[DATO]`. Elegida C, la única en la que el conflicto está dentro de él. **Las tres versiones las escribí yo: los subagentes no estaban disponibles en la sesión.** `cola/2026-10-09-la-senal-y-la-factura.md` | Texto | Método | creada · tres versiones |
+| 09-10 | Vie | Humano | D1 | Cómo decido si un cliente va a ser un problema en la primera llamada | Sale del banco de reserva. **Escrita el 08-10, y el enemigo quedó girado 180 grados respecto a lo planificado.** La forma fácil de esta pieza era quejarse de clientes, y eso rompe dos reglas a la vez: el enemigo tiene que ser una práctica, y el ICP *es* el cliente. Las señales no son defectos de nadie, son formas de decidir; y el que sale señalado es el proveedor —Angello— que las ve y firma igual porque hay que cerrar el mes. Segunda pieza seguida sin cifras y sin `[DATO]`. Elegida C, la única en la que el conflicto está dentro de él. **Las tres versiones las escribí yo: los subagentes no estaban disponibles en la sesión.** **Auditada el 08-10 a petición de Angello, por ser la única de las dieciocho fichas que no pasó por el redactor, y con una corrección:** la versión elegida decía «lo que aprendí no fue que *aquel proyecto* fuera difícil… y después *lo conté* como mala suerte». Eso no es admisión en patrón, es un **episodio** — afirma un proyecto singular y afirma algo que Angello habría dicho en público sobre él. Corregido a patrón («los he firmado sabiendo cómo iban a acabar») y partida la frase de 22 palabras del pivote. Lo demás aguanta: ganchos remedidos (A 149, B 120, C 137), enemigo girado al proveedor, cero cifras, cero `[DATO]`, un solo CTA. **La longitud de frase no era un defecto de esta pieza:** 20 frases de más de 15 palabras sobre 105, y el 7-10 va en 24 sobre 101 — es una deriva de toda la casa. **La auditoría también la hice yo: el tool de agentes tampoco existe hoy.** `cola/2026-10-09-la-senal-y-la-factura.md` | Texto | Método | creada · tres versiones |
+
+## Semana 6 · 12 al 16 de octubre
+
+**Planificada el 08-10, y es la primera semana entera en la que ninguna de las cinco filas depende de un
+dato que Angello no haya dado.** Cero cifras de cliente, cero precios, cero plazos, ningún `[DATO]`. No es
+un adorno: en septiembre cuatro piezas se quedaron esperando cifras que no llegaron, y en la semana 5 las
+dos únicas que no esperaban a nadie fueron las dos últimas. Aquí esa condición es el criterio de selección,
+no el resultado.
+
+**Tres decisiones tomadas a propósito y escritas para que no se relean como descuido:**
+
+1. **Confrontación pura: solo el lunes 12.** De martes a viernes, confrontación con método. El techo de la
+   casa es uno por semana y esta semana se gasta el primer día.
+2. **El miércoles 14 queda abierto al radar y sin tema fijo.** Es un hueco, no una fila a medio escribir.
+   Lo que lleva la fila es el protocolo y la escalera de respaldo, no un titular.
+3. **El jueves 15 es carrusel, y la razón es de formato, no de contenido.** La semana 5 fueron cinco piezas
+   de solo texto seguidas y la última pieza visual es del 01-10. Un mes sin un carrusel es un hueco de
+   formato, no una decisión. El pilar que mejor lo aguanta es Oferta: un carrusel se guarda, y lo que se
+   guarda vuelve.
+
+Las cinco filas quedan en `planificada`. **No se redacta nada**: la redacción ocurre pieza a pieza cuando
+Angello la pide. Y hoy, además, no podría hacerla el redactor — el tool de agentes no existe en esta sesión
+(`Agent` y `Task` devuelven «no such tool available»), por segundo día seguido.
+
+| Fecha | Día | Pilar | Tipo | Titular de trabajo | Notas | Formato | Intensidad | Estado |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 12-10 | Lun | Autoridad | A1 | Cambiar de proveedor cada año no es optimizar el gasto. Es volver a pagar la curva | Sale del banco de Autoridad («el coste real de cambiar de proveedor audiovisual cada año»). **Es la confrontación pura de la semana y la única.** Enemigo: la práctica de volver a concurso cada año y decidir por precio; jamás un proveedor, un sector ni una empresa identificable. Dolor no dicho: «cada enero vuelvo a explicar mi marca desde cero y lo presento en comité como un ahorro». **Cero cifras, y esta vez cuesta:** la tentación de esta pieza es un rango de euros de coste de arranque, y Angello no ha dado ninguno — así que el coste se cuenta en lo que se vuelve a pagar (el aprendizaje de la marca, el criterio que se fue con el anterior, los dos primeros meses en los que nadie acierta el tono), nunca en dinero. **Riesgo declarado, y se desactiva dentro del post, no en esta ficha:** es un argumento que beneficia a quien lo firma, un proveedor defendiendo la continuidad. Si no concede en voz alta cuándo cambiar **sí** es lo correcto —cuando el proveedor dejó de decidir y se convirtió en un par de manos— la pieza suena a defensa de su propio retainer y no sale. No solapa con 24-09 ni con 08-10: allí se hablaba de entrar y de presupuestar, aquí de salir y de lo que se queda por el camino. CTA de atracción sin estrenar en la cuenta: guardarla para la conversación de renovación. No repite dilema A/B (5-10), inventario (6-10), DM (8-10) ni señal propia (9-10) | Texto | Pura | planificada |
+| 13-10 | Mar | Prueba | B3 | Un mes de contenido no se graba pieza a pieza | Sale del banco de Prueba, **y entra sin su cifra.** La entrada decía «cómo montamos un mes entero de contenido en dos días de rodaje» y **los dos días se caen**: es un dato sobre la operación de Makers que Angello no ha confirmado. La pieza se escribe sin él y no se nota; si lo confirma, entra como refuerzo. **Por qué no un caso:** B1 y B2 llevan bloqueadas por cifras de cliente desde la semana 1 y no se vuelve a poner una Prueba en el camino crítico. **Por qué no el repositorio otra vez:** el 02-10 y el 06-10 ya usaron este repo como prueba — una tercera vez seguida deja de ser transparencia y se convierte en un tic. La prueba aquí es el método propio, que Angello puede validar de un vistazo porque es su oficio: el orden de decisiones que permite agrupar un mes (bloque de mensaje, localización, luz, vestuario) frente a producir bajo pedido. Enemigo: el encargo suelto, la pieza pedida de una en una, que multiplica arranques, traslados y rondas de aprobación. Dolor no dicho: «las pido de una en una y luego discuto el coste por pieza». **Sin escena:** presente de método, no el relato de un rodaje concreto. **Texto y no vídeo, a propósito:** un B3 en vídeo depende de material de rodaje de Angello, que es exactamente la dependencia que mantiene bloqueadas dos piezas desde el 10-09. CTA de conversación, binario y contestable en tres segundos | Texto | Método | planificada |
+| 14-10 | Mié | Actualidad | N | **[Hueco abierto al radar · sin tema fijo]** | **Esta fila se queda abierta a propósito.** Ancla en el barrido del 13-10 y quedan tres barridos antes (9, 12 y 13). Condición de entrada, sin excepción: **fuente primaria abierta y leída**, nunca prensa secundaria ni agregador. Es la regla que impidió publicar las cifras del estudio de Google el 23-09 y la que falló el 5-10 al dar por buena una fecha de prensa. **Lo que hay hoy y por qué no sirve:** las dos pendientes del 1-10 (los tres modelos de voz de Microsoft AI y el vídeo a vídeo de Tavus) tienen seis dominios inalcanzables desde esta sesión y ninguna de sus cifras leída en primaria; ya hay contradicciones entre secundarias («10+ idiomas» frente a 23) y la cifra de Tavus es del fabricante, sobre 54 participantes y sobre un modelo que no es el que vende. **Escalera de respaldo para la noche del 13, por orden:** (1) noticia nueva verificada en primaria en cualquiera de los tres barridos; (2) si los dominios se abren, la de voz **como categoría y no como anuncio de producto** — dos fabricantes distintos diciendo que una voz se reproduce desde una muestra mínima, con los 10 segundos de ElevenLabs al lado y cada cifra con su autor delante; Tavus solo con sus dos advertencias delante del número; (3) derechos de imagen y voz **por el lado de la autorización de quien sale en cámara**, nunca por la propiedad de los brutos, que es el 30-09 — a 14 de octubre hay dos semanas de distancia, que es lo que el radar pedía, y solo con material de apoyo ya verificado; (4) si no hay nada de eso, **el hueco no se rellena con una reseña de producto ni con un resumen sin tesis**: pasa a la Autoridad del banco («por qué la coherencia vende más que la creatividad») y esa semana el miércoles deja de ser actualidad. **Lo que no se hace en ningún caso es publicar una cifra no leída en primaria para no dejar el miércoles vacío.** La ley española de protección civil del honor sigue **no citable**: no se ha localizado la referencia del Consejo de Ministros ni el texto en el Boletín de las Cortes | Texto | Método | planificada · hueco abierto |
+| 15-10 | Jue | Oferta | C3 | Lo que tiene que estar de tu lado para que esto salga | **Carrusel por decisión de formato** (ver punto 3 arriba). **Ángulo nuevo para un pilar saturado:** Oferta lleva cinco ángulos seguidos de precio o de propuesta (10-09, 17-09, 24-09, 01-10, 08-10), así que este **no toca el dinero por ningún lado.** Va de la mitad del trabajo que no se factura y que casi nadie pide por escrito: material, accesos, una persona que conteste en plazo, quién decide. **Enemigo doble, las dos prácticas:** vender producción como llave en mano, y la costumbre del propio proveedor de no pedir nada por escrito para no parecer complicado en la llamada de cierre. Dolor no dicho, y es el que evita que esto sea un reproche al cliente: «el proyecto se retrasó por mi lado y dentro de casa lo conté como retraso del proveedor». **El giro que mantiene al ICP a salvo:** la lista no es una exigencia, es una prueba del algodón que el lector aplica a su proveedor actual — si no te ha pedido esto, no ha planificado. Semilla ya sembrada el 09-10 («nadie pregunta qué hace falta de su lado») y sin solape: allí era una señal en una llamada, aquí es el contenido de un documento. **Cero cifras y ningún `[DATO]`:** no dice cuántas piezas, ni plazos, ni precios. La lección del 01-10 —el entregable mensual no estaba documentado en el repositorio— es que se describe la forma y no la cantidad. CTA de captación por DM con palabra distinta de «alcance», gastada el 08-10. Brief visual completo debajo de esta tabla | Carrusel · 8 slides | Método | planificada |
+| 16-10 | Vie | Humano | D1 | Lo que hago los días en que no tengo ninguna idea | **Humano nueva, no del banco, y el banco es justamente el motivo.** De las dos entradas Humano que quedaban: «qué le diría al Angello que empezaba» está escrita para el público equivocado —es consejo a creadores, y aquí no se escribe nunca para colegas— y «el proyecto del que más aprendí y menos cobré» **es un episodio**, imposible sin que Angello diga qué proyecto y qué se puede contar. La regla de no-episodio no se relaja: ha tumbado versiones el 1, el 6, el 7 y el 9 de octubre. Las dos se quedan en el banco con su motivo escrito. Lo que sí se puede escribir hoy es criterio en presente, que es lo único que ha funcionado este mes. Tesis: lo que una empresa compra no es inspiración, es un procedimiento que funciona el día en que nadie tiene una idea. Enemigo: la práctica de vender —y de comprar— creatividad como inspiración, con el briefing que dice «sorpréndeme». Dolor no dicho: «mi calendario depende de que a alguien se le ocurra algo». **Es la primera pieza Humana que defiende de frente la frase de posicionamiento del documento maestro:** sistemas que se sostienen sin depender de la inspiración de nadie. **Una frase para que Angello lea y firme**, sin `[DATO]` porque no hay nada que verificar: la admisión de que la mayoría de los días no tiene ninguna idea. Es posición, no episodio. **Solo texto:** D1 pide texto + foto propia y la foto sigue aparcada con la pieza biográfica de Perú→Madrid; pedir una foto nueva crearía una dependencia de material, y esta semana se ha construido para no tener ninguna. CTA de conversación | Texto | Método | planificada |
+
+### Brief visual · jueves 15 · carrusel «Lo que tiene que estar de tu lado»
+
+**Lo escribo yo y conviene que conste:** esto lo tendría que firmar `linkedin-designer` y **el tool de
+agentes no existe en esta sesión.** Va contra `04-guia-diseno.md`, 1080 × 1350 px (4:5), PDF por debajo de
+10 MB, un solo acento de marca, máximo 25 palabras por slide, numeración «0X/08» abajo a la derecha,
+alineación izquierda. Nombre de archivo: `linkedin_2026-10-15_lo-que-tiene-que-estar-de-tu-lado.pdf`.
+
+| Slide | Función | Contenido (orientativo, el texto exacto lo pone el redactor) |
+| --- | --- | --- |
+| 01/08 | Portada · gancho de 8-12 palabras | La mitad de tu proyecto de vídeo no la hace tu proveedor. Palabra clave en acento, sin logo grande |
+| 02/08 | Problema · la frase más dura | El retraso casi nunca empieza en producción. Empieza en una decisión que nadie tomó |
+| 03/08 | El enemigo nombrado | «Llave en mano» es una promesa de venta, no un modo de producir |
+| 04/08 | Autocrítica del proveedor | Y el que no lo pide por escrito es quien vende. Por no parecer complicado en la llamada de cierre |
+| 05/08 | Lo que tiene que estar · 1 | Quién decide. Un nombre, no un comité |
+| 06/08 | Lo que tiene que estar · 2 | El material y los accesos, con fecha. Lo que no llega, no se graba |
+| 07/08 | Lo que tiene que estar · 3 | Una persona que conteste en plazo. La respuesta es parte del entregable |
+| 08/08 | Tesis + CTA + firma | La prueba del algodón: si tu proveedor no te ha pedido esto, no ha planificado. CTA de DM con la palabra acordada + «Angello Benavides · Makers» + flecha «desliza y guarda» |
+
+**Tres cosas que no van en el carrusel:** ninguna cifra (ni número de piezas, ni plazos, ni precios),
+ningún logo de cliente, y ninguna foto de banco. Y la regla de 3 elementos de la guía de copywriting se
+respeta: la lista son tres, no cuatro ni cinco — «quién decide» va en la lista y el resto son contexto.
+
+**Lo que esta semana desequilibra, y cómo se corrige en la 7.** Reparto de la semana: uno por pilar. Eso
+deja **dos viernes seguidos de Humano** y empuja el mes hacia el 20 % humano frente al 10 % objetivo, con
+Autoridad por debajo del 30 %. No se arregla moviendo el viernes 16, que es franja Humano: se arregla
+poniendo **Autoridad el viernes 23**, y el candidato lleva esperando desde el 25 de septiembre — la
+encuesta D2 «¿qué frena de verdad vuestro contenido?», que se perdió por un fallo de canal, no caduca y
+sigue sin escribirse. Entra ahí y salda la deuda.
+
+---
 
 ## Temas en reserva (banco de ideas)
 
 Para rellenar huecos, sustituir una pieza bloqueada por falta de datos, o alimentar octubre.
 
+**Revisado el 08-10 al planificar la semana 6.** Hasta hoy el banco era una lista de títulos y había que
+reabrir la discusión cada vez que se usaba uno. Ahora cada entrada gastada queda marcada con la fecha en
+que se gastó, y cada entrada bloqueada lleva escrito **qué le falta**, para que nadie la elija un viernes
+sin darse cuenta de que depende de un dato que no existe. Marcas: `gastada` · `bloqueada` · sin marca =
+disponible.
+
+**Y se recuperan aquí tres ideas que la semana 4 declaró devueltas al banco y nunca llegaron a entrar.** La
+nota del 29-09 decía que la encuesta del 25, el dron del 28 y el error de rodaje del 29 volvían a reserva,
+pero el banco se quedó sin ellas. Sus filas siguen en estado `planificada` en las semanas 3 y 4; **no se
+les cambia el estado** —esas tablas alimentan mapas paralelos que no toco— pero las ideas viven desde hoy
+aquí, que es donde se pueden elegir.
+
 **Autoridad**
 - Carrusel A4 «Las 5 preguntas que sustituyen a un briefing de 40 páginas» (reservado de la versión A del 14-09; octubre).
-- "Cobrar barato no te hace competitivo, te hace prescindible."
-- Las 5 preguntas que hago antes de aceptar un proyecto.
+- Encuesta D2 «¿Qué frena de verdad vuestro contenido?» — 4 opciones que dividen al ICP: presupuesto, tiempo, criterio, aprobaciones. En el primer comentario, el voto de Angello y por qué. **Recuperada del 25-09**, que se perdió por un fallo de canal, no por decisión editorial. Una encuesta no caduca. **Candidata asignada al viernes 23-10**, para corregir la deriva de reparto que deja la semana 6 (ver nota al final de la semana 6).
+- «Si tu vídeo empieza con un dron sobre el edificio, ya has perdido» — vídeo, A1, confrontación pura. **Recuperada del 28-09.** `bloqueada` por formato: en vídeo depende de material de rodaje de Angello. Escribible hoy solo si se pasa a texto, y entonces hay que revisar que no choque con el lunes 12, que también es A1 de confrontación pura.
+- Por qué la coherencia vende más que la creatividad. **Es el respaldo nivel 4 del hueco de actualidad del 14-10.**
+- "Cobrar barato no te hace competitivo, te hace prescindible." — `bloqueada` por público: tal cual está, le habla al proveedor, y aquí no se escribe para colegas. Entra solo girada al que compra: lo que acaba pagando quien elige por precio.
+- Las 5 preguntas que hago antes de aceptar un proyecto. — Revisar solape con el 09-10, que ya usó tres señales de cualificación de la primera llamada.
 - Por qué un logo no es una marca y qué es lo que sí.
-- El coste real de cambiar de proveedor audiovisual cada año.
+- El coste real de cambiar de proveedor audiovisual cada año. — `gastada` el 12-10.
 - Lo que un director creativo hace de verdad todo el día.
-- Por qué la coherencia vende más que la creatividad.
 
 **Prueba**
-- Cómo montamos un mes entero de contenido en dos días de rodaje.
-- El sistema de nombres de archivo que nos ahorra horas (ligado a `tools/rename_clips.py`).
-- Antes y después de una identidad audiovisual.
-- Qué mide Makers en un proyecto y qué ignora deliberadamente.
+- Cómo montamos un mes entero de contenido en dos días de rodaje. — `gastada` el 13-10, **y sin la cifra**: los «dos días» son un dato de la operación de Makers que Angello no ha confirmado y la pieza se planifica sin él.
+- El error que costó un día entero de rodaje (B3). **Recuperada del 29-09.** `bloqueada`: es un episodio, y la regla de no-episodio no se relaja. Necesita que Angello diga qué pasó y qué parte se puede contar en público.
+- Caso de estudio B1 con cliente y cifras autorizadas. `bloqueada` desde la semana 1. **Recuperada del 22-09**, que quedó como «caso 2: pendiente de elegir cliente». Necesita tres cosas: cliente, autorización escrita y cifras.
+- B2 «Mismo presupuesto, otro sistema» (antes y después con cifra). `bloqueada` desde la semana 1: necesita presupuesto, plazo y resultado autorizados.
+- El sistema de nombres de archivo que nos ahorra horas. — **muerta, y queda escrito por qué.** El 06-10 se abrió `tools/rename_clips.py`: son catorce líneas que renumeran y borran la información que un sistema de nombres existe para conservar. No hay sistema que contar. El script ya se usó como prueba de lo contrario y ese tema está cerrado.
+- Antes y después de una identidad audiovisual. — `bloqueada`: necesita cliente y autorización de imagen.
+- Qué mide Makers en un proyecto y qué ignora deliberadamente. — `gastada` el 18-09.
 
 **Actualidad (ángulos recurrentes)**
 - Cada anuncio de modelo generativo de vídeo: qué cambia y qué no en un rodaje real.
 - **Lo que automatizo con IA y lo que no pienso automatizar nunca** (vuelve a reserva el 22-09, sin gastar: la desplazó el estudio de Google en el hueco del 23. El tema no caduca y el texto existe como versión C del 9-09).
 - AI Act: plazos y qué debe tener firmado una empresa que usa IA en campañas.
-- Derechos de imagen y voz sintética en publicidad en España.
+- Derechos de imagen y voz sintética en publicidad en España. — **Entra por la autorización de quien sale en cámara, nunca por la propiedad de los brutos**, que ya es el 30-09. Es el respaldo nivel 3 del hueco del 14-10. La ley española de protección civil del honor sigue **no citable** hasta localizar la primaria.
 - Cada actualización de formatos o especificaciones de vídeo en LinkedIn.
 - Campañas de marcas grandes hechas con IA y la reacción del público.
 
 **Oferta**
-- Las tres opciones de propuesta y por qué nunca doy una sola cifra.
-- Qué pasa en los primeros 30 días de un retainer.
-- Por qué no trabajamos por horas.
+- Las tres opciones de propuesta y por qué nunca doy una sola cifra. — `gastada` el 08-10.
+- Lo que tiene que estar del lado del cliente para que un proyecto salga. — `gastada` el 15-10.
+- Por qué no trabajamos por horas. — Disponible, pero **aplazada a noviembre por saturación**: Oferta lleva cinco ángulos seguidos de precio o de propuesta (10-09, 17-09, 24-09, 01-10, 08-10) y este es un sexto. No está bloqueada por datos; está bloqueada por repetición.
+- Qué pasa en los primeros 30 días de un retainer. — `bloqueada` por el mismo fallo que casi tumbó el 01-10: **el onboarding de un retainer no está documentado en este repositorio.** No consta qué ocurre, en qué orden ni con qué hitos. Se desbloquea cuando Angello lo describa, o se reescribe por la forma y no por el calendario, como se hizo el 01-10.
 
 **Humano**
-- El proyecto del que más aprendí y menos cobré.
-- Qué le diría al Angello que empezaba.
-- Cómo decido si un cliente va a ser un problema en la primera llamada.
+- Lo que hago los días en que no tengo ninguna idea. — `gastada` el 16-10.
+- Cómo decido si un cliente va a ser un problema en la primera llamada. — `gastada` el 09-10.
+- El proyecto del que más aprendí y menos cobré. — `bloqueada`: es un episodio. Necesita que Angello diga qué proyecto, qué cifra se puede decir (o ninguna) y qué lección quiere que se lleve el lector.
+- Qué le diría al Angello que empezaba. — `bloqueada` por público: tal cual está es consejo a creadores, y aquí no se escribe nunca para colegas ni para «la comunidad». Entra solo si cada lección se traduce a una decisión que un director de marketing reconozca como suya.
+- «Por qué me fui de Perú a Madrid a montar esto». — `bloqueada` desde la semana 4. Necesita las tres cosas de siempre: qué parte quiere contar en público, qué detalle hace de bisagra y qué lección de negocio cierra. Se queda la foto propia reservada para ella.
 
 ## 5 · Guía de diseño resumida
 
