@@ -6,53 +6,35 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 08-10-2026, dos veces. **Sin ruptura en el segundo barrido:** nada de nivel 3 ni de nivel 2
-en las siete horas siguientes al primero. Lo que devuelven las búsquedas es de junio y de febrero, no de esta
-mañana.
+**Último barrido:** 09-10-2026. **Sin candidata, y el paso 2 de la rutina no tenía trabajo:** la pieza del
+próximo día laborable —lunes 12— ya está escrita, elegida y en el artefacto, y la regla que se escribió ayer
+prohíbe redacción nueva mientras no haya nada publicado. Dos semanas de calendario están cubiertas con
+inventario.
 
-**Ninguna candidata nueva en todo el día, y el motivo del primer barrido sigue en pie: no es que no haya nada,
-es que no he podido verificar lo que hay.**
+Nada de las últimas 48 horas con fuente primaria. Lo que vuelve es de mayo (Google I/O) y de 2023-2025 en lo
+regulatorio.
 
-Han salido dos cosas que a este ICP le tocan de lleno, las dos del **1 de octubre**, o sea **siete días**, muy
-fuera de la ventana de 72 horas. Las anoto abajo en un bloque aparte, porque el motivo por el que no entran
-importa más que ellas:
+**Pero el barrido ha encontrado una cosa que vale, y no es noticia: es apoyo.** La **cláusula PASAVE**
+—Plataforma de Asociaciones y Sindicatos de Artistas de Voz de España—, que introduce limitaciones
+contractuales al uso de IA con la voz de los actores para que una distribuidora no pueda reutilizarla en
+otros proyectos sin su participación. Es de **noviembre de 2025**, así que no compite por ningún hueco.
 
-**Una.** Microsoft AI publica tres modelos de voz, entre ellos un texto a voz multilingüe que —según la prensa
-y la ficha de catálogo— mantiene la misma identidad de voz al cambiar de idioma y se guía con una grabación
-corta de referencia.
-**Dos.** Tavus presenta un modelo de vídeo a vídeo para conversación en tiempo real, con una cifra que es
-exactamente del tipo que esta cuenta usa: el porcentaje de gente que, tras una llamada de un minuto, creyó
-estar hablando con una persona.
+**Por qué importa y dónde encaja.** Es el caso español, sectorial y contractual de la tesis de la pieza que
+sale el **viernes 16** (`cola/2026-09-30-la-clausula-que-falta.md`): lo que el contrato no dice sobre la voz
+y la imagen. Hasta ahora ese argumento se apoyaba en fabricantes —ElevenLabs y sus diez segundos— y en
+prensa extranjera —los microdramas chinos—. Esto es **gente del sector en España negociando una cláusula**,
+que es exactamente el registro del ICP. **Sirve para responder comentarios el 16, no para escribir nada
+nuevo.**
 
-**Lo que no he podido hacer, y por eso no se publica nada sobre ellas: abrir la fuente primaria.** Los seis
-dominios que harían falta —`microsoft.ai`, `ai.azure.com`, `www.businesswire.com`, `openrouter.ai`,
-`tavus.io` y `www.tavus.io`— **están todos inalcanzables desde esta sesión.** Lo he comprobado uno por uno y
-los seis fallan igual. Todo lo que tengo es prensa secundaria y agregadores, y de ahí ya salen discrepancias
-visibles: una ficha dice «10+ idiomas» y el resto dicen 23, y la fecha de versión del catálogo no coincide con
-la del anuncio.
+**Y los límites, que son serios.** Todo lo que tengo es el **análisis de un despacho**, no el texto de la
+cláusula ni un comunicado de PASAVE, y **los tres dominios que harían falta están inalcanzables desde esta
+sesión** (`www.ecija.com`, `osborneclarke.com`, `www.osborneclarke.com`), comprobado uno por uno. Un matiz
+del análisis que conviene no perder si algún día se usa: el reglamento europeo **exime** del deber de
+informar cuando el contenido forma parte de una obra manifiestamente creativa, satírica, artística o de
+ficción. Eso corta por la mitad cualquier tesis simplista sobre etiquetado obligatorio, así que o se cita
+entero o no se cita.
 
-**No escribo una cifra que no he visto en su fuente.** Es la misma regla que impidió publicar las cifras del
-estudio de Google el 23 de septiembre, y es la que falló el 5 de octubre cuando di por buena una fecha de
-prensa secundaria. Quedan anotadas abajo como pendientes, con sus cifras entre comillas y con autor, para el
-día en que los dominios se puedan abrir.
-
-**Esto no deja ningún hueco.** La pieza del viernes es de Humano y no necesita radar. El próximo hueco de
-actualidad es el miércoles 14, y quedan tres barridos antes.
-
-**Añadido el 08-10 al planificar la semana 6:** la fila del miércoles 14 queda **explícitamente abierta y sin
-tema fijo** en `calendario.md`, y allí está escrita la escalera de respaldo para la noche del 13 por si
-ninguno de los tres barridos (9, 12 y 13) trae algo verificable en primaria. Resumen para quien barra: si se
-abren los dominios, la mejor candidata es la de voz, **y no como anuncio de producto sino como categoría** —
-dos fabricantes distintos diciendo que una voz se reproduce desde una muestra mínima, con los 10 segundos de
-ElevenLabs al lado y cada cifra con su autor delante. Si no se abren, el respaldo es derechos de imagen y voz
-**por el lado de la autorización de quien sale en cámara**, nunca por la propiedad de los brutos, que ya es
-el 30-09; el 14 de octubre hay dos semanas de distancia, que es lo que este radar pedía. Y si tampoco hay
-eso, el miércoles **no se rellena con una reseña**: cede el hueco a una pieza de Autoridad del banco. Ningún
-respaldo autoriza publicar una cifra que no se haya leído en su fuente primaria.
-
-**Nota de infraestructura, no editorial.** El contenedor de esta sesión se reconstruyó con un clon antiguo del
-repositorio y durante unos minutos no existía ni `linkedin/`. No se perdió nada: todo estaba subido a la rama.
-Lo apunto porque explica por qué el barrido de hoy empieza con un `git fetch` y no con una búsqueda.
+Sube abajo, a pendientes de verificar. **No se escribe una línea sobre ella hasta leer la primaria.**
 
 ## Candidatos activos
 
@@ -68,6 +50,7 @@ para que quede escrito por qué no se usaron.
 
 | Detectado | Qué es, según prensa secundaria | Las cifras que habría que verificar | Qué falta |
 | --- | --- | --- | --- |
+| 09-10 · de **noviembre de 2025**, no es noticia | La **cláusula PASAVE**: limitaciones contractuales al uso de IA con la voz de los actores, impulsadas por la Plataforma de Asociaciones y Sindicatos de Artistas de Voz de España, para que una distribuidora no pueda reutilizar una voz en otros proyectos sin participación del actor | **Ninguna cifra, y por eso no sube como cifra.** Lo que sube es un **hecho de mercado**: en España ya se negocian cláusulas de voz, y las negocia el sector, no un legislador | **Es el caso español y contractual de la tesis del viernes 16.** Hasta ahora ese argumento se apoyaba en un fabricante (los diez segundos de ElevenLabs) y en prensa extranjera (los microdramas). Esto es gente del oficio negociando una cláusula, que es el registro del ICP. **Sirve para responder comentarios el 16, no para una pieza.** Y trae un matiz que hay que citar entero o no citar: el reglamento europeo **exime** del deber de informar cuando la obra es manifiestamente creativa, satírica, artística o de ficción | **Análisis de un despacho, no el texto de la cláusula ni un comunicado de PASAVE.** `www.ecija.com`, `osborneclarke.com` y `www.osborneclarke.com` inalcanzables desde esta sesión, comprobados uno por uno. **Limitación declarada: no he leído la cláusula.** Si se verifica, la pieza que gana no es una nueva — es el primer comentario del 16 |
 | 08-10 · anunciado el 01-10 | Microsoft AI publica tres modelos de voz: un texto a voz multilingüe, una variante rápida y uno de transcripción en streaming. Lo relevante para el ICP es que, según la prensa, **mantiene la misma identidad de voz al cambiar de idioma** y se guía con una **grabación corta de referencia**, con guardarraíles de consentimiento documentados | «23 idiomas y 26 locales», «22 dólares por millón de caracteres», «150 ms de latencia» en la variante rápida. **Todas de prensa y agregadores, ninguna leída en primaria.** Y ya hay contradicción dentro de las propias fuentes: una ficha habla de «10+ idiomas» frente a 23, y la fecha de versión del catálogo no coincide con la del anuncio | `microsoft.ai` y `ai.azure.com` inalcanzables desde esta sesión. **Si se verifica, es la mejor pareja de la cifra de ElevenLabs** que ya está en material de apoyo: dos fabricantes distintos diciendo que una voz se reproduce desde una muestra mínima. Eso deja de ser una anécdota de un proveedor y pasa a ser cómo funciona la categoría |
 | 08-10 · anunciado el 01-10 | Tavus presenta un modelo de vídeo a vídeo para conversación en tiempo real, en una sola tubería en lugar de encadenar transcripción, modelo de lenguaje y síntesis. Acceso limitado a un grupo de desarrolladores, con despliegue amplio anunciado para más adelante | «48% de los participantes creyeron hablar con una persona tras una llamada de un minuto» —un medio lo describe como 26 de 54 participantes y referido a una versión reducida de investigación, no al modelo completo— y «3,83 frente a 3,92 de referencia humana» en un banco de pruebas de NVIDIA. **Cifra del fabricante sobre sí mismo, muestra pequeña, y sobre un modelo que no es el que se vende** | `tavus.io` y `www.businesswire.com` inalcanzables desde esta sesión. Y aunque se verifique: con muestra de 54 y cifra propia, tendría que ir con esas dos advertencias delante del número o no ir. Un 48% sobre 54 personas no es un 48% |
 
