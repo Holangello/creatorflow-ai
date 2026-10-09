@@ -2978,7 +2978,7 @@ Si al tapar los precios las tres se parecen, lo que te han mandado no es una pro
 
 **Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios que aportan una señal propia. El CTA pide la del lector después de poner la de Angello encima de la mesa.
 
-> **Antes de publicar:** **Nada que confirmar, segunda pieza seguida sin cifras ni `[DATO]`.** Solo una cosa que leer una vez: las tres versiones incluyen la admisión de haber visto la señal y haber firmado igual, y en la 1 es el eje entero. No la marco como bloqueo porque ya es la voz establecida de la cuenta —el 8 de septiembre dice «llevo años facturando así», el 11 «he roto esa norma varias veces» y el 10 «Makers también ha facturado así»—, pero en esta pieza es el centro y no un matiz. **Y un aviso de trazabilidad: las tres versiones las escribió Maverick, no el copywriter.** Los subagentes no estaban disponibles en la sesión del 8.
+> **Antes de publicar:** **Nada que confirmar, segunda pieza seguida sin cifras ni `[DATO]`.** Solo una cosa que leer una vez: las tres versiones incluyen la admisión de haber visto la señal y haber firmado igual, y en la 1 es el eje entero. No la marco como bloqueo porque ya es la voz establecida de la cuenta —el 8 de septiembre dice «llevo años facturando así», el 11 «he roto esa norma varias veces» y el 10 «Makers también ha facturado así»—, pero en esta pieza es el centro y no un matiz. **Y un aviso de trazabilidad: las tres versiones las escribió Maverick, no el copywriter.** Los subagentes no estaban disponibles en la sesión del 8. **Corregido el 09-10, y era un fallo de propagación mío:** Maverick arregló el episodio en la ficha el día 8 pero tenía prohibido tocar `banco-posts.json`, así que el banco, el artefacto y el panel siguieron con el texto viejo un día entero — justo el de esta pieza. Lo que decía era «lo que aprendí no fue que **aquel proyecto** fuera difícil. Fue que lo acepté sabiendo cómo iba a acabar, y después **lo conté** como mala suerte», que afirma un proyecto singular y algo dicho en público sobre él: un episodio, no una admisión en patrón. Ahora dice «los he firmado sabiendo cómo iban a acabar».
 
 #### Versión 1 · La señal y la factura · **ELEGIDA**
 
@@ -3000,13 +3000,17 @@ Las tres aparecen en los primeros minutos. Ninguna requiere intuición.
 
 Lo que requiere carácter es lo que viene después.
 
-Porque la llamada en la que aparecen esas señales es, casi siempre, la del mes en el que hace falta cerrar algo. Y ahí la cuenta es sencilla y mala: la señal es futura, la factura es de este mes.
+Porque esa llamada suele caer en el mes en el que hace falta cerrar algo.
+
+Y ahí la cuenta es sencilla y mala. La señal es futura. La factura es de este mes.
 
 He elegido la factura. No una vez.
 
-Y lo que aprendí no fue que aquel proyecto fuera difícil. Fue que lo acepté sabiendo cómo iba a acabar, y después lo conté como mala suerte.
+Y el aprendizaje no es que haya proyectos difíciles. Es que los he firmado sabiendo cómo iban a acabar.
 
-Eso no es mala suerte. Es una decisión mal contada.
+Eso después se cuenta como mala suerte. No lo es.
+
+Es una decisión mal contada.
 
 Lo que cambié no fue el filtro. El filtro ya lo tenía. Cambié qué hago cuando el filtro dice que no.
 
