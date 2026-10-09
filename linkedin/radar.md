@@ -6,7 +6,11 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 09-10-2026. **Sin candidata, y el paso 2 de la rutina no tenía trabajo:** la pieza del
+**Último barrido:** 09-10-2026, dos veces. **Sin ruptura en el segundo barrido:** nada de nivel 3 ni de nivel 2
+en las siete horas siguientes al primero. Lo que devuelven las búsquedas son páginas de producto sin fecha y
+artículos de 2024-2025, nada de hoy.
+
+**Sin candidata en todo el día, y el paso 2 de la rutina no tenía trabajo:** la pieza del
 próximo día laborable —lunes 12— ya está escrita, elegida y en el artefacto, y la regla que se escribió ayer
 prohíbe redacción nueva mientras no haya nada publicado. Dos semanas de calendario están cubiertas con
 inventario.
