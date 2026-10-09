@@ -6,6 +6,26 @@
 **[DATO] pendiente:** piezas por rodaje de SISTEMA MAKERS (aparece una vez en cada versión;
 es el mismo dato familiar que el [DATO: nº días de rodaje] del jueves 10).
 
+**DECISIÓN DEL 09-10 · SE DESBLOQUEA SIN LA CIFRA. ENCARGO PEDIDO AL REDACTOR, NO HECHO A MANO.**
+
+**Por qué se puede, y es el mismo movimiento del 11-09 y del 14-09.** El `[DATO]` vive en **una sola
+frase** de cada versión: «un rodaje al mes son [DATO: piezas por rodaje] piezas con calendario y coste
+fijo». La pieza no lo necesita: su argumento es que el contenido interno **tiene un coste que nadie
+suma**, y eso ya está demostrado antes de llegar a esa línea.
+
+**Y conviene decir qué NO era el bloqueo**, porque se ha leído mal: las cifras de la cuenta —25 €/h,
+225 €, 300 €, 430 €, 3.400 €— **no son datos de Makers ni de cliente.** Son supuestos declarados que el
+propio texto invita a sustituir («cambia mis números por los tuyos. La cuenta aguanta igual»). No hay
+nada que confirmar ahí. El único dato propio sin confirmar es el número de piezas por rodaje.
+
+**La salida es la del 01-10: describir la forma, no la cantidad.** Un rodaje al mes, con calendario
+cerrado y coste fijo, sin decir cuántas piezas salen. **Encargo al redactor:** reescribir ese párrafo
+en la versión A, y en la B y la C si sale en la misma pasada. Nada más de la pieza se toca.
+
+**Y la imagen 4:5 deja de ser un requisito.** Por la regla de activo visual de `04-guia-diseno.md`, la
+cuenta entera ya está en el cuerpo y repetida con sus divisiones en el primer comentario: la imagen
+añade, no porta. Esta pieza sale en texto el día que la pidan.
+
 **Criterio de la elección:**
 1. Es la única de intensidad método pura: una cuenta con supuestos que el lector puede sustituir.
 2. El total (430 € por pieza publicada, 3.400 € al mes) es lo que se cita y se comparte.

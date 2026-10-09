@@ -8,6 +8,31 @@
 **Copy de `linkedin-copywriter`. Brief visual de `linkedin-designer`.** Los dos disponibles hoy, así que esta
 es la primera pieza del sistema que ha pasado por la cadena completa como está diseñada.
 
+## Puerta de producción · decidida el 09-10, antes de que llegue el día
+
+**El PDF no existe. Al 09-10 no hay ni un solo activo visual producido en el repositorio**, y este brief
+estima 110 minutos en Figma. Ningún agente del sistema puede exportarlo: es tiempo de Angello.
+
+**La franja no se mueve y la pieza no se sustituye.** Oferta no tiene hoy una alternativa limpia —su
+inventario sin fecha está bloqueado por un archivo (01-10, 10-09) o por un dato (17-09)— y, con la
+cuenta sin publicar nada, retener un jueves por un formato es peor que publicar en texto.
+
+**La regla, por adelantado:** la noche del 14 se mira `linkedin/activos/`. Si está
+`linkedin_2026-10-15_lo-que-tiene-que-estar-de-tu-lado.pdf`, sale como carrusel. **Si no está, sale en
+texto, sin tocar una palabra del copy**, y este brief queda marcado `no producido`.
+
+**Se puede sin coste de contenido, y está comprobado leyendo el cuerpo.** La versión A es un post
+completo: los tres elementos de la lista, el giro de la prueba del algodón, la sentencia y el CTA
+«mitad» están todos en el texto, y **el cuerpo no nombra el carrusel en ninguna línea.** Lo único que
+se pierde es el hueco de formato, y eso se corrige reservando producción, no aplazando una publicación.
+Es la regla 1 de `04-guia-diseno.md`, y esta pieza es la que mejor la cumple de todo el sistema.
+
+**Medidas de la versión A, añadidas el 09-10 por el punto de control nuevo de
+`03-guia-copywriting.md`:** cuerpo sin hashtags **628 caracteres** (banda de carrusel o vídeo:
+400-700), **ninguna frase por encima de 15 palabras.** Si sale en texto se queda por debajo de la banda
+de 900 de un post de solo texto, y eso es deliberado: la pieza es una lista, y una lista corta aguanta
+mejor sola que estirada.
+
 ## Retipada: esto no es un C3
 
 La fila del calendario la etiquetó `C3`, que es «objeción respondida». **No lo es:** no hay objeción

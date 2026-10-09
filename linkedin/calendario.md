@@ -406,14 +406,45 @@ les cambia el estado** —esas tablas alimentan mapas paralelos que no toco— p
 aquí, que es donde se pueden elegir.
 
 **Autoridad**
-- Carrusel A4 «Las 5 preguntas que sustituyen a un briefing de 40 páginas» (reservado de la versión A del 14-09; octubre). **Sigue reservado:** la pieza del 14-09 que se publica el 19-10 es la versión B y no quema las cinco preguntas.
-- «Si tu vídeo empieza con un dron sobre el edificio, ya has perdido» — vídeo, A1, confrontación pura. **Recuperada del 28-09.** `bloqueada` por formato: en vídeo depende de material de rodaje de Angello. Escribible hoy solo si se pasa a texto, y entonces hay que revisar que no choque con el lunes 12, que también es A1 de confrontación pura.
-- Por qué la coherencia vende más que la creatividad. **Es el respaldo nivel 4 del hueco de actualidad del 14-10.**
-- "Cobrar barato no te hace competitivo, te hace prescindible." — `bloqueada` por público: tal cual está, le habla al proveedor, y aquí no se escribe para colegas. Entra solo girada al que compra: lo que acaba pagando quien elige por precio.
-- Las 5 preguntas que hago antes de aceptar un proyecto. — Revisar solape con el 09-10, que ya usó tres señales de cualificación de la primera llamada.
-- Por qué un logo no es una marca y qué es lo que sí. — **Estuvo asignada al viernes 16-10 y vuelve aquí sin gastar el 08-10**, porque ese viernes pasó a inventario escrito. Disponible. **Es candidata de Autoridad de intensidad método**, que es justo lo que este banco no tiene.
+- **Intensidad: método.** Carrusel A4 «Las 5 preguntas que sustituyen a un briefing de 40 páginas» (reservado de la versión A del 14-09; octubre). **Sigue reservado:** la pieza del 14-09 que se publica el 19-10 es la versión B y no quema las cinco preguntas.
+- «Si tu vídeo empieza con un dron sobre el edificio, ya has perdido» — vídeo, A1, **intensidad: confrontación pura**. **Recuperada del 28-09.** `bloqueada` por formato: en vídeo depende de material de rodaje de Angello. Escribible hoy solo si se pasa a texto, y entonces hay que revisar que no choque con el lunes 12, que también es A1 de confrontación pura.
+- Por qué la coherencia vende más que la creatividad. — **Intensidad: método.** **Es el respaldo nivel 4 del hueco de actualidad del 14-10.**
+- "Cobrar barato no te hace competitivo, te hace prescindible." — **Intensidad: confrontación pura.** `bloqueada` por público: tal cual está, le habla al proveedor, y aquí no se escribe para colegas. Entra solo girada al que compra: lo que acaba pagando quien elige por precio.
+- Las 5 preguntas que hago antes de aceptar un proyecto. — **Intensidad: método.** Revisar solape con el 09-10, que ya usó tres señales de cualificación de la primera llamada.
+- Por qué un logo no es una marca y qué es lo que sí. — **Intensidad: método.** Briefada como candidata 1 abajo. **Estuvo asignada al viernes 16-10 y vuelve aquí sin gastar el 08-10**, porque ese viernes pasó a inventario escrito. Disponible. **Es candidata de Autoridad de intensidad método**, que es justo lo que este banco no tiene.
 - El coste real de cambiar de proveedor audiovisual cada año. — `gastada` el 12-10.
-- Lo que un director creativo hace de verdad todo el día.
+- Lo que un director creativo hace de verdad todo el día. — **Intensidad: método.** Girada al que compra como candidata 3 abajo, porque tal cual estaba le hablaba a colegas.
+
+
+**Seis candidatas de método, del encargo al estratega del 09-10.** Las cuatro primeras tienen **cero
+dependencias absolutas**: ni cifra, ni autorización, ni dato que Angello tenga que confirmar. Orden de
+encargo recomendado: la 6 y la 1 primero —la 6 es la única sin ninguna adyacencia y la 1 trae formato
+visual—, después la 2, la 3, la 5 y la 4.
+
+| # | Candidata | Intensidad | El criterio que se lleva el lector | Condición de programación |
+| --- | --- | --- | --- | --- |
+| 1 | **«Tapa el logo»** · Por qué un logo no es una marca y qué es lo que sí | **método** `A4` | La prueba de reconocimiento sin marca: tapa el logo en los últimos tres segundos de tus dos últimas piezas. Si no se reconocen como de la misma empresa, faltan cuatro decisiones escritas — cómo entra una pieza, cómo suena quien habla, qué plano está prohibido, qué no se dice nunca | Carrusel A4. CTA de confesión de una palabra. **No usar el vocabulario «lista de noes»**, reservado en la versión 3 del 12-10 |
+| 2 | **«Primero la frase, después el formato»** · El orden en que se decide un encargo | **método** `A1` | El orden de cuatro decisiones y su condición de paso: una pieza no pasa a producción hasta que exista **una sola frase** que defienda, escrita por quien firma. Si no cabe en una línea, el encargo todavía no existe | Texto. **No programar en la misma semana que el 05-10** si ese sigue sin publicar: allí está la tesis, aquí el procedimiento |
+| 3 | **«Qué estás comprando cuando compras dirección creativa»** | **método** `A3` | Los tres entregables que la dirección produce **antes** de la primera imagen y que se pueden exigir por escrito: la decisión de mensaje con lo descartado, la regla de lo que esta marca no hace, y la condición de aceptación decidida antes de ver la pieza | **No antes de que el 12-10 esté publicado, ni en su misma semana.** Diferenciación obligatoria: el 12-10 va de *cuándo cambiar* de proveedor; esta de *qué entregable* define la dirección, y no menciona rotación ni concurso |
+| 4 | **«No me gusta» no es una revisión** · Cómo se discute una pieza sin hablar de gustos | **método** `A1` | La regla de traducción: tres frases que no se admiten —«no me gusta», «le falta algo», «hazlo más potente»— y la pregunta que las sustituye, *¿qué decisión de las que acordamos no está cumplida?* Si no apunta a una decisión escrita, se anota pero no se ejecuta | **Es la adyacencia más cercana de las seis.** No en la misma semana que el 14-09 (19-10) y mejor con dos semanas. **Cuidado con el filtro de episodio:** las frases prohibidas son tipos de frase, nunca citas de nadie |
+| 5 | **«Un mes de contenido es una secuencia, no una lista»** | **método** `A4` | La prueba de dependencia: de cada pieza del mes que viene, qué asume que el lector ya sabe y qué deja preparado para la siguiente. Las que se sostienen solas y no preparan nada son relleno, aunque estén bien hechas | **Riesgo verificado y hay que gestionarlo.** El 18-09 (se publica el 13-10) contiene literal «ninguna pieza entra sin saber qué debe conseguir y qué pieza viene después», comprobado en su línea 55. Allí es frase lateral, aquí el eje entero: **no reutilizar esa formulación** y entrar dos semanas después del 13-10 |
+| 6 | **«La pieza no se recorta para redes: se decide con sus salidas puestas»** | **método** `A4` | La hoja de salidas antes de la convocatoria: por pieza, en qué sitios va a vivir, qué tiene que entenderse sin sonido y qué tiene que pasar en el primer segundo de cada versión. Si no cabe en una línea por salida, el recorte posterior ya está presupuestado como revisión | **La más limpia de solape de las seis: no toca ninguna de las 22.** Cautela única: no entrar en especificaciones técnicas —formatos, relaciones de aspecto, cámara—, que el catálogo prohíbe. Se habla de decisiones, no de píxeles |
+
+**Descartadas en el mismo encargo, para que nadie las vuelva a proponer:** «el coste por pieza no se baja
+negociando tarifa» (solapa por los dos lados, con el 17-09 y el 12-10, no queda ángulo) · «cuántas
+personas tienen que decir sí» (es el eje de la versión 2 del 10-09, ya escrita) · «qué tiene que estar
+escrito para que otro produzca tu pieza sin ti» (es el 15-10 con otro nombre) · «cuándo una pieza está
+terminada» (es buena, pero **se come la mitad de la candidata 4**: reserva solo si esa se cae, nunca las
+dos).
+
+**Cobertura, y el matiz invierte el problema.** Inventario más estas seis cubren todas las franjas de
+Autoridad **hasta el lunes 7 de diciembre**; la primera descubierta es el viernes 11. Son siete semanas
+más que las que había esta mañana. Y si se reservan **solo para viernes**, que es su franja natural,
+cubren doce semanas — con lo que **el límite se invierte**: las puras escritas se agotan el 09-11 y a
+partir del 16-11 los lunes se cubrirían con método. Es legal, porque el techo es un máximo, pero
+contradice la función que el calendario da al lunes. **El siguiente encargo que hará falta es de
+confrontación pura, no de método**, y la regla de intensidad ya lo permitirá porque el inventario de
+método no estará a cero.
 
 **Prueba**
 - Cómo montamos un mes entero de contenido en dos días de rodaje. — **Disponible otra vez. Se le quita la marca `gastada el 13-10` el 08-10**: el martes 13 pasó a inventario escrito y esta entrada nunca llegó a redactarse. Cuando entre, entra **sin la cifra**: los «dos días» son un dato de la operación de Makers que Angello no ha confirmado. Y entra **solo cuando no haya inventario de Prueba sin fecha**, que es la regla nueva.

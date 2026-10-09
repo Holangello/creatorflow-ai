@@ -4,6 +4,25 @@
 **Copy que lo acompaña:** versión B, «Te regalo el método» (ver banco de posts)
 **Formato:** Carrusel PDF, 1080 × 1350 px (4:5), 10 páginas, < 10 MB
 
+**DECISIÓN DEL 09-10 · ESTA PIEZA ES LA ÚNICA DEL SISTEMA QUE NO PUEDE SALIR EN TEXTO.**
+
+Se ha propuesto dos veces para cubrir un jueves de Oferta, y las dos veces la discusión fue sobre el
+`[DATO: nº de días de rodaje]`. **Ese no es su bloqueo principal.** Su bloqueo es que el copy de la
+versión B **nombra el carrusel**: «Aquí tienes el SISTEMA MAKERS entero. Seis fases, en el carrusel» y
+«si buscas un vídeo, el carrusel te sobra». Sin las diez páginas no hay pieza, hay una promesa sin
+entregar. Es la única excepción a la regla 1 de `04-guia-diseno.md` en todo el inventario.
+
+**Consecuencia operativa: no se ofrece para ninguna franja** mientras el PDF no esté en
+`linkedin/activos/`. Y **su `[DATO]` no va al redactor hoy**: quitarle la cifra no la acerca ni un día
+a publicarse, y la regla de inventario autoriza recuperar piezas, no maquillar las que siguen
+bloqueadas por otra cosa. Cuando haya producción reservada, el encargo entra completo —cifra fuera y
+PDF— en el mismo movimiento.
+
+**Y una medida, del punto de control nuevo de `03-guia-copywriting.md`:** el cuerpo de la versión B
+tiene **1.130 caracteres** sobre una banda de 400-700 para pieza con carrusel. Es el único post con
+activo que la pasa, y tiene sentido revisarlo en la misma pasada: un carrusel que regala el método no
+necesita que el post lo resuma.
+
 **Objetivo visual:** que en 2 segundos parezca un documento interno filtrado, un método real,
 numerado y ordenado, y no un anuncio. El contraste con el copy lo hace todo: el texto ataca, el
 diseño se comporta como un dossier serio. El lector debe pensar «esto no debería ser público» y

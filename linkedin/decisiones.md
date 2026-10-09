@@ -430,3 +430,142 @@ sistema mintiendo.
    nada más, ni se planifica nada más, ni se activa a nadie.
 6. **Y las rutinas no vuelven a preguntar.** Ya entraron en silencio a los cuatro avisos sin respuesta.
    Seguir avisando sobre un almacén es el ruido que este sistema dice que no hace.
+
+---
+
+# 2026-10-09 · «Que Maverick decida por dónde avanzar». Cinco frentes, tres tocados, dos no
+
+Angello delegó entero el orden del día y pidió explícitamente que las decisiones de **no hacer**
+quedaran escritas igual que las de hacer. Van las cinco, con lo que se hizo y lo que no.
+
+**El criterio con el que se ordenaron, y es uno solo:** nada que no acerque una pieza a publicarse se
+toca hoy. El sistema tiene el almacén lleno y la tienda cerrada, así que la pregunta de cada frente fue
+«¿esto quita un obstáculo entre una pieza escrita y LinkedIn?». Tres lo hacían. Dos no.
+
+## Frente 1 · El carrusel del 15 · **la franja no se mueve, se le pone puerta**
+
+**El hecho que hay que decir primero: ningún agente de este sistema puede producir un archivo visual.**
+Se escriben briefs y se miden contrastes; no se exporta un PDF. El del 15 estima 110 minutos en Figma y
+quedan seis días. Eso no es una excusa, es la restricción con la que hay que planificar.
+
+**Las tres salidas que había, y por qué pierden dos.**
+
+1. **Sustituirla por inventario y mover el carrusel.** Pierde porque **Oferta no tiene hoy una
+   alternativa limpia**: su inventario sin fecha son el 01-10 y el 10-09, bloqueados por un archivo, y
+   el 17-09, bloqueado por un dato. Sustituir una pieza lista por una bloqueada, en nombre del
+   inventario, es el mismo retroceso que ya se rechazó el 08-10.
+2. **Dejarla y asumir que puede no salir.** Pierde porque convierte la única franja de Oferta del mes
+   en una apuesta sobre la agenda de otro, con la cuenta sin publicar nada todavía.
+3. **La que gana, y salió de leer el copy en vez de leer la ficha:** la pieza **no depende del PDF.**
+   El cuerpo de la versión A es un post completo —los tres elementos, el giro de la prueba del algodón,
+   la sentencia y el CTA «mitad»— y **no nombra el carrusel en ninguna línea.** Así que la decisión no
+   es elegir entre carrusel y otra pieza: es **publicar el 15 en todo caso**, en carrusel si el archivo
+   está la noche del 14 y en texto si no, sin tocar una palabra.
+
+**Lo que se pierde en la salida de texto está medido y es pequeño:** el hueco de formato. Eso se
+corrige reservando producción, no aplazando publicaciones, y con la tienda cerrada **publicar vale más
+que variar de formato.**
+
+## Frente 3 · El déficit visual, que es el frente de verdad y resultó más pequeño de lo que parecía
+
+Se contó pieza a pieza, no de memoria. **De todas las piezas que piden un activo, todas menos una
+tienen un cuerpo que es un post completo**: el visual añade y no porta. **La única excepción es el
+carrusel del 10-09**, cuyo copy dice «seis fases, en el carrusel» y «si buscas un vídeo, el carrusel te
+sobra». Sin el PDF no hay pieza, hay una promesa sin entregar.
+
+**Conclusión que cambia el tamaño del problema: el déficit visual bloqueaba una pieza, no todas las que
+piden archivo.** Y lo que la bloquea no es la producción: es **una decisión de redacción** tomada hace
+un mes, cuando el cuerpo se escribió apoyándose en un archivo que no existía.
+
+**Sí hacía falta una regla, y es de planificación y no de diseño.** Queda en `04-guia-diseno.md`:
+
+> 1. El cuerpo del post se sostiene solo, siempre. El activo es aditivo, nunca portador.
+> 2. **El formato por defecto de toda franja es texto.** «Carrusel» o «vídeo» no es una decisión de
+>    planificación, es de producción, y solo se escribe en la fila cuando hay producción reservada.
+> 3. **Puerta de producción:** la víspera, a las 19:30, se mira `linkedin/activos/`. Si el archivo no
+>    está, la pieza sale en texto, sin tocar una palabra, y el brief queda `no producido`.
+> 4. Un hueco de formato no retiene nunca una franja.
+> 5. La excepción que la puerta no salva es la pieza cuyo cuerpo **nombra** el activo. Es defecto de
+>    redacción, va al redactor, y no cuenta como inventario utilizable.
+
+**No se cambia el formato por defecto de ningún pilar, y eso fue una decisión.** La tentación era
+declarar «Oferta y Prueba pasan a texto». Sobra: la regla 2 ya lo hace para las cinco franjas sin
+tocar la identidad de ningún pilar, y un carrusel de Oferta sigue siendo lo correcto el día que haya
+producción reservada. El problema nunca fue que Oferta se planifique en carrusel: fue que «carrusel» se
+escribía en la fila como si fuera una decisión editorial gratuita.
+
+**Y se crea `linkedin/activos/`**, con el registro de lo pendiente y la decisión de cada activo. La
+carpeta es el sitio donde la puerta comprueba. Sin un sitio donde mirar, la puerta no es una puerta.
+
+**Hallazgo lateral que nadie había escrito: el 15 no era el único plazo.** El **23-10** pide una foto
+propia que tampoco existe, y no es la reservada para la pieza biográfica. Misma puerta, y aquí no es un
+problema de agenda: una foto cuesta minutos. Era un problema de que nadie lo había apuntado.
+
+## Frente 2 · Las dos piezas con `[DATO]` · **una sí y la otra no, y la diferencia importa**
+
+La pregunta era si se podía repetir lo del 11-09, que se desbloqueó con una versión que mide la pérdida
+en semanas de calendario en lugar de en euros. **La respuesta no es la misma para las dos.**
+
+**17-09 · sí, y es el caso fácil.** El `[DATO]` vive en una sola frase y la pieza no lo necesita. Y hay
+que decir qué **no** era el bloqueo, porque se ha leído mal más de una vez: las cifras de la cuenta
+—25 €/h, 225 €, 430 €, 3.400 €— **no son datos de Makers ni de cliente**, son supuestos declarados que
+el texto invita a sustituir. El único dato propio es el número de piezas por rodaje. **Salida: la del
+01-10, describir la forma y no la cantidad.** Encargo al redactor, un párrafo. **Y su imagen 4:5 deja
+de ser requisito** por la regla de activo visual. Resultado: Oferta recupera la primera pieza de
+inventario publicable de verdad que tiene.
+
+**10-09 · no, y no por falta de ganas.** Su `[DATO]` también se podría quitar en una frase. **Pero
+quitarlo no la acerca ni un día a publicarse**, porque detrás sigue el carrusel de diez páginas que su
+propio cuerpo promete. Gastar una pasada del redactor en una pieza que seguirá bloqueada por otra cosa
+es maquillar inventario, no recuperarlo — y la regla del 08-10 autoriza lo segundo, no lo primero.
+**Cuando haya producción reservada, el encargo entra completo: cifra fuera y PDF, en el mismo
+movimiento.** Mientras tanto queda declarada **inventario no utilizable**, que es la parte que de
+verdad hacía falta escribir: se ha ofrecido dos veces para cubrir un jueves.
+
+## Frente 5 · La longitud · **se corrige la guía en una regla y la práctica en la otra**
+
+Se midieron las versiones elegidas, cuerpo sin hashtags. Las dos reglas se comportan al revés de lo que
+parecía, así que no reciben el mismo trato.
+
+**El techo de 1.600 caracteres se cumple y se queda intacto.** Lo pasan **dos** piezas, las dos de
+actualidad reasignada, y la mediana de la casa está muy por debajo. Una regla que se cumple en casi
+todos los casos no se cambia: se le pone **un punto de control** —la cuenta se mide antes de guardar la
+ficha y se escribe en el QA— porque el fallo no era el número, era que nadie contaba.
+
+**El límite de frase estaba mal escrito y ese sí se cambia.** «Máximo 15 palabras» como absoluto lo
+incumplían **todas** las piezas del sistema, incluidas las que se eligieron por ritmo. **Una regla que
+ninguna pieza cumple no distingue la pieza cuidada de la descuidada, así que deja de usarse.** Las
+frases largas medidas están por debajo de una de cada diez y **concentradas en cuatro piezas**: el
+problema tiene forma de concentración, no de deriva general. Queda: **objetivo 15 palabras, hasta el
+10% de las frases por encima, ninguna por encima de 25.**
+
+**La asimetría es deliberada.** Tener un número que nadie cumple es peor que no tenerlo; aflojar un
+número que sí se cumple porque dos piezas lo pasaron es peor todavía.
+
+**Y el recorte no abre una pasada nueva.** La pieza del **30-10** es una de las dos que pasan el techo y
+ya tiene pedida al redactor la reescritura de desanclaje: **el recorte entra en la misma pasada y sale
+casi gratis**, porque lo que hay que cortar son precisamente las tres anclas de noticia. **La otra, la
+del 07-10, no se toca:** es publicable hoy, caduca el 17-10 y es la única actualidad viva. Reabrir una
+pieza lista para quitarle unos caracteres es el orden de operaciones que esta semana corrige. **Sale con
+el exceso, y el exceso queda escrito** en lugar de incumplir la regla en silencio.
+
+## Frente 4 · `maverick.md` · **no se toca, y la razón no es pereza**
+
+Es cierto el diagnóstico: el archivo describe un pipeline de cuatro agentes encadenados, y el tool
+`Agent` no existe dentro de un subagente. Maverick solo orquesta si lo orquesta Angello. La prueba está
+en el repositorio: las tres versiones del 09-10 y el borrador visual del 15-10 los escribió Maverick
+porque ese día no había agentes, y las dos veces hubo que anotarlo como excepción.
+
+**No se edita hoy por dos razones.** La primera es de permisos: ese archivo es **configuración del
+agente**, y un agente que reescribe su propia definición es exactamente lo que no debe hacer sin que lo
+pida su dueño por su propia voz. Angello pidió **cómo tendría que quedar escrito**, no que se escribiera.
+La segunda es de orden: cambiar la descripción del pipeline no acerca ninguna pieza a publicarse, y hoy
+ese era el criterio. **La redacción propuesta va en el informe de la sesión, lista para pegar.**
+
+## Lo que no se tocó y tampoco estaba en la lista
+
+**La semana 8 no se planifica.** Está condicionada a que la semana 6 publique algo, el estratega está
+trabajando ahora mismo en las Autoridades de método del banco, y planificar sobre candidatas que todavía
+no existen es duplicar su trabajo y comprometer franjas a ciegas.
+
+**`05-metricas.md` se queda vacío.** No hay nada que apuntar. Una casilla vacía es un dato correcto.

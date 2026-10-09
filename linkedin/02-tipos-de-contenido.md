@@ -37,6 +37,41 @@ tipo; el copywriter y el designer lo ejecutan.
 - **Estructura:** slide 1 gancho → slide 2 problema → slides 3-8 pasos del marco → slide 9
   resultado esperado → slide 10 CTA "guarda y comparte con tu equipo".
 
+### Rotación obligatoria de intensidad en Autoridad
+
+**Añadida el 09-10-2026 tras contar el inventario.** Las cinco primeras Autoridades escritas del
+sistema (08-09, 14-09, 21-09, 05-10, 12-10) eran **las cinco de confrontación pura**. No fue saturación
+de tema: los cinco enemigos eran distintos, y por eso ninguna revisión temática lo habría visto. Fue
+saturación de **intensidad**, y produjo un fallo operativo y no estético: con el techo de
+`06-modo-disruptivo.md` de **una pura por semana**, un inventario que solo tiene puras puede cubrir el
+lunes y **no puede cubrir nunca el viernes Autoridad de la alternancia.** El viernes 16-10 lo demostró
+y se resolvió con una pieza de actualidad reasignada, que es suerte, no sistema.
+
+Autoridad tiene dos intensidades y **las dos son obligatorias en el almacén**:
+
+1. **Pura.** Ataca una práctica y deja al lector incómodo. Su entregable es una tesis citable. `A1`
+2. **Método.** Ataca una práctica **y le deja un criterio que puede aplicar el lunes sin
+   contratarnos.** Su entregable es una regla, una prueba o un orden de decisiones. `A2` `A3` `A4`
+
+**Prueba de pertenencia, y se aplica al brief antes de encargar la pieza:** si el lector no se lleva
+algo que pueda ejecutar él solo esta semana, la pieza no es de método, es pura con tono amable. **No se
+reetiqueta: se reescribe o se encarga como pura.**
+
+**Techo que cierra la grieta: no se encarga una Autoridad de confrontación pura si el inventario
+escrito y sin publicar tiene cero Autoridades de método.** Y nunca más de **dos puras consecutivas en
+el orden en que se escriben** — se cuenta por fecha de redacción y no por fecha de publicación, porque
+el calendario puede alternarlas bien y el almacén estar desequilibrado igual, que es exactamente lo que
+pasó.
+
+**Dónde se mide:** en el banco de `calendario.md`, cada candidata de Autoridad lleva escrita su
+intensidad. **Una entrada sin intensidad declarada no se puede elegir para un viernes.** Esta última
+línea es la que impide que vuelva a ocurrir en silencio: hasta hoy ninguna entrada del banco declaraba
+intensidad, y por eso la carencia solo se vio el día en que hizo falta un viernes.
+
+**La regla no convierte el método en lo normal y la pura en excepción.** Sigue mandando el lunes como
+la pieza más confrontativa de la semana; lo que cambia es que ya no se puede llegar a un viernes con el
+almacén vacío de método.
+
 ## B. Prueba (20 %)
 
 > **Redefinida el 08-10-2026.** Prueba no es «caso de cliente con cifra». Es **artefacto
