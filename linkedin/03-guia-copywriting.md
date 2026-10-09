@@ -43,11 +43,35 @@
 12. **Verdad incómoda del sector:** "La mayoría de agencias vende piezas porque los sistemas no se facturan tan fácil."
 
 ## Reglas de ritmo
-- Frases de máximo 15 palabras. Si una frase necesita coma, prueba con punto.
+- **Frases: objetivo 15 palabras.** Tolerancia medida: **hasta el 10% de las frases del post por
+  encima de 15, y ninguna por encima de 25.** Si una frase necesita coma, prueba con punto.
 - Párrafos de 1 a 3 líneas. Línea en blanco entre párrafos.
 - Un post de texto: 900 a 1.600 caracteres. Con carrusel o vídeo: 400 a 700.
 - Listas: 3 elementos. Ni 2 ni 5.
 - Emojis: máximo 3, solo como viñeta. Nunca en el gancho.
+
+### Por qué la frase lleva tolerancia y el techo de caracteres no · 09-10-2026
+
+**Las dos reglas se auditaron contando, no leyendo.** Se midieron las versiones elegidas de las
+piezas escritas del sistema, cuerpo sin hashtags.
+
+**El techo de 1.600 se cumple y se queda como absoluto.** Lo pasan dos piezas y las dos son de
+actualidad reasignada; la mediana de la casa está muy por debajo. Una regla que se cumple en casi
+todos los casos no se toca: se le pone un punto de control. **La cuenta de caracteres de la versión
+elegida se mide antes de guardar la ficha y se escribe en el bloque de QA.** Un techo sin medición es
+una intención.
+
+**El límite de frase, en cambio, estaba mal escrito.** «Máximo 15 palabras» como absoluto lo
+incumplían **todas** las piezas del sistema, incluidas las que se eligieron precisamente por ritmo.
+Una regla que ninguna pieza cumple no mide nada: no distingue la pieza cuidada de la descuidada, así
+que deja de usarse y el redactor se queda sin señal. Las frases largas medidas están por debajo de una
+de cada diez, y concentradas en cuatro piezas. **Esa es la forma del problema: concentración, no
+deriva general.** El 10% es el umbral que separa a esas cuatro del resto, y «ninguna por encima de 25»
+es lo que impide que el 10% se gaste en párrafos ilegibles.
+
+**La asimetría es deliberada:** se corrige la guía donde la guía pedía lo imposible, y se corrige la
+práctica donde la guía pedía algo razonable y se incumplió. Tener un número que nadie cumple es peor
+que no tenerlo; cambiar un número que sí se cumple porque dos piezas lo pasaron es peor todavía.
 
 ## CTA por fase (uno solo por pieza)
 - **Atracción:** "¿Cuál de las tres os pasa?" / "Guarda esto para la próxima reunión de marketing."
@@ -68,6 +92,9 @@
 - Fase captación: cómo funciona el siguiente paso + enlace a agenciamakers.com.
 
 ## Checklist final (reglas B2B)
+- [ ] ¿Caracteres del cuerpo contados y dentro del techo? (texto 900-1.600 · carrusel o vídeo 400-700)
+- [ ] ¿Frases de más de 15 palabras por debajo del 10%, y ninguna por encima de 25?
+- [ ] ¿El cuerpo se sostiene solo si el activo visual no se produce? (`04-guia-diseno.md`, regla 1)
 - [ ] ¿Habla a un decisor de empresa?
 - [ ] ¿Nombra un problema de negocio concreto?
 - [ ] ¿Incluye prueba (caso, cifra o cliente)?

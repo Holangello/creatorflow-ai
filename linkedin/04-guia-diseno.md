@@ -3,6 +3,38 @@
 Todo lo visual sale de la identidad de Makers (ver `MAKERS_Brand_Book.pdf` en Drive). Aquí se
 fijan medidas y reglas de producción para que cualquier pieza se pueda ejecutar sin preguntar.
 
+## Regla de activo visual · escrita el 09-10-2026
+
+**De dónde sale.** El 09-10 se contó lo que había en este repositorio: **ningún archivo visual
+producido**, y piezas planificadas en carrusel, imagen y foto propia con fecha de publicación encima.
+La más próxima tenía su brief completo y seis días por delante. Eso no fue mala suerte de una pieza: es
+que Oferta y Prueba se planifican en carrusel y la producción no la hace nadie del sistema. Un brief no
+es un activo.
+
+**Las cinco reglas. Mandan sobre la tabla de formatos de abajo.**
+
+1. **El cuerpo del post se sostiene solo, siempre.** Toda pieza planificada en carrusel, imagen, vídeo
+   o foto se escribe con un texto completo: la tesis, la lista y el CTA viven en el cuerpo. **El activo
+   es aditivo, nunca portador.** Si quitarlo deja un post incompleto, la pieza está mal escrita.
+2. **El formato por defecto de toda franja es texto.** «Carrusel» o «vídeo» no es una decisión de
+   planificación: es una decisión de **producción**. Solo se escribe en la fila del calendario cuando
+   hay hueco de producción reservado, con fecha y con duración estimada por el brief.
+3. **Puerta de producción.** La víspera de la franja, en el aviso de las 19:30, se mira
+   `linkedin/activos/`. Si el archivo no está exportado y nombrado, la pieza **sale en texto, sin tocar
+   una palabra**, y el brief queda marcado `no producido` en su ficha. La puerta se decide por
+   adelantado, no la mañana de la publicación.
+4. **Un hueco de formato no retiene nunca una franja.** Llevar semanas sin pieza visual es un desvío
+   real y se corrige **reservando producción**, jamás aplazando una publicación. Con la tienda sin
+   abrir, publicar vale más que variar de formato.
+5. **La excepción, y es la única que la puerta no salva:** la pieza cuyo cuerpo **nombra** el activo
+   («las seis fases, en el carrusel»). Esa no se puede degradar a texto. Es un defecto de redacción, va
+   al redactor y **no cuenta como inventario utilizable** hasta que el archivo exista.
+
+**Lo que midió la regla el día que se escribió.** De las piezas que pedían un activo, **todas menos una
+pasaban ya la regla 1**: su cuerpo era un post completo y el visual solo añadía. La única que no era el
+carrusel del 10-09. Así que el déficit visual bloqueaba **una** pieza, no siete. El registro con la
+decisión de cada una está en `linkedin/activos/README.md`.
+
 ## Formatos y medidas
 
 | Formato | Medida | Uso |
