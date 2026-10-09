@@ -1,7 +1,15 @@
 # 2026-09-16 · Actualidad · N · «El plano que falta ya no se graba: se fabrica en el montaje»
 
-**Estado:** creada. Tres versiones. **Elegida por Maverick: A, «La partida».**
-**Publicar:** miércoles 16, 09:30. Intensidad método. Solo texto.
+**Estado: ARCHIVADA el 08-10-2026 por caducidad. No se publica, no cuenta como inventario.**
+Veintidós días de caducidad sobre un techo de setenta y dos horas, el cuerpo depende de una ventana
+temporal («la semana pasada») y la herramienta dejó de ser noticia para ser categoría. El motivo entero
+está en `../calendario.md`, fila del 16-09, y en `../decisiones.md`. **El tema no muere:** las cifras del
+spot de Movistar y la confirmación de Avid siguen en `../radar.md` como material de apoyo citable.
+**Esta cabecera decía «creada · publicar miércoles 16» hasta el 09-10**, y una ficha archivada que se
+presenta como publicable es la clase de archivo que vuelve a entrar en un recuento por error.
+
+**Lo que decía la ficha cuando estaba viva, y se conserva para no perder el criterio:**
+**Elegida por Maverick: A, «La partida».** Publicar: miércoles 16, 09:30. Intensidad método. Solo texto.
 **Métrica:** comentarios de decisor que nombren una partida concreta, y clics a perfil.
 
 **Criterio de la elección:**

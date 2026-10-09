@@ -569,3 +569,147 @@ trabajando ahora mismo en las Autoridades de método del banco, y planificar sob
 no existen es duplicar su trabajo y comprometer franjas a ciegas.
 
 **`05-metricas.md` se queda vacío.** No hay nada que apuntar. Una casilla vacía es un dato correcto.
+
+---
+
+# Segunda pasada del 09-10 · «decide todo lo mejor hasta que termines»
+
+Angello dio la decisión sobre todo lo que quedaba del día. **El criterio no cambia porque el permiso se
+amplíe:** no se toca nada que no quite un obstáculo entre una pieza escrita y LinkedIn. Lo que no lo pasa
+queda descartado por escrito, aquí, para que no vuelva a aparecer en cada informe.
+
+## Frente 1 · El recuento · **se arregla el mecanismo, no el número**
+
+El desbloqueo del 17-09 movió el número de publicables y los archivos volvieron a divergir, igual que el
+08-10. **Cuadrarlos a mano otra vez habría sido reparar el síntoma por tercera vez.** La causa es
+estructural: tres archivos escribiendo a mano la misma cifra en tres momentos distintos del mismo día. Un
+número escrito una vez no se puede desincronizar.
+
+**Decisión: el inventario se cuenta en un solo sitio, `cola/README.md`**, pieza a pieza, con versión
+elegida, caracteres medidos sobre el banco y dependencia abierta. `calendario.md` y `05-metricas.md`
+dejan de repetir la cifra y apuntan a esa tabla. Queda escrito que, si un archivo la contradice, **el que
+miente es el otro archivo**.
+
+**Y el número que había que corregir no era el que se pensaba.** El estado de partida decía veinte
+publicables y el calendario decía diecisiete. **Son dieciocho**, y las dos cifras anteriores fallaban por
+motivos distintos:
+
+- Diecisiete se quedaba corto porque daba por dependientes el **17-09** y el **06-10**, desbloqueados los
+  dos hoy.
+- Veinte se pasaba porque contaba **una sola pieza archivada**. Son dos: el 09-09 por el apagado de la
+  API y **el 16-09, archivado el 08-10 por caducidad**, que ningún recuento recogió.
+
+Dos errores en direcciones opuestas dan un número plausible, y eso es lo que los hace difíciles de ver.
+**Comprobación independiente:** 22 entradas en el banco, 18 con versión elegida y sin dependencia ni
+archivo bloqueante.
+
+## Frente 2 · Dos fichas archivadas que se presentaban como publicables
+
+El 09-09 y el 16-09 están archivados, y **las cabeceras de sus dos fichas decían «creada» y daban hora de
+publicación.** Un archivo que miente sobre su propio estado es de donde salió el error de recuento de
+hoy, y era el único hallazgo de la pasada con riesgo real: una de las dos se puede publicar por error, y
+las dos vuelven a colarse en cualquier recuento que se haga contando ficheros.
+
+**Corregido:** las dos cabeceras declaran el archivado y el motivo, y conservan debajo lo que decían
+cuando estaban vivas, que es criterio que no se tira. **No se ha tocado una sola palabra del copy.**
+
+## Frente 3 · El activo del 17-09 · **deja de ser requisito**
+
+La regla de activo visual del 09-10 lo decidía ya, pero `activos/README.md` seguía listando la imagen
+1200 × 1500 como «activo pedido». Ahora consta como mejora opcional, y la pieza como **inventario de
+Oferta limpio: ni dato ni archivo.**
+
+**La consecuencia de planificación importa más que la fila.** Hasta hoy el calendario afirmaba que
+«Oferta no tiene ninguna alternativa limpia de inventario», porque el 01-10 y el 10-09 estaban bloqueados
+por un archivo y el 17-09 por un dato. **Ya no es cierto: Oferta tiene una, sin nada pendiente.**
+
+## Frente 4 · El recorte del 23-09 · **no se hace, y el motivo es que los dos casos sean iguales**
+
+Es verdad que el recorte quedó sin hacer: la instrucción se escribió después de que la pasada de
+desanclaje ya se hubiera aplicado. La pieza sigue en **1.764 caracteres** sin hashtags, sobre un techo de
+1.600.
+
+**No se abre una segunda pasada.** La razón por la que el recorte estaba autorizado era que salía **gratis
+dentro** de una reescritura que había que hacer de todas formas. Esa pasada se cerró, y con ella la razón.
+Hoy el 23-09 es una pieza publicable, elegida y sin ninguna dependencia: reabrirla para quitarle 164
+caracteres no la acerca un día a LinkedIn, y obliga a propagar texto nuevo al banco, al artefacto, al pack
+y al panel — **el camino exacto por el que ayer una pieza estuvo un día entero con un episodio dentro.**
+
+**Y hay un argumento mejor que el de orden: la coherencia.** El 07-10 no se tocó porque es publicable y
+caduca. El 23-09 es publicable y no caduca. **Dos hechos iguales con dos criterios distintos no son un
+criterio.** Queda uno solo: **el techo de 1.600 es absoluto y se aplica en el momento de escribir**, que
+es donde está su punto de control; no se aplica hacia atrás sobre piezas ya cerradas. Las dos excepciones
+—23-09 con 1.764 y 07-10 con 1.730— están **listadas** en `cola/README.md`, que es lo contrario de
+incumplir la regla en silencio. **El tema queda cerrado.**
+
+## Frente 5 · Un hueco de regla encontrado al medir, y no se arregla a mano
+
+`03-guia-copywriting.md` da dos rangos: texto 900–1.600 y carrusel o vídeo 400–700. La regla de activo
+visual manda que, si el archivo no llega, **la pieza sale en texto**. Las dos piezas escritas como
+carrusel —**01-10 con 687 y 15-10 con 627**— están dentro de su rango como carrusel y **por debajo del
+suelo de texto si salen degradadas**.
+
+No se toca ni una palabra: no es un defecto de las piezas, es una pregunta que la regla nueva abrió y que
+decide el estratega. Queda escrita en `cola/README.md` y en `activos/README.md` para que aparezca el día
+en que una de las dos salga sin PDF, y no la víspera a las 19:30.
+
+## Lo que se descarta, con su motivo
+
+**La semana 8 sigue sin planificarse.** La condición escrita el 08-10 no la ha cumplido nadie: sigue
+habiendo cero piezas publicadas. Y el calendario tiene dos semanas por delante con inventario, que es lo
+que la regla del modo automático exige. Planificar la semana 8 hoy comprometería franjas a ciegas sobre
+candidatas del banco que todavía no son piezas.
+
+**No se adelanta el encargo de confrontación pura.** El estratega avisó de que las puras escritas se
+agotan el 09-11 y que entonces el límite se invierte. Es verdad y está apuntado, pero **un encargo de
+redacción con cero piezas publicadas es exactamente lo que la regla de inventario prohíbe.** Hay un mes.
+
+**No se reescribe la justificación de la ficha del 15-10**, que dice que Oferta no tiene inventario limpio.
+Era verdad cuando se escribió esta mañana y dejó de serlo esta tarde. Es un registro de por qué se decidió
+algo, no una instrucción: no cambia nada de lo que hay que hacer, y los dos archivos canónicos ya dicen
+lo contrario.
+
+**`05-metricas.md` sigue sin una sola cifra.** Ninguna llegó. Ni un cero.
+
+## Frente 6 · `maverick.md` · **sí se aplica, con cambios, y lo escribe Angello**
+
+La objeción de permisos del informe anterior queda resuelta: Angello dio el encargo por su propia voz.
+**Decisión: se aplica, con dos cambios sobre la redacción que se propuso esta mañana.**
+
+**Por qué sí, cuando el criterio del día es no tocar nada que no desbloquee una pieza.** Esta vez lo
+desbloquea. No es cosmética: **el archivo describe un pipeline que no se puede ejecutar**, y cada vez que
+una sesión lo intenta y falla, el hueco lo rellena Maverick escribiendo copy a mano. Eso ya ha pasado dos
+veces —las tres versiones del 09-10 y el borrador visual del 15-10— y la segunda produjo el fallo de
+propagación que tuvo una pieza un día entero con un episodio dentro. **El archivo, como está escrito,
+fabrica ese fallo.** Corregirlo es lo único de la lista de hoy que previene una pieza mal publicada en vez
+de ordenar una ya escrita.
+
+**Los dos cambios respecto de lo propuesto.** (1) Se añade una **regla de trazabilidad**: si una pieza la
+escribe Maverick y no el redactor, se dice en la ficha y en la entrega, sin excepción. Era una costumbre y
+pasa a ser regla, porque es lo que permitió detectar el fallo de ayer. (2) La fase de inventario entra en
+el archivo como **estado del sistema**, no solo en el calendario: mientras no haya una pieza publicada,
+ninguna petición ambigua se resuelve redactando.
+
+**El texto final no lo escribe Maverick.** Va en el informe de la sesión para que lo aplique Angello. El
+límite de quién escribe la configuración de un agente conviene que siga estando fuera del agente, incluso
+con el encargo hecho — y la diferencia entre «autorizado a decidirlo» y «autorizado a escribirlo» es la
+única parte de esto que no se puede auditar después.
+
+## Frente 7 · La tolerancia de frase no se ha vuelto a medir, y el único medidor que hay no coincide
+
+La regla escrita hoy dice: objetivo 15 palabras, **hasta el 10% de las frases por encima y ninguna por
+encima de 25**. Su justificación afirma que las frases largas están «concentradas en cuatro piezas».
+
+**Al volver a contar sobre las versiones elegidas del banco, salen siete piezas por encima del 10% y tres
+con una frase de más de 25 palabras.** El método importa y se escribe para que sea auditable: se corta por
+punto, signo de interrogación, exclamación y salto de línea, y **eso cuenta cada elemento de lista como una
+frase**. No se sabe si la medición original usó el mismo corte, y con dos métodos distintos los dos números
+pueden ser correctos a la vez.
+
+**Por eso no se cambia ni la regla ni su justificación hoy, y tampoco se escribe el número nuevo como si
+fuera el bueno.** Lo que queda es la tarea: **fijar el método de conteo de frases y volver a medir una
+sola vez**, con el redactor, antes de que la regla se use para rechazar una pieza. Una regla con dos
+mediciones incompatibles no rechaza nada; autoriza a discutir.
+
+**Y no bloquea nada hoy:** ninguna pieza del plan de las semanas 6 y 7 espera esta medición para
+publicarse.

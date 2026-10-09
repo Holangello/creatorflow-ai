@@ -24,11 +24,25 @@ Ninguno producido. La columna que decide es la última: **qué pasa si el archiv
 | --- | --- | --- | --- | --- |
 | 15-10 «Lo que tiene que estar de tu lado» | jue 15-10, 12:30 | Carrusel PDF, 8 páginas | Completo, en la ficha de la pieza. Producción estimada por el diseñador: 110 min en Figma | **Sale en texto, sin tocar una palabra.** Puerta de producción la noche del 14 |
 | 23-10 «Rechacé un proyecto y me llamaron arrogante» | vie 23-10, 09:30 | Foto propia 4:5, sin posado ni filtro | `media` del banco. No es la foto reservada para la pieza biográfica | **Sale en texto.** El cuerpo no nombra la foto |
-| 17-09 «El contenido lo hacemos dentro» | sin fecha · inventario de Oferta | Imagen única 1200 × 1500 con la cuenta en tres filas | En su ficha | **Sale en texto.** La cuenta ya está entera en el cuerpo y en el primer comentario |
+| 17-09 «El contenido lo hacemos dentro» | sin fecha · inventario de Oferta **limpio** | **Ya no es requisito.** Imagen única 1200 × 1500, queda como mejora opcional | En su ficha | **Sale en texto, y es el estado por defecto de esta pieza.** La cuenta ya está entera en el cuerpo y repetida con sus divisiones en el primer comentario |
 | 01-10 «Qué recibe un cliente cada mes» | sin fecha · inventario de Oferta | Carrusel PDF, 10 páginas | `cola/2026-10-01-carrusel-tres-cosas-cada-mes.md` | **Sale en texto.** El cuerpo no nombra el carrusel |
 | 10-09 «Te regalo el método» | **ninguna, y por esto** | Carrusel PDF, 10 páginas (las seis fases) | `cola/2026-09-10-carrusel-sistema-makers.md` | **No sale.** Su cuerpo dice «Seis fases, en el carrusel» y «si buscas un vídeo, el carrusel te sobra»: sin el PDF no hay pieza. Ver abajo |
 | 15-09 «Tu agencia no te engaña» | ninguna · pieza bloqueada | Carrusel PDF, 8 páginas | Pendiente | Irrelevante hoy: la pieza no tiene versión elegida porque espera cliente y cifras autorizadas |
 | 09-09 «Sora caduca en quince días» | ninguna · pieza archivada | Vídeo nativo, era opcional | — | Decae con la pieza. **No se produce.** Queda escrito para que nadie lo vuelva a contar como pendiente |
+
+**Dos cambios del 09-10 que afectan a esta tabla, y los dos la alivian.**
+
+**El 17-09 deja de pedir un activo.** Su `[DATO]` se cerró el mismo día, así que la pieza pasó a ser
+inventario de Oferta sin ninguna dependencia: ni de dato ni de archivo. La imagen 1200 × 1500 ya no es un
+requisito, es una mejora — por la regla de activo visual, el cuerpo porta la cuenta entera. **Esto tiene
+una consecuencia de planificación que conviene no perder:** hasta hoy se escribió en el calendario que
+«Oferta no tiene ninguna alternativa limpia de inventario» porque el 01-10 y el 10-09 estaban bloqueados
+por un archivo y el 17-09 por un dato. **Ya no es cierto: Oferta tiene una.**
+
+**El 01-10 y el 15-10 abren una pregunta de regla, no de archivo.** Las dos están escritas como carrusel
+—687 y 627 caracteres— y las dos salen en texto si el PDF no llega. El rango de texto de
+`../03-guia-copywriting.md` empieza en 900. **No se toca ni una palabra por esto**: queda anotado en
+`../cola/README.md` para que lo decida el estratega el día en que una de las dos salga degradada.
 
 ## El único activo que de verdad bloquea una pieza
 

@@ -9,23 +9,23 @@ rellena con una cifra estimada, redondeada o deducida: si el dato no ha llegado,
 queda vacía. La línea base de las diez primeras piezas no vale nada si lleva dentro un número que
 nadie midió.
 
-## Estado al 08-10-2026 · lo que hay y lo que falta
+## Estado al 09-10-2026 · lo que hay y lo que falta
 
-Escrito al cerrar la planificación de la semana 6, para que esta tabla vacía se lea como lo que es.
+Escrito al cerrar la planificación de la semana 6 y actualizado el 09-10, para que esta tabla vacía se
+lea como lo que es.
 
-**Veintidós piezas escritas. Ninguna publicada. Ninguna cifra recibida. Ninguna fila rellenada.**
-Las tres primeras son comprobables contando archivos; la cuarta se ve sola.
+**Hay inventario escrito y ninguna pieza publicada. Ninguna cifra recibida. Ninguna fila rellenada.**
 
-**Recuento corregido el 08-10, segunda vez en el mismo día y esta es la buena.** Este archivo decía
-«dieciocho fichas» en este párrafo y «diecinueve fichas» dos párrafos más abajo, y las dos cifras eran de
-`cola/`. El recuento bueno, idéntico al de `calendario.md` y `cola/README.md`: **21 archivos en `cola/`, uno
-es el README y dos son briefs** (`2026-10-01-carrusel-tres-cosas-cada-mes.md`, visual, y
-`2026-09-10-carrusel-sistema-makers.md`, de producción) → **18 fichas de pieza**. Y `cola/` no es todo: hay
-**cuatro piezas más cuyo copy vive solo en el banco** (08-09, 10-09, 11-09, 15-09). **Total escrito: 22**, y
-el banco tiene exactamente 22 entradas, que es la comprobación independiente. Ninguno de estos números es
-una estimación: se cuentan archivos. **No se añade ni un número
-estimado, redondeado o deducido**, y eso incluye los ceros: un cero inventado no es un dato neutro, es una
-línea base falsa. Una casilla vacía es un dato correcto.
+**Este archivo ya no repite el recuento, y esa es la corrección del 09-10.** Decía «dieciocho fichas» en
+un párrafo y «diecinueve» dos párrafos más abajo; después se cuadró a mano con `calendario.md` y con
+`cola/README.md`, y al desbloquearse dos piezas el mismo día los tres volvieron a divergir. **Tres
+archivos escribiendo el mismo número a mano es el mecanismo del error, no su síntoma.** El inventario
+vive en **`cola/README.md`**, pieza a pieza, con versión elegida, caracteres medidos y dependencia. Aquí
+solo se miden piezas **publicadas**, que hoy son cero, y cero publicadas no es una estimación: es lo que
+hay.
+
+**No se añade ni un número estimado, redondeado o deducido**, y eso incluye los ceros de esta tabla: un
+cero inventado no es un dato neutro, es una línea base falsa. Una casilla vacía es un dato correcto.
 
 La línea base de diez piezas **no ha empezado**, y no puede empezar: necesita piezas publicadas, no piezas
 escritas. El circuito arranca con una sola cifra real de Angello, y con ella la cuenta de avisos sin
@@ -35,8 +35,8 @@ respuesta vuelve a cero y la rutina de las 19:30 sale del silencio.
 nada que diagnosticar, y un diagnóstico sobre cero datos solo se puede escribir inventando. Entra cuando
 haya tres piezas medidas, como dice el protocolo.
 
-**Lo que sí se ha revisado hoy sin datos de rendimiento, y es un hallazgo de estructura.** Las dieciocho
-fichas de `cola/` declaran todas su métrica principal y son coherentes con su fase del embudo: las de captación piden
+**Lo que sí se ha revisado hoy sin datos de rendimiento, y es un hallazgo de estructura.** Todas las
+fichas de `cola/` declaran su métrica principal y son coherentes con su fase del embudo: las de captación piden
 mensajes privados, las de atracción piden guardados y clics a perfil, las de conversación piden comentarios.
 **Pero casi ninguna métrica declarada cabe en las columnas de esta tabla.** Las fichas no piden
 «comentarios»: piden *comentarios de decisor*, *comentarios que confiesen una cantidad*, *comentarios que

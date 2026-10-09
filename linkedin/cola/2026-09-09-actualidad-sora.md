@@ -1,6 +1,11 @@
 # 2026-09-09 · Actualidad · «Sora caduca en quince días»
 
-**Estado:** creada. Variante anclada de la versión B elegida («La demo dura ocho segundos»).
+**Estado: ARCHIVADA por caducidad. No se publica, no cuenta como inventario.** La API se apagó el
+24-09-2026: el gancho entero era esa fecha y ya pasó. **Esta línea decía solo «creada» hasta el 09-10**,
+y una ficha archivada que se presenta como publicable vuelve a entrar en un recuento por error.
+
+**Lo que decía cuando estaba viva:** creada. Variante anclada de la versión B elegida («La demo dura ocho
+segundos»).
 **Decisión de Maverick:** se publica la variante anclada. Misma tesis y mismo cuerpo; el gancho
 gana una fecha y el cuerpo una cuarta cosa que nadie cuenta: el riesgo de proveedor.
 **Nivel de ruptura:** 2 (ocupa el hueco fijo del miércoles, no desplaza nada).

@@ -1,38 +1,35 @@
 # Calendario editorial
 
 **Fase actual: inventario. Se abre la tienda antes de construir el almacén número dos.** Aquí vive el
-plan. **Al 08-10 hay veintidós piezas escritas y ninguna publicada.** A partir de hoy, **ninguna franja se
-rellena con una pieza nueva si hay inventario escrito que la cubra**, y no se redacta una pieza nueva hasta
-que haya una publicada. La regla entera está al principio de la semana 6.
+plan. **Hay inventario escrito y nada publicado**, y el recuento exacto vive en `cola/README.md`, no aquí.
+**Ninguna franja se rellena con una pieza nueva si hay inventario escrito que la cubra**, y no se redacta
+una pieza nueva hasta que haya una publicada. La regla entera está al principio de la semana 6.
 
-**Cómo se cuentan, porque se ha contado mal tres veces y hoy se cuenta bien.** En `cola/` hay
-**veintiún archivos `.md`**. Uno es el README y **dos son briefs, no piezas**:
-`2026-10-01-carrusel-tres-cosas-cada-mes.md` (brief visual) y `2026-09-10-carrusel-sistema-makers.md`
-(brief de producción; su copy vive en el banco). **Fichas de pieza en `cola/`: dieciocho.**
+**Dónde vive el recuento, y por qué ya no vive aquí.** Se ha contado mal cuatro veces, y las cuatro por
+la misma causa: tres archivos escribiendo a mano el mismo número en tres momentos distintos del mismo día.
+**Desde el 09-10 el inventario se cuenta en un solo sitio, `cola/README.md`**, pieza a pieza, con su
+versión elegida, sus caracteres medidos y lo que le falta. Este documento ya no repite el número: planifica
+franjas. Si alguna vez una frase de aquí contradice esa tabla, **la que manda es la tabla.**
 
-**Y `cola/` no es todo el inventario.** Cuatro piezas escritas no tienen ficha en `cola/` porque su copy
-vive solo en el banco: 08-09, 10-09, 11-09 y 15-09. **Piezas escritas en total: veintidós**, y el banco
-tiene exactamente veintidós entradas, que es la comprobación independiente. La versión anterior de esta
-nota decía «piezas reales: diecinueve» contando un solo brief de los dos y olvidando las cuatro del banco;
-`cola/README.md` decía veinte archivos y dieciocho piezas; `05-metricas.md` decía dieciocho fichas en un
-párrafo y diecinueve dos párrafos después. **Los tres quedan corregidos hoy con este mismo recuento.**
+**Al 09-10: 22 piezas escritas, ninguna publicada. 18 publicables, 9 de ellas ya con franja asignada.**
+Lo demás —qué pieza, qué versión, qué le falta— está en `cola/README.md`. Las cuatro que no son
+publicables son **dos archivadas** por caducidad (09-09 y 16-09), **una bloqueada** por cliente y cifras
+autorizadas (15-09) y **una declarada inventario no utilizable** porque su cuerpo nombra un carrusel que
+no existe (10-09).
 
-De las veintidós: **una archivada** (09-09, Sora), **una bloqueada** por cifras de cliente (15-09), **tres
-con una dependencia menor pendiente** (10-09 y 17-09 con un `[DATO]` de días o piezas por rodaje, 06-10 con
-una línea de motivo por confirmar). **Publicables hoy sin ninguna dependencia: diecisiete.**
+**El recuento del 08-10 decía diecisiete y tenía dos errores en direcciones opuestas**, que es la forma
+en que un número equivocado parece plausible: daba por dependientes el 17-09 y el 06-10, desbloqueados
+los dos el 09-10, y contaba una sola pieza archivada cuando el 16-09 se archivó el 08-10. El detalle está
+en `cola/README.md`.
 
-**La dependencia que este recuento no contaba, encontrada el 09-10.** Arriba se cuentan las piezas
-bloqueadas por un dato y las piezas archivadas. **No se contaba ninguna pieza bloqueada por un archivo
-que no existe**, y en este repositorio no había **ni un solo activo visual producido**: ningún PDF,
-ninguna imagen, ningún vídeo. Varias piezas con fecha pedían uno.
-
-**El recuento, al contarlo pieza a pieza, sale mucho mejor de lo que parecía, y por una razón de
-redacción:** de todas las piezas que piden un activo, **todas menos una tienen un cuerpo que es un post
-completo** — la tesis, la lista y el CTA viven en el texto y el visual solo añade. Así que se pueden
-publicar en texto **sin tocar una palabra**. La única excepción es el carrusel del 10-09, cuyo cuerpo
-*nombra* el carrusel («seis fases, en el carrusel»): esa no se puede degradar, y **queda declarada
-inventario no utilizable** hasta que exista el PDF. El déficit visual bloquea **una** pieza, no todas
-las que piden archivo.
+**El déficit visual sigue bloqueando una pieza, no siete.** En este repositorio no hay **ni un solo activo
+visual producido**: ningún PDF, ninguna imagen, ningún vídeo. Y varias piezas con fecha piden uno. El
+recuento, pieza a pieza, sale mucho mejor de lo que parecía **por una razón de redacción**: de todas las
+piezas que piden un activo, **todas menos una tienen un cuerpo que es un post completo** —la tesis, la
+lista y el CTA viven en el texto y el visual solo añade—, así que se publican en texto **sin tocar una
+palabra**. La única excepción es el carrusel del 10-09, cuyo cuerpo *nombra* el carrusel («seis fases, en
+el carrusel»): esa no se puede degradar y **queda declarada inventario no utilizable** hasta que exista el
+PDF.
 
 De ahí sale la **regla de activo visual**, escrita hoy en `04-guia-diseno.md`: el cuerpo se sostiene
 solo siempre; **el formato por defecto de toda franja es texto**; el carrusel y el vídeo solo se
@@ -350,27 +347,32 @@ dos escenarios.
 | Fecha | Día | Pilar | Tipo | Titular de trabajo | Notas | Formato | Intensidad | Estado |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 19-10 | Lun | Autoridad | A3 | El briefing de 40 páginas no es rigor, es miedo a decidir · **inventario: `cola/2026-09-14-briefing-40-paginas.md`, versión B «La frase»** | Escrita el 14-09, elegida, sin un solo `[DATO]` —los dos que traía la B se eliminaron ese día— y nunca publicada. **Es la confrontación pura de la semana y la única.** Enemigo: el proceso de aprobación por comité, una práctica, nunca una empresa. No solapa con el lunes 12: allí se cambiaba de proveedor, aquí no se decide. **Las cinco preguntas siguen reservadas** para el carrusel A4 del banco, así que la pieza no las quema | Texto | Pura | **creada · inventario reasignado** |
-| 20-10 | Mar | Prueba | **B4** | El código a la vista · **inventario: `cola/2026-10-06-script-problema-no-definido.md`, versión A** | **Es el B4 fundacional:** el artefacto son las catorce líneas de `tools/rename_clips.py`, públicas en este repositorio, y cualquiera puede comprobar que renumeran y borran la información que un sistema de nombres existe para conservar. Prueba una decisión que no se tomó, no un resultado, que es exactamente lo que el tipo permite afirmar. **Dos cosas pendientes y las dos son pequeñas, pero ninguna se arregla a mano.** (1) La ficha marcaba «Yo quería dejar de perder tiempo buscando planos» como motivo no confirmado y ofrecía la alternativa «Quería encontrar los planos más rápido»: **se elige la alternativa**, que es elegir entre dos textos ya escritos y no redactar. (2) El cuerpo lleva un puente a la pieza del 05-10 («Ayer escribí que el volumen ya no es ventaja…») **que no se puede publicar si el 05-10 no se ha publicado antes, y hoy no lo está.** Quitarlo se lleva por delante dos párrafos y el remate «si lo cometes ahí, lo cometes en todo», así que **va al redactor junto con la reescritura del 23-09.** Once días de holgura. **Antiticio:** este repositorio se usó como artefacto el 02-10 y el 06-10; este es el tercero y por eso la regla de B4 fija uno cada tres Pruebas a partir de aquí | Texto | Método | **creada · inventario · una reescritura corta pedida** |
+| 20-10 | Mar | Prueba | **B4** | El código a la vista · **inventario: `cola/2026-10-06-script-problema-no-definido.md`, versión A** | **Es el B4 fundacional:** el artefacto son las catorce líneas de `tools/rename_clips.py`, públicas en este repositorio, y cualquiera puede comprobar que renumeran y borran la información que un sistema de nombres existe para conservar. Prueba una decisión que no se tomó, no un resultado, que es exactamente lo que el tipo permite afirmar. **Las dos cosas que esta fila daba por pendientes están cerradas desde el 09-10, y esta nota decía lo contrario.** (1) El motivo no confirmado se resolvió eligiendo la frase ya escrita «Quería encontrar los planos más rápido». (2) El puente a la pieza del 05-10 —«Ayer escribí que el volumen ya no es ventaja…»—, que no se podía publicar mientras el 05-10 siguiera sin publicarse, **está fuera, con su remate**, y el escalón se recuperó con una formulación autónoma que ya existía en la misma ficha. **Nada que confirmar para publicar.** **Antiticio:** este repositorio se usó como artefacto el 02-10 y el 06-10; este es el tercero y por eso la regla de B4 fija uno cada tres Pruebas a partir de aquí | Texto | Método | **creada · inventario · sin dependencias** |
 | 21-10 | Mié | Actualidad | N | **[Hueco abierto al radar · sin tema fijo]** | **No se precarga, y tampoco con inventario.** Ancla en el barrido del 20-10, con los barridos del 16 y el 19 por delante. Condición de entrada sin excepción: **fuente primaria abierta y leída, con la fecha visible en la propia página.** Misma escalera de respaldo que el 14-10, con la pieza del 07-10 en el nivel 4 **solo si para entonces sigue sin publicarse y sigue siendo verdad que este mes no hay nada que comprar** — a 21 de octubre eso ya está en el filo, así que si el radar no trae nada verificado, el nivel que entra es el 5 y el miércoles deja de ser actualidad esa semana | Texto | Método | planificada · hueco abierto |
 | 22-10 | Jue | Oferta | C2 | Plazas de retainer: para quién no es · **inventario: `cola/2026-09-24-para-quien-no-es.md`, versión A** | Escrita el 24-09 **sin ninguna cifra de plazas y a propósito**: la restricción no es de agenda, es de criterio. Por eso es la Oferta de inventario que se puede publicar en otro mes sin cambiar una palabra — la A nunca nombró el trimestre como argumento. **Rotación de ejes:** el 08-10 fue economía (2), el 15-10 responsabilidad compartida (4), este es criterio de entrada (3). Queda el eje 1, método, para la siguiente Oferta. **Techo de perspectiva:** el 15-10 estaba escrito desde el lado del que compra, así que esta puede volver al lado del vendedor sin romper el máximo de dos consecutivas | Texto | Método | **creada · inventario reasignado** |
 | 23-10 | Vie | **Humano** | D1 | Rechacé un proyecto y me llamaron arrogante · **inventario: versión D «El no que retuvo criterio», en el banco** | **Viernes Humano por alternancia estricta**, no por descarte: el 16-10 es Autoridad, así que este es Humano y el 30-10 vuelve a Autoridad. **Entra inventario y no la pieza desplazada**, por la regla de precedencia escrita hoy: la versión D está escrita desde el 11-09, se eligió precisamente porque **no necesita el importe** que bloqueaba a las otras tres (mide la pérdida en semanas de producción reservadas, no en euros) y nunca se publicó. **No tiene ficha en `cola/`: su copy vive en el banco**, que es el caso de las cuatro piezas escritas que `cola/` no contiene. Formato texto + foto propia, como su ficha original. **La foto reservada para la pieza biográfica sigue reservada**: no es la misma. «Lo que hago los días en que no tengo ninguna idea» corre un turno y entra el 06-11. **Añadido el 09-10 · segundo plazo de activo del plan, y no estaba contado.** Esta franja pide una **foto propia 4:5 que no existe** —sin posado, sin filtro, de trabajo real— y no es la que está reservada para la pieza biográfica. Misma puerta de producción que el 15: se mira `linkedin/activos/` la noche del 22 y **si no hay foto, la pieza sale en texto**, que se puede porque el cuerpo de la versión D no la nombra en ninguna línea. Una foto cuesta minutos y no 110, así que aquí el aviso no es de agenda: es que nadie lo había escrito | Texto + foto **o texto, según puerta del 22-10** | Pura | **creada · inventario reasignado** |
 
-> **Viernes 30-10, reservado y escrito aquí para que no se pierda:** franja **Autoridad** por alternancia, y
-> la ocupa la reescritura de `cola/2026-09-23-quien-paga-el-estudio.md` (versión A desanclada, con el gancho
-> alternativo). Es la única pieza de todo el plan que depende del redactor, y tiene tres semanas de holgura.
+> **Viernes 30-10, reservado:** franja **Autoridad** por alternancia, y la ocupa
+> `cola/2026-09-23-quien-paga-el-estudio.md`, versión A desanclada, con el gancho nuevo.
 >
-> **Añadido el 09-10 al mismo encargo, para no abrir una segunda pasada.** Esta pieza es una de las
-> **dos únicas** del sistema que pasan el techo de 1.600 caracteres de `03-guia-copywriting.md`, y es
-> además la que más frases largas acumula de todas las medidas. **La reescritura de desanclaje ya está
-> pedida; el recorte entra en la misma pasada y sale casi gratis**, porque lo que se corta son
-> precisamente las tres anclas de noticia que hay que quitar de todas formas. Instrucción para el
-> redactor: **cuerpo por debajo de 1.600 caracteres sin hashtags, frases de más de 15 palabras por
-> debajo del 10% y ninguna por encima de 25.**
+> **Actualizado el 09-10, y antes decía lo contrario: esta pieza ya no depende del redactor.** El
+> desanclaje se pidió, se hizo y se aplicó esta mañana —cuatro anclas temporales fuera, gancho nuevo,
+> cero cifras nuevas—, así que **el plan de las semanas 6 y 7 no tiene ninguna pieza esperando a ningún
+> agente.** El bloque anterior seguía describiendo la reescritura como pendiente y hacía parecer
+> dependiente la única franja que ya está resuelta.
 >
-> **La otra pieza que pasa el techo es la del 07-10, y esa NO se toca.** Está declarada publicable tal
-> cual, caduca el 17-10 y es la única actualidad viva del sistema. Reabrir una pieza publicable hoy
-> para quitarle unos caracteres es exactamente el orden de operaciones que esta semana corrige. **Sale
-> con el exceso, y el exceso queda escrito aquí** en lugar de incumplir la regla en silencio.
+> **Lo que sí quedó sin hacer y se decide hoy que no se hace: el recorte de caracteres.** La pieza mide
+> **1.764 sin hashtags** y el techo es 1.600. El recorte estaba pedido *dentro* de la pasada de
+> desanclaje, donde salía gratis porque lo que había que cortar eran las anclas de noticia. **Esa pasada
+> se cerró sin el recorte, y no se abre una segunda.** Reabrir una pieza publicable y sin dependencias
+> para quitarle 164 caracteres no la acerca un día a LinkedIn, y obliga a propagar texto nuevo al banco,
+> al artefacto, al pack y al panel — el camino exacto por el que ayer una pieza estuvo un día entero con
+> un episodio dentro. **Sale con el exceso, y el exceso queda escrito.**
+>
+> **La del 07-10 tampoco se toca, y ahora por el mismo motivo y no por otro distinto.** Mide 1.730,
+> caduca el 17-10 y es la única actualidad viva. **Dos casos iguales, un solo criterio:** el techo de
+> 1.600 es absoluto y se aplica **en el momento de escribir**, que es donde está su punto de control; no
+> se aplica hacia atrás sobre piezas ya cerradas. Las dos excepciones están listadas en `cola/README.md`.
 >
 > La semana 8 completa la planifica el estratega, **y solo si hay algo publicado.**
 
