@@ -3,8 +3,28 @@
 **Estado:** creada. Tres versiones. **Elegida por Maverick: A, «La cuenta en voz alta».**
 **Publicar:** jueves 17, 12:30. Intensidad método. Texto + imagen 4:5.
 **Métrica:** mensajes privados con «sistema» y comentarios de directores de marketing.
-**[DATO] pendiente:** piezas por rodaje de SISTEMA MAKERS (aparece una vez en cada versión;
-es el mismo dato familiar que el [DATO: nº días de rodaje] del jueves 10).
+**Desbloqueada el 09-10. Ya no hay ningún dato pendiente, y esta línea decía lo contrario hasta hoy.**
+Se quitó de las tres versiones por la salida del 01-10 —**describir la forma y no la cantidad**—: la
+frase ya no dice cuántas piezas salen, dice con qué forma salen. Un rodaje al mes, calendario cerrado
+antes de grabar, coste fijo.
+
+**Y la pieza gana con el cambio.** La frase antigua vendía una cantidad, que es lo que vende un proveedor
+de piezas; la nueva vende **previsibilidad**, que es justo el eje del post — el coste interno es
+impredecible y nadie lo suma. El contraste con la cuenta de los 430 € queda más limpio sin un número
+nuestro compitiendo con los suyos.
+
+**Medido con el punto de control nuevo**, cuerpo sin hashtags: A 1.146 caracteres, B 1.136, C 1.299, las
+tres por debajo del techo de 1.600. Frases por encima de 15 palabras: **A cero de 30**, B cero de 31, C
+una de 30 (3,3%, dentro de la tolerancia del 10%). **Un detalle que vale la pena:** la única frase larga
+que tenía la A era precisamente la de la cifra, de 18 palabras. Al reescribirla, la A cumple el objetivo
+de 15 **sin gastar tolerancia**.
+
+**Dos cosas señaladas y no tocadas, que afectan solo a B y a C.** La A está limpia y es la elegida. B
+abre con una escena fechada («Videollamada, jueves, 17:00») con diálogo entre comillas, y C lleva «la
+campaña de Q4» y «desde junio». Son **marcas temporales y un episodio preexistentes**, de antes de que
+el filtro de no-episodio se endureciera, y no se han añadido hoy. Si alguna vez se elige B o C hay que
+tratarlas: tal como están no son publicables en cualquier fecha, y la B incumple además el filtro de
+escena.
 
 **DECISIÓN DEL 09-10 · SE DESBLOQUEA SIN LA CIFRA. ENCARGO PEDIDO AL REDACTOR, NO HECHO A MANO.**
 
@@ -60,7 +80,7 @@ Ocho al mes: unos 3.400 €. Y el director de marketing lo aprobó todo. Por eso
 
 Yo también he vendido piezas sueltas sin hacer esta cuenta. Al cliente le costaban más que un retainer y ninguno lo sabíamos.
 
-Con SISTEMA MAKERS, un rodaje al mes son [DATO: piezas por rodaje] piezas con calendario y coste fijo. Tu equipo no desaparece: deja de editar y vuelve a hacer marketing.
+Con SISTEMA MAKERS es un rodaje al mes. Calendario cerrado antes de grabar y coste fijo. Tu equipo no desaparece: deja de editar y vuelve a hacer marketing.
 
 El contenido interno no es gratis. Es la única partida que nadie cuenta.
 
@@ -98,7 +118,7 @@ Se quedó mirando la pantalla. Después: «esto no lo tengo en ningún sitio».
 
 Ya lo sé. Nadie lo tiene. Yo tampoco lo sumaba cuando vendía piezas sueltas. Al cliente le salía más caro que un retainer.
 
-Con SISTEMA MAKERS, un rodaje al mes son [DATO: piezas por rodaje] piezas y la cifra va en el contrato. Su equipo deja de editar y vuelve a decidir qué se dice y a quién.
+Con SISTEMA MAKERS es un rodaje al mes. El calendario y el coste van en el contrato. Su equipo deja de editar y vuelve a decidir qué se dice y a quién.
 
 «Gratis» es el precio de lo que nadie ha sumado.
 
@@ -138,7 +158,7 @@ Ponle tú la cifra a eso. Yo solo sé que es más grande que 4.000 €.
 
 Y aquí va mi parte: he entregado piezas sueltas a equipos que luego las cortaban, adaptaban y subían. Les vendía contenido y les compraba horas.
 
-Con SISTEMA MAKERS, un rodaje al mes son [DATO: piezas por rodaje] piezas listas para publicar. Tu equipo no cambia. Cambia en qué gasta la semana.
+Con SISTEMA MAKERS es un rodaje al mes, con calendario y coste fijos. Las piezas llegan listas para publicar. Tu equipo no cambia. Cambia en qué gasta la semana.
 
 El contenido interno no cuesta lo que pagas. Cuesta lo que dejas de hacer.
 

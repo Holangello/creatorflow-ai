@@ -1332,7 +1332,7 @@ Cifras del spot: desglose de la propia productora (ROMA y MITO AI; dirección de
 
 **Formato:** Texto + imagen 4:5. **Intensidad:** método. **Métrica que mide:** Mensajes privados con «sistema» y comentarios de directores de marketing.
 
-> **Antes de publicar:** Las tres versiones llevan [DATO: piezas por rodaje] de SISTEMA MAKERS. Es el mismo hecho que pide el carrusel del jueves 10: confírmalo una vez y sirve para las dos.
+> **Antes de publicar:** **Desbloqueada el 09-10: ya no hay nada que confirmar.** El dato de piezas por rodaje se quitó de las tres versiones por la salida del 01-10 —describir la forma y no la cantidad—. **Lo que nunca fue el bloqueo:** las cifras de la cuenta (25 €/h, 225 €, 430 €, 3.400 €) son supuestos declarados que el propio texto invita a sustituir, no datos de Makers ni de cliente. **Y la imagen 4:5 deja de ser requisito** por la regla de activo visual de hoy: la cuenta entera vive en el cuerpo y se repite con sus divisiones en el primer comentario. Medido: 1.146 caracteres y cero frases largas de treinta. **Si alguna vez eliges la 2 o la 3, ojo:** llevan marcas temporales preexistentes, y la 2 abre con una escena fechada con diálogo que hoy no pasaría el filtro.
 
 #### Versión A · La cuenta en voz alta · **ELEGIDA**
 
@@ -1362,7 +1362,7 @@ Ocho al mes: unos 3.400 €. Y el director de marketing lo aprobó todo. Por eso
 
 Yo también he vendido piezas sueltas sin hacer esta cuenta. Al cliente le costaban más que un retainer y ninguno lo sabíamos.
 
-Con SISTEMA MAKERS, un rodaje al mes son [DATO: piezas por rodaje] piezas con calendario y coste fijo. Tu equipo no desaparece: deja de editar y vuelve a hacer marketing.
+Con SISTEMA MAKERS es un rodaje al mes. Calendario cerrado antes de grabar y coste fijo. Tu equipo no desaparece: deja de editar y vuelve a hacer marketing.
 
 El contenido interno no es gratis. Es la única partida que nadie cuenta.
 
@@ -1403,7 +1403,7 @@ Se quedó mirando la pantalla. Después: «esto no lo tengo en ningún sitio».
 
 Ya lo sé. Nadie lo tiene. Yo tampoco lo sumaba cuando vendía piezas sueltas. Al cliente le salía más caro que un retainer.
 
-Con SISTEMA MAKERS, un rodaje al mes son [DATO: piezas por rodaje] piezas y la cifra va en el contrato. Su equipo deja de editar y vuelve a decidir qué se dice y a quién.
+Con SISTEMA MAKERS es un rodaje al mes. El calendario y el coste van en el contrato. Su equipo deja de editar y vuelve a decidir qué se dice y a quién.
 
 «Gratis» es el precio de lo que nadie ha sumado.
 
@@ -1446,7 +1446,7 @@ Ponle tú la cifra a eso. Yo solo sé que es más grande que 4.000 €.
 
 Y aquí va mi parte: he entregado piezas sueltas a equipos que luego las cortaban, adaptaban y subían. Les vendía contenido y les compraba horas.
 
-Con SISTEMA MAKERS, un rodaje al mes son [DATO: piezas por rodaje] piezas listas para publicar. Tu equipo no cambia. Cambia en qué gasta la semana.
+Con SISTEMA MAKERS es un rodaje al mes, con calendario y coste fijos. Las piezas llegan listas para publicar. Tu equipo no cambia. Cambia en qué gasta la semana.
 
 El contenido interno no cuesta lo que pagas. Cuesta lo que dejas de hacer.
 
