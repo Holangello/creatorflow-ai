@@ -29,6 +29,17 @@ fecha de prensa secundaria y se pegó al documento equivocado.
 en la página. Hasta entonces no sube ni como pendiente, porque un rumor no es un hecho sin verificar — es
 una afirmación sobre el futuro, y eso no se verifica, se espera.
 
+**Segundo barrido del 12-10, 13:00.** Reviso los cinco frentes y no hay nada nuevo que supere el umbral:
+cero candidatas de nivel 3 y cero de nivel 2, así que el calendario no se toca y la fila del martes 13 se
+queda con su inventario. **El rumor de Seedance 2.5 sigue siendo rumor** siete horas después: los mismos
+agregadores, el mismo «podría», ninguna página de ByteDance. Lo único que aparece del lado de LinkedIn son
+recopilatorios de blog sobre funciones de 2026 —guardados y envíos en analíticas, feed de vídeo vertical,
+búsqueda conversacional— **sin una sola entrada del blog oficial que las feche**, y una función ya en
+producción no es una ruptura. En regulación, lo que vuelve a salir es el boletín de despacho del primer
+trimestre sobre el aviso de la AEPD, que ya está en la tabla desde el 07-10 y sigue esperando la primaria.
+**Un barrido sin candidata es el resultado normal:** el umbral existe para que la mayoría de los días no
+pase nada.
+
 ## Candidatos activos
 
 | Detectado | Titular propuesto | Ángulo | Por qué le importa al ICP | Fuente | Caduca |
