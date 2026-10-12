@@ -6,39 +6,28 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 09-10-2026, dos veces. **Sin ruptura en el segundo barrido:** nada de nivel 3 ni de nivel 2
-en las siete horas siguientes al primero. Lo que devuelven las búsquedas son páginas de producto sin fecha y
-artículos de 2024-2025, nada de hoy.
+**Último barrido:** 12-10-2026. **Sin candidata, y el paso 2 de la rutina tampoco tenía trabajo:** el
+martes 13 se cubre con inventario ya escrito (`cola/2026-09-18-que-mido-y-que-ignoro.md`) y la regla de
+inventario prohíbe redactar nada nuevo mientras no haya una pieza publicada.
 
-**Sin candidata en todo el día, y el paso 2 de la rutina no tenía trabajo:** la pieza del
-próximo día laborable —lunes 12— ya está escrita, elegida y en el artefacto, y la regla que se escribió ayer
-prohíbe redacción nueva mientras no haya nada publicado. Dos semanas de calendario están cubiertas con
-inventario.
+Nada de las últimas 48 horas con fuente primaria. Lo que vuelve es de mayo (Veo 4, sin fecha anunciada) y
+de agosto en lo regulatorio.
 
-Nada de las últimas 48 horas con fuente primaria. Lo que vuelve es de mayo (Google I/O) y de 2023-2025 en lo
-regulatorio.
+**Y hay una candidata descartada por la regla, que conviene dejar escrita porque es el tipo de cosa que se
+cuela.** Varios agregadores repiten el mismo titular: que ByteDance **podría** lanzar Seedance 2.5 «tan
+pronto como esta semana», un modelo que generaría clips de treinta segundos desde un solo prompt. Un
+boletín añade que «un modelo de vídeo extremadamente impresionante se ha lanzado esta semana», **sin
+nombrarlo y sin fecha**.
 
-**Pero el barrido ha encontrado una cosa que vale, y no es noticia: es apoyo.** La **cláusula PASAVE**
-—Plataforma de Asociaciones y Sindicatos de Artistas de Voz de España—, que introduce limitaciones
-contractuales al uso de IA con la voz de los actores para que una distribuidora no pueda reutilizarla en
-otros proyectos sin su participación. Es de **noviembre de 2025**, así que no compite por ningún hueco.
+**Se descarta, y por dos motivos distintos que se suman.** El primero es el guardarraíl explícito de la
+rutina: **nada de rumores ni filtraciones.** «Podría lanzarse» no es un anuncio, y un modelo que todavía no
+existe no cambia el trabajo de nadie. El segundo es que no hay fuente primaria: son páginas de agregador
+repitiendo un mismo titular, exactamente el patrón que produjo el error del 5 de octubre cuando se tomó una
+fecha de prensa secundaria y se pegó al documento equivocado.
 
-**Por qué importa y dónde encaja.** Es el caso español, sectorial y contractual de la tesis de la pieza que
-sale el **viernes 16** (`cola/2026-09-30-la-clausula-que-falta.md`): lo que el contrato no dice sobre la voz
-y la imagen. Hasta ahora ese argumento se apoyaba en fabricantes —ElevenLabs y sus diez segundos— y en
-prensa extranjera —los microdramas chinos—. Esto es **gente del sector en España negociando una cláusula**,
-que es exactamente el registro del ICP. **Sirve para responder comentarios el 16, no para escribir nada
-nuevo.**
-
-**Y los límites, que son serios.** Todo lo que tengo es el **análisis de un despacho**, no el texto de la
-cláusula ni un comunicado de PASAVE, y **los tres dominios que harían falta están inalcanzables desde esta
-sesión** (`www.ecija.com`, `osborneclarke.com`, `www.osborneclarke.com`), comprobado uno por uno. Un matiz
-del análisis que conviene no perder si algún día se usa: el reglamento europeo **exime** del deber de
-informar cuando el contenido forma parte de una obra manifiestamente creativa, satírica, artística o de
-ficción. Eso corta por la mitad cualquier tesis simplista sobre etiquetado obligatorio, así que o se cita
-entero o no se cita.
-
-Sube abajo, a pendientes de verificar. **No se escribe una línea sobre ella hasta leer la primaria.**
+**Si se confirma, entra por la puerta normal:** primaria de ByteDance abierta y leída, con la fecha visible
+en la página. Hasta entonces no sube ni como pendiente, porque un rumor no es un hecho sin verificar — es
+una afirmación sobre el futuro, y eso no se verifica, se espera.
 
 ## Candidatos activos
 
