@@ -6,7 +6,42 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 12-10-2026. **Sin candidata, y el paso 2 de la rutina tampoco tenía trabajo:** el
+**Último barrido:** 13-10-2026, 06:00. **Sin candidata verificable, y el motivo es material, no de criterio.**
+Este era el barrido que ancla la fila del miércoles 14, así que el resultado importa más que otros días.
+
+**Lo que ha salido y por qué ninguna entra.** Dos pistas con cuerpo y las dos se caen en la primaria.
+La primera, Meta anunciando herramientas de IA para anunciantes y agencias en la Advertising Week de Nueva
+York: solo prensa de sector, ni una entrada de su propia sala de prensa localizada. La segunda es la buena y
+duele: **Amazon Ads y una capacidad de «imagen viva» dentro de su generador de vídeo**, con URL de primaria
+propia (`advertising.amazon.com/library/news/ai-video-generator-live-image`) — y el dominio no se abre desde
+esta sesión. También aparece el `changelog` de Runway con entradas fechadas del 1 de octubre (Runway dentro
+de Premiere y After Effects, y dentro de Dots de OpenAI), que es primaria de verdad, **pero del 1 de octubre:
+doce días, muy por encima del techo de 72 horas.** No es noticia, es material de apoyo.
+
+**La limitación, escrita con nombre y número, porque condiciona la decisión del 14.** La política de red de
+esta sesión responde **403 a la conexión** en `runway.com`, `blog.google`, `elevenlabs.io`,
+`news.microsoft.com`, `tavus.io` y `digital-strategy.ec.europa.eu`. Eso tumba el nivel 1 de la escalera del
+14-10 y tumba también el nivel 2 —la voz como categoría— que dependía justo de que esos dominios se
+abrieran. **No se abren.** Y la regla no se relaja por eso: una cifra que no se ha leído en su primaria no se
+publica, ni para no dejar el miércoles vacío.
+
+**En regulación hay un tema que sube como material de apoyo y no como noticia.** El Código de Buenas
+Prácticas sobre Transparencia de los Contenidos Generados por IA de la Comisión Europea: marcas legibles por
+máquina en el contenido generado o manipulado, y etiquetado visible para deepfakes. **Fecha de publicación
+en junio de 2026, así que no es actualidad por ningún lado**, y además las secundarias se contradicen en lo
+único accionable: unas sitúan las obligaciones de transparencia del artículo 50 el 2 de agosto de 2026 y
+otra las manda a 2027 con sanciones de hasta el 6 % de la facturación. **Con esa contradicción encima no se
+cita ninguna de las dos fechas**, y la primaria (`digital-strategy.ec.europa.eu`) es uno de los seis dominios
+cerrados. Queda anotado para cuando se pueda abrir: es el tema que convierte el etiquetado en algo que hay
+que firmar antes de entregar una pieza.
+
+**Decisión para el 14, por la escalera de la propia fila:** nivel 1 descartado por falta de primaria, nivel 2
+imposible por los dominios, nivel 3 saltado porque exigiría redactar pieza nueva y la regla de inventario lo
+prohíbe mientras no haya ninguna publicada, **nivel 4 activado:** entra `cola/2026-10-07-cifras-de-los-socios.md`,
+versión 1 «La firma» — escrita, verificada en primaria, cero `[DATO]`, nunca publicada y con su dato
+accionable vivo hasta el 17-10.
+
+**Barrido anterior:** 12-10-2026. **Sin candidata, y el paso 2 de la rutina tampoco tenía trabajo:** el
 martes 13 se cubre con inventario ya escrito (`cola/2026-09-18-que-mido-y-que-ignoro.md`) y la regla de
 inventario prohíbe redactar nada nuevo mientras no haya una pieza publicada.
 
