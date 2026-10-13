@@ -1492,11 +1492,11 @@ antes de `430 €` (5) · auto-layout de tres filas con cifras tabulares (8) · 
 **Tres errores a evitar:** acento fuera de los dos `430 €`; centrar el titular o la columna
 (deja de parecer una cuenta a mano); cualquier adorno (icono, euro gigante, textura, foto).
 
-### Viernes 18 de septiembre · 09:30 · Prueba · Conversación
+### Martes 13 de octubre · 12:30 · Prueba · Conversación
 
 **Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios en la primera hora y guardados.
 
-> **Antes de publicar:** Sin DATO. Ninguna cifra, ni de cliente ni de Makers. Sustituye a B2 «Mismo presupuesto, otro sistema», que sigue aparcada esperando cifras autorizadas.
+> **Antes de publicar:** Reasignada el 08-10 del viernes 18 de septiembre al martes 13 de octubre por la regla de inventario: estaba escrita desde el 18-09 y nunca se publicó. **El 13-10 se corrige la hora**, que se había quedado en 09:30 cuando el martes es franja de Prueba a las 12:30 — y la rutina de recordatorio decide por la hora, así que una pieza de mediodía con 09:30 escrito se avisa en la franja equivocada. Sin DATO. Ninguna cifra, ni de cliente ni de Makers. Sustituye a B2 «Mismo presupuesto, otro sistema», que sigue aparcada esperando cifras autorizadas.
 
 #### Versión B · El reloj · **ELEGIDA**
 
@@ -4327,7 +4327,7 @@ No se duplican en ningún otro fichero.
 | Mar 15 sept | Tu agencia no te engaña |  |  |  |  |  |  |  |
 | Mié 16 sept | El plano se fabrica en el montaje |  |  |  |  |  |  |  |
 | Jue 17 sept | Lo hacemos dentro |  |  |  |  |  |  |  |
-| Vie 18 sept | Qué mido y qué ignoro |  |  |  |  |  |  |  |
+| Mar 13 oct | Qué mido y qué ignoro |  |  |  |  |  |  |  |
 | Lun 21 sept | La IA no sustituye a tu equipo |  |  |  |  |  |  |  |
 | Vie 30 oct | Quién paga el estudio |  |  |  |  |  |  |  |
 | Jue 24 sept | Para quién no es |  |  |  |  |  |  |  |

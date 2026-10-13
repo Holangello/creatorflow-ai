@@ -1,7 +1,12 @@
 # 2026-09-18 · Prueba · sustituye a B2 · «Qué mido en un proyecto y qué ignoro a propósito»
 
 **Estado:** creada. Tres versiones. **Elegida por Maverick: B, «El reloj».**
-**Publicar:** viernes 18, 09:30. Intensidad método. Solo texto.
+**Publicar:** **martes 13 de octubre, 12:30.** Intensidad método. Solo texto.
+**Reasignada el 08-10 por la regla de inventario, y el 13-10 se corrige la hora, que se había quedado
+atrás.** Se escribió para el viernes 18 de septiembre a las 09:30 y nunca se publicó; el martes es franja
+de Prueba y su hora es **12:30**, así que la cabecera, el banco, el pack y el artefacto decían 09:30 para una
+pieza que sale a mediodía. **Esto no es un detalle de formato: la rutina de recordatorio decide por la hora**,
+y una pieza de mediodía con 09:30 escrito se avisa en la franja equivocada o no se avisa.
 **Métrica:** comentarios en la primera hora (el CTA pide una hora, se contesta en tres segundos)
 y guardados.
 

@@ -318,16 +318,16 @@
   },
   {
     "id": "vie18",
-    "date": "Vie 18 sept",
+    "date": "Mar 13 oct",
     "short": "Qué mido y qué ignoro",
     "chosen": 0,
-    "hora": "09:30",
+    "hora": "12:30",
     "pilar": "Prueba · Conversación",
     "formato": "Solo texto",
     "tono": "metodo",
     "metrica": "Comentarios en la primera hora y guardados",
     "media": null,
-    "data": "Sin DATO. Ninguna cifra, ni de cliente ni de Makers. Sustituye a B2 «Mismo presupuesto, otro sistema», que sigue aparcada esperando cifras autorizadas.",
+    "data": "Reasignada el 08-10 del viernes 18 de septiembre al martes 13 de octubre por la regla de inventario: estaba escrita desde el 18-09 y nunca se publicó. **El 13-10 se corrige la hora**, que se había quedado en 09:30 cuando el martes es franja de Prueba a las 12:30 — y la rutina de recordatorio decide por la hora, así que una pieza de mediodía con 09:30 escrito se avisa en la franja equivocada. Sin DATO. Ninguna cifra, ni de cliente ni de Makers. Sustituye a B2 «Mismo presupuesto, otro sistema», que sigue aparcada esperando cifras autorizadas.",
     "alts": [
       {
         "name": "El reloj",
