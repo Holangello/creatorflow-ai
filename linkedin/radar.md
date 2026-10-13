@@ -51,6 +51,27 @@ espera redacción nueva. El nivel 4 se escribió el 08-10 «antes que cualquier 
 contra el nivel 5, nunca contra el 1, el 2 ni el 3. Y su premisa fáctica tampoco se puede afirmar hoy:
 **nadie en el repositorio sabe si el lunes 12 se publicó.** La decisión era buena y el motivo no lo era.
 
+**Segundo barrido del 13-10, 13:00. Sin candidata, y además queda cerrado un frente.** Cero nivel 3 y cero
+nivel 2, así que el calendario no se toca: el miércoles 14 sigue con «La firma», cerrada esta mañana por el
+nivel 4.
+
+**El barrido se ha gastado en reintentar dominios y no en buscar temas, y era lo correcto:** tres de los
+cuatro candidatos del sistema están bloqueados por red y no por criterio, así que lo que decide no es
+encontrar más, es que se abra alguno. **No se ha abierto ninguno.** Vuelven a responder 403 a la conexión
+`microsoft.ai`, `ai.azure.com` y `tavus.io` —los tres modelos de voz y el vídeo a vídeo, que son el nivel 2
+de la escalera— y también `advertising.amazon.com`, que era la mejor pista de ayer con primaria propia.
+
+**Y se cierra el frente que parecía abierto.** El 13-10 se anotó que las primarias de la ley española de
+protección civil del honor —la referencia del Consejo de Ministros y el texto en el Boletín de las Cortes—
+merecían un intento directo porque **no estaban en la lista de dominios caídos**. Se ha intentado:
+`www.lamoncloa.gob.es` y `www.congreso.es` responden igual que el resto. **Así que la ley no es «todavía no
+verificada», es no verificable desde esta sesión**, y hay que decirlo con esas palabras en lugar de dejarla
+esperando un intento que ya se hizo. Sigue no citable, y ahora se sabe por qué.
+
+**Lo que queda, dicho sin adornos:** el miércoles 21 no tiene red —su nivel 4 lo consumió el 14— y los
+barridos del 16, el 19 y el 20 son los que deciden si ese miércoles sigue siendo actualidad. Con los seis
+dominios cerrados, lo único que puede entrar es una noticia cuya primaria viva en un dominio que sí se abra.
+
 **Barrido anterior:** 12-10-2026. **Sin candidata, y el paso 2 de la rutina tampoco tenía trabajo:** el
 martes 13 se cubre con inventario ya escrito (`cola/2026-09-18-que-mido-y-que-ignoro.md`) y la regla de
 inventario prohíbe redactar nada nuevo mientras no haya una pieza publicada.
