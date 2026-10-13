@@ -42,17 +42,17 @@ limpio sin fecha**, disponibles para cualquier franja de su pilar.
 | 17-09 · La cuenta en voz alta | A | 1.145 | publicable | sin fecha | — · desbloqueada el 09-10 |
 | 18-09 · El reloj | B | 1.327 | publicable | mar 13-10 | — |
 | 21-09 · Sin sistema, más ruido | A | 1.095 | publicable | sin fecha | — |
-| 23-09 · La regla de lectura | A | **1.764** | publicable | vie 30-10 | Nada. **Pasa el techo de 1.600 y sale igual**: excepción documentada abajo |
+| 23-09 · La regla de lectura | A | **1.764** | **en el redactor desde el 13-10** | vie 30-10 | Abierta por un defecto nuevo, no por el techo: comparte regla y confesión con la del 07-10, que ahora publica dieciséis días antes. En la misma pasada entra el recorte a 1.600. **Hasta que vuelva, no es publicable** |
 | 24-09 · Para quién no es | A | 1.422 | publicable | jue 22-10 | — |
 | 30-09 · La cláusula que falta | A | 1.545 | publicable | vie 16-10 | — |
 | 01-10 · El mes por dentro | A | 687 | publicable | sin fecha | Carrusel opcional. **Ojo al suelo de caracteres**, abajo |
 | 02-10 · El último metro | 1 | 1.412 | publicable | sin fecha | — |
 | 05-10 · La aritmética | B | 1.437 | publicable | sin fecha | — |
 | 06-10 · El código a la vista | A | 1.276 | publicable | mar 20-10 | — · desbloqueada el 09-10 |
-| 07-10 · La firma | 1 | **1.730** | publicable | respaldo nivel 4 del miércoles | **Caduca el 17-10.** Pasa el techo y no se toca |
+| 07-10 · La firma | 1 | **1.562** | publicable | **mié 14-10** | **Trasladada el 13-10 al hueco del 14 por el nivel 4 de su escalera.** Cuatro correcciones ese día: fuera la retro-referencia a una pieza no publicada, recortada de ~1.870 a 1.562 (**deja de ser excepción del techo**), «este mes» → «en octubre», y retirada la sentencia por colisión con el título del 12-10. Caduca el 17-10, así que el 14 es su último miércoles |
 | 08-10 · El documento que cierra el briefing | 1 | 1.315 | publicable | sin fecha | — |
 | 09-10 · La señal y la factura | 1 | 1.191 | publicable | sin fecha | — |
-| 12-10 · La mitad que nadie firma | 1 | 1.427 | publicable | lun 12-10 | — |
+| 12-10 · La mitad que nadie firma | 1 | 1.427 | **publicable · se publicó o no, no se sabe** | lun 12-10 | **Estado real desconocido y escrito como desconocido.** Se avisó el 12 a las 09:20 con el texto pegado en el chat; no ha llegado respuesta y la rutina de las 19:30 sigue en silencio con cuatro avisos sin contestar, así que nadie en el repositorio puede afirmar que salió ni que no salió. **No se escribe «publicada» sin que Angello lo diga.** De esta incógnita cuelga la condición de arranque de la semana 7 |
 | 15-10 · La mitad que no se factura | 1 | 627 | publicable | jue 15-10 | Carrusel o texto según la puerta del 14. **Ojo al suelo de caracteres**, abajo |
 
 **Qué cambió respecto del recuento del 08-10, y por qué daba otro número.** Decía «publicables:
@@ -62,19 +62,28 @@ dependientes el **17-09** y el **06-10**, que se desbloquearon el 09-10 y ya no 
 lo recogió. Dos errores en direcciones opuestas dan un número que parece plausible, y eso es lo que los
 hace difíciles de ver.
 
-## Las dos excepciones escritas del techo de caracteres
+## La única excepción que queda del techo de caracteres, y está en vías de cerrarse
 
 El techo de 1.600 de `../03-guia-copywriting.md` es absoluto y **se aplica en el momento de escribir**,
-que es donde está su punto de control. Lo pasan dos piezas ya escritas y **las dos salen con el exceso**:
-el 23-09 con 1.764 y el 07-10 con 1.730.
+que es donde está su punto de control. El 09-10 lo pasaban dos piezas, el 23-09 con 1.764 y el 07-10 con
+1.730, y se decidió que ninguna se recortaba: **no se reabre una pieza publicable solo para recortarla**,
+porque 164 caracteres no la acercan un día a LinkedIn y sí obligan a propagar texto nuevo al banco, al
+artefacto, al pack y al panel — el camino exacto por el que una pieza estuvo un día entero con un episodio
+dentro.
 
-**Decidido el 09-10: ninguna de las dos se recorta.** El 07-10 no se toca porque caduca el 17-10 y es la
-única actualidad viva. El 23-09 **ya salió del redactor desanclado y sin ninguna dependencia**: la pasada
-en la que el recorte era gratis se cerró, y abrir una segunda pasada sobre una pieza publicable para
-quitarle 164 caracteres no acerca ninguna pieza a LinkedIn — y sí obliga a propagar texto nuevo al banco,
-al artefacto, al pack y al panel, que es exactamente el camino por el que ayer una pieza estuvo un día
-entero con un episodio dentro. **Aplicar el mismo motivo a los dos casos iguales vale más que un
-cumplimiento retroactivo.** El exceso queda escrito aquí en lugar de incumplirse en silencio.
+**El 13-10 las dos se cierran, y el criterio de arriba no ha cambiado: lo que ha cambiado es que a las dos
+se les ha abierto la puerta por otro motivo.** Esa es la regla real, y conviene leerla así: *el recorte no
+justifica abrir una pieza, pero si la pieza está abierta, el recorte entra en esa pasada y no en otra.*
+
+- **El 07-10 ya está dentro.** Hubo que reabrirla para quitarle una retro-referencia a una pieza que nunca
+  se publicó, y con la pieza abierta el recorte salió gratis: **1.562**. Deja de ser excepción.
+- **El 23-09 está en el redactor** por el solape de regla y de confesión con el 07-10, que ahora publica
+  dieciséis días antes, y el recorte va en esa misma pasada. Mientras no vuelva, no es publicable.
+
+**Lo que queda escrito como aprendizaje, porque es el agujero que lo produjo:** el guardarraíl de solape
+del 23-09 comprobaba contra sus vecinas de calendario y nunca contra la pieza que la cita por su tesis.
+**Cuando una pieza cambia de fecha, se recomprueba contra las piezas que la citan, no solo contra las que
+tiene al lado.**
 
 ## El suelo de caracteres, y es un hueco de regla, no un error de pieza
 

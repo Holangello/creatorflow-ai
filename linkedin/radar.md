@@ -36,10 +36,20 @@ cerrados. Queda anotado para cuando se pueda abrir: es el tema que convierte el 
 que firmar antes de entregar una pieza.
 
 **Decisión para el 14, por la escalera de la propia fila:** nivel 1 descartado por falta de primaria, nivel 2
-imposible por los dominios, nivel 3 saltado porque exigiría redactar pieza nueva y la regla de inventario lo
-prohíbe mientras no haya ninguna publicada, **nivel 4 activado:** entra `cola/2026-10-07-cifras-de-los-socios.md`,
-versión 1 «La firma» — escrita, verificada en primaria, cero `[DATO]`, nunca publicada y con su dato
-accionable vivo hasta el 17-10.
+imposible por los dominios, **nivel 3 fuera por falta de material verificado** —no por criterio: el reportaje
+de los microdramas caducó el 09-10, la cláusula PASAVE sigue en «pendientes de verificar» con tres dominios
+caídos y la cláusula sin leer, y la ley del honor sigue no citable—, **nivel 4 activado:** entra
+`cola/2026-10-07-cifras-de-los-socios.md`, versión 1 «La firma» — escrita, verificada en primaria, cero
+`[DATO]`, nunca publicada y con su dato accionable vivo hasta el 17-10.
+
+**Y queda escrito un argumento que escribí mal esta mañana, porque el error es más instructivo que la
+decisión.** Justifiqué el descarte del nivel 3 diciendo que exigiría redactar una pieza nueva y que la regla
+de inventario lo prohíbe. **Eso prueba de más y hay que retirarlo:** los niveles 1 y 2 también exigen
+redactar, así que esa regla no distingue entre ellos — los mataría a los tres y con ellos el miércoles de
+actualidad entero, que es el único hueco del sistema acoplado a un proceso externo y el único donde se
+espera redacción nueva. El nivel 4 se escribió el 08-10 «antes que cualquier sustitución de pilar», o sea
+contra el nivel 5, nunca contra el 1, el 2 ni el 3. Y su premisa fáctica tampoco se puede afirmar hoy:
+**nadie en el repositorio sabe si el lunes 12 se publicó.** La decisión era buena y el motivo no lo era.
 
 **Barrido anterior:** 12-10-2026. **Sin candidata, y el paso 2 de la rutina tampoco tenía trabajo:** el
 martes 13 se cubre con inventario ya escrito (`cola/2026-09-18-que-mido-y-que-ignoro.md`) y la regla de

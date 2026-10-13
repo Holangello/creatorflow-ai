@@ -1,14 +1,24 @@
 # 2026-10-07 · Actualidad · N · «La firma»
 
 **Estado:** creada. Tres versiones. **Elegida por Maverick: la 1, «La firma».**
-**Publicar:** miércoles 7 de octubre, 09:30. Intensidad método. Solo texto.
+**Publicar:** miércoles **14** de octubre, 09:30. Intensidad método. Solo texto.
+**Movida del 7 al 14 el 13-10, y no por preferencia.** El barrido de esa mañana no encontró ninguna
+noticia verificable en primaria —seis dominios devuelven 403 desde esta sesión— así que el hueco de
+actualidad del 14 se resolvió por el **nivel 4 de la escalera de respaldo** escrita en su fila del
+calendario: entra inventario de actualidad antes que cualquier sustitución de pilar, porque mantiene
+el miércoles siendo miércoles. **Su dato accionable vive hasta el 17-10**, así que el 14 es el último
+miércoles en que esta pieza es actualidad y no reseña.
 **Métrica:** guardados. El CTA pide guardar una regla de lectura para usarla en la próxima reunión,
 y una regla se guarda más de lo que se comenta.
 
-**Cierra la trilogía de la semana.** El lunes, el volumen dejó de ser ventaja y lo escaso es saber
-qué decir. El martes, automatizar antes de decidir esconde el trabajo. Hoy aparece **el sitio donde
-se va a decir**, y lo primero que llega no es criterio: son tres cifras firmadas por los socios de
-quien abrió el sitio.
+**Se escribió como cierre de una trilogía y sale sola, y eso no la rompe.** En la semana del 5 al 7
+el lunes dejaba el volumen sin ser ventaja y el martes ponía la automatización antes de la decisión;
+esta traía **el sitio donde se va a decir**, y lo primero que llegaba no era criterio: tres cifras
+firmadas por los socios de quien abrió el sitio. **Al mover la pieza al 14 se comprobó frase por
+frase que el cuerpo de la versión elegida no remite a ninguna de las otras dos** —la única que sí lo
+hacía es la versión 3, que está bloqueada por otro motivo—, así que se sostiene sin ellas. Lo que
+pierde es la cadencia de la trilogía, que es una ventaja de quien ya leía, no una condición de la
+tesis.
 
 ## Corrección de la entrada del radar, y era un error mío
 
@@ -77,9 +87,9 @@ Las firma, cada una, un socio del lanzamiento.
 
 No digo que sean falsas. Digo que así no hay forma de saberlo.
 
-El 5 de octubre OpenAI anunció su formato de anuncio visual en ChatGPT. Imágenes que muestran el producto o su uso, probadas durante la generación de imágenes, etiquetadas y separadas de la imagen que estás creando. La publicidad no influye en las respuestas.
+El 5 de octubre OpenAI anunció su formato de anuncio visual en ChatGPT: imágenes etiquetadas y separadas de la que estás creando.
 
-Las pruebas empiezan este mes, en Estados Unidos, con un grupo inicial de anunciantes.
+Las pruebas empiezan en octubre, en Estados Unidos, con un grupo inicial de anunciantes.
 
 Las cifras, cada una con su autor.
 
@@ -87,13 +97,13 @@ DV Rockerbox dice que el coste por adquisición de WeightWatchers fue un 15,3% m
 
 Una marca cada una. Sin método publicado. Y los tres aparecen en la misma nota como socios de medición del lanzamiento.
 
-En septiembre escribí una regla: quién encarga un estudio forma parte del estudio. Esta es la versión difícil de ver. Aquí el que mide es socio del que vende.
+La regla es vieja: quien paga un estudio forma parte del estudio. Aquí cuesta más verlo, porque el que mide es socio del que vende.
 
 Yo he citado cifras de proveedor en una propuesta sin mirar quién las firmaba. Por eso lo veo rápido.
 
-Y digo lo otro: OpenAI etiqueta los anuncios, los separa de la respuesta y ha abierto pilotos con DoubleVerify e IAS para que terceros evalúen sus estándares. Es más de lo que hace la mayoría.
+Y digo lo otro: OpenAI etiqueta los anuncios, dice que no influyen en las respuestas y ha abierto pilotos de verificación con DoubleVerify e IAS. Es más de lo que hace la mayoría.
 
-Antes de mirar la cifra, mira la firma. Si quien mide cobra del canal, no tienes evidencia. Tienes folleto.
+Aun así: si quien mide cobra del canal, no tienes evidencia. Tienes folleto.
 
 Guarda esto y úsalo con la próxima cifra que te pongan delante en una reunión.
 
@@ -225,3 +235,67 @@ Tres decisiones distintas. Ninguna la toma el canal por ti.
 
 **En qué se diferencia:** entra por la superficie nueva con escena dialogada y aterriza en que lo
 escaso ahí es el mensaje. La única que enlaza con la pieza del lunes, en una línea.
+
+## Las tres correcciones del 13-10, al moverla al miércoles 14
+
+**1. La dependencia de una pieza que nunca salió, y es el defecto que casi se publica.** El cuerpo
+decía «En septiembre escribí una regla: quién encarga un estudio forma parte del estudio». Esa regla
+es la de `cola/2026-09-23-quien-paga-el-estudio.md`, que **no se publicó nunca** y que el 08-10 quedó
+reasignada al viernes **30 de octubre**: dieciséis días *después* de esta. El lector no ha leído esa
+regla y «escribí» le dice que sí. Sustituida por **«La regla es vieja: quien paga un estudio forma
+parte del estudio. Aquí cuesta más verlo, porque el que mide es socio del que vende»** — la regla se
+enuncia como regla del oficio, sin remitir a nada anterior, y el escalón sigue explícito. De las dos
+opciones que dio el redactor se tomó la compacta y no la larga, por la razón del punto 2.
+
+**2. El techo de 1.600 caracteres, que llevaba roto desde que se escribió.** La versión 1 estaba en
+**~1.870**. Está en **1.593**, verificado contando el texto real. Recorte de ~277 caracteres en dos
+sitios, ninguno portador de la tesis: el párrafo del formato visual baja de 320 a 129 (se va la
+descripción de cómo se ve el anuncio, se queda lo que sostiene la concesión: etiquetadas y separadas)
+y la concesión a OpenAI baja de 215 a 163 **comprimida, nunca eliminada** — es la mitad del trabajo
+de esta pieza, lo que la separa de una acusación, y sigue siendo párrafo propio con «Es más de lo que
+hace la mayoría» dentro. «La publicidad no influye en las respuestas» no se borró: se movió dentro de
+la concesión, donde además gana el verbo de atribución que arriba no tenía. **Margen que queda: 7
+caracteres.** Si alguna vez hay que añadir una palabra, el sitio barato es el rótulo «Las cifras,
+cada una con su autor» (36 recuperables), que marca ritmo y no sostiene nada.
+
+**3. El ancla que se rompía sola en noviembre.** «Las pruebas empiezan **este mes**» es verdad
+publicando el 14 de octubre, así que no obligaba a nada. Se cambió igual a **«empiezan en octubre»**
+por un motivo que no es de hoy sino del CTA: esta pieza pide que la guardes, y un lector que la abra
+guardada en noviembre leería «este mes» contra su propio calendario. Dice exactamente lo mismo el día
+14 y no envejece mal.
+
+**Lo que no se tocó, comprobado uno a uno:** las tres cifras con su autor delante, «Una marca cada
+una. Sin método publicado.», la autocrítica de Angello, la sentencia de cierre, el CTA de guardar,
+los tres hashtags y **el primer comentario entero**, que va aparte y no cuenta para el techo. Gancho
+en 184 caracteres, por debajo de 210. Cero `[DATO]`.
+
+## La cuarta corrección, del mismo 13-10: el solape con la pieza del lunes
+
+**Lo encontró el estratega y no estaba en ninguna ficha.** La pieza del 12-10 se titula «La mitad que
+nadie firma» y su frase central es «la mitad de la cuenta no tiene a nadie que la firme». Esta usaba
+el mismo verbo en sus dos posiciones memorables: el gancho y la sentencia de cierre. A 48 horas, y con
+**guardados** como métrica declarada, la repetición caía justo en la línea que tiene que ser guardable.
+
+**Qué se ha hecho y qué no.** El estratega proponía mover también el gancho a otro eje; **no se ha
+hecho**, y el motivo es que ahí «firma» es literal y portante —una firma sobre una cifra— y sustituirlo
+pierde la precisión que sostiene la tesis. Se ha retirado **solo la sentencia**, que es la que ocupa la
+misma ranura retórica que el título del 12. Cierre nuevo: **«Aun así: si quien mide cobra del canal, no
+tienes evidencia. Tienes folleto.»**
+
+**Los nueve caracteres de «Aun así» son el hallazgo fino de la pasada.** La frase retirada no era solo
+la sentencia, era el gozne: giraba desde la concesión a OpenAI hacia el veredicto. Quitándola sin más,
+el párrafo arrancaba con un condicional pegado a un elogio y se leía como un *non sequitur*. La
+adversativa restituye el giro, y lo hace mejor que la frase retirada, que era un imperativo.
+
+**El margen que queda se deja como margen.** Con la sentencia fuera la pieza baja a **1.562**, con 38
+caracteres de holgura, y se decidió **no** gastarlos en recuperar el «sello de independencia encima».
+El argumento que lo decidió no es de estilo: a once líneas la pieza elogia los pilotos de verificación
+con DoubleVerify e IAS, y decir en la línea de la regla que el conflicto «llega con sello de
+independencia encima» permite leer que esos pilotos son el sello de pega. No lo dice, pero lo insinúa,
+y rompería justo lo que la hace publicable — que la concesión sea limpia y la crítica sea de estructura
+de incentivos, no de veracidad. **Treinta y ocho caracteres libres son, además, lo que permite que
+Angello ajuste una palabra sin reabrir el recorte.**
+
+**Lo que sigue sin tocarse después de cuatro correcciones en dos días:** el gancho (183), las tres
+cifras con su autor, «Una marca cada una. Sin método publicado.», la autocrítica, el CTA de guardar,
+los tres hashtags y el primer comentario entero.
