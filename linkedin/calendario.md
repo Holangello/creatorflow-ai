@@ -407,6 +407,27 @@ dos escenarios.
 > era el agujero, y es el que hay que cerrar antes de que esto se repita: **cuando una pieza se mueve de
 > fecha, se recomprueba contra las piezas que la citan, no solo contra sus vecinas de calendario.**
 >
+> **CERRADO EL MISMO 13-10: la pieza ya ha vuelto del redactor y las tres cosas están hechas en una sola
+> pasada.** La regla deja de ser una definición y pasa a ser una práctica de lectura en primera persona
+> —«Yo los informes los leo al revés: primero quién los encarga, después qué concluyen»—, así que la
+> primera aparición de la frase se la queda el 14, que publica antes. La confesión cambia de objeto: ya
+> no es una propuesta comercial, es su propia lectura, **sin hora, lugar, cliente ni diálogo, porque es
+> una admisión de hábito y no una escena** — fabricar una escena es lo que mantiene bloqueada la versión
+> 3 de la pieza del 7 de octubre. Y el recorte entra en la misma pasada: **1.587 sin hashtags, dentro del
+> techo.** Esta pieza deja de ser la excepción y el sistema se queda sin ninguna.
+>
+> **LO ÚNICO QUE QUEDA ABIERTO, y es una frase de Angello:** confirmar que ese hábito de lectura es suyo.
+> No introduce ningún hecho nuevo —el primer comentario de la propia pieza ya pide «que la cifra la hayas
+> visto en su sitio, no en un titular»— pero sigue siendo una afirmación sobre él. **Si no es suyo, se
+> quita el párrafo entero y no se reescribe:** la pieza queda en 1.422, el enemigo sigue nombrado y
+> desactivado, y sale sin autocrítica, que es mejor que con una escena compuesta. Diecisiete días de
+> holgura para esa respuesta.
+>
+> **Y un aviso que no se arregla hoy porque no hace falta:** las versiones B y C de la ficha siguen
+> llevando la confesión de la propuesta, y hoy no colisionan con nada porque están bloqueadas por cifras
+> sin verificar. **Si alguna se desbloquea, arrastra exactamente la confesión que hoy se ha retirado por
+> duplicada**, y hay que cambiarla antes y no después.
+>
 > La semana 8 completa la planifica el estratega, **y solo si hay algo publicado.**
 
 ---

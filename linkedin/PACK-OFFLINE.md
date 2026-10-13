@@ -1679,11 +1679,11 @@ El coste de la IA sin sistema no es el de la suscripción. Es el tiempo del equi
 Ese tiempo no aparece en ninguna factura. Por eso nadie lo mide.
 ```
 
-### Miércoles 23 de septiembre · 09:30 · Autoridad · Atracción
+### Viernes 30 de octubre · 09:30 · Autoridad · Atracción
 
 **Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios que confiesen y guardados.
 
-> **Antes de publicar:** **Desanclada el 08-10 y reubicada al viernes 30-10 como Autoridad de método.** Se escribió como actualidad el 23-09, nunca se publicó, y a las tres semanas el techo de 72 horas la había matado. **Cuatro anclas temporales retiradas**, una de ellas blanda y que no estaba en el encargo («en los próximos meses»): era una fecha de caducidad implícita. **El gancho alternativo de la ficha no servía** —llevaba «nuevo» y «este otoño»— así que el redactor escribió uno nuevo conservando la puerta de entrada, la advertencia y no el momento. **Cero cifras nuevas:** al caerse la comparación de España con Francia e Italia no se sustituyó por nada. Nada que confirmar para publicar.
+> **Antes de publicar:** Reescrita el 13-10, y no por el techo: el traslado de «La firma» al miércoles 14 dejó a esa pieza publicando dieciséis días antes que esta, y las dos compartían la frase de la regla y la confesión, con el mismo objeto —una propuesta—. La primera aparición se la queda el 14, que publica antes. Ahora la regla es una práctica de lectura en primera persona y la confesión cambia de objeto: ya no es una propuesta comercial, es su propia lectura, sin hora, lugar, cliente ni diálogo, porque es una admisión de hábito y no una escena. En la misma pasada entra el recorte: 1.587 sin hashtags, dentro del techo. **LO ÚNICO QUE HAY QUE CONFIRMAR, y es una frase: que ese hábito de lectura es suyo.** No introduce ningún hecho nuevo —el primer comentario ya pide que la cifra la hayas visto en su sitio y no en un titular— pero es una afirmación sobre él. Si no es suyo, se quita el párrafo entero y no se reescribe: la pieza queda en 1.422 caracteres y sale sin autocrítica, que es mejor que con una escena compuesta.
 
 #### Versión A · La regla de lectura · **ELEGIDA**
 
@@ -1699,27 +1699,25 @@ Lo ha publicado Google. Y lo ha pagado Google.
 
 Las dos frases son verdad al mismo tiempo. Y ninguna anula a la otra.
 
-Lo ha elaborado la consultora Public First por encargo suyo.
+Lo ha elaborado Public First por encargo suyo.
 
 Encargar un estudio que respalda lo que vendes no es un truco. Es oficio.
 
-Mi regla de lectura es esta: quién encarga un estudio forma parte del estudio.
+Yo los informes los leo al revés: primero quién los encarga, después qué concluyen.
 
 No es una acusación. Un informe pagado por quien vende la herramienta puede ser riguroso y aun así elegir qué preguntas hace. Lo honesto es leerlo sabiendo eso. No descartarlo ni tragárselo.
 
 Lo que casi nadie dice en voz alta es lo que va a pasar con él. Se va a usar para defender presupuestos que nadie ha discutido. Y va a funcionar, porque una cifra grande en un PDF con logo ahorra la conversación difícil.
 
-Yo lo he hecho. He metido un estudio de sector en una propuesta para sostener una cifra que me convenía, sin haberme leído el informe entero. Funcionó. Por eso sé que funciona.
+Yo lo he hecho. He repetido la conclusión de un informe que solo había leído en un titular, y la defendí como si hubiera abierto el documento. Nadie me lo preguntó.
 
-El enemigo no es el estudio. Es usarlo de aval sin haberlo abierto, porque el logo de quien lo firma cubre lo que tú no quieres discutir.
+El enemigo no es el estudio. Es usarlo de aval sin haberlo abierto.
 
-Y hay algo que un estudio así no mide: qué pasa con lo que ahorras.
-
-Te dice cuánto trabajo te quitas de encima. No te dice dónde va. Por lo que yo veo, va a más rondas de revisión, a piezas que nadie pidió, o a ningún sitio: se lo queda el margen del proveedor.
+Y hay algo que no mide: te dice cuánto trabajo te quitas de encima, no te dice dónde va. Por lo que yo veo, va a más rondas de revisión, a piezas que nadie pidió, o a ningún sitio: se lo queda el margen del proveedor.
 
 Un ahorro sin una decisión detrás no es un ahorro. Es un hueco en el calendario que alguien va a rellenar.
 
-Lo que te van a poner delante no es una herramienta. Es un argumento. Y vas a tener que decidir si lo compras.
+Lo que te van a poner delante no es una herramienta. Es un argumento.
 
 El último estudio que citaste para defender un presupuesto: ¿lo leíste entero?
 
@@ -4021,6 +4019,27 @@ dos escenarios.
 > era el agujero, y es el que hay que cerrar antes de que esto se repita: **cuando una pieza se mueve de
 > fecha, se recomprueba contra las piezas que la citan, no solo contra sus vecinas de calendario.**
 >
+> **CERRADO EL MISMO 13-10: la pieza ya ha vuelto del redactor y las tres cosas están hechas en una sola
+> pasada.** La regla deja de ser una definición y pasa a ser una práctica de lectura en primera persona
+> —«Yo los informes los leo al revés: primero quién los encarga, después qué concluyen»—, así que la
+> primera aparición de la frase se la queda el 14, que publica antes. La confesión cambia de objeto: ya
+> no es una propuesta comercial, es su propia lectura, **sin hora, lugar, cliente ni diálogo, porque es
+> una admisión de hábito y no una escena** — fabricar una escena es lo que mantiene bloqueada la versión
+> 3 de la pieza del 7 de octubre. Y el recorte entra en la misma pasada: **1.587 sin hashtags, dentro del
+> techo.** Esta pieza deja de ser la excepción y el sistema se queda sin ninguna.
+>
+> **LO ÚNICO QUE QUEDA ABIERTO, y es una frase de Angello:** confirmar que ese hábito de lectura es suyo.
+> No introduce ningún hecho nuevo —el primer comentario de la propia pieza ya pide «que la cifra la hayas
+> visto en su sitio, no en un titular»— pero sigue siendo una afirmación sobre él. **Si no es suyo, se
+> quita el párrafo entero y no se reescribe:** la pieza queda en 1.422, el enemigo sigue nombrado y
+> desactivado, y sale sin autocrítica, que es mejor que con una escena compuesta. Diecisiete días de
+> holgura para esa respuesta.
+>
+> **Y un aviso que no se arregla hoy porque no hace falta:** las versiones B y C de la ficha siguen
+> llevando la confesión de la propuesta, y hoy no colisionan con nada porque están bloqueadas por cifras
+> sin verificar. **Si alguna se desbloquea, arrastra exactamente la confesión que hoy se ha retirado por
+> duplicada**, y hay que cambiarla antes y no después.
+>
 > La semana 8 completa la planifica el estratega, **y solo si hay algo publicado.**
 
 ---
@@ -4310,7 +4329,7 @@ No se duplican en ningún otro fichero.
 | Jue 17 sept | Lo hacemos dentro |  |  |  |  |  |  |  |
 | Vie 18 sept | Qué mido y qué ignoro |  |  |  |  |  |  |  |
 | Lun 21 sept | La IA no sustituye a tu equipo |  |  |  |  |  |  |  |
-| Mié 23 sept | Quién paga el estudio |  |  |  |  |  |  |  |
+| Vie 30 oct | Quién paga el estudio |  |  |  |  |  |  |  |
 | Jue 24 sept | Para quién no es |  |  |  |  |  |  |  |
 | Mié 30 sept | La cláusula que falta |  |  |  |  |  |  |  |
 | Jue 1 oct | Qué recibe un cliente cada mes |  |  |  |  |  |  |  |

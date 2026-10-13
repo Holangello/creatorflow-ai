@@ -42,7 +42,7 @@ limpio sin fecha**, disponibles para cualquier franja de su pilar.
 | 17-09 · La cuenta en voz alta | A | 1.145 | publicable | sin fecha | — · desbloqueada el 09-10 |
 | 18-09 · El reloj | B | 1.327 | publicable | mar 13-10 | — |
 | 21-09 · Sin sistema, más ruido | A | 1.095 | publicable | sin fecha | — |
-| 23-09 · La regla de lectura | A | **1.764** | **en el redactor desde el 13-10** | vie 30-10 | Abierta por un defecto nuevo, no por el techo: comparte regla y confesión con la del 07-10, que ahora publica dieciséis días antes. En la misma pasada entra el recorte a 1.600. **Hasta que vuelva, no es publicable** |
+| 23-09 · La regla de lectura | A | **1.587** | publicable · **una frase por confirmar** | vie 30-10 | Reescrita el 13-10 en una sola pasada: otra formulación de la regla, confesión con otro objeto —su propia lectura, no una propuesta— y recorte dentro del techo. **Falta que Angello confirme que ese hábito de lectura es suyo**; si no lo es, se quita el párrafo entero y queda en 1.422 |
 | 24-09 · Para quién no es | A | 1.422 | publicable | jue 22-10 | — |
 | 30-09 · La cláusula que falta | A | 1.545 | publicable | vie 16-10 | — |
 | 01-10 · El mes por dentro | A | 687 | publicable | sin fecha | Carrusel opcional. **Ojo al suelo de caracteres**, abajo |
@@ -77,8 +77,11 @@ justifica abrir una pieza, pero si la pieza está abierta, el recorte entra en e
 
 - **El 07-10 ya está dentro.** Hubo que reabrirla para quitarle una retro-referencia a una pieza que nunca
   se publicó, y con la pieza abierta el recorte salió gratis: **1.562**. Deja de ser excepción.
-- **El 23-09 está en el redactor** por el solape de regla y de confesión con el 07-10, que ahora publica
-  dieciséis días antes, y el recorte va en esa misma pasada. Mientras no vuelva, no es publicable.
+- **El 23-09 ya ha vuelto el mismo 13-10**, con la regla reformulada, la confesión con otro objeto y el
+  recorte dentro: **1.587**. Deja de ser excepción, y le queda una frase por confirmar, no un recorte.
+
+**Resultado: el sistema se queda sin ninguna excepción de techo abierta**, y la regla que lo cerró queda
+escrita arriba para la próxima vez.
 
 **Lo que queda escrito como aprendizaje, porque es el agujero que lo produjo:** el guardarraíl de solape
 del 23-09 comprobaba contra sus vecinas de calendario y nunca contra la pieza que la cita por su tesis.
