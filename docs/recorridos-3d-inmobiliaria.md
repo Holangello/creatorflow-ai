@@ -73,6 +73,8 @@ terraza. **C** para obra nueva y para enseñar el "después" de una reforma.
 - Vídeo 360 **8K** (30 fps; 50 fps en algunos modos), perfil 10-bit **D-Log M**, sensor de 1".
 - Incluye (según el pack) un **palo invisible** de 1,2 m. En la imagen cosida desaparece.
 
+> **Paso a paso interactivo:** abre `tools/visor-inmobiliario/asistente-osmo.html` en el móvil durante la sesión (resumen imprimible en [`guia-osmo360.md`](guia-osmo360.md)).
+
 ### 3.2 Protocolo de toma (checklist)
 
 1. **Preparar la vivienda**: recoger objetos personales, abrir persianas, encender todas las luces y unificar la

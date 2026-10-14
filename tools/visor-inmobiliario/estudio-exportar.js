@@ -244,8 +244,12 @@ function pintarExportar() {
       boton: "Abrir dossier", necesita: ["abrirFichaImprimible"],
       accion: async () => {
         const { t: tt, archivos } = datosExport();
+        // Captura de portada con tope de 1,5 s: la ventana debe abrirse aún dentro del gesto del usuario (si no, se bloquea).
         let portada;
-        try { portada = await app.vistaPrevia.ventana()?.visor?.capturar?.(); } catch {}
+        const cap = app.vistaPrevia.ventana()?.visor?.capturar?.();
+        if (cap?.then) {
+          try { const b = await Promise.race([cap, new Promise((r) => setTimeout(r, 1500))]); if (b instanceof Blob) { archivos.set("estudio/portada.png", b); portada = "estudio/portada.png"; } } catch {}
+        }
         EXP.abrirFichaImprimible(tt, { enlace: urlPublica(), archivos, portada });
         return "Abierto en una pestaña nueva";
       } }),

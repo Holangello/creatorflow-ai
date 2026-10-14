@@ -171,3 +171,91 @@ export function dentro([x, z], pol) {
   return c;
 }
 export const redondear = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
+
+// ------------------------------------------------------------------ EXIF / XMP (solo lectura de cabeceras)
+/**
+ * Lee los metadatos útiles de un JPEG sin decodificarlo: Make, Model, DateTimeOriginal (EXIF) y el rumbo de brújula
+ * del XMP (GPano:PoseHeadingDegrees, drone-dji:FlightYawDegree / GimbalYawDegree, Camera:Yaw). → objeto o null.
+ */
+export async function leerMetadatos(blob) {
+  const r = {};
+  try {
+    const cab = new Uint8Array(await blob.slice(0, 2).arrayBuffer());
+    if (cab[0] !== 0xff || cab[1] !== 0xd8) return null;
+    let pos = 2;
+    for (let n = 0; n < 40 && pos < blob.size; n++) {
+      const m = new Uint8Array(await blob.slice(pos, pos + 4).arrayBuffer());
+      if (m[0] !== 0xff) break;
+      const marca = m[1], largo = (m[2] << 8) | m[3];
+      if (marca === 0xda || marca === 0xd9) break; // inicio de los datos de imagen
+      if (marca === 0xe1) {
+        const datos = new Uint8Array(await blob.slice(pos + 4, pos + 2 + largo).arrayBuffer());
+        const firma = String.fromCharCode(...datos.slice(0, 6));
+        if (firma.startsWith("Exif")) Object.assign(r, leerExif(datos.subarray(6)));
+        else {
+          const txt = new TextDecoder().decode(datos);
+          if (txt.includes("ns.adobe.com/xap") || txt.includes("<x:xmpmeta")) Object.assign(r, leerXmp(txt));
+        }
+      }
+      pos += 2 + largo;
+    }
+  } catch { /* metadatos ilegibles */ }
+  return r;
+}
+function leerExif(t) {
+  const dv = new DataView(t.buffer, t.byteOffset, t.byteLength);
+  const le = t[0] === 0x49;
+  const u16 = (o) => dv.getUint16(o, le), u32 = (o) => dv.getUint32(o, le);
+  const r = {};
+  const cadena = (o, n) => { let s = ""; for (let i = 0; i < n && t[o + i]; i++) s += String.fromCharCode(t[o + i]); return s.trim(); };
+  const ifd = (o, fn) => {
+    if (o + 2 > t.length) return;
+    const n = u16(o);
+    for (let i = 0; i < n; i++) {
+      const e = o + 2 + i * 12;
+      if (e + 12 > t.length) return;
+      const tag = u16(e), tipo = u16(e + 2), cnt = u32(e + 4);
+      const valOff = cnt * (tipo === 2 ? 1 : 4) > 4 ? u32(e + 8) : e + 8;
+      fn(tag, tipo, cnt, valOff, e);
+    }
+  };
+  let exifIfd = null;
+  ifd(u32(4), (tag, tipo, cnt, vo, e) => {
+    if (tag === 0x010f) r.marca = cadena(vo, cnt);
+    else if (tag === 0x0110) r.modelo = cadena(vo, cnt);
+    else if (tag === 0x8769) exifIfd = u32(e + 8);
+  });
+  if (exifIfd) ifd(exifIfd, (tag, tipo, cnt, vo) => {
+    if (tag === 0x9003) r.fecha = cadena(vo, cnt); // "2025:03:14 10:22:31"
+  });
+  return r;
+}
+function leerXmp(txt) {
+  const r = {};
+  const num = (re) => { const m = txt.match(re); return m ? parseFloat(m[1]) : null; };
+  const claves = [
+    /GPano:PoseHeadingDegrees\s*=\s*"(-?[\d.]+)"/, /<GPano:PoseHeadingDegrees>(-?[\d.]+)</,
+    /drone-dji:GimbalYawDegree\s*=\s*"([+-]?[\d.]+)"/, /drone-dji:FlightYawDegree\s*=\s*"([+-]?[\d.]+)"/,
+    /Camera:Yaw\s*=\s*"([+-]?[\d.]+)"/, /<Camera:Yaw>([+-]?[\d.]+)</,
+  ];
+  const fuentes = ["GPano:PoseHeadingDegrees", "GPano:PoseHeadingDegrees", "drone-dji:GimbalYawDegree", "drone-dji:FlightYawDegree", "Camera:Yaw", "Camera:Yaw"];
+  for (let i = 0; i < claves.length; i++) { const v = num(claves[i]); if (v != null && Number.isFinite(v)) { r.rumbo = v; r.rumboFuente = fuentes[i]; break; } }
+  const mk = txt.match(/tiff:Make\s*=\s*"([^"]+)"/); if (mk) r.marca ??= mk[1];
+  const md = txt.match(/tiff:Model\s*=\s*"([^"]+)"/); if (md) r.modelo ??= md[1];
+  return r;
+}
+/** Descripción de la cámara para la insignia ("Osmo 360 · 120 MP", "Osmo 360 · HDR 30 MP"…). */
+export function describirCamara(meta, dim) {
+  const esOsmo = /dji/i.test(meta?.marca ?? "") && /osmo\s*-?360/i.test(meta?.modelo ?? "") || /osmo\s*-?360/i.test(meta?.modelo ?? "");
+  if (!dim) return null;
+  const mp = Math.round((dim.w * dim.h) / 1e6);
+  const nombre = esOsmo ? (/ii|2/i.test((meta.modelo ?? "").replace(/osmo\s*-?360/i, "")) ? "Osmo 360 II" : "Osmo 360") : null;
+  if (!nombre) return null;
+  const modo = dim.w >= 15000 ? `${mp} MP` : dim.w >= 7000 && dim.w < 8000 ? `HDR ${mp} MP` : `${mp} MP`;
+  return `${nombre} · ${modo}`;
+}
+/** "2025:03:14 10:22:31" → milisegundos (o null). */
+export function fechaExif(s) {
+  const m = /^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(s ?? "");
+  return m ? Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null;
+}
