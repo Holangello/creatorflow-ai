@@ -112,6 +112,10 @@
 .pn-pestana-et { grid-column: 1; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--pn-suave); }
 .pn-pestana-precio { grid-column: 1; font-family: var(--pn-serif); font-size: 19px; line-height: 1.2; }
 .pn-pestana .pn-ic { grid-column: 2; grid-row: 1 / span 2; color: var(--pn-acento); }
+/* con un diálogo abierto la pestaña se reduce a un icono para no quedar debajo */
+.pn-disp-lateral.pn-con-dialogo:not(.pn-dlg-contacto) .pn-pestana { min-width: 0; width: 52px; height: 52px; padding: 0; display: grid; place-items: center; grid-template-columns: 1fr; }
+.pn-disp-lateral.pn-con-dialogo:not(.pn-dlg-contacto) .pn-pestana > span { display: none; }
+.pn-disp-lateral.pn-con-dialogo:not(.pn-dlg-contacto) .pn-pestana .pn-ic { grid-column: 1; grid-row: 1; }
 .pn-pestana[aria-expanded="true"] { border-color: color-mix(in srgb, var(--pn-acento) 60%, transparent); }
 
 /* ---------------------------------------------------------------- panel lateral */

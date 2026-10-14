@@ -121,7 +121,10 @@ export function crearPlano(canvas, ctx) {
     // Etiquetas de estancias (nombre + m²) cuando hay espacio
     if (grande || T.esc > 22 || T.radar) {
       g.textAlign = "center"; g.textBaseline = "middle";
+      const pos0 = T.radar ? ctx.posicion() : null;
       for (const e of estancias) {
+        // En el radar no se rotula la estancia donde está el visitante (ya figura en la tarjeta superior).
+        if (pos0 && puntoEnPoligono([pos0.x, pos0.z], e.poligono)) continue;
         const [cx, cz] = T.a(...centroide(e.poligono));
         g.font = `600 ${grande ? 13 : 10}px system-ui, sans-serif`;
         g.fillStyle = "rgba(255,255,255,.85)";

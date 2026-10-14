@@ -172,7 +172,9 @@ on("abrir", () => dialogoAbrir());
 // ------------------------------------------------------------------ teclado
 function enCampo(e) {
   const t = e.target;
-  return t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+  if (!(t instanceof HTMLElement)) return false;
+  if (t.tagName === "INPUT") return !/^(checkbox|radio|range|color|button|submit|file)$/.test(t.type);
+  return t.isContentEditable || /^(TEXTAREA|SELECT)$/.test(t.tagName);
 }
 addEventListener("keydown", (e) => {
   if (document.querySelector("dialog[open], .editor-mascara")) {

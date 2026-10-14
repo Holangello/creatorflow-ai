@@ -31,10 +31,10 @@
         <p id="estancia" aria-live="polite"></p>
       </div>
     </header>
-    <nav id="modos" role="tablist" aria-label="Modo de visita">
-      <button type="button" role="tab" data-modo="tour" aria-selected="true">Recorrido 360</button>
-      <button type="button" role="tab" data-modo="libre" aria-selected="false">Modo libre 3D</button>
-      <button type="button" role="tab" data-modo="maqueta" aria-selected="false">Maqueta 3D</button>
+    <nav id="modos" aria-label="Modo de visita">
+      <button type="button" data-modo="tour" aria-pressed="true">Recorrido 360</button>
+      <button type="button" data-modo="libre" aria-pressed="false">Modo libre 3D</button>
+      <button type="button" data-modo="maqueta" aria-pressed="false">Maqueta 3D</button>
     </nav>
 
     <div id="iconos">
@@ -66,7 +66,14 @@
     <nav id="galeria" aria-label="Estancias"></nav>
 
     <div id="subtitulo" aria-live="polite" hidden></div>
-    <div id="cortinilla" hidden>
+    <div id="guion-barra" role="group" aria-label="Visita guiada" hidden>
+      <button type="button" class="pausa" aria-label="Pausa">❚❚</button>
+      <span class="n"></span>
+      <div class="progreso" aria-hidden="true"><div></div></div>
+      <button type="button" class="parar" aria-label="Detener visita">✕</button>
+    </div>
+    <div id="rotulo" aria-hidden="true"><b></b><span></span></div>
+    <div id="cortinilla" data-antes="Antes" data-despues="Después" hidden>
       <button type="button" role="slider" aria-label="Comparar antes y después" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"/></svg>
       </button>

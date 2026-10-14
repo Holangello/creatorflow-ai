@@ -99,7 +99,7 @@ function pintarHerramientas() {
   const herr = HERRAMIENTAS.find((t) => t.id === S.herr);
   pista.textContent = S.herr === "enlace" && S.enlaceDesde ? `Ahora haz clic en la foto que quieres enlazar con «${nombreDe(pano(S.enlaceDesde))}» (Esc para cancelar).` : herr.pista;
   const pl = planta();
-  avisoEscala.hidden = !(pl?.plano?.imagen && !app.tour._estudio.calibrado?.[pl.id]);
+  avisoEscala.hidden = !(pl?.plano?.imagen && !app.tour._estudio.calibrado?.[pl.id]) || S.herr === "calibrar";
   avisoEscala.replaceChildren(icono("regla", 18), h("span", { style: { flex: 1 } }, "Escala sin calibrar: haz clic en «Calibrar» y marca una medida conocida para que las distancias y los m² sean reales."),
     h("button", { class: "btn peq primario", onclick: () => fijarHerramienta("calibrar") }, "Calibrar"));
 }
@@ -379,7 +379,12 @@ function dibujar() {
     g.fillStyle = col + (selE ? "40" : "22"); g.fill();
     g.strokeStyle = col + (selE ? "ff" : "b0"); g.lineWidth = selE ? 2.5 : 1.5; g.stroke();
     const [cx, cz] = centroide(e.poligono);
-    const [sx, sy] = aPantalla(cx, cz);
+    let [sx, sy] = aPantalla(cx, cz);
+    // Si una foto cae cerca del centro, la etiqueta sube para no taparla.
+    if (app.tour.panoramas.some((p) => colocado(p) && enPlanta(p) && Math.hypot(...aPantalla(p.x, p.z).map((v, k) => v - [sx, sy][k])) < 46)) {
+      const top = Math.min(...e.poligono.map(([, z]) => aPantalla(0, z)[1]));
+      sy = Math.max(top + 24, sy - 48);
+    }
     const nom = textoDe(e.nombre) || "Estancia", ar = fmtM2(area(e.poligono));
     const ancho = Math.max(g.measureText(nom).width, g.measureText(ar).width) + 16;
     g.fillStyle = "rgba(12,14,18,.82)"; redondo(g, sx - ancho / 2, sy - 19, ancho, 38, 7); g.fill();

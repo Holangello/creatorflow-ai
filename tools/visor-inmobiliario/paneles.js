@@ -372,7 +372,7 @@ function rail() {
   return h("nav", { class: "pn-rail", "aria-label": tr("herramientas.titulo") },
     compacta
       ? botonIcono({ k: "pestana", icono: "ficha", etiqueta: tr("ficha.abrir"), onclick: () => abrirPanel(!ui.abierto), extra: { "aria-expanded": String(ui.abierto), "aria-controls": "pn-panel" } })
-      : h("button", { type: "button", class: "pn-pestana", "data-k": "pestana", "aria-expanded": String(ui.abierto), "aria-controls": "pn-panel", onclick: () => abrirPanel(!ui.abierto) },
+      : h("button", { type: "button", class: "pn-pestana", "data-k": "pestana", "aria-label": `${tr("ficha.pestana")}: ${textoPrecio()}`, "aria-expanded": String(ui.abierto), "aria-controls": "pn-panel", onclick: () => abrirPanel(!ui.abierto) },
           h("span", { class: "pn-pestana-et" }, tr("ficha.pestana")),
           h("span", { class: "pn-pestana-precio" }, textoPrecio()),
           ic(ui.abierto ? "der" : "izq", "pn-ic pn-ic-s")),
@@ -485,6 +485,15 @@ function colocarHoja(animar) {
   if (ui.disp !== "hoja" || !p) {
     raizDoc.removeProperty("--reserva-inferior");
     raizDoc.setProperty("--pn-ocupado-der", ui.abierto ? "380px" : "0px");
+    // Ancho ocupado abajo a la derecha (dock + contacto) para que la galería del núcleo no lo pise.
+    requestAnimationFrame(() => {
+      let izq = innerWidth;
+      for (const el of raiz?.querySelectorAll(".pn-dock, .pn-herramientas, [class*='pn-dock']") ?? []) {
+        const r = el.getBoundingClientRect();
+        if (r.width && r.bottom > innerHeight - 140) izq = Math.min(izq, r.left);
+      }
+      raizDoc.setProperty("--ancho-dock", `${Math.max(0, Math.round(innerWidth - izq))}px`);
+    });
     return;
   }
   const libre = document.body.classList.contains("modo-libre");
@@ -500,7 +509,11 @@ function colocarHoja(animar) {
   if (cuerpo) cuerpo.inert = ui.altura === "peek";
   const peekPx = raiz.querySelector(".pn-peek")?.offsetHeight ?? 64;
   // en modo libre la hoja se reduce a una píldora a la derecha: no hace falta reservar todo el ancho
-  raizDoc.setProperty("--reserva-inferior", `${libre ? 0 : Math.max(0, peekPx - segInf())}px`);
+  let reserva = libre ? 0 : Math.max(0, peekPx - segInf());
+  // en modo captura la barra flotante ocupa el sitio del peek: el núcleo sube su galería por encima
+  const barra = ui.capturando && raiz.querySelector(".pn-barra-captura");
+  if (barra) reserva = barra.offsetHeight + 10;
+  raizDoc.setProperty("--reserva-inferior", `${reserva}px`);
 }
 
 function prepararArrastre(p) {
@@ -950,6 +963,7 @@ async function tomarCaptura() {
   if (ui.capturando) {
     const vieja = raiz.querySelector(".pn-barra-captura");
     vieja?.replaceWith(barraCaptura());
+    colocarHoja(false);
     raiz.querySelector(ui.capturas.length >= MAX_FOTOS ? "[data-k='captura-listo']" : "[data-k='capturar']")?.focus({ preventScroll: true });
   }
 }

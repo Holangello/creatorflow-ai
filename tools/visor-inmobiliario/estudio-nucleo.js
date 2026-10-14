@@ -260,7 +260,7 @@ const esTexto = (v) => v && typeof v === "object" && !Array.isArray(v) && Object
 function limpiar(v, idiomas, clave) {
   if (Array.isArray(v)) {
     const r = v.map((x) => limpiar(x, idiomas)).filter((x) => x !== undefined);
-    return r.length || clave === "enlaces" ? r : undefined;
+    return r.length || clave === "enlaces" || clave === "estancias" ? r : undefined;
   }
   if (esTexto(v)) {
     let ent = Object.entries(v).filter(([k, s]) => s.trim() && idiomas.includes(k));

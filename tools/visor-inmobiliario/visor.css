@@ -35,7 +35,10 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 
 /* Ocultación automática tras 3 s sin interacción (la escena manda). */
 #barra, #modos, #iconos, #minimapa, #galeria, #etiquetas { transition: opacity .35s ease, transform .35s ease; }
-body.ui-inactiva #barra, body.ui-inactiva #modos, body.ui-inactiva #iconos, body.ui-inactiva #galeria, body.ui-inactiva #minimapa:not(.grande) { opacity: 0; pointer-events: none; }
+body.ui-inactiva #barra, body.ui-inactiva #modos, body.ui-inactiva #iconos, body.ui-inactiva #galeria { opacity: 0; pointer-events: none; }
+body.ui-inactiva :is(#barra, #modos, #iconos, #galeria):focus-within { opacity: 1; pointer-events: auto; }
+/* Con el ratón capturado (modo juego) solo queda el radar, como en Counter-Strike. */
+body.raton-capturado :is(#barra, #modos, #iconos, #galeria) { opacity: 0; pointer-events: none; }
 
 /* ---------------- arriba-izquierda: marca, título y estancia ---------------- */
 #barra { position: absolute; z-index: 10; top: calc(10px + var(--seg-sup)); left: calc(10px + var(--seg-izq));
@@ -51,7 +54,7 @@ body.ui-inactiva #barra, body.ui-inactiva #modos, body.ui-inactiva #iconos, body
   display: flex; gap: 4px; padding: 4px; }
 #modos button { border: 0; background: transparent; padding: 8px 14px; border-radius: 9px; min-height: 40px; color: var(--suave); white-space: nowrap; }
 #modos button:hover { color: var(--texto); }
-#modos button[aria-selected="true"] { background: var(--acento); color: var(--acento-texto); font-weight: 600; }
+#modos button[aria-pressed="true"] { background: var(--acento); color: var(--acento-texto); font-weight: 600; }
 #modos[hidden], #modos button[hidden] { display: none; }
 
 /* ---------------- arriba-derecha: iconos ---------------- */
@@ -133,7 +136,7 @@ body.midiendo #lienzo { cursor: crosshair; }
 #joystick.activo { display: block; }
 #joystick-pomo { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px; border-radius: 50%; background: rgba(255,255,255,.45); }
 #pista { position: absolute; z-index: 12; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 12px 18px; pointer-events: none; text-align: center;
-  font-size: 15px; animation: pista 2.2s ease-in-out infinite; }
+  font-size: 15px; animation: pista 2.2s ease-in-out 2; }
 @keyframes pista { 50% { transform: translate(-50%, -50%) scale(1.04); } }
 
 /* ---------------- diálogos y avisos ---------------- */
@@ -234,3 +237,46 @@ body.raton-capturado #lienzo { cursor: none; }
 #sello-ia { position: absolute; z-index: 9; top: calc(70px + var(--seg-sup)); left: 50%; transform: translateX(-50%); padding: 4px 10px;
   border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .02em; background: rgba(0,0,0,.6); border: 1px solid var(--borde); pointer-events: none; }
 @media (max-width: 900px) { #sello-ia { top: auto; bottom: calc(var(--abajo) + 136px); } }
+
+/* ---------------- auditoría UX fase 1 ---------------- */
+#plantas button { min-height: 32px; padding: 6px 10px; }
+#minimapa .mini { width: 36px; height: 36px; }
+#minimapa.radar:not(.grande) { overflow: visible; background: transparent; border: 0; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#minimapa.radar:not(.grande) #mapa { border-radius: 50%; background: var(--panel); border: 1px solid color-mix(in srgb, var(--acento) 55%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+#minimapa.radar:not(.grande) .mini { bottom: -4px; right: -4px; background: var(--panel-solido); }
+#minimapa.radar:not(.grande) .mini-izq { left: -4px; right: auto; }
+#galeria button span { font-size: 12px; background: linear-gradient(transparent, rgba(0,0,0,.92) 55%); }
+@media (max-width: 1100px) and (min-width: 901px) { #barra { max-width: calc(50vw - 210px); } }
+#cortinilla { z-index: 13; }
+#cortinilla::before, #cortinilla::after { position: absolute; top: calc(70px + var(--seg-sup)); padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  background: rgba(0,0,0,.6); color: #fff; white-space: nowrap; }
+#cortinilla::before { content: attr(data-antes); right: 12px; }
+#cortinilla::after { content: attr(data-despues); left: 12px; }
+#medir-barra { top: calc(70px + var(--seg-sup)); bottom: auto; flex-wrap: nowrap; overflow-x: auto; max-width: calc(100vw - 20px); }
+#medir-barra small { display: none; }
+#medir-barra .pista { white-space: nowrap; }
+body.midiendo #pista, body.midiendo #rotulo { display: none; }
+@media (max-width: 900px) { #medir-barra { top: calc(66px + var(--seg-sup)); flex-wrap: wrap; } }
+#guion-barra { position: absolute; z-index: 14; left: 50%; transform: translateX(-50%); top: calc(70px + var(--seg-sup)); display: flex; align-items: center; gap: 10px;
+  padding: 6px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--borde); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+#guion-barra button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--acento); color: var(--acento-texto); font-size: 13px; }
+#guion-barra .parar { background: rgba(255,255,255,.12); color: #fff; }
+#guion-barra .n { font-size: 13px; color: var(--suave); min-width: 34px; text-align: center; }
+#guion-barra .progreso { width: 140px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.15); overflow: hidden; }
+#guion-barra .progreso div { height: 100%; width: 0; background: var(--acento); }
+body.guion-activo #sello-ia { top: calc(118px + var(--seg-sup)); }
+#rotulo { position: absolute; z-index: 7; left: 50%; top: 22%; transform: translateX(-50%); text-align: center; pointer-events: none; opacity: 0;
+  text-shadow: 0 2px 14px rgba(0,0,0,.6); }
+#rotulo b { display: block; font: 600 30px/1.1 var(--serif); color: #fff; }
+#rotulo span { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.85); }
+#rotulo.visible { animation: rotulo 2.2s ease forwards; }
+@keyframes rotulo { 0% { opacity: 0; transform: translate(-50%, 6px); } 18% { opacity: 1; transform: translate(-50%, 0); } 70% { opacity: 1; } 100% { opacity: 0; } }
+body.modo-libre #rotulo, body.modo-maqueta #rotulo { display: none; }
+#error-carga { position: fixed; inset: 0; z-index: 70; display: grid; place-content: center; justify-items: center; gap: 16px; text-align: center;
+  background: radial-gradient(circle at 50% 40%, #1a1d23, #0b0c0f); color: var(--texto); padding: 20px; }
+#error-carga button { border: 0; border-radius: 10px; padding: 10px 18px; background: var(--acento); color: var(--acento-texto); font-weight: 600; min-height: 44px; }
+
+/* Convivencia con los paneles (pill de contacto y dock) */
+@media (max-width: 900px) { body.modo-libre #modos, body.modo-maqueta #modos { bottom: calc(var(--abajo) + 76px); } }
+@media (max-height: 500px) and (orientation: landscape) { #galeria { max-width: calc(100vw - 30px - var(--ancho-dock, 300px)); } }

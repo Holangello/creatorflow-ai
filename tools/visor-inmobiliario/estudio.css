@@ -391,9 +391,13 @@ dialog.dialogo .botones { display: flex; justify-content: flex-end; gap: 8px; ma
   .foto { grid-template-columns: 20px 104px minmax(0, 1fr) auto; }
   .foto .mini { width: 104px; height: 52px; }
   body.seccion-orientar { grid-template-columns: var(--ancho-pasos) minmax(300px, 1fr) minmax(360px, 1.3fr); }
-  .editor-plano { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
-  .plano-lado { border-left: 0; border-top: 1px solid var(--borde); max-height: 34vh; }
+  body.seccion-plano { --ancho-vista: 270px; }
+  .editor-plano { grid-template-columns: minmax(0, 1fr) 220px; }
+  .plano-lado { padding: 12px 10px; }
+  .herramientas .btn span, .herramientas .btn kbd { display: none; }
+  .herramientas .btn { width: 38px; padding: 0; }
 }
+@media (max-width: 1280px) { .herramientas .btn kbd { display: none; } }
 @media (max-width: 860px) {
   body, body.seccion-orientar, body.seccion-plano { --ancho-vista: clamp(320px, 26vw, 460px); }
 body.vista-grande { grid-template-columns: var(--ancho-pasos) minmax(0, 1fr); grid-template-areas: "sup sup" "pasos trabajo"; }

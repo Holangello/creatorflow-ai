@@ -331,6 +331,8 @@ function asignar(slot, s) {
 // ------------------------------------------------------------------ puntos de salto (auto hotspots)
 const geoAro = new THREE.RingGeometry(0.32, 0.42, 48).rotateX(-Math.PI / 2);
 const geoDisco = new THREE.CircleGeometry(0.6, 32).rotateX(-Math.PI / 2);
+const geoHalo = new THREE.RingGeometry(0.28, 0.47, 48).rotateX(-Math.PI / 2); // contorno oscuro: contraste ≥ 3:1 sobre suelos claros
+const matHalo = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthTest: false });
 const geoFlecha = (() => {
   const s = new THREE.Shape();
   s.moveTo(0, -0.2); s.lineTo(0.16, 0.06); s.lineTo(0.06, 0.06); s.lineTo(0.06, 0.2);
@@ -359,6 +361,9 @@ function construirPuntos() {
     const g = new THREE.Group();
     g.position.set((dx / dist) * r, -alt, (dz / dist) * r);
     g.rotation.y = -rumbo(dx, dz) + Math.PI;
+    const halo = new THREE.Mesh(geoHalo, matHalo);
+    halo.renderOrder = 1;
+    g.add(halo);
     const aro = new THREE.Mesh(geoAro, matAro);
     const flecha = new THREE.Mesh(geoFlecha, matAro);
     const hit = new THREE.Mesh(geoDisco, matInvisible);
@@ -492,6 +497,11 @@ function anunciarEstancia(n) {
   const partes = [texto(n.nombre)];
   if (est) partes.push(`${metros(areaPoligono(est.poligono))} m²`);
   $("#estancia").textContent = partes.join(" · ");
+  // Rótulo elegante al entrar en una estancia (se desvanece solo).
+  const r = $("#rotulo");
+  r.querySelector("b").textContent = texto(n.nombre);
+  r.querySelector("span").textContent = est ? `${metros(areaPoligono(est.poligono))} m²` : "";
+  r.classList.remove("visible"); void r.offsetWidth; r.classList.add("visible");
 }
 
 function estanciaDe(n) {
@@ -687,10 +697,11 @@ function moverLibre(dt) {
   adelante -= int.joy.y; lado += int.joy.x;
   const mag = Math.hypot(adelante, lado);
   if (mag > 1) { adelante /= mag; lado /= mag; }
-  const rapidez = k.has("ShiftLeft") || k.has("ShiftRight") ? 2.6 : 1.4;
+  const rapidez = k.has("ShiftLeft") || k.has("ShiftRight") ? 3.2 : 1.4;
   const s = Math.sin(L.rumbo), c = Math.cos(L.rumbo);
   velObjetivo.set((s * adelante + c * lado) * rapidez, 0, (-c * adelante + s * lado) * rapidez);
-  L.vel.lerp(velObjetivo, 1 - Math.exp(-dt / 0.18)); // aceleración suave (~200 ms)
+  const tau = velObjetivo.lengthSq() ? 0.07 : 0.05; // respuesta seca, como en Minecraft
+  L.vel.lerp(velObjetivo, 1 - Math.exp(-dt / tau));
   let mx = L.vel.x * dt, mz = L.vel.z * dt;
   if (Math.abs(mx) < 1e-5 && Math.abs(mz) < 1e-5) mx = mz = 0;
   if (L.colisiones.length && (mx || mz)) {
@@ -799,12 +810,29 @@ const guion = crearGuion({
   asegurarModoTour: () => { if (estado.modo !== "tour") cambiarModo("tour"); },
 });
 
+// Barra de la visita guiada: pausa, parada actual y progreso (WCAG 2.2.2).
+const barraGuion = $("#guion-barra");
+barraGuion.querySelector(".pausa").onclick = () => guion.alternarPausa();
+barraGuion.querySelector(".parar").onclick = () => guion.parar();
+function actualizarBarraGuion() {
+  const p = guion.progreso();
+  barraGuion.hidden = !p;
+  if (!p) return;
+  barraGuion.querySelector(".n").textContent = `${p.actual}/${p.total}`;
+  barraGuion.querySelector(".progreso div").style.width = `${(p.progreso * 100).toFixed(1)}%`;
+  const b = barraGuion.querySelector(".pausa");
+  const txt = guion.pausado ? "▶" : "❚❚";
+  if (b.textContent !== txt) { b.textContent = txt; b.setAttribute("aria-label", guion.pausado ? "Reanudar" : "Pausa"); }
+}
+
 // ------------------------------------------------------------------ entrada
 const punteros = new Map();
 let arrastre = null;
 let pellizco = null;
 
-function interaccion() {
+function interaccion(ev) {
+  // Con el ratón capturado, mover el ratón es "jugar", no pedir la interfaz (como en un videojuego).
+  if (ev?.type === "pointermove" && document.pointerLockElement === lienzo) return;
   int.ultimaInteraccion = performance.now();
   int.yaInteractuo = true;
   if (document.body.classList.contains("ui-inactiva")) document.body.classList.remove("ui-inactiva");
@@ -812,7 +840,7 @@ function interaccion() {
 ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) => addEventListener(ev, interaccion, { passive: true }));
 
 lienzo.addEventListener("pointerdown", (e) => {
-  if (guion.activo) guion.parar();
+  if (guion.activo && !guion.pausado) guion.alternarPausa(); // tocar la escena pausa la visita (no la cancela)
   lienzo.setPointerCapture(e.pointerId);
   punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });
   ocultarPista("arrastra");
@@ -931,6 +959,13 @@ document.addEventListener("pointerlockchange", () => {
   const si = document.pointerLockElement === lienzo;
   document.body.classList.toggle("raton-capturado", si);
   if (si) ocultarPista(estado.modo === "libre" ? "libre" : "captura");
+  else if (estado.modo !== "maqueta" && !estado.midiendo) {
+    const el = $("#pista");
+    el.textContent = tr("aviso.clic_explorar");
+    el.dataset.id = "volver";
+    el.hidden = false;
+    setTimeout(() => { if (el.dataset.id === "volver") el.hidden = true; }, 2500);
+  }
 });
 
 function clic(e) {
@@ -976,11 +1011,14 @@ addEventListener("keydown", (e) => {
   if (e.target.closest?.("input, textarea, select, [contenteditable]")) return;
   const enUI = e.target !== document.body && e.target !== lienzo && e.target.closest?.("button, a, [role=dialog], [role=slider]");
   if (enUI && ["Enter", "Space", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.code)) return;
-  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) e.preventDefault();
-  if (guion.activo && !["ShiftLeft", "ShiftRight", "KeyH", "KeyM"].includes(e.code)) guion.parar();
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "PageUp", "PageDown"].includes(e.code)) e.preventDefault();
+  if (guion.activo && e.code === "Space" && !enUI) { e.preventDefault(); guion.alternarPausa(); return; }
+  if (guion.activo && e.code === "Escape") guion.parar();
+  else if (guion.activo && !guion.pausado && !["ShiftLeft", "ShiftRight", "KeyH", "KeyM", "KeyR"].includes(e.code)) guion.alternarPausa();
   int.teclas.add(e.code);
   if (e.repeat) return;
-  if (estado.modo === "tour") {
+  const atajos = int.ajustes.atajos !== false && !enUI; // WCAG 2.1.4: atajos de una letra desactivables y no en botones
+  if (estado.modo === "tour" && (atajos || !/^(Key[A-Z]|Digit\d)$/.test(e.code) || ["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"].includes(e.code))) {
     const dir = { KeyW: 0, ArrowUp: 0, Enter: 0, KeyS: Math.PI, ArrowDown: Math.PI, KeyA: -Math.PI / 2, ArrowLeft: -Math.PI / 2, KeyD: Math.PI / 2, ArrowRight: Math.PI / 2 }[e.code];
     if (dir !== undefined) avanzar(dir);
     if (e.code === "Equal" || e.code === "NumpadAdd") fijarZoom(int.zoom * 0.85);
@@ -989,6 +1027,7 @@ addEventListener("keydown", (e) => {
     if (e.code === "KeyN") { const lista = [...int.nodos.values()]; irA(lista[(lista.indexOf(int.actual) + 1) % lista.length]); }
   }
   if (estado.modo === "libre" && e.code === "Space") int.libre.saltar = true;
+  if (!atajos) return;
   if (e.code === "KeyM") alternarRadarVisible();
   if (e.code === "KeyR") cambiarRadar();
   if (e.code === "KeyH" || e.key === "?") alternarAyuda();
@@ -998,6 +1037,15 @@ addEventListener("keydown", (e) => {
 });
 addEventListener("keyup", (e) => int.teclas.delete(e.code));
 addEventListener("blur", () => int.teclas.clear());
+
+/** Mirar arriba/abajo con teclado (RePág/AvPág), en todos los modos. */
+function cabeceoTeclado(dt) {
+  const k = int.teclas;
+  const v = ((k.has("PageUp") ? 1 : 0) - (k.has("PageDown") ? 1 : 0)) * 1.2 * dt;
+  if (!v) return;
+  if (estado.modo === "tour") estado.cabeceo += v;
+  else if (estado.modo === "libre") int.libre.cabeceo = THREE.MathUtils.clamp(int.libre.cabeceo + v, -1.45, 1.45);
+}
 
 function giroTeclado(dt) {
   if (estado.modo !== "tour") return;
@@ -1160,13 +1208,19 @@ function alternarAyuda() {
 function renderAyuda() {
   const a = $("#ayuda");
   a.querySelector("h2").textContent = tr("ayuda.titulo");
-  const li = (k) => `<li>${escapar(tr(k))}</li>`;
+  // Teclas entre corchetes → <kbd>. En táctil solo se muestran los gestos.
+  const li = (k) => `<li>${escapar(tr(k)).replace(/\b(W A S D|WASD|Shift|Espacio|Space|Esc|PgUp|PgDn|RePág|AvPág|[A-Z]|[1-9]-[1-9]|←|→|↑|↓)\b/g, "<kbd>$1</kbd>")}</li>`;
   a.querySelector(".cols").innerHTML = `
-    <section><h3>${escapar(tr("modo.tour"))}</h3><ul>${["ayuda.mirar", "ayuda.avanzar", "ayuda.volver", "ayuda.girar", "ayuda.zoom", "ayuda.flechas"].map(li).join("")}</ul></section>
-    <section><h3>${escapar(tr("modo.libre"))}</h3><ul>${["ayuda.capturar", "ayuda.caminar", "ayuda.correr", "ayuda.subir", "ayuda.joystick", "ayuda.plano"].map(li).join("")}</ul></section>`;
+    <section><h3>${escapar(tr("modo.tour"))}</h3><ul>${(esTactil ? ["ayuda.mirar", "ayuda.zoom", "ayuda.flechas"] : ["ayuda.girar", "ayuda.mirar", "ayuda.avanzar", "ayuda.volver", "ayuda.zoom", "ayuda.flechas"]).map(li).join("")}</ul></section>
+    <section><h3>${escapar(tr("modo.libre"))}</h3><ul>${(esTactil ? ["ayuda.joystick"] : ["ayuda.capturar", "ayuda.caminar", "ayuda.correr", "ayuda.subir", "ayuda.plano"]).map(li).join("")}</ul></section>`;
 }
 const escapar = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-document.querySelectorAll(".cerrar").forEach((b) => (b.onclick = () => (b.closest("[role=dialog]").hidden = true)));
+document.querySelectorAll(".cerrar").forEach((b) => (b.onclick = () => {
+  const d = b.closest("[role=dialog]");
+  d.hidden = true;
+  if (d.id === "ayuda") $("#btn-ayuda").focus();
+}));
+addEventListener("pointerdown", (e) => { const a = $("#ayuda"); if (!a.hidden && !a.contains(e.target) && !e.target.closest("#btn-ayuda")) a.hidden = true; });
 $("#btn-ayuda").onclick = alternarAyuda;
 $("#btn-mapa").onclick = alternarMapa;
 $("#btn-radar").onclick = alternarRadarVisible;
@@ -1228,7 +1282,7 @@ async function cambiarModo(modo) {
   if (anterior === "maqueta" && pisoDemo) aplicarAmbienteLibre();
   document.body.classList.toggle("modo-libre", modo === "libre");
   document.body.classList.toggle("modo-maqueta", modo === "maqueta");
-  document.querySelectorAll("#modos button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.modo === modo)));
+  document.querySelectorAll("#modos button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.modo === modo)));
   etiquetas.hidden = modo !== "tour";
   cortinilla.hidden = !(estado.comparar && modo === "tour");
   actualizarSello();
@@ -1314,7 +1368,7 @@ Object.assign(visor, {
   comparar(si) {
     estado.comparar = !!si;
     cortinilla.hidden = !(si && estado.modo === "tour");
-    if (si) { fijarCorte(0.5); actualizarComparacion(); } else { U.corte.value = -1; U.texC.value = blanco; }
+    if (si) { fijarCorte(0.5); actualizarComparacion(); $("#pista").hidden = true; } else { U.corte.value = -1; U.texC.value = blanco; }
     visor.emitir("comparar", { activo: estado.comparar });
   },
   medir(si) {
@@ -1322,6 +1376,11 @@ Object.assign(visor, {
     if (si && estado.modo === "maqueta") return;
     estado.midiendo = !!si;
     medicion.activar(estado.midiendo);
+    if (si) {
+      $("#pista").hidden = true;
+      if (document.pointerLockElement) document.exitPointerLock();
+      if (estado.modo === "tour" && estado.cabeceo > -0.3) estado.cabeceo = -0.42; // mirar al suelo para medir
+    }
     visor.emitir("medir", { activo: estado.midiendo });
   },
   guion: { iniciar: () => guion.iniciar(), parar: () => guion.parar(), get activo() { return guion.activo; } },
@@ -1344,6 +1403,7 @@ Object.assign(visor, {
   ajustes(obj = {}) {
     Object.assign(int.ajustes, obj);
     almacen.guardar("visor:ajustes", int.ajustes);
+    if ("fov" in obj) redimensionar();
     return { ...int.ajustes };
   },
   /** Captura de la vista actual (sin interfaz), con una franja de marca y la estancia. */
@@ -1449,10 +1509,18 @@ async function obtenerTour() {
     const r = await fetch(url);
     if (!r.ok) throw new Error(r.status);
     return await r.json();
-  } catch {
-    aviso(tr("aviso.sin_tour"), 6000);
-    const { DEMO_TOUR } = await import("./demo.js");
-    return structuredClone(DEMO_TOUR);
+  } catch (e) {
+    // En producción nunca se muestra una vivienda falsa: pantalla de error con reintento.
+    $("#portada")?.remove();
+    const el = document.createElement("div");
+    el.id = "error-carga";
+    el.setAttribute("role", "alert");
+    el.innerHTML = `<div class="marca-cre8">cre8<span>eight</span></div><p></p><button type="button"></button>`;
+    el.querySelector("p").textContent = `${tr("aviso.error_carga", { x: url })}`;
+    el.querySelector("button").textContent = tr("aviso.reintentar");
+    el.querySelector("button").onclick = () => location.reload();
+    document.body.append(el);
+    throw e;
   }
 }
 
@@ -1539,7 +1607,7 @@ function redimensionar() {
   if (int.captura) renderer?.setPixelRatio(1);
   renderer?.setSize(w, h, false);
   camara.aspect = w / h;
-  int.fovBase = w < h ? 80 : 72;
+  int.fovBase = int.ajustes.fov ? +int.ajustes.fov : w < h ? 80 : 72;
   if (!int.transicion) camara.fov = int.fovBase * (estado.modo === "tour" ? int.zoom : 1);
   camara.updateProjectionMatrix();
   maqueta?.redimensionar(w / h);
@@ -1565,6 +1633,8 @@ function bucle() {
     pasoTransicion(dt);
     guion.paso(dt);
     giroTeclado(dt);
+    cabeceoTeclado(dt);
+    actualizarBarraGuion();
     estado.cabeceo = THREE.MathUtils.clamp(estado.cabeceo, -1.45, 1.45);
     if (int.giro?.q) camara.quaternion.copy(int.giro.q);
     else camara.rotation.set(estado.cabeceo, -estado.rumbo, 0);
@@ -1583,6 +1653,7 @@ function bucle() {
     }
   } else if (estado.modo === "libre") {
     pasoTransicion(dt);
+    cabeceoTeclado(dt);
     moverLibre(dt);
     camara.updateMatrixWorld();
     renderizar();
@@ -1593,7 +1664,8 @@ function bucle() {
   medicion?.cuadro();
   // Interfaz que se oculta tras 3 s sin interacción (vuelve al mover el ratón o tocar).
   const inactiva = int.yaInteractuo && performance.now() - int.ultimaInteraccion > 3500 && estado.modo !== "maqueta" && !estado.midiendo && !EMBED
-    && !document.querySelector("#paneles [aria-expanded=true], #paneles .pn-abierto, #minimapa.grande");
+    && !document.querySelector("#paneles [aria-expanded=true], #paneles .pn-abierto, #minimapa.grande")
+    && !document.activeElement?.closest?.("#barra, #modos, #iconos, #galeria, #minimapa, #paneles, #guion-barra");
   if (inactiva !== document.body.classList.contains("ui-inactiva")) document.body.classList.toggle("ui-inactiva", inactiva);
   // Calidad adaptativa: si los FPS caen por debajo de 28, se baja la resolución interna.
   fps.t += dt; fps.n++;
@@ -1626,7 +1698,7 @@ async function iniciar() {
   enviarPadre({ tipo: "visor:listo" });
 }
 
-iniciar().catch((e) => { console.error(e); $("#portada")?.remove(); aviso(`Error: ${e.message}`, 10000); });
+iniciar().catch((e) => { console.error(e); $("#portada")?.remove(); if (!$("#error-carga")) aviso(`Error: ${e.message}`, 10000); });
 
 // Arrastrar y soltar un .spz/.ply/.splat/.sog/.glb para probarlo al instante.
 addEventListener("dragover", (e) => { if (!EMBED) e.preventDefault(); });

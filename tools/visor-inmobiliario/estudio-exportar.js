@@ -274,14 +274,14 @@ function pintarExportar() {
         h("tr", {}, h("td", {}, h("b", { text: "Instagram, TikTok, Reels" })), h("td", { text: "Vídeo vertical 9:16 con marca. Facebook: fotos 360 (se ven interactivas) y el vídeo." })),
         h("tr", {}, h("td", {}, h("b", { text: "WhatsApp / email" })), h("td", { text: "El enlace del recorrido, o el archivo HTML autónomo si el cliente no tiene buena conexión." })))));
 
-  raizE.replaceChildren(
+  raizE.replaceChildren(...[
     h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Exportar y publicar" }),
       h("p", { text: "Descarga lo que necesitas para tu web, los portales y las redes. Todo se genera en tu ordenador." }))),
     aviso,
     !EXP && errorExp ? h("div", { class: "comprobacion aviso", style: { marginBottom: "16px" } }, icono("aviso", 20), h("div", {}, h("b", { text: "Exportadores no disponibles" }), h("p", { text: "No se pudo cargar exportar.js. Mientras tanto puedes descargar tour.json." })), h("span")) : null,
     h("div", { class: "exportes" }, tarjetas),
     h("h2", { class: "sub", text: "Publicar en tu web" }),
-    publicar);
+    publicar].filter(Boolean));
 }
 const nombreDeP = (p) => textoDe(p?.nombre) || p?.id;
 function tarjetaVideo(op) {

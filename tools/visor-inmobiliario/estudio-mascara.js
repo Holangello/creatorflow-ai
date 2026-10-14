@@ -45,6 +45,8 @@ export async function abrirEditorMascara(pid, vi = null) {
   }
 
   // --- estado
+  let sucio = true, raf = 0, dpr = 1, ancho = 0, alto = 0, ro = null;
+  const marcar = () => { sucio = true; };
   const S = { herr: "varita", canal: "paredes", tol: 26, tam: 28, opac: 0.55, contiguo: true, esc: 1, ox: 0, oy: 0, espacio: false,
     hist: [], futuro: [], cambiado: false, raton: null, pinta: null };
   const capa = new OffscreenCanvas(W, H);
@@ -113,7 +115,7 @@ export async function abrirEditorMascara(pid, vi = null) {
   const cerrar = async (guardar) => {
     if (!guardar && S.cambiado && !(await confirmar("Descartar cambios", "Hay cambios sin guardar en la máscara.", "Descartar"))) return;
     if (guardar) await guardarMascara();
-    cancelAnimationFrame(raf); ro.disconnect(); removeEventListener("keydown", teclas, true); editor.remove();
+    cancelAnimationFrame(raf); ro?.disconnect(); removeEventListener("keydown", teclas, true); editor.remove();
   };
   const titulo = `Máscara · ${textoDe(p.nombre) || p.id}${v ? ` · variante ${v.estilo ?? ""} ${v.momento ?? ""}` : ""}`;
   const editor = h("div", { class: "editor-mascara", role: "dialog", "aria-label": titulo },
@@ -130,7 +132,7 @@ export async function abrirEditorMascara(pid, vi = null) {
       rango(4, 80, S.tol, (x) => { S.tol = x; }, "Tolerancia"),
       (() => { const c = h("input", { type: "checkbox", checked: true }); c.onchange = () => { S.contiguo = c.checked; }; return h("label", {}, c, "Contigua"); })(),
       rango(2, 160, S.tam, (x) => { S.tam = x; marcar(); }, "Pincel"),
-      rango(10, 90, S.opac * 100, (x) => { S.opac = x / 100; marcar(); }, "Opacidad"),
+      rango(10, 90, Math.round(S.opac * 100), (x) => { S.opac = x / 100; marcar(); }, "Opacidad"),
       h("button", { class: "btn peq fantasma", onclick: () => { guardarHist(); mascaras[S.canal].fill(0); repintarCapa(); } }, "Vaciar canal"),
       h("span", { class: "tenue", style: { fontSize: "12.5px", marginLeft: "auto" } }, h("kbd", { text: "Alt" }), "+clic resta · rueda = zoom · ", h("kbd", { text: "Espacio" }), "+arrastrar = mover")));
   document.body.append(editor);
@@ -138,10 +140,8 @@ export async function abrirEditorMascara(pid, vi = null) {
   function fijarCanal(id) { S.canal = id; for (const [k, b] of Object.entries(bCanal)) b.setAttribute("aria-pressed", String(k === id)); }
   fijarHerr("varita"); fijarCanal("paredes");
 
-  let sucio = true, raf = 0, dpr = 1, ancho = 0, alto = 0;
-  const marcar = () => { sucio = true; };
   function ajustar() { S.esc = Math.min(ancho / W, alto / H) * 0.98; S.ox = (ancho - W * S.esc) / 2; S.oy = (alto - H * S.esc) / 2; marcar(); }
-  const ro = new ResizeObserver(() => {
+  ro = new ResizeObserver(() => {
     const r = zona.getBoundingClientRect(); dpr = Math.min(devicePixelRatio || 1, 2);
     const primera = !ancho; ancho = r.width; alto = r.height;
     lienzo.width = Math.round(ancho * dpr); lienzo.height = Math.round(alto * dpr);

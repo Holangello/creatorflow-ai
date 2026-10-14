@@ -121,7 +121,7 @@ function pintar() {
   for (const v of p.variantes ?? []) { const k = `${v.estilo ?? "original"}|${v.momento ?? "dia"}`; usados.set(k, (usados.get(k) ?? 0) + 1); }
   const opcionesEstilo = () => {
     const ids = new Set(["original", ...ESTILOS_IA.map((e) => e.id), ...(t.estilos ?? []).map((e) => e.id)]);
-    return [...ids].map((id) => [id, id === "original" ? "Original (sin estilo)" : nombreEstilo(id)]);
+    return [...ids].map((id) => [id, id === "original" ? "Original" : nombreEstilo(id)]);
   };
   const tarjetas = (p.variantes ?? []).map((v, j) => {
     const prob = problemaVariante(p, v);

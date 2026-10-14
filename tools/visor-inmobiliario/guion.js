@@ -56,8 +56,16 @@ export function crearGuion(ctx) {
       siguiente();
     },
     parar() { terminar(false); },
+    get pausado() { return !!est?.pausado; },
+    alternarPausa() { if (est) { est.pausado = !est.pausado; ctx.emitir("guion:pausa", { pausado: est.pausado }); } },
+    /** { actual, total, progreso 0-1 } para la barra de la visita. */
+    progreso() {
+      if (!est) return null;
+      const dentro = est.fase === "mirando" ? Math.min(1, est.t / ((est.ajuste ?? 0) + (est.dur ?? 1))) : 0;
+      return { actual: est.i + 1, total: est.lista.length, progreso: (est.i + dentro) / est.lista.length };
+    },
     paso(dt) {
-      if (!est || est.fase !== "mirando") return;
+      if (!est || est.fase !== "mirando" || est.pausado) return;
       est.t += dt;
       const suave = (k) => k * k * (3 - 2 * k);
       if (est.t < est.ajuste) {
