@@ -20,15 +20,15 @@ if (EMBED) document.body.classList.add("embed");
 // ------------------------------------------------------------------ textos
 const FALLBACK = {
   "modo.tour": "Recorrido 360", "modo.libre": "Modo libre 3D", "modo.maqueta": "Maqueta 3D",
-  "ayuda.titulo": "Controles", "ayuda.mirar": "Arrastra para mirar alrededor", "ayuda.avanzar": "W / ↑ avanzar a la estancia de enfrente",
-  "ayuda.volver": "S / ↓ volver atrás", "ayuda.girar": "A D / ← → girar · Q E girar 45°", "ayuda.zoom": "Rueda o pellizco: zoom",
-  "ayuda.flechas": "Toca las flechas del suelo, el plano o la galería", "ayuda.caminar": "W A S D caminar", "ayuda.correr": "Shift correr · ← → girar",
-  "ayuda.subir": "Espacio / C subir y bajar (sin suelo)", "ayuda.capturar": "Clic para capturar el ratón (Esc para soltar)",
-  "ayuda.joystick": "Móvil: pulgar izquierdo para caminar, arrastra a la derecha para mirar", "ayuda.plano": "M plano · V cambiar modo · 1-9 estancias · H ayuda",
+  "ayuda.titulo": "Controles", "ayuda.mirar": "Arrastra para mirar alrededor", "ayuda.avanzar": "W A S D o flechas: ir a la estancia de delante, detrás o a los lados",
+  "ayuda.volver": "Mantén W para seguir avanzando · Q E girar", "ayuda.girar": "Clic: capturar el ratón y mirar como en un videojuego (Esc para soltar)", "ayuda.zoom": "Rueda o pellizco: zoom",
+  "ayuda.flechas": "Toca las flechas del suelo, el plano o la galería", "ayuda.caminar": "W A S D o flechas para caminar · ratón para mirar", "ayuda.correr": "Shift correr · Espacio saltar · Q E girar",
+  "ayuda.subir": "Sin suelo (splat): Espacio subir · C bajar", "ayuda.capturar": "Clic para capturar el ratón (Esc para soltar)",
+  "ayuda.joystick": "Móvil: pulgar izquierdo para caminar, arrastra a la derecha para mirar", "ayuda.plano": "M mostrar/ocultar mapa · R radar o plano · V cambiar modo · 1-9 estancias · H ayuda",
   "aviso.cargando": "Cargando…", "aviso.error_carga": "No se pudo cargar {x}", "aviso.sin_tour": "No se encontró tour.json. Mostrando la demo.",
   "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D", "aviso.contexto_perdido": "Se perdió el contexto gráfico", "aviso.reintentar": "Reintentar",
   "aviso.clic_explorar": "Haz clic para explorar", "aviso.libre_tactil": "Pulgar izquierdo para caminar · arrastra a la derecha para mirar",
-  "aviso.libre_raton": "WASD para caminar · ratón para mirar · Shift para correr", "aviso.arrastra": "Arrastra para mirar",
+  "aviso.libre_raton": "WASD o flechas para caminar · ratón para mirar · Espacio saltar · Shift correr", "aviso.arrastra": "Arrastra para mirar",
   "aviso.estilo_no_disponible": "Este estilo no está disponible en esta estancia",
   "medir.titulo": "Medir", "medir.distancia": "Distancia", "medir.altura": "Altura", "medir.marcar": "Marcar punto", "medir.deshacer": "Deshacer",
   "medir.borrar": "Borrar", "medir.cerrar": "Cerrar", "medir.ayuda_a": "Apunta al suelo y marca el punto A", "medir.ayuda_b": "Ahora marca el punto B",
@@ -448,6 +448,11 @@ function llegar(nodo) {
   $('#galeria button[aria-current="true"]')?.scrollIntoView?.({ block: "nearest", inline: "center", behavior: reducido() ? "auto" : "smooth" });
   if (!EMBED && int.tour && !int.tour.demo) history.replaceState(null, "", `#${encodeURIComponent(nodo.id)}`);
   for (const v of nodo.vecinos) fuenteDe(v).cargar().catch(() => {}); // precarga
+  // Mantener W/↑ pulsada encadena estancias, como caminar en un videojuego.
+  setTimeout(() => {
+    const k = int.teclas;
+    if (estado.modo === "tour" && int.actual === nodo && (k.has("KeyW") || k.has("ArrowUp"))) avanzar(0);
+  }, 180);
   if (estado.comparar) actualizarComparacion();
   if (anterior?.planta !== nodo.planta) dibujarPlantas();
   medicion?.cambioNodo();
@@ -523,11 +528,12 @@ async function refrescarAmbiente(evento) {
   visor.emitir(evento, { id: estado[evento] });
 }
 
-function avanzar(sentido = 1) {
+/** Ir a la estancia vecina en una dirección relativa a la mirada: 0 delante, π detrás, ±π/2 lados. */
+function avanzar(desvio = 0) {
   const n = int.actual;
   if (!n) return;
-  const objetivo = sentido > 0 ? estado.rumbo : estado.rumbo + Math.PI;
-  let mejor = null, mejorAng = sentido > 0 ? 55 * GRAD : 70 * GRAD;
+  const objetivo = estado.rumbo + desvio;
+  let mejor = null, mejorAng = desvio === 0 ? 55 * GRAD : 70 * GRAD;
   for (const v of n.vecinos) {
     const a = Math.abs(angDif(rumbo(v.x - n.x, v.z - n.z), objetivo));
     if (a < mejorAng) { mejor = v; mejorAng = a; }
@@ -646,10 +652,11 @@ function moverLibre(dt) {
   const L = int.libre;
   if (!L.listo) return;
   const k = int.teclas;
-  const giro = ((k.has("ArrowRight") || k.has("KeyE") ? 1 : 0) - (k.has("ArrowLeft") || k.has("KeyQ") ? 1 : 0)) * 1.6 * dt;
+  // Controles estilo Minecraft: WASD y flechas mueven (← → lateral), el ratón mira, Q/E giran.
+  const giro = ((k.has("KeyE") ? 1 : 0) - (k.has("KeyQ") ? 1 : 0)) * 1.8 * dt;
   L.rumbo += giro;
   let adelante = (k.has("KeyW") || k.has("ArrowUp") ? 1 : 0) - (k.has("KeyS") || k.has("ArrowDown") ? 1 : 0);
-  let lado = (k.has("KeyD") ? 1 : 0) - (k.has("KeyA") ? 1 : 0);
+  let lado = (k.has("KeyD") || k.has("ArrowRight") ? 1 : 0) - (k.has("KeyA") || k.has("ArrowLeft") ? 1 : 0);
   adelante -= int.joy.y; lado += int.joy.x;
   const mag = Math.hypot(adelante, lado);
   if (mag > 1) { adelante /= mag; lado /= mag; }
@@ -671,10 +678,23 @@ function moverLibre(dt) {
   L.pos.x += mx; L.pos.z += mz;
   const alt = int.tour.altura_camara ?? 1.5;
   if (L.suelo) {
+    // Gravedad y salto (Espacio). En el suelo se sigue la altura con suavidad (escalones, rampas).
     rayo.set(vTmp.set(L.pos.x, L.pos.y + 0.3, L.pos.z), ABAJO);
-    rayo.far = alt + 1.5;
+    rayo.far = alt + 6;
     const h = rayo.intersectObjects(L.colisiones, true)[0];
-    if (h) L.pos.y += (h.point.y + alt - L.pos.y) * Math.min(1, dt * 10);
+    const objetivo = h ? h.point.y + alt : null;
+    L.vy = L.vy ?? 0;
+    if (L.saltar && L.enSuelo) { L.vy = 4.2; L.enSuelo = false; }
+    L.saltar = false;
+    if (objetivo == null) L.vy = 0;
+    else if (L.enSuelo !== false && L.vy === 0 && L.pos.y - objetivo < 0.45) {
+      L.pos.y += (objetivo - L.pos.y) * Math.min(1, dt * 12);
+      L.enSuelo = true;
+    } else {
+      L.vy -= 9.8 * dt;
+      L.pos.y += L.vy * dt;
+      if (L.pos.y <= objetivo) { L.pos.y = objetivo; L.vy = 0; L.enSuelo = true; }
+    }
   } else {
     L.pos.y += ((k.has("Space") ? 1 : 0) - (k.has("KeyC") ? 1 : 0)) * rapidez * dt;
   }
@@ -685,7 +705,7 @@ function moverLibre(dt) {
   }
   camara.position.copy(L.pos);
   camara.rotation.set(L.cabeceo, -L.rumbo, 0);
-  if (mx || mz || giro) dibujarMapaThrottle();
+  dibujarMapaThrottle();
 }
 
 const dirTmp = new THREE.Vector3();
@@ -804,7 +824,8 @@ lienzo.addEventListener("pointermove", (e) => {
     return;
   }
   if (document.pointerLockElement === lienzo) {
-    const s = 0.0022 * int.ajustes.sensibilidad;
+    // Ratón capturado (como en Minecraft): sin suavizado; en 360 la sensibilidad se adapta al zoom.
+    const s = 0.0022 * int.ajustes.sensibilidad * (estado.modo === "tour" ? camara.fov / 72 : 1);
     mirar(e.movementX * s, e.movementY * s * (int.ajustes.invertirY ? -1 : 1));
     return;
   }
@@ -844,7 +865,11 @@ lienzo.addEventListener("pointerup", soltar);
 lienzo.addEventListener("pointercancel", soltar);
 
 function mirar(dx, dy) {
-  if (estado.modo === "tour") { estado.rumbo += dx; estado.cabeceo -= dy; return; }
+  if (estado.modo === "tour") {
+    if (int.giro?.offset != null) int.giro.offset += dx;
+    else { estado.rumbo += dx; estado.cabeceo -= dy; }
+    return;
+  }
   const L = int.libre;
   L.rumbo += dx;
   L.cabeceo = THREE.MathUtils.clamp(L.cabeceo - dy, -1.45, 1.45);
@@ -870,8 +895,21 @@ function hover(e) {
   hoverActual = g;
   lienzo.style.cursor = g ? "pointer" : "";
 }
+function capturarRaton() {
+  if (esTactil || EMBED || estado.midiendo || document.pointerLockElement === lienzo) return;
+  const p = lienzo.requestPointerLock?.({ unadjustedMovement: true });
+  if (p?.catch) p.catch(() => lienzo.requestPointerLock?.()?.catch?.(() => {}));
+}
+document.addEventListener("pointerlockchange", () => {
+  const si = document.pointerLockElement === lienzo;
+  document.body.classList.toggle("raton-capturado", si);
+  if (si) ocultarPista(estado.modo === "libre" ? "libre" : "captura");
+});
+
 function clic(e) {
   if (medicion?.clic(e.clientX, e.clientY)) return;
+  const capturado = document.pointerLockElement === lienzo;
+  if (capturado) e = { clientX: innerWidth / 2, clientY: innerHeight / 2, pointerType: "mouse" }; // se actúa sobre la mira
   if (estado.modo === "tour") {
     ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
     rayo.setFromCamera(ndc, camara);
@@ -887,11 +925,12 @@ function clic(e) {
         const a = Math.abs(angDif(rumbo(v.x - int.actual.x, v.z - int.actual.z), r));
         if (a < ang) { ang = a; mejor = v; }
       }
-      if (mejor) irA(mejor);
+      if (mejor) return irA(mejor);
     }
-  } else if (estado.modo === "libre" && !esTactil && e.pointerType === "mouse" && !EMBED) {
-    ocultarPista("libre");
-    lienzo.requestPointerLock?.()?.catch?.(() => {});
+    if (capturado) return avanzar(0);
+    if (e.pointerType === "mouse") capturarRaton();
+  } else if (estado.modo === "libre" && e.pointerType === "mouse") {
+    capturarRaton();
   }
 }
 
@@ -915,16 +954,16 @@ addEventListener("keydown", (e) => {
   int.teclas.add(e.code);
   if (e.repeat) return;
   if (estado.modo === "tour") {
-    if (e.code === "KeyW" || e.code === "ArrowUp" || e.code === "Enter") avanzar(1);
-    if (e.code === "KeyS" || e.code === "ArrowDown") avanzar(-1);
-    if (e.code === "KeyQ") girarSuave(-45 * GRAD);
-    if (e.code === "KeyE") girarSuave(45 * GRAD);
+    const dir = { KeyW: 0, ArrowUp: 0, Enter: 0, KeyS: Math.PI, ArrowDown: Math.PI, KeyA: -Math.PI / 2, ArrowLeft: -Math.PI / 2, KeyD: Math.PI / 2, ArrowRight: Math.PI / 2 }[e.code];
+    if (dir !== undefined) avanzar(dir);
     if (e.code === "Equal" || e.code === "NumpadAdd") fijarZoom(int.zoom * 0.85);
     if (e.code === "Minus" || e.code === "NumpadSubtract") fijarZoom(int.zoom / 0.85);
     if (/^Digit[1-9]$/.test(e.code)) { const n = [...int.nodos.values()][+e.code.slice(5) - 1]; if (n) irA(n); }
     if (e.code === "KeyN") { const lista = [...int.nodos.values()]; irA(lista[(lista.indexOf(int.actual) + 1) % lista.length]); }
   }
-  if (e.code === "KeyM") alternarMapa();
+  if (estado.modo === "libre" && e.code === "Space") int.libre.saltar = true;
+  if (e.code === "KeyM") alternarRadarVisible();
+  if (e.code === "KeyR") cambiarRadar();
   if (e.code === "KeyH" || e.key === "?") alternarAyuda();
   if (e.code === "KeyV") { const ms = modosDisponibles(); cambiarModo(ms[(ms.indexOf(estado.modo) + 1) % ms.length]); }
   if ((e.ctrlKey || e.metaKey) && e.code === "KeyZ" && estado.midiendo) medicion.deshacer();
@@ -933,23 +972,13 @@ addEventListener("keydown", (e) => {
 addEventListener("keyup", (e) => int.teclas.delete(e.code));
 addEventListener("blur", () => int.teclas.clear());
 
-function girarSuave(delta) {
-  int.giroSuave = { desde: estado.rumbo, hasta: estado.rumbo + delta, t: 0 };
-}
-
 function giroTeclado(dt) {
   if (estado.modo !== "tour") return;
   const k = int.teclas;
-  const g = ((k.has("KeyD") || k.has("ArrowRight") ? 1 : 0) - (k.has("KeyA") || k.has("ArrowLeft") ? 1 : 0)) * 1.4 * dt;
+  const g = ((k.has("KeyE") ? 1 : 0) - (k.has("KeyQ") ? 1 : 0)) * 1.6 * dt;
   if (g) {
     if (int.giro?.offset != null) int.giro.offset += g;
     else if (!int.giro) estado.rumbo += g;
-  }
-  const gs = int.giroSuave;
-  if (gs) {
-    gs.t = Math.min(1, gs.t + dt / (reducido() ? 0.01 : 0.4));
-    estado.rumbo = gs.desde + (gs.hasta - gs.desde) * (gs.t * gs.t * (3 - 2 * gs.t));
-    if (gs.t >= 1) int.giroSuave = null;
   }
 }
 
@@ -1003,6 +1032,7 @@ const plano = crearPlano($("#mapa"), {
     return null;
   },
   acento: () => getComputedStyle(document.documentElement).getPropertyValue("--acento").trim() || "#ffb547",
+  modoMapa: () => ($("#minimapa").classList.contains("grande") ? "plano" : int.radar),
   texto, formato: metros,
   alElegirNodo: (n) => {
     if (estado.modo === "tour") irA(n);
@@ -1015,7 +1045,28 @@ const dibujarMapa = () => int.tour && plano.dibujar();
 let ultimoMapa = 0;
 function dibujarMapaThrottle() {
   const t = performance.now();
-  if (t - ultimoMapa > 60) { ultimoMapa = t; dibujarMapa(); }
+  if (t - ultimoMapa > (int.radar === "radar" ? 33 : 60)) { ultimoMapa = t; dibujarMapa(); }
+}
+// Radar (gira con la vista) ⇄ plano completo; botón para ocultarlo y tener una vista limpia. Se recuerda.
+int.radar = almacen.leer("visor:radar", "radar");
+int.radarVisible = almacen.leer("visor:radarVisible", true);
+function aplicarRadar() {
+  const m = $("#minimapa");
+  m.classList.toggle("radar", int.radar === "radar");
+  m.classList.toggle("oculto", !int.radarVisible);
+  $("#btn-radar").setAttribute("aria-pressed", String(int.radarVisible));
+  setTimeout(dibujarMapa, 30);
+}
+function alternarRadarVisible() {
+  int.radarVisible = !int.radarVisible;
+  almacen.guardar("visor:radarVisible", int.radarVisible);
+  aplicarRadar();
+}
+function cambiarRadar() {
+  int.radar = int.radar === "radar" ? "plano" : "radar";
+  almacen.guardar("visor:radar", int.radar);
+  if (!int.radarVisible) { int.radarVisible = true; almacen.guardar("visor:radarVisible", true); }
+  aplicarRadar();
 }
 function alternarMapa() {
   const m = $("#minimapa");
@@ -1091,6 +1142,9 @@ const escapar = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<":
 document.querySelectorAll(".cerrar").forEach((b) => (b.onclick = () => (b.closest("[role=dialog]").hidden = true)));
 $("#btn-ayuda").onclick = alternarAyuda;
 $("#btn-mapa").onclick = alternarMapa;
+$("#btn-radar").onclick = alternarRadarVisible;
+$("#btn-vista-mapa").onclick = cambiarRadar;
+aplicarRadar();
 $("#btn-pantalla").onclick = () => {
   const el = document.documentElement;
   if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen ?? document.webkitExitFullscreen)?.call(document);
@@ -1192,7 +1246,7 @@ function aplicarMarca() {
   if (m.logo) { logo.src = m.logo; logo.alt = texto(m.nombre); logo.hidden = false; } else logo.hidden = true;
   const titulo = texto(int.tour.titulo) || "Recorrido virtual";
   $("#titulo").textContent = titulo;
-  document.title = m.nombre ? `${titulo} · ${texto(m.nombre)}` : titulo;
+  document.title = `${titulo} · ${texto(m.nombre) || "cre8eight"}`;
 }
 
 function refrescarTextos() {
@@ -1264,8 +1318,42 @@ Object.assign(visor, {
     almacen.guardar("visor:ajustes", int.ajustes);
     return { ...int.ajustes };
   },
-  capturar() {
-    return new Promise((ok) => { renderizar(); lienzo.toBlob((b) => ok(b), "image/png"); });
+  /** Captura de la vista actual (sin interfaz), con una franja de marca y la estancia. */
+  capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.88, marca = true } = {}) {
+    renderizar();
+    const alto = Math.round((ancho * lienzo.height) / lienzo.width);
+    const c = document.createElement("canvas");
+    c.width = ancho; c.height = alto;
+    const g = c.getContext("2d");
+    g.drawImage(lienzo, 0, 0, ancho, alto);
+    const est = visor.estanciaActual();
+    if (marca) {
+      const h = Math.round(alto * 0.07);
+      g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(0, alto - h, ancho, h);
+      g.fillStyle = "#fff"; g.font = `600 ${Math.round(h * 0.42)}px system-ui, sans-serif`; g.textBaseline = "middle";
+      const izq = [texto(int.tour.marca?.nombre) || "cre8eight", int.tour.inmueble?.referencia, est && texto(est.nombre)].filter(Boolean).join(" · ");
+      g.fillText(izq, h * 0.4, alto - h / 2);
+    }
+    const vista = visor.vista();
+    const enlace = visor.enlaceVista();
+    return new Promise((ok) => c.toBlob((blob) => ok({ blob, nodo: estado.nodo, estancia: est, enlace, vista }), tipo, calidad));
+  },
+  /** Estancia (polígono del plano) donde está el visitante; si no hay polígonos, la foto 360 actual. */
+  estanciaActual() {
+    const pl = estado.planta;
+    let x, z;
+    if (estado.modo === "libre" && int.libre.listo) { x = int.libre.pos.x; z = int.libre.pos.z; }
+    else if (int.actual) { x = int.actual.x; z = int.actual.z; }
+    else return null;
+    const e = (int.tour.estancias ?? []).find((s) => s.planta === pl && s.poligono?.length > 2 && puntoEnPoligono([x, z], s.poligono));
+    if (e) return { id: e.id, nombre: e.nombre };
+    return int.actual ? { id: int.actual.id, nombre: int.actual.nombre } : null;
+  },
+  radar(modo) {
+    if (modo === "oculto") { int.radarVisible = false; }
+    else if (modo === "radar" || modo === "plano") { int.radar = modo; int.radarVisible = true; }
+    almacen.guardar("visor:radar", int.radar); almacen.guardar("visor:radarVisible", int.radarVisible);
+    aplicarRadar();
   },
   renderizar: () => renderizar(),
   /** Fija el tamaño interno del lienzo para grabar vídeo (p. ej. 1080×1920); null restaura. */
@@ -1446,7 +1534,7 @@ function bucle() {
     renderizar();
     actualizarEtiquetas();
     tMapa += dt;
-    if (tMapa > 0.1) { tMapa = 0; dibujarMapa(); }
+    if (tMapa > (int.radar === "radar" ? 0.033 : 0.1)) { tMapa = 0; dibujarMapa(); }
     tVista += dt;
     if (EMBED && tVista > 0.15) {
       tVista = 0;
@@ -1490,14 +1578,16 @@ async function iniciar() {
   const modoPedido = params.get("modo");
   if (modoPedido && modosDisponibles().includes(modoPedido)) await cambiarModo(modoPedido);
   if (renderer) renderer.setAnimationLoop(bucle);
-  if (estado.modo === "tour" && renderer) mostrarPista("arrastra", tr("aviso.arrastra"));
+  if (estado.modo === "tour" && renderer) mostrarPista("arrastra", esTactil ? tr("aviso.arrastra") : `${tr("aviso.arrastra")} · ${tr("aviso.clic_explorar")}`);
   import("./paneles.js").then((m) => m.iniciarPaneles?.(visor)).catch((e) => console.info("Paneles no disponibles:", e.message));
   visor.listo = true;
+  $("#portada").classList.add("fuera");
+  setTimeout(() => $("#portada").remove(), 700);
   visor.emitir("listo", {});
   enviarPadre({ tipo: "visor:listo" });
 }
 
-iniciar().catch((e) => { console.error(e); aviso(`Error: ${e.message}`, 10000); });
+iniciar().catch((e) => { console.error(e); $("#portada")?.remove(); aviso(`Error: ${e.message}`, 10000); });
 
 // Arrastrar y soltar un .spz/.ply/.splat/.sog/.glb para probarlo al instante.
 addEventListener("dragover", (e) => { if (!EMBED) e.preventDefault(); });

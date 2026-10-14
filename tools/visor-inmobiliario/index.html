@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0d0f12">
-  <title>Recorrido Virtual 3D</title>
+  <title>cre8eight · Recorrido 3D</title>
+  <meta name="generator" content="cre8eight">
   <meta name="description" content="Recorrido virtual 360, paseo libre en 3D y maqueta interactiva del inmueble.">
   <link rel="stylesheet" href="visor.css">
   <link rel="stylesheet" href="paneles.css">
@@ -40,6 +41,9 @@
       <button id="btn-giro" type="button" class="icono" aria-label="Giroscopio" aria-pressed="false" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M3 9a10 10 0 0 0 0 6M21 9a10 10 0 0 1 0 6"/></svg>
       </button>
+      <button id="btn-radar" type="button" class="icono" aria-label="Mostrar u ocultar el mapa" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+      </button>
       <button id="btn-ayuda" type="button" class="icono" aria-label="Controles">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 1 1 3.6 2.4c-.7.3-1.1.9-1.1 1.6v.6"/><circle cx="12" cy="17" r=".6"/></svg>
       </button>
@@ -51,6 +55,9 @@
     <aside id="minimapa" aria-label="Plano">
       <div id="plantas" role="group" aria-label="Plantas" hidden></div>
       <canvas id="mapa" aria-hidden="true"></canvas>
+      <button id="btn-vista-mapa" type="button" class="mini mini-izq" aria-label="Cambiar entre radar y plano completo">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l3 7h-6zM5 21h14M12 10v11"/></svg>
+      </button>
       <button id="btn-mapa" type="button" class="mini" aria-label="Ampliar plano" aria-expanded="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>
       </button>
@@ -80,6 +87,8 @@
       <div class="cols"></div>
     </div>
 
+    <div id="mira-juego" aria-hidden="true"></div>
+    <div id="portada" aria-hidden="true"><div class="marca-cre8">cre8<span>eight</span></div><div class="barra"><div></div></div></div>
     <div id="carga" hidden><div class="barra"><div></div></div></div>
     <div id="aviso" role="status" hidden></div>
     <div id="paneles"></div>

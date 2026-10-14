@@ -66,7 +66,7 @@ export function nombreSugerido(archivo, i) {
 }
 
 /** Añade fotos 360 al proyecto (validación 2:1 y procesado). */
-export async function anadirFotos(archivos) {
+export async function anadirFotos(archivos, { render = false } = {}) {
   const fotos = archivos.filter((f) => /^image\//.test(f.type) || /\.(jpe?g|png|webp)$/i.test(f.name));
   if (!fotos.length) return;
   const info = await Promise.all(fotos.map(async (f) => ({ f, dim: await dimensiones(f).catch(() => null) })));
@@ -100,7 +100,7 @@ export async function anadirFotos(archivos) {
             id, nombre: { es: nombre }, planta: app.planta ?? t.plantas[0]?.id,
             imagen: `panos/${id}.jpg`, imagen_movil: `panos/movil/${id}.jpg`, miniatura: `panos/mini/${id}.jpg`, yaw: 0,
           });
-          t._estudio.meta[`panos/${id}.jpg`] = { w: r.original.w, h: r.original.h, archivo: f.name, bytes: f.size };
+          t._estudio.meta[`panos/${id}.jpg`] = { w: r.original.w, h: r.original.h, archivo: f.name, bytes: f.size, ...(render ? { render: true } : {}) };
           if (!t.inicio) t.inicio = id;
         });
         if (!app.nodo) { app.nodo = id; emitir("nodo", {}); }
@@ -221,6 +221,7 @@ function pintarLista() {
       colocado(p) && !(vecinos.get(p.id)?.length) && t.panoramas.length > 1 ? h("span", { class: "chip error", text: "Sin enlaces" }) : null,
       p.variantes?.length ? h("span", { class: "chip acento", text: `${p.variantes.length} variantes` }) : null,
       p.puntos?.length ? h("span", { class: "chip", text: `${p.puntos.length} puntos` }) : null,
+      meta?.render ? h("span", { class: "chip acento", text: "Render 360" }) : null,
     ];
     const inicio = (t.inicio ?? t.panoramas[0].id) === p.id;
     const fila = h("div", { class: `foto ${p.id === app.nodo ? "sel" : ""}`, role: "listitem", draggable: "true", dataset: { id: p.id } },

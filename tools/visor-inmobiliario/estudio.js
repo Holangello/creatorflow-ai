@@ -4,12 +4,13 @@ import { app, on, emitir, h, $, $$, icono, toast, deshacer, rehacer, puedeDeshac
 import { iniciarProyecto, dialogoAbrir, importarArchivosSoltados, leerSoltado } from "./estudio-proyecto.js";
 import { seccionFotos } from "./estudio-fotos.js";
 import { seccionPlano } from "./estudio-plano.js";
+import { seccionMaterial } from "./estudio-material.js";
 import { seccionOrientar } from "./estudio-orientar.js";
 import { seccionVariantes } from "./estudio-variantes.js";
 import { seccionDatos } from "./estudio-datos.js";
 import { seccionRevisar, seccionExportar, comprobar } from "./estudio-exportar.js";
 
-const SECCIONES = [seccionFotos, seccionPlano, seccionOrientar, seccionVariantes, seccionDatos, seccionRevisar, seccionExportar];
+const SECCIONES = [seccionFotos, seccionMaterial, seccionPlano, seccionOrientar, seccionVariantes, seccionDatos, seccionRevisar, seccionExportar];
 const porId = Object.fromEntries(SECCIONES.map((s) => [s.id, s]));
 const trabajo = $("#trabajo");
 let actual = null;
@@ -19,7 +20,7 @@ function pintarPasos() {
   const nav = $("#pasos");
   const val = comprobar();
   nav.replaceChildren(
-    ...SECCIONES.map((s, i) => {
+    ...SECCIONES.flatMap((s, i) => {
       const r = s.resumen?.() ?? {};
       let insignia = null;
       if (s.id === "revisar") {
@@ -36,7 +37,7 @@ function pintarPasos() {
         h("span", { class: "num" }, r.hecho ? "✓" : String(i + 1)),
         h("span", { class: "etq" }, h("b", { text: s.corto ?? s.titulo }), h("small", { text: r.texto ?? s.subtitulo ?? "" })),
         insignia),
-      ];
+      ].filter(Boolean);
     }),
     h("div", { class: "pie-pasos" }, "Todo se guarda solo en este navegador. ", h("kbd", { text: "?" }), " atajos"),
   );
@@ -166,6 +167,7 @@ on("proyecto", () => {
   enviarTour();
 });
 on("pieVista", pintarPieVista);
+on("abrir", () => dialogoAbrir());
 
 // ------------------------------------------------------------------ teclado
 function enCampo(e) {
@@ -185,7 +187,7 @@ addEventListener("keydown", (e) => {
   if (mod && k === "o") { e.preventDefault(); dialogoAbrir(); return; }
   if (mod && k === "e") { e.preventDefault(); irSeccion("exportar"); return; }
   if (enCampo(e) || mod || e.altKey) return;
-  if (/^[1-7]$/.test(e.key)) { irSeccion(SECCIONES[+e.key - 1].id); e.preventDefault(); return; }
+  if (/^[1-8]$/.test(e.key)) { irSeccion(SECCIONES[+e.key - 1].id); e.preventDefault(); return; }
   if (e.key === "?") { mostrarAtajos(); return; }
   if (actual?.teclas?.(e)) e.preventDefault();
 });
@@ -197,7 +199,7 @@ function mostrarAtajos() {
     cuerpo: h("div", { class: "atajos" },
       h("h4", { text: "General" }),
       f(["Ctrl", "Z"], "Deshacer"), f(["Ctrl", "Shift", "Z"], "Rehacer"), f(["Ctrl", "S"], "Guardar ahora"),
-      f(["Ctrl", "O"], "Abrir proyecto, ZIP o carpeta"), f(["Ctrl", "E"], "Exportar"), f(["1", "…", "7"], "Ir a cada paso"),
+      f(["Ctrl", "O"], "Abrir proyecto, ZIP o carpeta"), f(["Ctrl", "E"], "Exportar"), f(["1", "…", "8"], "Ir a cada paso"),
       h("h4", { text: "Plano" }),
       f(["V"], "Seleccionar y mover"), f(["K"], "Calibrar escala"), f(["E"], "Dibujar estancia"), f(["M"], "Dibujar muros"),
       f(["L"], "Enlazar fotos"), f(["Enter"], "Cerrar polígono"), f(["Supr"], "Borrar selección"), f(["Esc"], "Cancelar"),

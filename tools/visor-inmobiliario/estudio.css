@@ -32,7 +32,7 @@ body {
   grid-template-rows: 54px minmax(0, 1fr);
   grid-template-areas: "sup sup sup" "pasos trabajo vista";
 }
-body.seccion-orientar { --ancho-vista: minmax(420px, 1.6fr); grid-template-columns: var(--ancho-pasos) minmax(340px, 1fr) minmax(420px, 1.7fr); }
+body.seccion-orientar { grid-template-columns: var(--ancho-pasos) minmax(340px, 1fr) minmax(420px, 1.7fr); }
 body.vista-grande { grid-template-columns: var(--ancho-pasos) minmax(340px, 0.8fr) minmax(420px, 1.6fr); }
 body.vista-oculta { grid-template-columns: var(--ancho-pasos) minmax(0, 1fr) 0; }
 body.vista-oculta #vista { display: none; }
@@ -51,9 +51,10 @@ kbd { display: inline-block; min-width: 20px; padding: 0 5px; border-radius: 5px
 #barra-sup { grid-area: sup; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 14px;
   border-bottom: 1px solid var(--borde); background: var(--sup1); min-width: 0; }
 .marca-estudio { display: flex; align-items: center; gap: 9px; padding-right: 6px; }
-.logo-e { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font: 600 17px/1 var(--serif);
+.logo-e { width: 30px; height: 28px; border-radius: 8px; display: grid; place-items: center; font: 700 14px/1 var(--serif); letter-spacing: -.5px;
   background: linear-gradient(140deg, #ffcd7a, #d98f22); color: var(--acento-osc); }
-.nombre-app { font: 600 17px/1 var(--serif); letter-spacing: .2px; }
+.nombre-app { font: 600 17px/1 var(--serif); letter-spacing: .2px; white-space: nowrap; }
+.nombre-app em { font-style: normal; font-weight: 400; color: var(--suave); }
 .nombre-proyecto { border: 1px solid transparent; background: transparent; padding: 6px 10px; border-radius: var(--radio-s);
   max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--texto); font-weight: 500; }
 .nombre-proyecto:hover { border-color: var(--borde2); background: var(--sup2); }

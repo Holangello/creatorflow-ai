@@ -46,8 +46,20 @@ export function crearPlano(canvas, ctx) {
     return m;
   }
 
+  // Modo "plano": norte arriba y vivienda completa. Modo "radar" (estilo Counter-Strike): centrado en el
+  // visitante y girando con su mirada, de modo que "delante" siempre queda arriba.
   function transform(p, W, H) {
     const m = marco(p);
+    const pos = ctx.posicion();
+    if (ctx.modoMapa?.() === "radar" && pos && pos.planta === p.id) {
+      const esc = Math.min(W, H) / 9; // ~9 m de diámetro visible
+      const cx = W / 2, cz = H / 2, c = Math.cos(-pos.rumbo), s = Math.sin(-pos.rumbo);
+      return {
+        esc, radar: true, rot: -pos.rumbo, cx, cz, px: pos.x, pz: pos.z,
+        a: (x, z) => { const dx = x - pos.x, dz = z - pos.z; return [cx + (dx * c - dz * s) * esc, cz + (dx * s + dz * c) * esc]; },
+        de: (qx, qz) => { const dx = (qx - cx) / esc, dz = (qz - cz) / esc; return [pos.x + dx * c + dz * s, pos.z - dx * s + dz * c]; },
+      };
+    }
     const esc = Math.min((W - 16) / (m.x1 - m.x0), (H - 16) / (m.z1 - m.z0));
     const ox = (W - (m.x1 - m.x0) * esc) / 2, oz = (H - (m.z1 - m.z0) * esc) / 2;
     return { esc, a: (x, z) => [ox + (x - m.x0) * esc, oz + (z - m.z0) * esc], de: (px, pz) => [(px - ox) / esc + m.x0, (pz - oz) / esc + m.z0] };
@@ -66,11 +78,27 @@ export function crearPlano(canvas, ctx) {
     const acento = ctx.acento();
     const grande = W > 300;
 
+    if (T.radar) {
+      g.save();
+      g.beginPath(); g.arc(T.cx, T.cz, Math.min(W, H) / 2 - 2, 0, Math.PI * 2); g.clip();
+      g.fillStyle = "rgba(10,12,16,.55)"; g.fillRect(0, 0, W, H);
+      // anillos de distancia (cada 2 m)
+      g.strokeStyle = "rgba(255,255,255,.08)"; g.lineWidth = 1;
+      for (let r = 2; r * T.esc < Math.max(W, H); r += 2) { g.beginPath(); g.arc(T.cx, T.cz, r * T.esc, 0, Math.PI * 2); g.stroke(); }
+    }
     const img = imagenPlanta(p);
     if (img) {
       const m = marco(p);
-      const [ax, az] = T.a(m.x0, m.z0), [bx, bz] = T.a(m.x1, m.z1);
-      g.globalAlpha = 0.92; g.drawImage(img, ax, az, bx - ax, bz - az); g.globalAlpha = 1;
+      g.globalAlpha = 0.92;
+      if (T.radar) {
+        g.save(); g.translate(T.cx, T.cz); g.rotate(T.rot); g.scale(T.esc, T.esc); g.translate(-T.px, -T.pz);
+        g.drawImage(img, m.x0, m.z0, m.x1 - m.x0, m.z1 - m.z0);
+        g.restore();
+      } else {
+        const [ax, az] = T.a(m.x0, m.z0), [bx, bz] = T.a(m.x1, m.z1);
+        g.drawImage(img, ax, az, bx - ax, bz - az);
+      }
+      g.globalAlpha = 1;
     }
 
     // Estancias
@@ -91,7 +119,7 @@ export function crearPlano(canvas, ctx) {
     }
 
     // Etiquetas de estancias (nombre + m²) cuando hay espacio
-    if (grande || T.esc > 22) {
+    if (grande || T.esc > 22 || T.radar) {
       g.textAlign = "center"; g.textBaseline = "middle";
       for (const e of estancias) {
         const [cx, cz] = T.a(...centroide(e.poligono));
@@ -124,8 +152,8 @@ export function crearPlano(canvas, ctx) {
 
     // Norte
     const norte = ctx.tour().norte;
-    if (norte != null) {
-      g.save(); g.translate(W - 18, 18); g.rotate((-norte * Math.PI) / 180);
+    if (norte != null || T.radar) {
+      g.save(); g.translate(W - 18, 18); g.rotate((-(norte ?? 0) * Math.PI) / 180 + (T.radar ? T.rot : 0));
       g.fillStyle = "rgba(255,255,255,.85)"; g.beginPath(); g.moveTo(0, -9); g.lineTo(5, 5); g.lineTo(0, 2); g.lineTo(-5, 5); g.closePath(); g.fill();
       g.font = "600 9px system-ui"; g.textAlign = "center"; g.fillText("N", 0, -12);
       g.restore();
@@ -133,16 +161,23 @@ export function crearPlano(canvas, ctx) {
 
     // Posición y cono de visión
     const pos = ctx.posicion();
-    if (!pos || pos.planta !== p.id) return;
-    const [x, z] = T.a(pos.x, pos.z);
-    const media = Math.min(pos.fovH / 2, 1.2);
-    const rad = grande ? 70 : 46;
-    const grd = g.createRadialGradient(x, z, 0, x, z, rad);
-    grd.addColorStop(0, hexAlfa(acento, 0.55)); grd.addColorStop(1, hexAlfa(acento, 0));
-    g.fillStyle = grd;
-    g.beginPath(); g.moveTo(x, z); g.arc(x, z, rad, pos.rumbo - Math.PI / 2 - media, pos.rumbo - Math.PI / 2 + media); g.closePath(); g.fill();
-    g.fillStyle = acento; g.strokeStyle = "#111"; g.lineWidth = 2;
-    g.beginPath(); g.arc(x, z, 7, 0, Math.PI * 2); g.fill(); g.stroke();
+    if (pos && pos.planta === p.id) {
+      const [x, z] = T.a(pos.x, pos.z);
+      const media = Math.min(pos.fovH / 2, 1.2);
+      const dirPantalla = T.radar ? 0 : pos.rumbo; // en radar, la mirada siempre apunta arriba
+      const rad = grande ? 70 : 46;
+      const grd = g.createRadialGradient(x, z, 0, x, z, rad);
+      grd.addColorStop(0, hexAlfa(acento, 0.55)); grd.addColorStop(1, hexAlfa(acento, 0));
+      g.fillStyle = grd;
+      g.beginPath(); g.moveTo(x, z); g.arc(x, z, rad, dirPantalla - Math.PI / 2 - media, dirPantalla - Math.PI / 2 + media); g.closePath(); g.fill();
+      g.fillStyle = acento; g.strokeStyle = "#111"; g.lineWidth = 2;
+      g.beginPath(); g.arc(x, z, 7, 0, Math.PI * 2); g.fill(); g.stroke();
+    }
+    if (T.radar) {
+      g.restore();
+      g.strokeStyle = "rgba(255,255,255,.25)"; g.lineWidth = 1.5;
+      g.beginPath(); g.arc(T.cx, T.cz, Math.min(W, H) / 2 - 2, 0, Math.PI * 2); g.stroke();
+    }
   }
 
   function elegir(px, pz) {

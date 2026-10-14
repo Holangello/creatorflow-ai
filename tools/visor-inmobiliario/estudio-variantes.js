@@ -31,7 +31,7 @@ export function problemaVariante(p, v) {
   return null;
 }
 
-async function subirVariantes(pid, archivos) {
+export async function subirVariantes(pid, archivos, { estilo: estiloFijo, momento: momentoFijo, render = false } = {}) {
   const p = pano(pid);
   if (!p) return;
   const fotos = archivos.filter((f) => /^image\//.test(f.type) || /\.(jpe?g|png|webp)$/i.test(f.name));
@@ -50,7 +50,8 @@ async function subirVariantes(pid, archivos) {
       txt.textContent = `Procesando variante ${i + 1} de ${fotos.length}: ${f.name}`;
       const dim = await dimensiones(f).catch(() => null);
       const r = await procesar(f, { tamanos, calidad: 0.85 }, (v) => { barra.style.width = `${Math.round(((i + v) / fotos.length) * 100)}%`; });
-      const { estilo, momento } = adivinar(f.name, pano(pid));
+      const adiv = adivinar(f.name, pano(pid));
+      const estilo = estiloFijo === undefined ? adiv.estilo : estiloFijo, momento = momentoFijo ?? adiv.momento;
       const nombre = `${p.id}-${estilo ?? "base"}-${momento ?? "dia"}`;
       const ruta = rutaLibre(`panos/variantes/${nombre}`, "jpg");
       const rutaM = ruta.replace("panos/variantes/", "panos/variantes/movil/");
@@ -63,7 +64,7 @@ async function subirVariantes(pid, archivos) {
         if (estilo) v.estilo = estilo;
         if (momento) v.momento = momento;
         q.variantes.push(v);
-        t._estudio.meta[ruta] = { w: dim?.w ?? r.original.w, h: dim?.h ?? r.original.h, archivo: f.name };
+        t._estudio.meta[ruta] = { w: dim?.w ?? r.original.w, h: dim?.h ?? r.original.h, archivo: f.name, ...(render ? { render: true } : {}) };
         if (estilo && !t.estilos.some((e) => e.id === estilo)) t.estilos.push({ id: estilo, nombre: { es: nombreEstilo(estilo) } });
       });
     }
@@ -147,6 +148,7 @@ function pintar() {
         h("div", { class: "fila", style: { flexWrap: "wrap", gap: "6px" } },
           prob ? h("span", { class: `chip ${prob.nivel}`, text: prob.texto }) : h("span", { class: "chip ok", text: "Mismo encuadre y tamaño" }),
           dup ? h("span", { class: "chip aviso", text: "Repetida" }) : null,
+          t._estudio.meta[v.imagen]?.render ? h("span", { class: "chip acento", text: "Render" }) : null,
           v.estilo && v.estilo !== "original"
             ? (v.mascara ? h("span", { class: "chip ok", text: "Máscara propia" }) : h("span", { class: "chip aviso", text: "Sin máscara: no se podrá cambiar el color", title: "Un estilo con otro mobiliario necesita su propia máscara" }))
             : (p.mascara ? h("span", { class: "chip", text: "Usa la máscara base" }) : null)),

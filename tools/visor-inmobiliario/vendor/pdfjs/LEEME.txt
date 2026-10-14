@@ -1,0 +1,2 @@
+pdfjs-dist 4.10.38 (https://github.com/mozilla/pdf.js) — Apache-2.0 (ver LICENSE).
+Copiado de npm: build/pdf.min.mjs, build/pdf.worker.min.mjs, standard_fonts/. Lo usa estudio-material.js para convertir planos PDF en imagen.

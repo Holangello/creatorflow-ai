@@ -85,7 +85,7 @@ function pintarPlantas() {
     })),
     h("button", { class: "btn fantasma peq", title: "Añadir planta", onclick: anadirPlanta }, icono("mas", 15), "Planta"),
     h("div", { class: "relleno", style: { flex: 1 } }),
-    h("button", { class: "btn peq", onclick: subirPlano, title: "Imagen del plano (PNG/JPG)" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
+    h("button", { class: "btn peq", onclick: subirPlano, title: "Plano del arquitecto: PDF, DXF, PNG o JPG" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
   );
 }
 function pintarHerramientas() {
@@ -245,9 +245,14 @@ async function borrarPlanta() {
   pintarUI(); ajustar();
 }
 async function subirPlano(archivoDado) {
-  const [f] = archivoDado instanceof File ? [archivoDado] : await elegirArchivos({ aceptar: "image/png,image/jpeg,image/webp,image/svg+xml" });
+  const [f] = archivoDado instanceof File ? [archivoDado] : await elegirArchivos({ aceptar: "image/png,image/jpeg,image/webp,image/svg+xml,application/pdf,.pdf,.dxf,.dwg" });
   if (!f) return;
-  if (!/^image\//.test(f.type)) return toast("El plano debe ser una imagen (PNG o JPG). Si lo tienes en PDF, expórtalo como imagen.", "aviso", 6000);
+  const { importarPlanoArquitecto } = await import("./estudio-material.js");
+  await importarPlanoArquitecto(f, planta().id);
+}
+
+/** Pone una imagen como plano de una planta. opciones: {ancho_m, calibrado} (p. ej. desde un DXF a escala). */
+export async function ponerImagenPlano(plantaId, f, { ancho_m = null, calibrado = false, silencioso = false } = {}) {
   let blob = f, dim = await dimensiones(f).catch(() => null);
   if (f.type === "image/svg+xml") dim = null;
   try {
@@ -262,22 +267,25 @@ async function subirPlano(archivoDado) {
     }
     bmp.close();
   } catch { /* SVG u otros: se usa tal cual */ }
-  const pl = planta();
   const ext = blob.type === "image/png" ? "png" : blob.type === "image/svg+xml" ? "svg" : blob.type === "image/webp" ? "webp" : "jpg";
-  const ruta = rutaLibre(`plantas/${pl.id}`, ext);
+  const ruta = rutaLibre(`plantas/${plantaId}`, ext);
   await guardarArchivo(ruta, blob);
   const aspecto = dim ? dim.h / dim.w : 0.75;
   cambiar((t) => {
-    const p = t.plantas.find((x) => x.id === pl.id);
-    const ancho = p.plano?.ancho_m ?? 12;
-    p.plano = { imagen: ruta, ancho_m: ancho, alto_m: redondear(ancho * aspecto, 3), origen: p.plano?.origen ?? [0, 0] };
+    const p = t.plantas.find((x) => x.id === plantaId);
+    const ancho = ancho_m ?? p.plano?.ancho_m ?? 12;
+    p.plano = { imagen: ruta, ancho_m: redondear(ancho, 3), alto_m: redondear(ancho * aspecto, 3), origen: p.plano?.origen ?? [0, 0] };
     t._estudio.calibrado ??= {};
-    if (!p.plano || !t._estudio.calibrado[p.id]) t._estudio.calibrado[p.id] = false;
+    if (calibrado) t._estudio.calibrado[p.id] = true;
+    else if (!t._estudio.calibrado[p.id]) t._estudio.calibrado[p.id] = false;
   });
+  app.planta = plantaId;
   S.ajustado = false;
-  pintarUI();
-  toast("Plano añadido. Ahora calibra la escala con una medida conocida.", "ok", 4000);
-  fijarHerramienta("calibrar");
+  if (raiz) { pintarUI(); ajustar(); }
+  if (!silencioso && !calibrado) {
+    toast("Plano añadido. Ahora calibra la escala con una medida conocida.", "ok", 4000);
+    if (raiz) fijarHerramienta("calibrar");
+  }
 }
 
 // ------------------------------------------------------------------ vista (zoom/encuadre)
@@ -863,6 +871,7 @@ export const seccionPlano = {
   salir: () => { S.ro?.disconnect(); cancelAnimationFrame(S.raf); raiz = null; lado = null; S.lienzo = null; },
   teclas,
   soltar: async (lista) => {
+    if (lista.length === 1 && /\.(pdf|dxf|dwg)$/i.test(lista[0].archivo.name)) { await subirPlano(lista[0].archivo); return true; }
     if (lista.length === 1 && /\.(png|jpe?g|webp|svg)$/i.test(lista[0].archivo.name)) {
       const f = lista[0].archivo;
       const d = await dimensiones(f).catch(() => null);

@@ -1,4 +1,6 @@
-# Contrato técnico del visor (v2)
+# Contrato técnico de cre8eight (v2)
+
+**cre8eight** es el nombre del software: visor 3D (index.html), Estudio de creación (estudio.html) y exportadores.
 
 Este documento es la fuente de verdad compartida por el visor (`visor.js`), los paneles de interfaz (`paneles.js`),
 el Estudio de creación (`estudio.html`) y los exportadores (`exportar.js`).
@@ -97,6 +99,19 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
     }
   ],
 
+  "galeria": [                          // renders y fotos fijas (p. ej. renders de Corona/V-Ray/Lumion del arquitecto)
+    { "imagen": "renders/salon-noche.jpg", "titulo": "Texto", "estancia": "salon", "tipo": "render" | "foto" | "plano",
+      "autor": "Estudio de arquitectura X" }
+  ],
+  "documentacion": [                    // material de origen adjuntado en el Estudio (no se muestra salvo `publico: true`)
+    { "nombre": "Plano de planta (arquitecto)", "archivo": "docs/plano.pdf", "tipo": "plano" | "render" | "modelo" | "memoria" | "otro", "publico": false }
+  ],
+  "secciones": [                        // categorías para agrupar estancias (contacto, galería): opcional
+    { "id": "dia", "nombre": "Zona de día", "estancias": ["salon", "cocina"] },
+    { "id": "noche", "nombre": "Zona de noche", "estancias": ["dormitorio", "bano"] },
+    { "id": "exterior", "nombre": "Exterior y zonas comunes", "estancias": [] }
+  ],
+
   "guion": [                            // visita guiada / vídeo. Si falta, se recorren los panoramas en orden.
     { "nodo": "salon", "rumbo": 110, "segundos": 6, "texto": "Texto" }
   ],
@@ -136,9 +151,17 @@ visor.enlaceVista()             // URL absoluta que reabre la vista actual
 visor.idioma(cod)               // cambia idioma de la interfaz
 visor.t(texto)                  // resuelve un Texto ({es,en} | cadena) al idioma actual
 visor.lienzo                    // <canvas> WebGL (para grabar vídeo)
-visor.capturar()                // Promise<Blob> PNG de la vista actual
+visor.capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.85 } = {})
+                                // Promise<{ blob, nodo, estancia, enlace, vista }> captura de la vista actual (sin interfaz)
+visor.radar(modo)               // "radar" (gira con la vista, centrado) | "plano" (norte arriba) | "oculto"
+visor.estanciaActual()          // { id, nombre } de la estancia (polígono) en la que está el visitante, o null
 visor.on(evento, fn) / visor.off(evento, fn)
 ```
+
+Controles (estilo Minecraft): clic en el lienzo (escritorio) captura el ratón; el ratón mira (sin arrastrar); W/↑ adelante,
+S/↓ atrás, A/← y D/→ lateral (en el recorrido 360: ir a la estancia de ese lado), Q/E girar, Espacio saltar (modo libre
+con suelo) o subir (sin suelo), C bajar, Shift correr, Esc soltar el ratón. En el recorrido 360 con el ratón capturado,
+el clic avanza hacia la flecha o la estancia que hay bajo la mira.
 
 Eventos (`visor.on`), también emitidos como `CustomEvent("visor:<evento>")` en `window` y enviados a
 `window.dataLayer` si existe (analítica):
