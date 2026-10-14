@@ -39,6 +39,7 @@ const FALLBACK = {
   "estilo.contemporaneo_minimalista": "Contemporáneo", "estilo.clasico": "Clásico",
   "momento.dia": "Día", "momento.atardecer": "Atardecer", "momento.noche": "Noche", "momento.simulado": "(simulación)",
   "nav.ir_a": "Ir a {x}", "nav.metros": "{x} m", "galeria.titulo": "Estancias",
+  "sonido.activar": "Activar música", "sonido.silenciar": "Silenciar música", "sonido.volumen": "Volumen de la música",
   "sello.ia": "Recreación virtual · IA", "sello.render": "Render / infografía", "sello.simulado": "Iluminación simulada",
 };
 let i18n = null;
@@ -877,6 +878,9 @@ function interaccion(ev) {
   if (ev?.type === "pointermove" && document.pointerLockElement === lienzo) return;
   int.ultimaInteraccion = performance.now();
   int.yaInteractuo = true;
+  // Primer gesto real (no un simple movimiento): ya se puede reproducir sonido.
+  if (!sonido.iniciado && sonido.activo && sonido.el && ev && ev.type !== "pointermove" && ev.type !== "wheel"
+      && int.tour?.audio?.musica?.autoplay !== false && !btnSonido.contains(ev.target)) arrancarSonido();
   if (document.body.classList.contains("ui-inactiva")) document.body.classList.remove("ui-inactiva");
 }
 ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) => addEventListener(ev, interaccion, { passive: true }));
@@ -1210,6 +1214,144 @@ function dibujarPlantas() {
   }));
 }
 
+// ------------------------------------------------------------------ sonido (música del proyecto)
+// Web Audio (GainNode): en iPhone/iPad el volumen de <audio> no se puede cambiar por código.
+// Los navegadores no dejan sonar nada antes de la primera interacción: la música arranca entonces, con fundido.
+const sonido = {
+  el: null, src: null, ctx: null, ganancia: null, gananciaGrab: null, destinoGrab: null,
+  activo: almacen.leer("visor:sonido", true), volumen: almacen.leer("visor:volumen", null), base: 0.5, iniciado: false, grabando: false,
+};
+const cajaSonido = $("#sonido"), btnSonido = $("#btn-sonido"), volSonido = $("#vol-musica");
+
+function configurarSonido() {
+  const m = int.tour?.audio?.musica;
+  if (!m?.archivo) {
+    cajaSonido.hidden = true;
+    if (sonido.el) { sonido.el.pause(); try { sonido.fuente?.disconnect(); } catch {} }
+    sonido.el = null; sonido.src = null; sonido.fuente = null;
+    return;
+  }
+  cajaSonido.hidden = false;
+  sonido.base = THREE.MathUtils.clamp(+(m.volumen ?? 0.5) || 0.5, 0, 1);
+  if (sonido.src !== m.archivo) {
+    if (sonido.el) { // la pista anterior se corta del todo (no solo se silencia)
+      sonido.el.pause();
+      try { sonido.fuente?.disconnect(); } catch {}
+      sonido.el.removeAttribute("src");
+      sonido.el.load();
+    }
+    const el = new Audio();
+    el.preload = "auto";
+    el.loop = m.bucle !== false;
+    el.crossOrigin = "anonymous";
+    el.src = m.archivo;
+    sonido.el = el; sonido.src = m.archivo; sonido.fuente = null;
+    sonido.iniciado = false;
+  }
+  volSonido.value = String(Math.round(volumenObjetivo(true) * 100));
+  pintarSonido();
+  if (sonido.activo && int.yaInteractuo && m.autoplay !== false) arrancarSonido();
+}
+
+function volumenObjetivo(ignorarMudo = false) {
+  const v = sonido.volumen ?? sonido.base;
+  return ignorarMudo || sonido.activo ? v : 0;
+}
+
+function asegurarGrafo() {
+  if (sonido.ctx || !sonido.el) return !!sonido.ctx;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return false;
+  sonido.ctx = new AC();
+  sonido.ganancia = sonido.ctx.createGain();
+  sonido.ganancia.gain.value = 0;
+  sonido.ganancia.connect(sonido.ctx.destination);
+  return true;
+}
+function conectarFuente() {
+  if (!sonido.el || !asegurarGrafo() || sonido.fuente?.mediaElement === sonido.el) return;
+  sonido.fuente = sonido.ctx.createMediaElementSource(sonido.el);
+  sonido.fuente.connect(sonido.ganancia);
+  if (sonido.gananciaGrab) sonido.fuente.connect(sonido.gananciaGrab);
+}
+
+function fundido(valor, segundos = 0.8) {
+  if (!sonido.ganancia) return;
+  const g = sonido.ganancia.gain, t = sonido.ctx.currentTime;
+  g.cancelScheduledValues(t);
+  g.setValueAtTime(g.value, t);
+  g.linearRampToValueAtTime(valor, t + segundos);
+}
+
+async function arrancarSonido() {
+  if (!sonido.el) return;
+  conectarFuente();
+  try {
+    await sonido.ctx?.resume();
+    await sonido.el.play();
+    sonido.iniciado = true;
+    fundido(volumenObjetivo(), 2);
+  } catch { /* sin gesto del usuario todavía: se reintenta en la siguiente interacción */ }
+  pintarSonido();
+}
+
+function pararSonido() {
+  if (!sonido.el) return;
+  fundido(0, 0.3);
+  const el = sonido.el;
+  setTimeout(() => { if (sonido.el !== el || (sonido.activo && !document.hidden) || sonido.grabando) return; el.pause(); pintarSonido(); }, 350);
+}
+
+function alternarSonido() {
+  sonido.activo = !sonido.activo;
+  almacen.guardar("visor:sonido", sonido.activo);
+  if (sonido.activo) { if (sonido.el?.paused) arrancarSonido(); else fundido(volumenObjetivo(), 0.5); }
+  else { fundido(0, 0.5); setTimeout(() => { if (!sonido.activo && !sonido.grabando) sonido.el?.pause(); pintarSonido(); }, 600); }
+  pintarSonido();
+  visor.emitir("sonido", { activo: sonido.activo });
+}
+
+function fijarVolumen(v) {
+  sonido.volumen = THREE.MathUtils.clamp(v, 0, 1);
+  almacen.guardar("visor:volumen", sonido.volumen);
+  volSonido.value = String(Math.round(sonido.volumen * 100));
+  if (sonido.volumen > 0 && !sonido.activo) return alternarSonido();
+  fundido(volumenObjetivo(), 0.15);
+}
+
+function pintarSonido() {
+  const sonando = !!sonido.el && !sonido.el.paused && sonido.activo;
+  cajaSonido.classList.toggle("sonando", sonando);
+  cajaSonido.classList.toggle("silenciado", !sonido.activo);
+  btnSonido.setAttribute("aria-pressed", String(!sonido.activo));
+  const m = int.tour?.audio?.musica;
+  const titulo = m?.titulo ? ` · ${texto(m.titulo)}` : "";
+  btnSonido.setAttribute("aria-label", (sonido.activo ? tr("sonido.silenciar") : tr("sonido.activar")) + titulo);
+  btnSonido.title = btnSonido.getAttribute("aria-label");
+  volSonido.setAttribute("aria-label", tr("sonido.volumen"));
+}
+
+btnSonido.addEventListener("click", alternarSonido);
+btnSonido.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); fijarVolumen((sonido.volumen ?? sonido.base) + 0.1); }
+  if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); e.stopPropagation(); fijarVolumen((sonido.volumen ?? sonido.base) - 0.1); }
+});
+// Mantener pulsado (táctil) abre el control de volumen.
+let tVolumen = 0;
+btnSonido.addEventListener("pointerdown", (e) => {
+  if (e.pointerType !== "touch") return;
+  tVolumen = setTimeout(() => { cajaSonido.classList.add("abierto"); btnSonido.dataset.largo = "1"; }, 450);
+});
+btnSonido.addEventListener("pointerup", () => clearTimeout(tVolumen));
+btnSonido.addEventListener("click", (e) => { if (btnSonido.dataset.largo) { delete btnSonido.dataset.largo; e.stopImmediatePropagation(); } }, true);
+volSonido.addEventListener("input", () => fijarVolumen(+volSonido.value / 100));
+addEventListener("pointerdown", (e) => { if (!cajaSonido.contains(e.target)) cajaSonido.classList.remove("abierto"); });
+document.addEventListener("visibilitychange", () => {
+  if (!sonido.el || sonido.grabando) return;
+  if (document.hidden) pararSonido();
+  else if (sonido.activo && sonido.iniciado) arrancarSonido();
+});
+
 // ------------------------------------------------------------------ interfaz del núcleo
 function mostrarCarga(si, frac) {
   $("#carga").hidden = !si;
@@ -1386,6 +1528,7 @@ function refrescarTextos() {
   if (estado.modo === "maqueta") maqueta.activar(true);
   medicion?.refrescarTextos();
   $("#btn-ayuda").setAttribute("aria-label", tr("ayuda.titulo"));
+  pintarSonido();
   $("#btn-mapa").setAttribute("aria-label", tr("plano.ampliar"));
   lienzo.setAttribute("aria-label", `${texto(int.tour.titulo)} · ${tr("aviso.arrastra")}`);
   if (!$("#ayuda").hidden) renderAyuda();
@@ -1491,6 +1634,39 @@ Object.assign(visor, {
     const e = (int.tour.estancias ?? []).find((s) => s.planta === pl && s.poligono?.length > 2 && puntoEnPoligono([x, z], s.poligono));
     if (e) return { id: e.id, nombre: e.nombre };
     return int.actual ? { id: int.actual.id, nombre: int.actual.nombre } : null;
+  },
+  /** Música: estado y control. */
+  sonido: {
+    get activo() { return sonido.activo; },
+    get disponible() { return !!sonido.el; },
+    get volumen() { return sonido.volumen ?? sonido.base; },
+    alternar: () => alternarSonido(),
+    fijarVolumen: (v) => fijarVolumen(v),
+  },
+  /**
+   * Pista de audio de la música para grabar vídeo (independiente del botón de silencio del visitante).
+   * pistaAudio(true) → MediaStreamTrack | null (arranca la música desde el principio); pistaAudio(false) la libera.
+   */
+  async pistaAudio(si) {
+    if (!sonido.el) return null;
+    if (!si) {
+      sonido.grabando = false;
+      if (sonido.gananciaGrab) { const g = sonido.gananciaGrab.gain, t = sonido.ctx.currentTime; g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + 0.4); }
+      if (!sonido.activo) setTimeout(() => sonido.el?.pause(), 450);
+      return null;
+    }
+    if (!asegurarGrafo()) return null;
+    if (!sonido.destinoGrab) {
+      sonido.destinoGrab = sonido.ctx.createMediaStreamDestination();
+      sonido.gananciaGrab = sonido.ctx.createGain();
+      sonido.gananciaGrab.connect(sonido.destinoGrab);
+      sonido.fuente?.connect(sonido.gananciaGrab);
+    }
+    conectarFuente();
+    sonido.grabando = true;
+    sonido.gananciaGrab.gain.value = sonido.base;
+    try { await sonido.ctx.resume(); sonido.el.currentTime = 0; await sonido.el.play(); } catch (e) { console.warn("[sonido] grabación", e); }
+    return sonido.destinoGrab.stream.getAudioTracks()[0] ?? null;
   },
   /** Durante la grabación de vídeo, la visita guiada y las transiciones avanzan por reloj real. */
   tiempoReal(si) { int.tiempoReal = !!si; },
@@ -1646,8 +1822,12 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   maqueta?.reiniciar();
   if (t.demo && renderer) {
     mostrarCarga(true);
-    const { generarPanoramas } = await import("./demo.js");
+    const { generarPanoramas, musicaDemo } = await import("./demo.js");
     generarPanoramas(THREE, renderer, t.panoramas, t.altura_camara ?? 1.5);
+    if (!t.audio?.musica?.archivo) {
+      const archivo = await musicaDemo().catch(() => null);
+      if (archivo) t.audio = { musica: { archivo, volumen: 0.35, bucle: true, titulo: { es: "Ambiente (demo)", en: "Ambient (demo)" }, autor: "cre8eight", licencia: "Generada por código" } };
+    }
     mostrarCarga(false);
   }
   const pedido = params.get("lang") ?? i18n?.idiomaActual?.() ?? t.idioma ?? "es";
@@ -1655,6 +1835,7 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   i18n?.fijarIdioma?.(estado.idioma);
   document.documentElement.lang = estado.idioma;
   refrescarTextos();
+  configurarSonido();
   redimensionar();
   if (!int.nodos.size) {
     estado.planta = t.plantas[0].id;

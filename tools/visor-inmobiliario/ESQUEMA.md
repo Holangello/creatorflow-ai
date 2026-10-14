@@ -114,6 +114,11 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
     { "id": "exterior", "nombre": "Exterior y zonas comunes", "estancias": [] }
   ],
 
+  "audio": {                            // música del proyecto (botón de sonido en el visor; también en los vídeos)
+    "musica": { "archivo": "audio/musica.mp3", "volumen": 0.4, "bucle": true, "autoplay": true,
+                "titulo": "Texto", "autor": "Nombre", "licencia": "CC BY 4.0 / licencia comercial nº…" }
+  },
+
   "guion": [                            // visita guiada / vídeo. Si falta, se recorren los panoramas en orden.
     { "nodo": "salon", "rumbo": 110, "segundos": 6, "texto": "Texto" }
   ],
@@ -158,6 +163,8 @@ visor.t(texto)                  // resuelve un Texto ({es,en} | cadena) al idiom
 visor.lienzo                    // <canvas> WebGL (para grabar vídeo)
 visor.capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.85 } = {})
                                 // Promise<{ blob, nodo, estancia, enlace, vista }> captura de la vista actual (sin interfaz)
+visor.sonido                    // { activo, disponible, volumen, alternar(), fijarVolumen(v 0-1) }
+visor.pistaAudio(true|false)    // MediaStreamTrack de la música para grabar vídeo (independiente del silencio)
 visor.radar(modo)               // "radar" (gira con la vista, centrado) | "plano" (norte arriba) | "oculto"
 visor.estanciaActual()          // { id, nombre } de la estancia (polígono) en la que está el visitante, o null
 visor.on(evento, fn) / visor.off(evento, fn)

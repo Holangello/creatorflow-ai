@@ -19,7 +19,7 @@
   <header id="barra-sup">
     <div class="marca-estudio" aria-label="cre8eight Estudio">
       <span class="logo-e">c8</span>
-      <span class="nombre-app">cre8eight <em>Estudio</em></span>
+      <span class="nombre-app">cre8<span class="acento-marca">eight</span> <em>Estudio</em></span>
     </div>
     <button id="nombre-proyecto" class="nombre-proyecto" title="Proyectos guardados (Ctrl+O)">Proyecto sin título</button>
     <span id="estado-guardado" class="estado-guardado" role="status" aria-live="polite"></span>
@@ -28,9 +28,11 @@
       <button id="btn-deshacer" class="btn icono-btn" title="Deshacer (Ctrl+Z)" aria-label="Deshacer"></button>
       <button id="btn-rehacer" class="btn icono-btn" title="Rehacer (Ctrl+Shift+Z)" aria-label="Rehacer"></button>
     </div>
+    <a id="btn-guia" class="btn" href="asistente-osmo.html" target="_blank" rel="noopener" title="Guía paso a paso para hacer las fotos con la DJI Osmo 360"><span>Guía Osmo 360</span></a>
     <button id="btn-atajos" class="btn icono-btn" title="Atajos de teclado (?)" aria-label="Atajos de teclado"></button>
+    <button id="btn-vista" class="btn" aria-pressed="false" aria-controls="vista" title="Mostrar u ocultar la vista previa"></button>
     <button id="btn-abrir" class="btn" title="Abrir proyecto, ZIP o carpeta (Ctrl+O)"></button>
-    <button id="btn-exportar" class="btn primario" title="Exportar y publicar (Ctrl+E)"></button>
+    <button id="btn-exportar" class="btn primario" title="Publicar y descargar (Ctrl+E)"></button>
   </header>
 
   <nav id="pasos" aria-label="Pasos del recorrido"></nav>
@@ -55,7 +57,7 @@
   </aside>
 
   <div id="arrastre" class="arrastre" hidden>
-    <div><strong>Suelta aquí</strong><span>Fotos 360 (JPG), un ZIP exportado o una carpeta con tour.json</span></div>
+    <div><strong>Suelta aquí</strong><span>Fotos 360 (JPG), una copia de seguridad (ZIP) o una carpeta con tour.json</span></div>
   </div>
   <div id="toasts" aria-live="polite"></div>
 

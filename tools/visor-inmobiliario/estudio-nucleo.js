@@ -23,7 +23,8 @@ export const SUELOS_DEF = [
 ].map(([es, en, color]) => ({ nombre: { es, en }, color }));
 export const IDIOMAS = { es: "Español", en: "English", fr: "Français", de: "Deutsch", it: "Italiano", pt: "Português", ca: "Català" };
 
-export function tourNuevo() {
+/** modo: "rapido" (5 pasos, plano opcional) | "completo" (todas las herramientas). */
+export function tourNuevo(modo = "rapido") {
   return {
     version: 2,
     titulo: { es: "" },
@@ -42,7 +43,7 @@ export function tourNuevo() {
     momentos: ["dia", "atardecer", "noche"],
     personalizacion: { paredes: structuredClone(PAREDES_DEF), suelos: structuredClone(SUELOS_DEF) },
     panoramas: [],
-    _estudio: { manuales: [], quitados: [], meta: {} },
+    _estudio: { manuales: [], quitados: [], meta: {}, modo },
   };
 }
 
@@ -57,6 +58,7 @@ export const app = {
   vista: null,           // última vista recibida del visor
   guardado: "ok",        // ok | pendiente | error
 };
+export const esRapido = () => app.tour?._estudio?.modo === "rapido";
 const oyentes = new Map();
 export function on(ev, fn) { if (!oyentes.has(ev)) oyentes.set(ev, new Set()); oyentes.get(ev).add(fn); }
 export function emitir(ev, d) { for (const fn of oyentes.get(ev) ?? []) { try { fn(d); } catch (e) { console.error(e); } } }
@@ -125,14 +127,32 @@ export function urlDe(ruta) {
   }
   return u.url;
 }
+// Estado de guardado: "Guardado" solo cuando el proyecto Y todos sus archivos están en IndexedDB.
+const enCurso = new Set();      // rutas guardándose ahora
+const fallidos = new Set();     // rutas que no se pudieron guardar (se reintentan en el siguiente guardado)
+let errorProyecto = false;
+function recalcularEstado() {
+  const antes = app.guardado;
+  app.guardado = errorProyecto || fallidos.size ? "error" : enCurso.size || tGuardar ? "pendiente" : "ok";
+  if (antes !== app.guardado) emitir("guardado");
+}
 export async function guardarArchivo(ruta, blob) {
   app.archivos.set(ruta, blob);
+  if (!app.proyecto) return;
+  enCurso.add(ruta); recalcularEstado();
   try {
     await db.guardarArchivo(app.proyecto.id, ruta, blob);
+    fallidos.delete(ruta);
   } catch (e) {
+    fallidos.add(ruta);
     errorGuardado(e);
+  } finally {
+    enCurso.delete(ruta);
+    recalcularEstado();
   }
 }
+export function reiniciarGuardado() { enCurso.clear(); fallidos.clear(); errorProyecto = false; recalcularEstado(); }
+export const archivosSinGuardar = () => fallidos.size;
 export function rutaLibre(base, ext) {
   let r = `${base}.${ext}`, i = 2;
   while (app.archivos.has(r)) r = `${base}-${i++}.${ext}`;
@@ -150,12 +170,12 @@ export function limpiarUrls() { for (const u of urls.values()) URL.revokeObjectU
 // ------------------------------------------------------------------ autoguardado
 let tGuardar = 0;
 function programarGuardado() {
-  app.guardado = "pendiente"; emitir("guardado");
   clearTimeout(tGuardar);
   tGuardar = setTimeout(guardarAhora, 700);
+  recalcularEstado();
 }
 export async function guardarAhora() {
-  clearTimeout(tGuardar);
+  clearTimeout(tGuardar); tGuardar = 0;
   if (!app.proyecto) return;
   try {
     const mini = app.tour.panoramas[0]?.miniatura;
@@ -163,20 +183,27 @@ export async function guardarAhora() {
       id: app.proyecto.id, nombre: nombreProyecto(), actualizado: Date.now(), tour: app.tour,
       miniatura: mini ? app.archivos.get(mini) ?? null : null, nFotos: app.tour.panoramas.length,
     });
-    if (app.guardado !== "error-archivo") app.guardado = "ok";
-    emitir("guardado");
-  } catch (e) { errorGuardado(e); }
+    errorProyecto = false;
+  } catch (e) { errorProyecto = true; errorGuardado(e); }
+  // Reintenta los archivos que fallaron (p. ej. tras liberar espacio).
+  for (const ruta of [...fallidos]) {
+    const b = app.archivos.get(ruta);
+    if (!b) { fallidos.delete(ruta); continue; }
+    try { await db.guardarArchivo(app.proyecto.id, ruta, b); fallidos.delete(ruta); } catch { break; }
+  }
+  recalcularEstado();
 }
 let avisadoError = false;
 function errorGuardado(e) {
   console.error("Error de almacenamiento", e);
-  app.guardado = "error"; emitir("guardado");
+  recalcularEstado();
   if (!avisadoError) {
     avisadoError = true;
+    const motivo = e?.name === "QuotaExceededError" ? "no queda espacio en el navegador" : e?.message || e?.name || String(e);
     dialogo({
       titulo: "No se puede guardar en este navegador",
-      texto: `El autoguardado ha fallado (${e?.name === "QuotaExceededError" ? "no queda espacio" : e?.message ?? e}). ` +
-        "Tu trabajo sigue abierto, pero exporta un ZIP del proyecto antes de cerrar la pestaña para no perderlo. " +
+      texto: `El autoguardado ha fallado (${motivo}). ` +
+        "Tu trabajo sigue abierto, pero descarga una copia de seguridad (Publicar → Avanzado → Copia de seguridad) antes de cerrar la pestaña para no perderlo. " +
         "En modo incógnito o con el almacenamiento bloqueado el navegador no permite guardar.",
       botones: [{ texto: "Entendido", primario: true }],
     });
@@ -216,9 +243,17 @@ export function calcularEnlaces(t = app.tour) {
   const quitados = new Set(t._estudio?.quitados ?? []);
   const efectivos = new Set([...auto].filter((k) => !quitados.has(k)));
   for (const k of manual) efectivos.add(k);
+  // Modo rápido sin plano: las fotos sin colocar se conectan en el orden de la lista (1 ↔ 2 ↔ 3…).
+  const lineales = new Set();
+  if (t._estudio?.modo === "rapido") {
+    for (let i = 0; i + 1 < t.panoramas.length; i++) {
+      const a = t.panoramas[i], b = t.panoramas[i + 1];
+      if (!colocado(a) || !colocado(b)) { const k = claveEnlace(a.id, b.id); lineales.add(k); efectivos.add(k); }
+    }
+  }
   const vecinos = new Map(t.panoramas.map((p) => [p.id, []]));
   for (const k of efectivos) { const [a, b] = k.split("|"); vecinos.get(a)?.push(b); vecinos.get(b)?.push(a); }
-  return { auto, manual, quitados, efectivos, vecinos };
+  return { auto, manual, quitados, efectivos, vecinos, lineales };
 }
 export function alternarEnlace(a, b) {
   if (a === b) return;
@@ -282,15 +317,72 @@ function limpiar(v, idiomas, clave) {
   return v;
 }
 
-/** Tour listo para publicar (sin campos internos, textos normalizados, enlaces explícitos). Con `mapaRutas` sustituye rutas por URLs. */
-export function tourParaExportar(t = app.tour, { mapaRutas = null } = {}) {
+// ------------------------------------------------------------------ enlaces seguros (A5)
+export const MENSAJE_URL = "Solo se admiten direcciones que empiecen por https://, http://, mailto: o tel:.";
+/** ¿Es una URL que se puede publicar? interna: también rutas relativas de archivos del proyecto (docs/x.pdf). */
+export function urlPermitida(v, { interna = false, soloHttps = false } = {}) {
+  if (v == null || v === "") return true;
+  const s = String(v).trim();
+  if (soloHttps) return /^https:\/\/[^\s]+$/i.test(s);
+  if (/^https?:\/\/[^\s]+$/i.test(s) || /^mailto:[^\s]+$/i.test(s) || /^tel:[+\d\s().-]+$/i.test(s)) return true;
+  if (interna && !/^[a-z][a-z0-9+.-]*:/i.test(s) && !s.startsWith("//")) return true; // ruta relativa
+  return false;
+}
+/** Campos de URL del tour → [{obj, clave, opciones, donde}] */
+function camposUrl(t) {
+  const r = [];
+  const add = (obj, clave, donde, opciones = {}) => { if (obj && obj[clave] != null && obj[clave] !== "") r.push({ obj, clave, donde, opciones }); };
+  add(t.marca, "web", "Web de la marca");
+  add(t.contacto, "url_privacidad", "Política de privacidad");
+  add(t.contacto, "webhook", "Conexión con el CRM", { soloHttps: true });
+  for (const d of t.inmueble?.documentos ?? []) add(d, "url", `Documento «${textoDe(d.nombre) || "sin nombre"}»`, { interna: true });
+  for (const d of t.documentacion ?? []) add(d, "archivo", `Material «${textoDe(d.nombre) || "sin nombre"}»`, { interna: true });
+  for (const p of t.panoramas ?? []) for (const pt of p.puntos ?? []) {
+    add(pt, "enlace", `Nota «${textoDe(pt.titulo) || "sin título"}» de ${textoDe(p.nombre) || p.id}`);
+    add(pt, "video", `Vídeo de la nota «${textoDe(pt.titulo) || "sin título"}»`);
+  }
+  return r;
+}
+/** URLs no permitidas (javascript:, data:, etc.) → [{donde, valor}] */
+export function urlsNoValidas(t = app.tour) {
+  return camposUrl(t).filter(({ obj, clave, opciones }) => !urlPermitida(obj[clave], opciones)).map(({ obj, clave, donde }) => ({ donde, valor: String(obj[clave]) }));
+}
+
+/** Archivos que el tour referencia y no están en el proyecto (ni son URLs externas) → [{ruta, donde}] */
+export function archivosFaltantes(t = app.tour) {
+  const r = [];
+  const ver = (ruta, donde) => { if (typeof ruta === "string" && ruta && !/^(https?:|blob:|data:)/i.test(ruta) && !app.archivos.has(ruta)) r.push({ ruta, donde }); };
+  for (const p of t.panoramas ?? []) {
+    const n = textoDe(p.nombre) || p.id;
+    ver(p.imagen, `foto ${n}`); ver(p.imagen_movil, `versión móvil de ${n}`); ver(p.miniatura, `miniatura de ${n}`); ver(p.mascara, `máscara de ${n}`);
+    for (const v of p.variantes ?? []) { ver(v.imagen, `variante de ${n}`); ver(v.imagen_movil, `variante móvil de ${n}`); ver(v.mascara, `máscara de una variante de ${n}`); }
+    for (const pt of p.puntos ?? []) ver(pt.imagen, `imagen de una nota de ${n}`);
+  }
+  for (const pl of t.plantas ?? []) ver(pl.plano?.imagen, `plano de ${textoDe(pl.nombre) || pl.id}`);
+  ver(t.marca?.logo, "logo"); ver(t.agente?.foto, "foto del agente");
+  for (const g of t.galeria ?? []) ver(g.imagen, "imagen de la galería");
+  for (const d of t.documentacion ?? []) ver(d.archivo, `documento ${textoDe(d.nombre)}`);
+  ver(t.libre?.url, "modelo 3D"); ver(t.libre?.colisionador, "colisionador del modelo 3D");
+  return r;
+}
+
+/**
+ * Tour listo para publicar (sin campos internos, textos normalizados, enlaces explícitos).
+ * publico: sin documentación privada (publico:false). mapaRutas: sustituye rutas por URLs (vista previa).
+ */
+export function tourParaExportar(t = app.tour, { mapaRutas = null, publico = true } = {}) {
   const c = structuredClone(t);
   const { vecinos } = calcularEnlaces(t);
   const idiomas = c.idiomas?.length ? c.idiomas : ["es"];
   c.version = 2;
   c.idioma = idiomas.includes(c.idioma) ? c.idioma : idiomas[0];
+  // Fotos sin colocar: en fila, a 2,5 m de la anterior (así las flechas apuntan "adelante" y "atrás").
+  let ultimo = null;
   for (const p of c.panoramas) {
-    if (!colocado(p)) { p.x = 0; p.z = 0; }
+    if (!colocado(p)) { p.x = ultimo ? ultimo[0] + 2.5 : 0; p.z = ultimo ? ultimo[1] : 0; }
+    ultimo = [p.x, p.z];
+  }
+  for (const p of c.panoramas) {
     p.x = redondear(p.x); p.z = redondear(p.z);
     p.yaw = redondear(p.yaw ?? 0, 1);
     p.enlaces = vecinos.get(p.id) ?? [];
@@ -315,12 +407,10 @@ export function tourParaExportar(t = app.tour, { mapaRutas = null } = {}) {
     if (ce?.en_tramite) { delete ce.consumo_letra; delete ce.emisiones_letra; delete ce.consumo_valor; delete ce.emisiones_valor; }
     if (ce && !ce.en_tramite) delete ce.en_tramite;
   }
-  // Documentación pública → también en la ficha (inmueble.documentos)
-  for (const d of c.documentacion ?? []) {
-    if (!d.publico || !d.archivo) continue;
-    c.inmueble ??= {}; c.inmueble.documentos ??= [];
-    if (!c.inmueble.documentos.some((x) => x.url === d.archivo)) c.inmueble.documentos.push({ nombre: d.nombre, url: d.archivo });
-  }
+  // Documentación privada (publico:false): nunca sale en lo que se publica.
+  if (publico && c.documentacion) c.documentacion = c.documentacion.filter((d) => d.publico);
+  // Enlaces no permitidos (javascript:, data:…): se descartan.
+  for (const { obj, clave, opciones } of camposUrl(c)) if (!urlPermitida(obj[clave], opciones)) delete obj[clave];
   if (c.secciones) {
     const ids = new Set(c.panoramas.map((p) => p.id));
     c.secciones = c.secciones.map((s) => ({ ...s, estancias: (s.estancias ?? []).filter((x) => ids.has(x)) }));

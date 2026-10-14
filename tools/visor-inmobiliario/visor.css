@@ -283,3 +283,17 @@ body.modo-libre #rotulo, body.modo-maqueta #rotulo { display: none; }
 /* Convivencia con los paneles (pill de contacto y dock) */
 @media (max-width: 900px) { body.modo-libre #modos, body.modo-maqueta #modos { bottom: calc(var(--abajo) + 76px); } }
 @media (max-height: 500px) and (orientation: landscape) { #galeria { max-width: calc(100vw - 30px - var(--ancho-dock, 300px)); } }
+
+/* ---------------- sonido: botón con ondas animadas y volumen ---------------- */
+.sonido { position: relative; }
+.ic-sonido .onda { opacity: 0; transform-origin: 12px 12px; transition: opacity .25s ease; }
+.ic-sonido .tachado { stroke-dasharray: 16; stroke-dashoffset: 16; transition: stroke-dashoffset .3s ease; }
+.sonido.sonando .ic-sonido .onda { opacity: 1; animation: onda 1.6s ease-in-out infinite; }
+.sonido.sonando .ic-sonido .o2 { animation-delay: .25s; }
+.sonido.silenciado .ic-sonido .tachado { stroke-dashoffset: 0; }
+@keyframes onda { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+.sonido .volumen { position: absolute; top: calc(100% + 8px); left: 50%; transform: translate(-50%, -4px); padding: 10px 14px; border-radius: 14px;
+  background: var(--panel); border: 1px solid var(--borde); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 22; }
+.sonido:hover .volumen, .sonido:focus-within .volumen, .sonido.abierto .volumen { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+.sonido .volumen input { width: 120px; accent-color: var(--acento); }

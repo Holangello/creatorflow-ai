@@ -101,6 +101,7 @@ function referencias(t) {
   }
   for (const d of t.inmueble?.documentos ?? []) add(d, "url", "doc");
   for (const g of t.galeria ?? []) add(g, "imagen", "foto");
+  add(t.audio?.musica, "archivo", "audio");
   for (const d of t.documentacion ?? []) if (d.publico) add(d, "archivo", "doc");
   add(t.libre, "url", "libre");
   add(t.libre, "colisionador", "libre");
@@ -110,6 +111,7 @@ function referencias(t) {
 const EXT_POR_TIPO = {
   "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/avif": "avif", "image/gif": "gif", "image/svg+xml": "svg",
   "application/pdf": "pdf", "model/gltf-binary": "glb", "video/mp4": "mp4", "video/webm": "webm",
+  "audio/mpeg": "mp3", "audio/mp4": "m4a", "audio/aac": "aac", "audio/ogg": "ogg", "audio/wav": "wav", "audio/x-wav": "wav", "audio/webm": "weba",
 };
 const extDe = (blob, ruta = "") => EXT_POR_TIPO[blob.type?.split(";")[0]] ?? (ruta.match(/\.([a-z0-9]{2,5})(?:[?#]|$)/i)?.[1]?.toLowerCase() ?? "bin");
 
@@ -212,7 +214,7 @@ const ARCHIVOS_VISOR = [
   "index.html", "visor.js", "visor.css", "paneles.js", "paneles.css", "i18n.js", "demo.js", "exportar.js", "vendor/qr.js", "vendor/fflate.js",
   "util.js", "plano.js", "guion.js", "medicion.js", "maqueta.js",
 ];
-const SIN_COMPRIMIR = /\.(jpe?g|png|webp|avif|gif|mp4|webm|mov|sog|spz|ksplat|glb|zip|pdf|woff2?)$/i;
+const SIN_COMPRIMIR = /\.(jpe?g|png|webp|avif|gif|mp4|webm|mov|sog|spz|ksplat|glb|zip|pdf|woff2?|mp3|m4a|aac|ogg|opus)$/i;
 
 function leeme(t, idioma) {
   const titulo = texto(t.titulo, idioma) || "Recorrido virtual";
@@ -416,10 +418,11 @@ export async function exportarHTMLAutonomo(tour, archivos = new Map(), { calidad
           r.obj[r.clave] = await comoData(r.ruta, maxPano, "image/png"); // PNG: los canales deben ser exactos
           break;
         case "doc":
+        case "audio":
         case "libre": {
           if (r.tipo === "libre" && !incluirLibre) break;
           const blob = await obtenerBlob(r.ruta, { archivos, base }).catch(() => null);
-          if (blob && blob.size < (r.tipo === "libre" ? 40 * MB : 8 * MB)) r.obj[r.clave] = await blobADataURL(blob);
+          if (blob && blob.size < ({ libre: 40, audio: 15 }[r.tipo] ?? 8) * MB) r.obj[r.clave] = await blobADataURL(blob);
           else if (!esURLAbsoluta(r.ruta)) { r.obj[r.clave] = resolverURL(r.ruta, base); avisos.push(`${r.ruta} no se incrustó (demasiado grande o inaccesible): queda como enlace`); }
           break;
         }
@@ -466,6 +469,10 @@ export async function exportarHTMLAutonomo(tour, archivos = new Map(), { calidad
  *     ffmpeg -i in.webm -c:v libx264 -pix_fmt yuv420p out.mp4
  * (añade  -movflags +faststart  para que empiece a reproducirse antes de descargarse entero).
  */
+const TIPOS_VIDEO_AUDIO = [
+  ["video/mp4;codecs=avc1.640028,mp4a.40.2", "mp4"], ["video/mp4;codecs=avc1,mp4a.40.2", "mp4"],
+  ["video/webm;codecs=vp9,opus", "webm"], ["video/webm;codecs=vp8,opus", "webm"],
+];
 const TIPOS_VIDEO = [
   ["video/mp4;codecs=avc1.640028", "mp4"], ["video/mp4;codecs=avc1.4d0028", "mp4"], ["video/mp4;codecs=avc1", "mp4"],
   ["video/webm;codecs=vp9", "webm"], ["video/webm;codecs=vp8", "webm"], ["video/webm", "webm"], ["video/mp4", "mp4"],
@@ -498,7 +505,7 @@ function textoAjustado(g, s, maxAncho) {
  * @param {number} [o.maxSegundos] tope de seguridad si nunca llega "guion:fin" (por defecto duración del guion + 60 s)
  * @returns {Promise<{blob: Blob, extension: "mp4"|"webm", mimeType: string, ancho: number, alto: number, segundos: number}>}
  */
-export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 1080, conMarca = true, onProgreso, senal, maxSegundos, bitrate, maxMB = 90 } = {}) {
+export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 1080, conMarca = true, conMusica = true, onProgreso, senal, maxSegundos, bitrate, maxMB = 90 } = {}) {
   if (!visor?.lienzo) throw new Error("grabarVideo: falta visor.lienzo (canvas WebGL)");
   if (!visor.guion?.iniciar) throw new Error("grabarVideo: el visor no tiene visita guiada (visor.guion.iniciar)");
   if (typeof MediaRecorder === "undefined") throw new Error("Este navegador no puede grabar vídeo (MediaRecorder)");
@@ -506,7 +513,10 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   const par = (x) => Math.round(x / 2) * 2;
   const W = rw >= rh ? par(alto * rw / rh) : par(alto);
   const H = rw >= rh ? par(alto) : par(alto * rh / rw);
-  const [mimeType, extension] = TIPOS_VIDEO.find(([m]) => MediaRecorder.isTypeSupported(m)) ?? ["", "webm"];
+  // Música del proyecto en el vídeo (pista independiente del botón de silencio del visitante).
+  const pistaAudio = conMusica && typeof visor.pistaAudio === "function" ? await visor.pistaAudio(true).catch(() => null) : null;
+  const candidatos = pistaAudio ? [...TIPOS_VIDEO_AUDIO, ...TIPOS_VIDEO] : TIPOS_VIDEO;
+  const [mimeType, extension] = candidatos.find(([m]) => MediaRecorder.isTypeSupported(m)) ?? ["", "webm"];
 
   const tour = visor.tour ?? {};
   const idioma = visor.estado?.idioma ?? tour.idioma ?? "es";
@@ -624,6 +634,7 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   };
 
   const stream = c.captureStream(fps);
+  if (pistaAudio) stream.addTrack(pistaAudio);
   // idealista admite vídeos de hasta 100 MB: se limita el bitrate para no pasar de `maxMB` según la duración prevista.
   const bitrateTope = Math.round((maxMB * 8e6) / (duracionEstimada + 8) * 0.9);
   const rec = new MediaRecorder(stream, { ...(mimeType ? { mimeType } : {}), videoBitsPerSecond: bitrate ?? Math.min(Math.round(Math.min(16e6, W * H * fps * 0.12)), bitrateTope) });
@@ -658,6 +669,7 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
     clearInterval(progreso);
     cancelAnimationFrame(raf);
     quitar.forEach((f) => f());
+    if (pistaAudio) await visor.pistaAudio(false);
     if (rec.state !== "inactive") rec.stop();
     await parado;
     stream.getTracks().forEach((tr) => tr.stop());

@@ -365,3 +365,62 @@ export function generarPanoramas(_THREE, renderer, nodos, altura) {
   }
   ambiente("original", "dia");
 }
+
+/**
+ * Música ambiental de la demo, sintetizada en el navegador (sin archivos ni derechos de autor):
+ * 4 acordes suaves (Cmaj7 · Am9 · Fmaj7 · G6sus) de 4 s en bucle. Devuelve una URL blob: de un WAV.
+ */
+let musicaCache = null;
+export function musicaDemo() {
+  musicaCache ??= (async () => {
+    const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!OAC) return null;
+    const sr = 22050, dur = 16;
+    const ctx = new OAC(2, sr * dur, sr);
+    const filtro = ctx.createBiquadFilter();
+    filtro.type = "lowpass"; filtro.frequency.value = 1500; filtro.Q.value = 0.4;
+    const maestro = ctx.createGain();
+    maestro.gain.value = 0.22;
+    filtro.connect(maestro).connect(ctx.destination);
+    const nota = (m) => 440 * 2 ** ((m - 69) / 12);
+    const acordes = [[48, 55, 59, 64, 67], [45, 52, 59, 60, 64], [41, 48, 57, 60, 64], [43, 50, 57, 60, 62]];
+    acordes.forEach((acorde, i) => {
+      const t0 = i * 4;
+      acorde.forEach((m, j) => {
+        for (const [tipo, desafino, vol] of [["sine", 0, 0.5], ["triangle", 6, 0.18]]) {
+          const o = ctx.createOscillator();
+          o.type = tipo;
+          o.frequency.value = nota(m);
+          o.detune.value = desafino * (j % 2 ? 1 : -1);
+          const g = ctx.createGain();
+          const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+          g.gain.setValueAtTime(0, t0);
+          g.gain.linearRampToValueAtTime(vol / acorde.length, t0 + 1.4);
+          g.gain.setValueAtTime(vol / acorde.length, t0 + 3.6);
+          g.gain.linearRampToValueAtTime(0, t0 + 5.2); // se solapa con el acorde siguiente
+          if (pan) { pan.pan.value = (j / (acorde.length - 1)) * 1.2 - 0.6; o.connect(g).connect(pan).connect(filtro); }
+          else o.connect(g).connect(filtro);
+          o.start(t0); o.stop(Math.min(dur, t0 + 5.3));
+        }
+      });
+    });
+    // El final del último acorde vuelve a entrar al principio: bucle sin corte.
+    const buf = await ctx.startRendering();
+    return URL.createObjectURL(wav(buf));
+  })();
+  return musicaCache;
+}
+
+function wav(buf) {
+  const canales = buf.numberOfChannels, n = buf.length, sr = buf.sampleRate;
+  const datos = new DataView(new ArrayBuffer(44 + n * canales * 2));
+  const txt = (o, s) => [...s].forEach((c, i) => datos.setUint8(o + i, c.charCodeAt(0)));
+  txt(0, "RIFF"); datos.setUint32(4, 36 + n * canales * 2, true); txt(8, "WAVEfmt ");
+  datos.setUint32(16, 16, true); datos.setUint16(20, 1, true); datos.setUint16(22, canales, true);
+  datos.setUint32(24, sr, true); datos.setUint32(28, sr * canales * 2, true); datos.setUint16(32, canales * 2, true); datos.setUint16(34, 16, true);
+  txt(36, "data"); datos.setUint32(40, n * canales * 2, true);
+  const ch = [...Array(canales)].map((_, c) => buf.getChannelData(c));
+  let o = 44;
+  for (let i = 0; i < n; i++) for (let c = 0; c < canales; c++) { datos.setInt16(o, Math.max(-1, Math.min(1, ch[c][i])) * 0x7fff, true); o += 2; }
+  return new Blob([datos], { type: "audio/wav" });
+}
