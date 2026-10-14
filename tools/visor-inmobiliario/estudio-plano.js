@@ -2,21 +2,21 @@
 // muros, norte y enlaces entre fotos. Coordenadas en metros: x → derecha, z → abajo; rumbo 0 = arriba, horario.
 import { area, centroide, dentro, redondear, norm180, norm360, rumboDe, dimensiones } from "./estudio-util.js";
 import { app, h, $, icono, cambiar, emitir, on, toast, pedir, confirmar, guardarArchivo, urlDe, rutaLibre, idLibre, elegirArchivos,
-  textoDe, colocado, pano, calcularEnlaces, alternarEnlace, claveEnlace, fmtM2 } from "./estudio-nucleo.js";
+  textoDe, colocado, pano, calcularEnlaces, alternarEnlace, claveEnlace, fmtM2, esRapido } from "./estudio-nucleo.js";
 import { campoTexto, campo } from "./estudio-campos.js";
 
 const HERRAMIENTAS = [
-  { id: "sel", nombre: "Seleccionar", tecla: "V", icono: "cursor", pista: "Arrastra fotos y vértices. Rueda = zoom, arrastrar el fondo = desplazar. Supr borra la selección." },
-  { id: "calibrar", nombre: "Calibrar", tecla: "K", icono: "regla", pista: "Haz clic en los dos extremos de una medida conocida (p. ej. una pared) del plano." },
+  { id: "sel", nombre: "Seleccionar", tecla: "V", icono: "cursor", pista: "Arrastra fotos y esquinas para ajustarlas. Rueda = zoom; arrastra el fondo para moverte. Supr borra lo seleccionado." },
+  { id: "calibrar", nombre: "Calibrar", tecla: "K", icono: "regla", pista: "Haz clic en los dos extremos de una medida que conozcas (p. ej. una pared) del plano." },
   { id: "estancia", nombre: "Estancia", tecla: "E", icono: "poligono", pista: "Clic en cada esquina. Doble clic, Enter o clic en el primer punto para cerrar. Retroceso quita el último punto." },
   { id: "muro", nombre: "Muro", tecla: "M", icono: "muro", pista: "Clic para empezar y en cada esquina. Se ajusta a 90° (Shift para ángulo libre). Esc o doble clic para terminar." },
-  { id: "enlace", nombre: "Enlazar", tecla: "L", icono: "enlace", pista: "Clic en una foto y luego en otra para crear o quitar el enlace. Shift para encadenar." },
+  { id: "enlace", nombre: "Conectar", tecla: "L", icono: "enlace", pista: "Toca una foto y luego otra para conectarlas (o desconectarlas). Shift para encadenar." },
 ];
 const COLORES_EST = ["#ffb547", "#6aa8ff", "#5fc48a", "#e58bd2", "#f07b62", "#9b8cff", "#4fd1c5", "#d4c46a"];
 
 const S = {
   esc: 40, ox: 40, oy: 40, ajustado: false,
-  herr: "sel", sel: null, borrador: [], calib: [], enlaceDesde: null, raton: null, espacio: false,
+  herr: "sel", sel: null, borrador: [], calib: [], enlaceDesde: null, raton: null, espacio: false, colocando: null,
   arrastre: null, punteros: new Map(), imgs: new Map(), lienzo: null, ctx: null, sucio: true, ro: null, raf: 0,
 };
 let raiz = null, lado = null, pista = null, avisoEscala = null;
@@ -87,17 +87,27 @@ function pintarPlantas() {
     h("button", { class: "btn fantasma peq", title: "Añadir planta", onclick: anadirPlanta }, icono("mas", 15), "Planta"),
     h("div", { class: "relleno", style: { flex: 1 } }),
     h("button", { class: "btn peq", onclick: subirPlano, title: "Plano del arquitecto: PDF, DXF, PNG o JPG" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
+    (() => { const sig = app.pasoSiguiente?.("plano"); return sig ? h("button", { class: "btn peq primario", "data-continuar": sig.id, onclick: () => emitir("ir", { seccion: sig.id }) }, `Continuar → ${sig.titulo}`) : null; })(),
   );
 }
 function pintarHerramientas() {
   const b = $("#herramientas");
   if (!b) return;
-  b.replaceChildren(...HERRAMIENTAS.map((t) => h("button", {
-    class: `btn ${S.herr === t.id ? "activo" : "fantasma"}`, title: `${t.nombre} (${t.tecla})`, "aria-pressed": String(S.herr === t.id),
-    disabled: t.id === "calibrar" && !planta()?.plano?.imagen, onclick: () => fijarHerramienta(t.id),
-  }, icono(t.icono, 16), h("span", { text: t.nombre }), h("kbd", { text: t.tecla }))));
+  const sinPlano = !planta()?.plano?.imagen;
+  b.replaceChildren(...HERRAMIENTAS.map((t) => {
+    const bloqueada = t.id === "calibrar" && sinPlano;
+    return h("button", {
+      class: `btn ${S.herr === t.id ? "activo" : "fantasma"}`, "aria-pressed": String(S.herr === t.id),
+      title: bloqueada ? "Calibrar · sube primero un plano" : `${t.nombre}${app.atajos ? ` (${t.tecla})` : ""}`,
+      "aria-disabled": bloqueada ? "true" : null, style: bloqueada ? { opacity: 0.45 } : null,
+      onclick: () => (bloqueada ? toast("Calibrar · sube primero un plano", "info") : fijarHerramienta(t.id)),
+    }, icono(t.icono, 16), h("span", { text: bloqueada ? "Calibrar" : t.nombre }), h("kbd", { text: t.tecla }));
+  }));
   const herr = HERRAMIENTAS.find((t) => t.id === S.herr);
-  pista.textContent = S.herr === "enlace" && S.enlaceDesde ? `Ahora haz clic en la foto que quieres enlazar con «${nombreDe(pano(S.enlaceDesde))}» (Esc para cancelar).` : herr.pista;
+  const hayPorColocar = app.tour.panoramas.some((p) => !colocado(p));
+  pista.textContent = S.colocando ? `Toca en el plano el punto donde pusiste la cámara para «${nombreDe(pano(S.colocando))}» (Esc para cancelar).`
+    : S.herr === "enlace" && S.enlaceDesde ? `Ahora toca la foto que quieres conectar con «${nombreDe(pano(S.enlaceDesde))}» (Esc para cancelar).`
+      : S.herr === "sel" && hayPorColocar ? "Arrastra cada foto al punto del plano donde pusiste la cámara." : herr.pista;
   const pl = planta();
   avisoEscala.hidden = !(pl?.plano?.imagen && !app.tour._estudio.calibrado?.[pl.id]) || S.herr === "calibrar";
   avisoEscala.replaceChildren(icono("regla", 18), h("span", { style: { flex: 1 } }, "Escala sin calibrar: haz clic en «Calibrar» y marca una medida conocida para que las distancias y los m² sean reales."),
@@ -116,6 +126,13 @@ function pintarLado() {
   const t = app.tour, pl = planta();
   const { vecinos } = calcularEnlaces();
   const partes = [];
+  if (esRapido() && !t.panoramas.some(colocado)) {
+    const sig = app.pasoSiguiente?.("plano");
+    partes.push(h("div", { class: "panel-sel", style: { marginTop: 0, marginBottom: "6px" } },
+      h("b", { text: "El plano es opcional" }),
+      h("span", { class: "suave", style: { fontSize: "13px" }, text: "Sin plano, las fotos se conectan en el orden de la lista (1 → 2 → 3…). Con plano, el cliente ve dónde está y los m² de cada estancia." }),
+      sig ? h("button", { class: "btn peq", onclick: () => emitir("ir", { seccion: sig.id }) }, `Continuar sin plano → ${sig.titulo}`) : null));
+  }
   const sel = S.sel;
   // Selección
   if (sel?.tipo === "nodo" && pano(sel.id)) {
@@ -152,9 +169,13 @@ function pintarLado() {
   if (!t.panoramas.length) partes.push(h("p", { class: "tenue", style: { margin: 0, fontSize: "13px" }, text: "Primero sube las fotos 360 en el paso 1." }));
   else if (!sinColocar.length) partes.push(h("p", { class: "tenue", style: { margin: 0, fontSize: "13px" }, text: "Todas las fotos están en el plano." }));
   else {
-    partes.push(h("p", { class: "tenue", style: { margin: "0 0 6px", fontSize: "12.5px" }, text: "Arrastra cada foto al punto del plano donde estaba la cámara." }));
+    partes.push(h("p", { class: "tenue", style: { margin: "0 0 6px", fontSize: "12.5px" }, text: "Arrastra cada foto al punto del plano donde pusiste la cámara, o pulsa «Colocar» y toca el plano." }));
     for (const p of sinColocar) {
-      const f = h("div", { class: "ficha-arrastre", title: "Arrastra al plano" }, h("img", { src: urlDe(p.miniatura), alt: "", draggable: "false" }), h("span", { text: nombreDe(p) }));
+      const f = h("div", { class: "ficha-arrastre", title: "Arrastra al plano" }, h("img", { src: urlDe(p.miniatura), alt: "", draggable: "false" }), h("span", { text: nombreDe(p), style: { flex: 1 } }),
+        h("button", { class: `btn peq ${S.colocando === p.id ? "colocando" : ""}`, "aria-pressed": String(S.colocando === p.id), title: "Colocar sin arrastrar: pulsa y luego toca el plano",
+          onpointerdown: (e) => e.stopPropagation(),
+          onclick: () => { S.colocando = S.colocando === p.id ? null : p.id; if (S.herr !== "sel") fijarHerramienta("sel"); pintarLado(); pintarHerramientas(); S.lienzo?.focus(); } },
+        S.colocando === p.id ? "Toca el plano…" : "Colocar"));
       f.addEventListener("pointerdown", (e) => iniciarArrastreFicha(e, p.id));
       partes.push(f);
     }
@@ -166,7 +187,7 @@ function pintarLado() {
     for (const p of aqui) {
       const aislado = t.panoramas.length > 1 && !(vecinos.get(p.id)?.length);
       partes.push(h("div", { class: `fila-lista ${S.sel?.id === p.id ? "sel" : ""}`, onclick: () => { seleccionarNodo(p.id); centrarEn(p.x, p.z); } },
-        h("span", { class: "nom", text: nombreDe(p) }), aislado ? h("span", { class: "chip error", text: "aislada" }) : h("span", { class: "val", text: `${(vecinos.get(p.id) ?? []).length} enl.` })));
+        h("span", { class: "nom", text: nombreDe(p) }), aislado ? h("span", { class: "chip error", text: "sin conectar" }) : h("span", { class: "val", text: `Conectada con ${(vecinos.get(p.id) ?? []).length}` })));
     }
   }
   // Estancias
@@ -185,24 +206,27 @@ function pintarLado() {
       h("span", { class: "nom", text: "Total útil aprox." }), h("b", { class: "val", text: fmtM2(total) })));
   }
   // Norte
-  const dial = h("div", { class: "dial-norte", title: "Arrastra para girar el norte", role: "slider", "aria-label": "Norte del plano", "aria-valuemin": 0, "aria-valuemax": 359, "aria-valuenow": t.norte ?? 0, tabindex: 0 },
-    h("div", { class: "aguja", style: { transform: `rotate(${t.norte ?? 0}deg)` } }), h("div", { class: "centro" }));
+  const aguja = anguloNorte();
+  const dial = h("div", { class: "dial-norte", title: "Arrastra la flecha hacia el norte del plano", role: "slider", "aria-label": "Dirección del norte en el plano", "aria-valuemin": 0, "aria-valuemax": 359, "aria-valuenow": aguja, "aria-valuetext": `${aguja} grados`, tabindex: 0 },
+    h("div", { class: "aguja", style: { transform: `rotate(${aguja}deg)` } }), h("div", { class: "centro" }));
   eventosDial(dial);
-  const inpNorte = h("input", { type: "number", min: 0, max: 359, step: 1, value: Math.round(t.norte ?? 0), style: { width: "84px" }, "aria-label": "Norte en grados" });
-  inpNorte.oninput = () => fijarNorte(Number(inpNorte.value) || 0, false);
+  const inpNorte = h("input", { type: "text", inputmode: "numeric", value: aguja, style: { width: "84px" }, "aria-label": "Norte en grados" });
+  inpNorte.oninput = () => { const v = Number(String(inpNorte.value).replace(",", ".")); if (Number.isFinite(v)) fijarNorte(v, false); };
   partes.push(h("h3", { text: "Norte" }), h("div", { class: "fila", style: { flexWrap: "nowrap" } }, dial,
-    h("div", { class: "campo" }, h("span", { text: "Grados (0 = arriba)" }), inpNorte, h("small", { text: "Para la orientación (sur, etc.) y la luz." }))));
+    h("div", { class: "campo" }, h("span", { text: "Hacia dónde está el norte (°, 0 = arriba)" }), inpNorte, h("small", { text: "Para la orientación (sur, etc.) y la luz." }))));
   // Enlaces
-  const radio = h("input", { type: "range", min: 1, max: 10, step: 0.5, value: t.radio_enlace_auto ?? 4.5, "aria-label": "Radio de enlace automático" });
-  const radioVal = h("b", { text: `${t.radio_enlace_auto ?? 4.5} m` });
-  radio.oninput = () => { radioVal.textContent = `${radio.value} m`; cambiar((tt) => { tt.radio_enlace_auto = Number(radio.value); }, { clave: "radio", render: false }); marcar(); };
+  const radio = h("input", { type: "range", min: 1, max: 10, step: 0.5, value: t.radio_enlace_auto ?? 4.5, "aria-label": "Distancia para conectar fotos automáticamente" });
+  const metros = (v) => `${String(v).replace(".", ",")} m`;
+  const radioVal = h("b", { text: metros(t.radio_enlace_auto ?? 4.5) });
+  radio.setAttribute("aria-valuetext", metros(t.radio_enlace_auto ?? 4.5));
+  radio.oninput = () => { radioVal.textContent = metros(radio.value); radio.setAttribute("aria-valuetext", metros(radio.value)); cambiar((tt) => { tt.radio_enlace_auto = Number(radio.value); }, { clave: "radio", render: false }); marcar(); };
   radio.onchange = () => pintarLado();
-  partes.push(h("h3", { text: "Enlaces" }),
-    h("div", { class: "campo" }, h("span", {}, "Enlace automático hasta ", radioVal), radio),
+  partes.push(h("h3", { text: "Conexiones entre fotos" }),
+    h("div", { class: "campo" }, h("span", {}, "Conectar fotos a menos de ", radioVal), radio),
     h("div", { class: "suave", style: { fontSize: "12.5px", display: "flex", flexDirection: "column", gap: "4px", marginTop: "6px" } },
-      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2px dashed var(--acento)", verticalAlign: "middle", marginRight: "6px" } }), "automático (por distancia)"),
-      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2.5px solid var(--acento)", verticalAlign: "middle", marginRight: "6px" } }), "manual (herramienta Enlazar)"),
-      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2px dashed rgba(239,107,98,.7)", verticalAlign: "middle", marginRight: "6px" } }), "automático quitado")));
+      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2px dashed var(--acento)", verticalAlign: "middle", marginRight: "6px" } }), "automática (por distancia)"),
+      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2.5px solid var(--acento)", verticalAlign: "middle", marginRight: "6px" } }), "manual (herramienta Conectar)"),
+      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2px dashed rgba(239,107,98,.7)", verticalAlign: "middle", marginRight: "6px" } }), "automática quitada")));
   // Plano
   if (pl?.plano?.imagen) {
     partes.push(h("h3", { text: "Imagen del plano" }),
@@ -213,6 +237,13 @@ function pintarLado() {
         h("button", { class: "btn peq fantasma", onclick: async () => { if (await confirmar("Quitar imagen del plano", "Las fotos, estancias y muros se mantienen.", "Quitar")) cambiar(() => { delete planta().plano; }); } }, "Quitar")));
   }
   if (app.tour.plantas.length > 1) partes.push(h("button", { class: "btn peq fantasma", style: { marginTop: "14px" }, onclick: borrarPlanta }, icono("basura", 14), "Eliminar esta planta"));
+  if (esRapido()) {
+    partes.push(h("h3", { text: "Opcional" }),
+      h("div", { style: { display: "flex", flexDirection: "column", gap: "6px" } },
+        h("button", { class: "btn peq", style: { justifyContent: "flex-start" }, onclick: () => emitir("ir", { seccion: "orientar" }) }, icono("orientar", 15), "Dirección de las fotos y notas"),
+        h("button", { class: "btn peq", style: { justifyContent: "flex-start" }, onclick: () => emitir("ir", { seccion: "variantes" }) }, icono("variantes", 15), "Estilos, noche y colores"),
+        h("button", { class: "btn peq", style: { justifyContent: "flex-start" }, onclick: () => emitir("ir", { seccion: "material" }) }, icono("abrir", 15), "Material del arquitecto y música")));
+  }
   lado.replaceChildren(...partes);
 }
 const colorEst = (e) => COLORES_EST[Math.abs([...e.id].reduce((s, c) => s * 31 + c.charCodeAt(0), 7)) % COLORES_EST.length];
@@ -475,7 +506,7 @@ function dibujar() {
     if (a) { g.strokeStyle = acento; g.setLineDash([3, 4]); g.lineWidth = 2; g.beginPath(); g.moveTo(...aPantalla(a.x, a.z)); g.lineTo(...aPantalla(...raton)); g.stroke(); g.setLineDash([]); }
   }
   // Rosa de los vientos y escala
-  const norte = ((t.norte ?? 0) * Math.PI) / 180;
+  const norte = (-(t.norte ?? 0) * Math.PI) / 180; // el norte del plano está a −tour.norte
   const nx = S.w - 34, ny = 34;
   g.save(); g.translate(nx, ny); g.rotate(norte);
   g.fillStyle = "rgba(12,14,18,.75)"; g.beginPath(); g.arc(0, 0, 22, 0, 7); g.fill();
@@ -610,6 +641,7 @@ function eventosLienzo() {
     }
     const mundo = aMundo(sx, sy);
     if (e.button === 1 || S.espacio || e.button === 2) { S.arrastre = { tipo: "pan", sx, sy, ox: S.ox, oy: S.oy }; c.style.cursor = "grabbing"; return; }
+    if (S.colocando) { colocarEn(S.colocando, mundo); return; } // alternativa sin arrastre (WCAG 2.5.7)
     const clave = "arr" + performance.now();
     if (S.herr === "sel") {
       const v = verticeEn(sx, sy, true) ?? verticeEn(sx, sy, false);
@@ -794,6 +826,20 @@ function borrarSeleccion() {
   S.sel = null; pintarLado(); marcar();
 }
 
+/** Coloca una foto en un punto del plano (desde el arrastre o desde «Colocar» + toque). */
+function colocarEn(id, [x, z]) {
+  S.colocando = null;
+  cambiar(() => { const p = pano(id); p.x = redondear(x, 3); p.z = redondear(z, 3); p.planta = planta().id; });
+  seleccionarNodo(id);
+  pintarHerramientas();
+  const { vecinos } = calcularEnlaces();
+  const v = vecinos.get(id) ?? [];
+  toast(v.length ? `${nombreDe(pano(id))} colocada · conectada con ${v.map((x2) => nombreDe(pano(x2))).join(", ")}` : `${nombreDe(pano(id))} colocada (sin conectar: acércala a otra foto o usa «Conectar»)`, v.length ? "ok" : "aviso", 3500);
+  // Siguiente foto pendiente: se puede seguir colocando sin volver a la lista.
+  const sig = app.tour.panoramas.find((p) => !colocado(p));
+  if (sig && lado?.querySelector(".ficha-arrastre")) requestAnimationFrame(() => lado?.querySelector(".ficha-arrastre .btn")?.focus());
+}
+
 // Arrastrar una foto desde la lista lateral hasta el plano
 function iniciarArrastreFicha(e, id) {
   e.preventDefault();
@@ -806,21 +852,23 @@ function iniciarArrastreFicha(e, id) {
     fantasma.remove();
     const r = S.lienzo.getBoundingClientRect();
     if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) return;
-    const [x, z] = aMundo(ev.clientX - r.left, ev.clientY - r.top);
-    cambiar(() => { const p = pano(id); p.x = redondear(x, 3); p.z = redondear(z, 3); p.planta = planta().id; });
-    seleccionarNodo(id);
-    const { vecinos } = calcularEnlaces();
-    const v = vecinos.get(id) ?? [];
-    toast(v.length ? `${nombreDe(pano(id))} colocada · enlazada con ${v.map((x) => nombreDe(pano(x))).join(", ")}` : `${nombreDe(pano(id))} colocada (sin enlaces: acércala a otra foto o usa Enlazar)`, v.length ? "ok" : "aviso", 3500);
+    colocarEn(id, aMundo(ev.clientX - r.left, ev.clientY - r.top));
   };
   addEventListener("pointermove", mover);
   addEventListener("pointerup", soltar);
 }
 
-function fijarNorte(g, conRender = true) {
-  cambiar((t) => { t.norte = Math.round(norm360(g)); }, { clave: "norte", tipo: "datos", render: false });
-  const ag = lado?.querySelector(".dial-norte .aguja"); if (ag) ag.style.transform = `rotate(${app.tour.norte}deg)`;
-  if (conRender) { const i = lado?.querySelector('input[aria-label="Norte en grados"]'); if (i) i.value = app.tour.norte; }
+/**
+ * `tour.norte` = rumbo de brújula de «arriba del plano» (como el minimapa del visor y la brújula de las fotos:
+ * yaw = rumbo − norte). En el plano el norte aparece por tanto a −norte grados; la aguja muestra esa dirección.
+ */
+const anguloNorte = () => Math.round(norm360(-(app.tour.norte ?? 0)));
+function fijarNorte(aguja, conRender = true) {
+  cambiar((t) => { t.norte = Math.round(norm360(-aguja)); }, { clave: "norte", tipo: "datos", render: false });
+  const a = anguloNorte();
+  const dial = lado?.querySelector(".dial-norte");
+  if (dial) { dial.querySelector(".aguja").style.transform = `rotate(${a}deg)`; dial.setAttribute("aria-valuenow", a); dial.setAttribute("aria-valuetext", `${a} grados`); }
+  if (conRender) { const i = lado?.querySelector('input[aria-label="Norte en grados"]'); if (i) i.value = a; }
   marcar();
 }
 function eventosDial(dial) {
@@ -833,7 +881,7 @@ function eventosDial(dial) {
     dial.onpointerup = () => { dial.onpointermove = null; };
   });
   dial.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); fijarNorte((app.tour.norte ?? 0) + (e.key === "ArrowRight" ? 1 : -1) * (e.shiftKey ? 10 : 1)); }
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); fijarNorte(anguloNorte() + (e.key === "ArrowRight" ? 1 : -1) * (e.shiftKey ? 10 : 1)); }
   });
 }
 
@@ -843,6 +891,8 @@ function teclas(e) {
   if (k === " " && !S.espacio) { S.espacio = true; addEventListener("keyup", (ev) => { if (ev.key === " ") S.espacio = false; }, { once: true }); return true; }
   const t = HERRAMIENTAS.find((x) => x.tecla.toLowerCase() === k.toLowerCase());
   if (t && !(t.id === "calibrar" && !planta()?.plano?.imagen)) { fijarHerramienta(t.id); return true; }
+  if (S.colocando && k === "Escape") { S.colocando = null; pintarLado(); pintarHerramientas(); return true; }
+  if (S.colocando && k === "Enter" && document.activeElement === S.lienzo) { colocarEn(S.colocando, aMundo(S.w / 2, S.h / 2)); return true; } // teclado: en el centro de la vista
   if (k === "Escape") {
     if (S.borrador.length || S.calib.length || S.enlaceDesde) { S.borrador = []; S.calib = []; S.enlaceDesde = null; pintarHerramientas(); }
     else if (S.herr !== "sel") fijarHerramienta("sel");
@@ -866,10 +916,11 @@ function teclas(e) {
 }
 
 export const seccionPlano = {
-  id: "plano", titulo: "Plano y enlaces", corto: "Plano",
+  id: "plano", titulo: "Plano y conexiones", corto: "Plano", sinPie: true,
   resumen: () => {
     const t = app.tour, n = t.panoramas.length, c = t.panoramas.filter(colocado).length;
-    return { texto: n ? `${c} de ${n} colocadas` : "Plano, estancias, enlaces", hecho: n > 0 && c === n };
+    if (esRapido() && n && !c) return { texto: "Opcional · en orden de lista", hecho: true };
+    return { texto: n ? `${c} de ${n} colocadas` : esRapido() ? "Opcional" : "Plano, estancias, conexiones", hecho: n > 0 && c === n };
   },
   render,
   actualizar: () => { if (raiz) { pintarPlantas(); pintarHerramientas(); if (!lado?.contains(document.activeElement)) pintarLado(); marcar(); } },

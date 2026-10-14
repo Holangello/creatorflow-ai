@@ -2,7 +2,7 @@
 import { db } from "./estudio-db.js";
 import { leerZip, tipoMime } from "./estudio-util.js";
 import { app, emitir, h, icono, toast, dialogo, confirmar, tourNuevo, importarEnlaces, reiniciarHistorial, limpiarUrls,
-  guardarAhora, guardarArchivo, elegirArchivos, rutasUsadas, textoDe } from "./estudio-nucleo.js";
+  guardarAhora, guardarArchivo, elegirArchivos, rutasUsadas, textoDe, reiniciarGuardado, archivosSinGuardar } from "./estudio-nucleo.js";
 import { anadirFotos, generarDerivadosFaltantes } from "./estudio-fotos.js";
 
 const nuevoId = () => (crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2));
@@ -17,6 +17,7 @@ function activar(proyecto, tour, archivos) {
   app.planta = tour.plantas?.[0]?.id ?? "p0";
   app.vista = null;
   reiniciarHistorial();
+  reiniciarGuardado();
   recordar(proyecto.id);
   emitir("proyecto");
 }
@@ -31,14 +32,29 @@ export async function iniciarProyecto() {
   } catch (e) {
     console.warn("IndexedDB no disponible", e);
   }
-  await nuevoProyecto({ silencioso: true });
+  // Primera vez: proyecto en modo rápido (se puede cambiar a completo desde la barra lateral).
+  await nuevoProyecto({ silencioso: true, modo: "rapido" });
 }
 
-export async function nuevoProyecto({ silencioso = false } = {}) {
+/** Pregunta cómo trabajar: Rápido (5 pasos, recomendado) o Completo (todas las herramientas). */
+export function elegirModo() {
+  const opcion = (modo, titulo, texto, recomendado) => h("button", { class: `btn opcion-modo ${recomendado ? "activo" : ""}`, "data-modo": modo,
+    onclick: (e) => { e.currentTarget.closest("dialog").querySelectorAll(".opcion-modo").forEach((b) => b.classList.toggle("activo", b === e.currentTarget)); } },
+    h("b", { text: titulo }), h("span", { text: texto }));
+  const cuerpo = h("div", { class: "opciones-modo", role: "group", "aria-label": "Modo de trabajo" },
+    opcion("rapido", "Rápido (recomendado)", "5 pasos y unos 5 minutos: fotos, plano opcional, 8 datos, revisar y publicar.", true),
+    opcion("completo", "Completo", "Todas las herramientas: material del arquitecto, dirección de cada foto, notas, estilos, colores y vídeo."));
+  return dialogo({ titulo: "¿Cómo quieres trabajar?", texto: "Puedes cambiarlo cuando quieras desde la barra lateral.", cuerpo, ancho: "min(560px, calc(100vw - 32px))",
+    botones: [{ texto: "Cancelar", valor: null }, { texto: "Crear proyecto", primario: true, valor: () => cuerpo.querySelector(".opcion-modo.activo")?.dataset.modo ?? "rapido" }] });
+}
+
+export async function nuevoProyecto({ silencioso = false, modo } = {}) {
+  if (!modo) { modo = await elegirModo(); if (!modo) return; }
   if (app.proyecto) await guardarAhora();
-  activar({ id: nuevoId(), nombre: "Proyecto sin título" }, tourNuevo(), new Map());
+  if (!silencioso) app.seccion = "fotos";
+  activar({ id: nuevoId(), nombre: "Proyecto sin título" }, tourNuevo(modo), new Map());
   await guardarAhora();
-  if (!silencioso) toast("Proyecto nuevo creado", "ok");
+  if (!silencioso) toast(modo === "rapido" ? "Proyecto nuevo (modo rápido)" : "Proyecto nuevo (modo completo)", "ok");
 }
 
 export async function cargarProyecto(id, { silencioso = false } = {}) {
@@ -51,6 +67,8 @@ export async function cargarProyecto(id, { silencioso = false } = {}) {
   const usados = rutasUsadas(p.tour);
   for (const r of archivos.keys()) if (!usados.has(r)) { archivos.delete(r); db.borrarArchivo(id, r).catch(() => {}); }
   if (!silencioso) toast(`Abierto: ${p.nombre}`, "ok");
+  // Si falta alguna versión móvil o miniatura (p. ej. un guardado que falló), se vuelve a generar.
+  generarDerivadosFaltantes();
   return true;
 }
 
@@ -79,6 +97,7 @@ export function normalizarTour(t) {
   if (!t._estudio) importarEnlaces(t);
   t._estudio.meta ??= {};
   t._estudio.manuales ??= []; t._estudio.quitados ??= [];
+  t._estudio.modo ??= "completo"; // proyectos e importaciones anteriores al modo rápido
   return t;
 }
 
@@ -108,8 +127,8 @@ async function importarMapa(mapa, nombre) {
   const rutaTour = rutas.filter((r) => /(^|\/)tour\.json$/i.test(r)).sort((a, b) => a.length - b.length)[0];
   if (!rutaTour) {
     // Sin tour.json: si son fotos, se añaden al proyecto actual.
-    const fotos = rutas.filter((r) => /\.(jpe?g|png|webp)$/i.test(r)).map((r) => mapa.get(r));
-    if (fotos.length) return anadirFotos(fotos.map((b, i) => (b instanceof File ? b : new File([b], rutas[i].split("/").pop(), { type: b.type }))));
+    const rutasFotos = rutas.filter((r) => /\.(jpe?g|png|webp)$/i.test(r));
+    if (rutasFotos.length) return anadirFotos(rutasFotos.map((r) => { const b = mapa.get(r); return b instanceof File ? b : new File([b], r.split("/").pop(), { type: b.type || tipoMime(r) }); }));
     throw new Error("no contiene tour.json ni fotos");
   }
   const prefijo = rutaTour.slice(0, rutaTour.length - "tour.json".length);
@@ -118,11 +137,13 @@ async function importarMapa(mapa, nombre) {
   catch { throw new Error("tour.json no es un JSON válido"); }
   if (tour.demo) throw new Error("es el tour de demostración");
   const meta = mapa.get(prefijo + "estudio/proyecto.json");
+  let deCopia = false;
   if (meta) {
     try {
       const m = JSON.parse(await meta.text());
-      if (m?.estudio) { tour._estudio = m.estudio; for (const p of tour.panoramas ?? []) delete p.enlaces; }
-    } catch { /* metadatos dañados: se reconstruyen */ }
+      if (m?.tour && typeof m.tour === "object" && Array.isArray(m.tour.panoramas)) { tour = m.tour; deCopia = true; } // copia de seguridad: proyecto de trabajo completo
+      else if (m?.estudio) { tour._estudio = m.estudio; for (const p of tour.panoramas ?? []) delete p.enlaces; }
+    } catch { /* metadatos dañados: se reconstruyen desde tour.json */ }
   }
   normalizarTour(tour);
   const archivos = new Map();
@@ -147,13 +168,10 @@ async function importarMapa(mapa, nombre) {
   if (app.proyecto) await guardarAhora();
   const finales = new Map([...archivos].filter(([r]) => usados.has(r)));
   activar(proyecto, tour, finales);
-  let errores = 0;
-  for (const [r, b] of finales) {
-    try { await db.guardarArchivo(proyecto.id, r, b); } catch { errores++; }
-  }
+  for (const [r, b] of finales) await guardarArchivo(r, b);
   await guardarAhora();
-  if (errores) toast("Algunas imágenes no se pudieron guardar en el navegador. Exporta un ZIP al terminar.", "aviso", 7000);
-  toast(`Importado: ${proyecto.nombre} (${tour.panoramas.length} fotos)`, "ok", 4000);
+  if (archivosSinGuardar()) toast("Algunos archivos no se pudieron guardar en el navegador. Descarga una copia de seguridad al terminar.", "aviso", 7000);
+  toast(deCopia ? `Copia de seguridad restaurada: ${proyecto.nombre}` : `Importado: ${proyecto.nombre} (${tour.panoramas.length} fotos)`, "ok", 4000);
   if (faltan.length) toast(`Faltan ${faltan.length} archivos referenciados (p. ej. ${faltan[0]})`, "aviso", 8000);
   generarDerivadosFaltantes();
 }
@@ -227,7 +245,7 @@ export async function dialogoAbrir() {
   let cerrar;
   const opciones = h("div", { class: "opciones-abrir" },
     h("button", { class: "btn", onclick: async () => { cerrar(); await nuevoProyecto(); } }, icono("nuevo", 22), "Proyecto nuevo"),
-    h("button", { class: "btn", onclick: async () => { const [f] = await elegirArchivos({ aceptar: ".zip,application/zip" }); if (f) { cerrar(); importarZip(f); } } }, icono("subir", 22), "Importar ZIP exportado"),
+    h("button", { class: "btn", onclick: async () => { const [f] = await elegirArchivos({ aceptar: ".zip,application/zip" }); if (f) { cerrar(); importarZip(f); } } }, icono("subir", 22), "Restaurar copia de seguridad o ZIP"),
     h("button", { class: "btn", onclick: async () => {
       const fs = await elegirArchivos({ aceptar: "", carpeta: true, multiple: true });
       if (fs.length) { cerrar(); importarCarpeta(fs.map((f) => ({ archivo: f, ruta: f.webkitRelativePath || f.name }))); }
@@ -235,7 +253,7 @@ export async function dialogoAbrir() {
   );
   const p = dialogo({
     titulo: "Proyectos", ancho: "min(620px, calc(100vw - 32px))",
-    cuerpo: h("div", {}, h("p", { class: "suave", style: { margin: "0 0 10px" }, text: "Los proyectos se guardan automáticamente en este navegador." }), cont, opciones),
+    cuerpo: h("div", {}, h("p", { class: "suave", style: { margin: "0 0 10px" }, text: "Los proyectos se guardan solos en este ordenador. Para llevarlos a otro, usa Publicar → Copia de seguridad." }), cont, opciones),
     botones: [{ texto: "Cerrar", valor: null }],
   });
   cerrar = () => { const d = document.querySelector("dialog.dialogo[open]"); d?.close(); d?.remove(); };

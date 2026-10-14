@@ -1,53 +1,112 @@
-// Paso 5 · Datos: inmueble, marca y agente, contacto, idiomas y textos, colores y estilos, visita guiada.
+// Datos del anuncio. Modo rápido: una pantalla con 8 datos. Completo: Inmueble · Contacto y marca · Avanzado.
 import { app, h, icono, cambiar, emitir, toast, confirmar, guardarArchivo, urlDe, rutaLibre, elegirArchivos,
-  textoDe, pano, IDIOMAS, PAREDES_DEF, SUELOS_DEF, ESTILOS_IA, MOMENTOS } from "./estudio-nucleo.js";
+  textoDe, pano, IDIOMAS, PAREDES_DEF, SUELOS_DEF, ESTILOS_IA, MOMENTOS, esRapido, urlPermitida } from "./estudio-nucleo.js";
 import { slug } from "./estudio-util.js";
 import { campoTexto, campo, campoSiNo } from "./estudio-campos.js";
+import { bloqueMusica } from "./estudio-musica.js";
 
-const PESTANAS = [
-  ["inmueble", "Inmueble"], ["marca", "Marca y agente"], ["contacto", "Contacto"], ["textos", "Idiomas"],
-  ["personalizacion", "Colores y estilos"], ["secciones", "Secciones"], ["guion", "Visita guiada"],
-];
-const LETRAS = { A: "#00a651", B: "#4cb848", C: "#bfd730", D: "#e8d900", E: "#fdb913", F: "#f37021", G: "#ed1c24" };
+const PESTANAS = [["inmueble", "Inmueble"], ["contacto", "Contacto y marca"], ["avanzado", "Avanzado"]];
+// Pestañas antiguas (enlaces desde Revisar u otros pasos) → pestaña y apartado actuales.
+const ALIAS = { marca: ["contacto"], textos: ["avanzado", "textos"], personalizacion: ["avanzado", "personalizacion"],
+  secciones: ["avanzado", "secciones"], guion: ["avanzado", "guion"], documentos: ["avanzado", "documentos"], musica: ["avanzado", "musica"] };
+const LETRAS = ["A", "B", "C", "D", "E", "F", "G"]; // colores oficiales de la etiqueta energética: variables --ce-a … --ce-g
 const SUGERENCIAS = ["Exterior", "Luminoso", "Armarios empotrados", "Cocina equipada", "Suelo radiante", "Ventanas con doble acristalamiento",
   "Puerta blindada", "Videoportero", "Zonas comunes", "Accesible", "Amueblado", "Vistas despejadas", "Balcón", "Lavadero"];
 
-let raiz = null, pestana = "inmueble";
+let raiz = null, pestana = "inmueble", verTodo = false;
+const abiertas = new Set();
 const T = () => app.tour;
 const ob = (ruta) => () => { let o = app.tour; for (const k of ruta) { o[k] ??= {}; o = o[k]; } return o; };
 
 function render(cont, op = {}) {
-  if (op.pestana) pestana = op.pestana;
+  if (op.pestana) {
+    const [pp, sub] = ALIAS[op.pestana] ?? [op.pestana];
+    pestana = PESTANAS.some(([id]) => id === pp) ? pp : "inmueble";
+    if (sub) abiertas.add(sub);
+    if (esRapido()) verTodo = true; // un enlace a un dato concreto abre la vista completa
+  }
   raiz = h("section", { class: "seccion" });
   cont.append(raiz);
   pintar();
 }
 function pintar() {
   if (!raiz) return;
-  const tabs = h("div", { class: "pestanas", role: "tablist" }, PESTANAS.map(([id, n]) => h("button", {
-    role: "tab", "aria-selected": String(id === pestana), text: n, onclick: () => { pestana = id; pintar(); },
+  if (esRapido() && !verTodo) return pintarRapido();
+  const tabs = h("div", { class: "pestanas", role: "tablist", "aria-label": "Datos" }, PESTANAS.map(([id, n]) => h("button", {
+    role: "tab", "aria-selected": String(id === pestana), id: `tab-${id}`, "aria-controls": "panel-datos", tabindex: id === pestana ? "0" : "-1", text: n,
+    onclick: () => { pestana = id; pintar(); },
+    onkeydown: (e) => {
+      const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      const i = PESTANAS.findIndex(([x]) => x === pestana);
+      pestana = PESTANAS[(i + d + PESTANAS.length) % PESTANAS.length][0];
+      pintar(); raiz.querySelector(`#tab-${pestana}`)?.focus();
+    },
   })));
-  const cuerpo = { inmueble, marca, contacto, textos, personalizacion, secciones, guion }[pestana]();
+  const cuerpo = { inmueble, contacto: contactoMarca, avanzado }[pestana]();
   raiz.replaceChildren(
     h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Datos del anuncio" }),
-      h("p", { text: "Lo que verá el cliente en la ficha del visor y en el dossier. Todo es opcional salvo lo que exige la ley (certificado energético)." }))),
-    tabs, cuerpo);
+      h("p", { text: "Lo que verá el cliente en la ficha del visor y en el dossier. Todo es opcional salvo lo que exige la ley (certificado energético)." })),
+      esRapido() ? h("div", { class: "acciones" }, h("button", { class: "btn", onclick: () => { verTodo = false; pintar(); } }, "← Solo lo esencial")) : null),
+    tabs, h("div", { id: "panel-datos", role: "tabpanel", "aria-labelledby": `tab-${pestana}` }, cuerpo));
+}
+
+// ------------------------------------------------------------------ modo rápido: 8 datos en una pantalla
+function pintarRapido() {
+  const I = ob(["inmueble"]), C = ob(["contacto"]);
+  raiz.replaceChildren(
+    h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Datos del anuncio" }),
+      h("p", { text: "Lo imprescindible para publicar. El resto (título, descripción, marca, idiomas…) es opcional." }))),
+    h("div", { class: "tarjeta" },
+      h("div", { class: "mini-datos" },
+        campo(I, "precio", { etiqueta: "Precio (€)", tipo: "number", min: 0, paso: 1000, placeholder: "349.000" }),
+        campo(I, "superficie_construida", { etiqueta: "m² construidos", tipo: "number", min: 0 }),
+        campo(I, "superficie_util", { etiqueta: "m² útiles", tipo: "number", min: 0 }),
+        campo(I, "habitaciones", { etiqueta: "Habitaciones", tipo: "number", min: 0, paso: 1 }),
+        campo(I, "banos", { etiqueta: "Baños", tipo: "number", min: 0, paso: 1 })),
+      h("h2", { class: "sub", text: "Certificado energético (obligatorio en anuncios)" }),
+      certificado({ conValores: false }),
+      h("h2", { class: "sub", text: "Contacto" }),
+      h("div", { class: "mini-datos" },
+        campoWhatsApp(C),
+        h("div", { style: { gridColumn: "span 2" } }, campo(C, "url_privacidad", { etiqueta: "Dirección de tu política de privacidad", tipo: "url", placeholder: "https://www.tu-inmobiliaria.com/privacidad" })))),
+    h("div", { class: "fila", style: { marginTop: "14px" } },
+      h("button", { class: "btn", onclick: () => { verTodo = true; pestana = "inmueble"; pintar(); } }, "Ver todos los datos (título, descripción, marca…)")));
+}
+
+/** Etiqueta energética: letras de consumo y emisiones (y valores en la vista completa) + «en trámite». */
+function certificado({ conValores = true } = {}) {
+  const CE = ob(["inmueble", "certificado_energetico"]);
+  const cont = h("div");
+  const pintarCE = () => {
+    const letras = (clave, etq) => {
+      const g = h("div", { class: "letras-ce", role: "group", "aria-label": etq });
+      const pintarL = () => g.replaceChildren(...LETRAS.map((l) => h("button", {
+        type: "button", text: l, style: { background: `var(--ce-${l.toLowerCase()})` }, "aria-pressed": String(CE()[clave] === l), "aria-label": `${etq}: letra ${l}`,
+        onclick: () => { cambiar(() => { const o = CE(); if (o[clave] === l) delete o[clave]; else { o[clave] = l; delete o.en_tramite; } }, { tipo: "datos", render: false }); pintarL(); },
+      })));
+      pintarL();
+      return h("div", { class: "campo" }, h("span", { text: etq }), g);
+    };
+    const trami = campo(CE, "en_tramite", { etiqueta: "Certificado en trámite", tipo: "check", alCambiar: () => pintarCE() });
+    cont.replaceChildren(
+      CE().en_tramite ? h("p", { class: "suave", style: { marginTop: 0 }, text: "Se mostrará «Certificado energético en trámite»." }) : h("div", { class: "rejilla" },
+        letras("consumo_letra", "Consumo"), conValores ? campo(CE, "consumo_valor", { etiqueta: "kWh/m²·año", tipo: "number", min: 0 }) : null,
+        letras("emisiones_letra", "Emisiones"), conValores ? campo(CE, "emisiones_valor", { etiqueta: "kg CO₂/m²·año", tipo: "number", min: 0 }) : null),
+      h("div", { style: { marginTop: "8px" } }, trami));
+  };
+  pintarCE();
+  return cont;
+}
+function campoWhatsApp(C) {
+  return campo(C, "whatsapp", { etiqueta: "WhatsApp de la empresa", tipo: "tel", placeholder: "34 600 111 222", ayuda: "Con el prefijo del país (34 en España), sin el +",
+    validar: (v) => (v && !/^\d{8,15}$/.test(String(v).replace(/[\s+()-]/g, "")) ? "Escribe el número con prefijo de país, por ejemplo 34600111222." : "") });
 }
 
 // ------------------------------------------------------------------ inmueble
 function inmueble() {
   const I = ob(["inmueble"]);
-  const CE = ob(["inmueble", "certificado_energetico"]);
-  const letras = (clave, etq) => {
-    const g = h("div", { class: "letras-ce", role: "group", "aria-label": etq });
-    const pintarL = () => g.replaceChildren(...Object.entries(LETRAS).map(([l, c]) => h("button", {
-      type: "button", text: l, style: { background: c }, "aria-pressed": String(CE()[clave] === l), title: `${etq}: ${l}`,
-      onclick: () => { cambiar(() => { const o = CE(); if (o[clave] === l) delete o[clave]; else { o[clave] = l; delete o.en_tramite; } }, { tipo: "datos", render: false }); pintarL(); trami.querySelector("input").checked = !!CE().en_tramite; },
-    })));
-    pintarL();
-    return h("div", { class: "campo" }, h("span", { text: etq }), g);
-  };
-  const trami = campo(CE, "en_tramite", { etiqueta: "Certificado en trámite", tipo: "check", alCambiar: () => pintar() });
   const tipos = [["piso", "Piso"], ["casa", "Casa"], ["chalet", "Chalet"], ["adosado", "Adosado"], ["atico", "Ático"], ["duplex", "Dúplex"], ["estudio", "Estudio"],
     ["loft", "Loft"], ["local", "Local"], ["oficina", "Oficina"], ["nave", "Nave"], ["garaje", "Garaje"], ["terreno", "Terreno"]];
   return h("div", {},
@@ -78,11 +137,7 @@ function inmueble() {
         campoSiNo(I, "ascensor", "Ascensor"), campoSiNo(I, "aire_acondicionado", "Aire acondicionado"), campoSiNo(I, "garaje", "Garaje"),
         campoSiNo(I, "trastero", "Trastero"), campoSiNo(I, "piscina", "Piscina"), campoSiNo(I, "jardin", "Jardín"))),
     h("h2", { class: "sub", text: "Certificado energético (obligatorio en anuncios)" }),
-    h("div", { class: "tarjeta" },
-      CE().en_tramite ? h("p", { class: "suave", style: { marginTop: 0 }, text: "Se mostrará «Certificado energético en trámite»." }) : h("div", { class: "rejilla" },
-        letras("consumo_letra", "Consumo"), campo(CE, "consumo_valor", { etiqueta: "kWh/m²·año", tipo: "number", min: 0 }),
-        letras("emisiones_letra", "Emisiones"), campo(CE, "emisiones_valor", { etiqueta: "kg CO₂/m²·año", tipo: "number", min: 0 })),
-      h("div", { style: { marginTop: "8px" } }, trami)),
+    h("div", { class: "tarjeta" }, certificado()),
     h("h2", { class: "sub", text: "Descripción y características" }),
     h("div", { class: "tarjeta" },
       campoTexto(I, "descripcion", { etiqueta: "Descripción", multilinea: true, tipo: "datos", placeholder: "Describe el inmueble: distribución, calidades, entorno…" }),
@@ -94,10 +149,6 @@ function inmueble() {
         campo(ob(["inmueble", "ubicacion"]), "lat", { etiqueta: "Latitud", tipo: "number", paso: 0.0001 }),
         campo(ob(["inmueble", "ubicacion"]), "lng", { etiqueta: "Longitud", tipo: "number", paso: 0.0001 }),
         h("div", { class: "ancho-todo" }, campo(I, "mostrar_direccion_exacta", { etiqueta: "Mostrar la dirección exacta (si no, solo la zona)", tipo: "check" })))),
-    h("h2", { class: "sub", text: "Documentos" }), documentos(),
-    h("h2", { class: "sub", text: "Ajustes de las fotos" }),
-    h("div", { class: "tarjeta" }, h("div", { class: "rejilla" },
-      campo(() => app.tour, "altura_camara", { etiqueta: "Altura de la cámara (m)", tipo: "number", min: 0.5, max: 3, paso: 0.05, ayuda: "Altura del trípode al hacer las fotos", tipoCambio: "todo" }))),
   );
 }
 function chips() {
@@ -132,7 +183,7 @@ function documentos() {
     cont.replaceChildren(
       ...docs.map((d, i) => h("div", { class: "fila", style: { marginBottom: "8px", flexWrap: "nowrap" } },
         campo(() => I().documentos[i], "nombre", { etiqueta: "Nombre" }),
-        campo(() => I().documentos[i], "url", { etiqueta: "Archivo o enlace" }),
+        campo(() => I().documentos[i], "url", { etiqueta: "Archivo o enlace", tipo: "url", urlInterna: true, placeholder: "https://…" }),
         h("button", { class: "btn fantasma icono-btn", style: { alignSelf: "flex-end" }, "aria-label": "Quitar documento", onclick: () => { cambiar(() => { I().documentos.splice(i, 1); }, { tipo: "datos", render: false }); pintarD(); } }, icono("basura", 16)))),
       h("div", { class: "fila" },
         h("button", { class: "btn peq", onclick: async () => {
@@ -195,48 +246,122 @@ function marca() {
       subidaImagen(A, "foto", "marca", "agente", "Foto"))));
 }
 
-// ------------------------------------------------------------------ contacto
-function contacto() {
+// ------------------------------------------------------------------ contacto y marca
+/** Datos de prueba con la misma forma que la consulta real del visor (paneles.js · datosConsulta). */
+function consultaDePrueba(numFotos) {
+  const p = app.tour.panoramas[0];
+  return {
+    nombre: "Prueba de cre8eight Estudio", telefono: "+34 600 000 000", pregunta: "Mensaje de prueba: puedes borrarlo.",
+    referencia: app.tour.inmueble?.referencia ?? null,
+    estancia: textoDe(p?.nombre) || "General", estancia_id: p?.id ?? "general", estancia_actual: textoDe(p?.nombre) || null,
+    url: location.href.split("#")[0], fecha: new Date().toISOString(), idioma: app.tour.idioma ?? "es", num_fotos: numFotos,
+  };
+}
+const aBase64 = (blob) => new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = mal; r.readAsDataURL(blob); });
+/** Construye exactamente la petición que hará el visor (sin fotos: JSON; con fotos: multipart o JSON según webhook_formato). */
+async function peticionDePrueba(conFoto) {
+  const C = app.tour.contacto ?? {};
+  const p = app.tour.panoramas[0];
+  const blob = conFoto && p ? app.archivos.get(p.miniatura) ?? app.archivos.get(p.imagen_movil) : null;
+  const d = consultaDePrueba(blob ? 1 : 0);
+  if (!blob) return { simple: false, init: { body: JSON.stringify(d), headers: { "Content-Type": "application/json" } } };
+  const archivo = new File([blob], `foto-1-${slug(textoDe(p.nombre) || p.id)}.jpg`, { type: blob.type || "image/jpeg" });
+  const meta = [{ n: 1, estancia: textoDe(p.nombre) || p.id, nodo: p.id, enlace: location.href.split("#")[0] }];
+  if (C.webhook_formato === "json") {
+    const fotos = [{ ...meta[0], nombre: archivo.name, tipo: archivo.type, base64: await aBase64(blob) }];
+    return { simple: false, init: { body: JSON.stringify({ ...d, fotos }), headers: { "Content-Type": "application/json" } } };
+  }
+  const fd = new FormData();
+  for (const [k, v] of Object.entries(d)) fd.append(k, v == null ? "" : String(v));
+  fd.append("fotos", JSON.stringify(meta));
+  fd.append("foto_1", archivo, archivo.name);
+  return { simple: true, init: { body: fd } };
+}
+
+function contactoMarca() {
   const C = ob(["contacto"]);
-  const modo = h("div", { class: "segmentado", role: "group", "aria-label": "Modo de contacto" });
-  const pintarModo = () => modo.replaceChildren(...[["whatsapp", "WhatsApp"], ["webhook", "Formulario (webhook)"], ["ambos", "Ambos"]].map(([v, t]) => h("button", {
-    type: "button", text: t, "aria-pressed": String((C().modo ?? "whatsapp") === v), onclick: () => { cambiar(() => { C().modo = v; }, { tipo: "datos", render: false }); pintar(); },
+  const modo = h("div", { class: "segmentado", role: "radiogroup", "aria-label": "Cómo recibir las consultas" });
+  const opciones = [["whatsapp", "WhatsApp"], ["webhook", "Mi CRM"], ["ambos", "WhatsApp y CRM"]];
+  modo.replaceChildren(...opciones.map(([v, t]) => h("button", {
+    type: "button", role: "radio", text: t, "aria-checked": String((C().modo ?? "whatsapp") === v),
+    onclick: () => { cambiar(() => { C().modo = v; }, { tipo: "datos", render: false }); if (v !== "whatsapp") abiertas.add("crm"); pintar(); },
   })));
-  pintarModo();
   const m = C().modo ?? "whatsapp";
-  const res = h("span", { class: "tenue", style: { fontSize: "12.5px" } });
+  const res = h("p", { class: "suave", role: "status", style: { margin: "8px 0 0", fontSize: "13px" } });
+  const conFoto = h("input", { type: "checkbox", checked: true });
   const probar = async () => {
     const url = C().webhook;
-    if (!/^https:\/\//.test(url ?? "")) return toast("Introduce una URL https:// válida", "aviso");
-    const datos = { nombre: "Prueba del Estudio", telefono: "+34 600 000 000", pregunta: "Mensaje de prueba", referencia: T().inmueble?.referencia ?? "",
-      estancia: "", url: location.href, fecha: new Date().toISOString(), idioma: "es", prueba: true };
-    res.textContent = "Enviando…";
+    if (!urlPermitida(url, { soloHttps: true })) { res.textContent = "Escribe primero la dirección de conexión (empieza por https://)."; res.style.color = "var(--error)"; return; }
+    res.textContent = "Enviando una consulta de prueba…"; res.style.color = "";
+    const { simple, init } = await peticionDePrueba(conFoto.checked);
     try {
-      const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(datos) });
-      res.textContent = r.ok ? `✓ Recibido (HTTP ${r.status})` : `✗ El servidor respondió ${r.status}`;
-      res.style.color = r.ok ? "var(--ok)" : "var(--error)";
+      const r = await fetch(url, { method: "POST", ...init });
+      if (r.ok) { res.textContent = `Recibido: tu CRM ha aceptado la consulta de prueba (respuesta ${r.status}).`; res.style.color = "var(--ok)"; }
+      else { res.textContent = `Tu CRM ha rechazado la consulta (error ${r.status}). Revisa la dirección de conexión.`; res.style.color = "var(--error)"; }
     } catch {
-      try {
-        await fetch(url, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(datos) });
-        res.textContent = "Enviado, pero el servidor no permite confirmar la respuesta (CORS). Revisa que haya llegado en Make/Zapier/n8n.";
+      if (simple) {
+        // La petición con fotos (multipart) sale igualmente; el navegador solo impide leer la respuesta.
+        res.textContent = "Enviado. No podemos confirmar que haya llegado: compruébalo en tu CRM.";
         res.style.color = "var(--aviso)";
-      } catch (e) { res.textContent = `✗ No se pudo enviar: ${e.message}`; res.style.color = "var(--error)"; }
+        return;
+      }
+      try {
+        await fetch(url, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: init.body });
+        res.textContent = "Enviado. No podemos confirmar que haya llegado: compruébalo en tu CRM. Si no llega, tu CRM no acepta envíos desde otras webs: elige «Con fotos adjuntas» o pide a tu proveedor que lo permita (lo llaman «CORS»).";
+        res.style.color = "var(--aviso)";
+      } catch { res.textContent = "No se ha podido conectar con esa dirección. Comprueba que esté bien copiada y que tengas internet."; res.style.color = "var(--error)"; }
     }
   };
+  const formato = h("select", { "aria-label": "Formato de envío" },
+    h("option", { value: "multipart", text: "Con fotos adjuntas (recomendado)" }), h("option", { value: "json", text: "Todo en un mensaje JSON (fotos en base64)" }));
+  formato.value = C().webhook_formato === "json" ? "json" : "multipart";
+  formato.onchange = () => cambiar(() => { if (formato.value === "json") C().webhook_formato = "json"; else delete C().webhook_formato; }, { tipo: "datos", render: false });
+  const crm = h("details", { class: "avanzado", open: m !== "whatsapp" || abiertas.has("crm") },
+    h("summary", { text: "Enviar consultas a mi CRM (avanzado)" }),
+    h("div", { class: "contenido" }, h("div", { class: "tarjeta" },
+      h("div", { class: "rejilla" },
+        h("div", { class: "ancho-todo" }, campo(C, "webhook", { etiqueta: "Dirección de conexión que te da tu CRM", tipo: "url", placeholder: "https://hook.eu1.make.com/…",
+          ayuda: "Make, Zapier, n8n o tu CRM te dan una dirección que empieza por https://. Ahí llegarán el nombre, el teléfono, la pregunta, la estancia y las fotos que haga el cliente.",
+          validar: (v) => (v && !urlPermitida(v, { soloHttps: true }) ? "La dirección debe empezar por https://" : "") })),
+        h("div", { class: "campo ancho-2" }, h("span", { text: "Formato de envío" }), formato)),
+      h("div", { class: "fila", style: { marginTop: "10px" } },
+        h("button", { class: "btn peq", onclick: probar }, "Enviar una consulta de prueba"),
+        h("label", { class: "check" }, conFoto, "con una foto")),
+      res)));
+  crm.addEventListener("toggle", () => { if (crm.open) abiertas.add("crm"); else abiertas.delete("crm"); });
   return h("div", {},
     h("div", { class: "tarjeta" },
-      h("div", { class: "campo" }, h("span", { text: "¿Cómo quieres recibir los contactos?" }), modo),
+      h("div", { class: "campo" }, h("span", { text: "¿Cómo quieres recibir las consultas de los clientes?" }), modo),
       h("div", { class: "rejilla", style: { marginTop: "14px" } },
-        m !== "webhook" ? campo(C, "whatsapp", { etiqueta: "Número de WhatsApp de la empresa", tipo: "tel", placeholder: "34600111222", ayuda: "Formato internacional sin + ni espacios",
-          validar: (v) => (v && !/^\d{8,15}$/.test(String(v).replace(/[\s+]/g, "")) ? "Número no válido" : "") }) : null,
-        m !== "whatsapp" ? h("div", { class: "ancho-2" }, campo(C, "webhook", { etiqueta: "URL del webhook (Make, Zapier, n8n, CRM)", tipo: "url", placeholder: "https://hook.eu1.make.com/…",
-          ayuda: "Recibe un POST JSON con nombre, teléfono, pregunta, referencia, estancia, url, fecha e idioma", validar: (v) => (v && !/^https:\/\//.test(v) ? "Debe empezar por https://" : "") }),
-          h("div", { class: "fila", style: { marginTop: "6px" } }, h("button", { class: "btn peq", onclick: probar }, "Probar webhook"), res)) : null)),
-    h("h2", { class: "sub", text: "Privacidad (RGPD)" }),
-    h("div", { class: "tarjeta" }, h("div", { class: "rejilla" },
-      h("div", { class: "ancho-2" }, campo(C, "url_privacidad", { etiqueta: "URL de la política de privacidad", tipo: "url", placeholder: "https://www.ejemplo.com/privacidad" })),
-      h("div", { class: "ancho-todo" }, campoTexto(C, "texto_privacidad", { etiqueta: "Texto junto al formulario", tipo: "datos",
-        placeholder: "Responsable: Inmobiliaria Ejemplo. Finalidad: atender tu consulta. Puedes ejercer tus derechos en…" })))));
+        m !== "webhook" ? campoWhatsApp(C) : null,
+        h("div", { class: "ancho-2" }, campo(C, "url_privacidad", { etiqueta: "Dirección de tu política de privacidad", tipo: "url", placeholder: "https://www.tu-inmobiliaria.com/privacidad" })),
+        h("div", { class: "ancho-todo" }, campoTexto(C, "texto_privacidad", { etiqueta: "Texto de privacidad junto al formulario", tipo: "datos",
+          placeholder: "Responsable: Inmobiliaria Ejemplo. Finalidad: atender tu consulta. Puedes ejercer tus derechos en…" })))),
+    h("div", { style: { marginTop: "12px" } }, crm),
+    h("h2", { class: "sub", text: "Marca y agente" }),
+    marca());
+}
+
+// ------------------------------------------------------------------ avanzado (apartados plegables)
+function avanzado() {
+  const apartado = (id, titulo, fn) => {
+    const d = h("details", { class: "avanzado", open: abiertas.has(id), style: { marginBottom: "10px" } }, h("summary", { text: titulo }));
+    const cont = h("div", { class: "contenido" });
+    d.append(cont);
+    const llenar = () => { if (d.open && !cont.childElementCount) cont.append(fn()); };
+    d.addEventListener("toggle", () => { if (d.open) abiertas.add(id); else abiertas.delete(id); llenar(); });
+    llenar();
+    return d;
+  };
+  return h("div", {},
+    apartado("textos", "Idiomas y traducciones", textos),
+    apartado("personalizacion", "Colores, estilos y aviso legal de imágenes", personalizacion),
+    apartado("secciones", "Secciones de la vivienda (zona de día, de noche…)", secciones),
+    apartado("guion", "Visita guiada", guion),
+    apartado("documentos", "Documentos para la ficha (enlaces)", documentos),
+    apartado("musica", "Música de fondo", () => h("div", { class: "tarjeta" }, bloqueMusica())),
+    apartado("ajustes", "Ajustes de las fotos", () => h("div", { class: "tarjeta" }, h("div", { class: "rejilla" },
+      campo(() => app.tour, "altura_camara", { etiqueta: "Altura de la cámara (m)", tipo: "number", min: 0.5, max: 3, paso: 0.05, ayuda: "Altura del trípode al hacer las fotos", tipoCambio: "todo" })))));
 }
 
 // ------------------------------------------------------------------ idiomas y textos
@@ -406,7 +531,7 @@ export const seccionDatos = {
   resumen: () => {
     const i = app.tour.inmueble ?? {};
     const ok = !!(i.precio && (i.certificado_energetico?.consumo_letra || i.certificado_energetico?.en_tramite) && (app.tour.contacto?.whatsapp || app.tour.contacto?.webhook));
-    return { texto: "Inmueble, marca, contacto", hecho: ok };
+    return { texto: esRapido() ? "Precio, m², certificado, contacto" : "Inmueble, contacto, marca", hecho: ok };
   },
   render: (c, op) => render(c, op),
   actualizar: () => { if (!raiz?.contains(document.activeElement) || document.activeElement?.tagName === "BUTTON") pintar(); },

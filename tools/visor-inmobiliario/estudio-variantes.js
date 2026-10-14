@@ -23,13 +23,20 @@ function adivinar(nombre, p) {
 export const nombreEstilo = (id) => textoDe(app.tour.estilos?.find((e) => e.id === id)?.nombre) || ESTILOS_IA.find((e) => e.id === id)?.nombre.es || id;
 
 /** Comprueba una variante frente a la imagen base. → {nivel, texto} | null */
+export const nombreVariante = (v) => [v.estilo && v.estilo !== "original" ? nombreEstilo(v.estilo) : null, MOMENTOS.find((m) => m.id === (v.momento ?? "dia"))?.nombre]
+  .filter(Boolean).join(" · ") || "Original";
 export function problemaVariante(p, v) {
   const mb = app.tour._estudio.meta[p.imagen], mv = app.tour._estudio.meta[v.imagen];
   if (!mb || !mv) return null;
-  if (Math.abs(mv.w / mv.h - mb.w / mb.h) > 0.01) return { nivel: "error", texto: `Proporción distinta (${mv.w}×${mv.h})` };
-  if (mv.w !== mb.w || mv.h !== mb.h) return { nivel: "aviso", texto: `Tamaño distinto: ${mv.w}×${mv.h} (base ${mb.w}×${mb.h})` };
+  const texto = `La versión “${nombreVariante(v)}” de ${nombreDe(p)} no encaja con la foto original. Vuelve a generarla con el mismo tamaño.`;
+  const detalle = `${mv.w}×${mv.h} (original ${mb.w}×${mb.h})`;
+  if (Math.abs(mv.w / mv.h - mb.w / mb.h) > 0.01) return { nivel: "error", texto, detalle, corto: "No encaja con la original" };
+  if (mv.w !== mb.w || mv.h !== mb.h) return { nivel: "aviso", texto, detalle, corto: "Tamaño distinto a la original" };
   return null;
 }
+const ORIGENES = [["foto", "Foto real"], ["render", "Render"], ["ia", "IA"]];
+/** Origen por defecto según ESQUEMA: estilo → "ia"; solo momento → "foto". */
+export const origenDe = (v) => v.origen ?? (v.estilo && v.estilo !== "original" ? "ia" : "foto");
 
 export async function subirVariantes(pid, archivos, { estilo: estiloFijo, momento: momentoFijo, render = false } = {}) {
   const p = pano(pid);
@@ -56,13 +63,16 @@ export async function subirVariantes(pid, archivos, { estilo: estiloFijo, moment
       const ruta = rutaLibre(`panos/variantes/${nombre}`, "jpg");
       const rutaM = ruta.replace("panos/variantes/", "panos/variantes/movil/");
       await guardarArchivo(ruta, r.salidas[0].blob);
-      await guardarArchivo(rutaM, r.salidas[1].blob);
+      // Si la variante ya es ≤ 4096 px, la versión móvil es la misma imagen: no se duplica.
+      const movilIgual = r.salidas[1].ancho === r.salidas[0].ancho;
+      if (!movilIgual) await guardarArchivo(rutaM, r.salidas[1].blob);
       cambiar((t) => {
         const q = t.panoramas.find((x) => x.id === pid);
         q.variantes ??= [];
-        const v = { imagen: ruta, imagen_movil: rutaM };
+        const v = { imagen: ruta, imagen_movil: movilIgual ? ruta : rutaM };
         if (estilo) v.estilo = estilo;
         if (momento) v.momento = momento;
+        v.origen = render ? "render" : estilo && estilo !== "original" ? "ia" : "foto";
         q.variantes.push(v);
         t._estudio.meta[ruta] = { w: dim?.w ?? r.original.w, h: dim?.h ?? r.original.h, archivo: f.name, ...(render ? { render: true } : {}) };
         if (estilo && !t.estilos.some((e) => e.id === estilo)) t.estilos.push({ id: estilo, nombre: { es: nombreEstilo(estilo) } });
@@ -90,7 +100,7 @@ function probarEnVista(v) {
   try {
     const w = app.vistaPrevia.ventana();
     const visor = w?.visor;
-    if (!visor?.fijarEstilo) return toast("La vista previa aún no admite estilos (falta window.visor.fijarEstilo)", "aviso", 5000);
+    if (!visor?.fijarEstilo) return toast("La vista previa aún no puede mostrar estilos. Espera a que cargue y vuelve a probar.", "aviso", 5000);
     if (app.nodo !== actual()?.id) { app.nodo = actual().id; emitir("nodo", {}); }
     visor.fijarEstilo(v.estilo ?? "original");
     visor.fijarMomento?.(v.momento ?? "dia");
@@ -133,7 +143,7 @@ function pintar() {
       if (val === "__otro") {
         const n = await pedir("Nuevo estilo", "Nombre del estilo", "", { ayuda: "Ej.: Japandi, Rústico, Boho…" });
         if (!n) { selE.value = v.estilo ?? "original"; return; }
-        val = n.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || "estilo";
+        val = n.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || "estilo";
         cambiar((tt) => { if (!tt.estilos.some((e) => e.id === val)) tt.estilos.push({ id: val, nombre: { es: n } }); }, { render: false });
       }
       cambiar(() => { const w = pano(p.id).variantes[j]; if (val === "original") delete w.estilo; else w.estilo = val; });
@@ -141,17 +151,21 @@ function pintar() {
     const selM = h("select", { "aria-label": "Momento" }, MOMENTOS.map((m) => h("option", { value: m.id, text: m.nombre })));
     selM.value = v.momento ?? "dia";
     selM.onchange = () => cambiar(() => { pano(p.id).variantes[j].momento = selM.value; });
+    const selO = h("select", { "aria-label": "Origen de la imagen", title: "Se muestra un sello en el visor: «Recreación virtual · IA», «Render / infografía»…" }, ORIGENES.map(([id, n]) => h("option", { value: id, text: n })));
+    selO.value = origenDe(v);
+    selO.onchange = () => cambiar(() => { pano(p.id).variantes[j].origen = selO.value; });
     return h("div", { class: "variante" },
       h("img", { src: urlDe(v.imagen_movil ?? v.imagen), alt: "", loading: "lazy" }),
       h("div", { class: "cuerpo" },
         h("div", { class: "fila" }, selE, selM),
+        h("label", { class: "campo" }, h("span", { text: "Origen" }), selO),
         h("div", { class: "fila", style: { flexWrap: "wrap", gap: "6px" } },
-          prob ? h("span", { class: `chip ${prob.nivel}`, text: prob.texto }) : h("span", { class: "chip ok", text: "Mismo encuadre y tamaño" }),
+          prob ? h("span", { class: `chip ${prob.nivel}`, text: prob.corto, title: `${prob.texto} ${prob.detalle}` }) : h("span", { class: "chip ok", text: "Encaja con la original" }),
           dup ? h("span", { class: "chip aviso", text: "Repetida" }) : null,
-          t._estudio.meta[v.imagen]?.render ? h("span", { class: "chip acento", text: "Render" }) : null,
           v.estilo && v.estilo !== "original"
             ? (v.mascara ? h("span", { class: "chip ok", text: "Máscara propia" }) : h("span", { class: "chip aviso", text: "Sin máscara: no se podrá cambiar el color", title: "Un estilo con otro mobiliario necesita su propia máscara" }))
             : (p.mascara ? h("span", { class: "chip", text: "Usa la máscara base" }) : null)),
+        prob ? h("small", { class: prob.nivel === "error" ? "error-campo" : "suave", text: prob.texto }) : null,
         v.estilo && v.estilo !== "original" ? h("div", { class: "fila" },
           h("button", { class: "btn peq", onclick: async () => { const { abrirEditorMascara } = await import("./estudio-mascara.js"); abrirEditorMascara(p.id, j); } }, icono("varita", 14), v.mascara ? "Editar máscara" : "Crear máscara"),
           h("button", { class: "btn peq fantasma", onclick: () => subirMascara(p.id, j) }, "Subir PNG"),

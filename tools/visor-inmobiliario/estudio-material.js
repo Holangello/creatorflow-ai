@@ -8,6 +8,7 @@ import { anadirFotos } from "./estudio-fotos.js";
 import { subirVariantes, nombreEstilo } from "./estudio-variantes.js";
 import { ponerImagenPlano } from "./estudio-plano.js";
 import { leerDxf, sugerirUnidades, extension, aMetros, renderizar, FACTOR } from "./estudio-dxf.js";
+import { bloqueMusica } from "./estudio-musica.js";
 
 const TIPOS_DOC = [["plano", "Plano"], ["render", "Render"], ["modelo", "Modelo 3D"], ["memoria", "Memoria de calidades"], ["licencia", "Licencia / cédula"], ["nota", "Nota simple"], ["otro", "Otro"]];
 let raiz = null;
@@ -217,7 +218,7 @@ async function subirModelo() {
     t.documentacion ??= [];
     t.documentacion.push({ nombre: f.name, archivo: ruta, tipo: "modelo", publico: false });
   });
-  toast(tipo === "glb" ? "Modelo 3D añadido: el visor tendrá paseo libre y maqueta" : "Gaussian splat añadido: el visor tendrá paseo libre", "ok", 4500);
+  toast(tipo === "glb" ? "Modelo 3D añadido: el visor tendrá paseo libre y maqueta" : "Escaneo 3D añadido: el visor tendrá paseo libre", "ok", 4500);
 }
 
 let vista3d = null;
@@ -226,7 +227,7 @@ async function previsualizar(cont) {
   const L = app.tour.libre;
   if (!L || L.tipo !== "glb" || !app.archivos.get(L.url)) {
     cont.replaceChildren(h("div", { class: "vista-vacia", style: { position: "static", minHeight: "220px", borderRadius: "8px" } },
-      h("p", { text: L?.tipo === "splat" ? "Vista previa del splat: abre «Modo libre 3D» en la vista previa de la derecha." : "Sin modelo" })));
+      h("p", { text: L?.tipo === "splat" ? "Para ver el escaneo 3D, abre «Modo libre 3D» en la vista previa." : "Sin modelo" })));
     return;
   }
   cont.replaceChildren(h("div", { class: "tenue", style: { padding: "20px" }, text: "Cargando modelo…" }));
@@ -322,7 +323,7 @@ function pintar() {
   const vistaModelo = h("div");
   const modelo = L ? h("div", {},
     h("div", { class: "fila", style: { marginBottom: "10px" } },
-      h("span", { class: "chip acento", text: L.tipo === "glb" ? "Modelo GLB" : "Gaussian splat" }), h("span", { class: "tenue", text: L.url }),
+      h("span", { class: "chip acento", text: L.tipo === "glb" ? "Modelo 3D (GLB)" : "Escaneo 3D" }), h("span", { class: "tenue", text: L.url }),
       h("div", { style: { flex: 1 } }),
       h("button", { class: "btn peq fantasma", onclick: async () => { if (await confirmar("Quitar modelo 3D", "El visor dejará de ofrecer el paseo libre.", "Quitar")) cambiar(() => { delete app.tour.libre; }); } }, "Quitar")),
     h("div", { class: "fila", style: { alignItems: "flex-end" } },
@@ -349,15 +350,16 @@ function pintar() {
 
   raiz.replaceChildren(
     h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Material del proyecto" }),
-      h("p", { text: "Adjunta lo que te pasen el arquitecto y el renderista. Los planos se convierten en el plano a escala, los renders en estancias o estilos, y el modelo 3D en el paseo libre." }))),
+      h("p", { text: "Opcional. Adjunta lo que te pasen el arquitecto y el renderista: los planos se convierten en el plano a escala, los renders en estancias o estilos y el modelo 3D en el paseo libre. Aquí también puedes añadir música." }))),
     bloque("plano", "Planos de arquitecto", "PDF, DXF (AutoCAD, Revit, ArchiCAD) o imagen. Un DXF ya viene a escala y trae los muros. El DWG hay que exportarlo a DXF.", [], planos),
     bloque("orientar", "Renders 360", "Equirectangulares 2:1 de Corona, V-Ray, Lumion, Enscape o D5: como estancias de obra nueva o como estilo de una foto real.",
       [h("button", { class: "btn primario", onclick: async () => subirRenders360(await elegirArchivos({ aceptar: "image/jpeg,image/png,image/webp", multiple: true })) }, icono("subir", 16), "Subir renders 360")]),
     bloque("fotos", "Renders fijos e imágenes", "Infografías y fotos para la galería del visor. Los renders se rotulan «Render / infografía».",
       [h("button", { class: "btn", onclick: async () => subirGaleria(await elegirArchivos({ aceptar: "image/*", multiple: true })) }, icono("subir", 16), "Subir imágenes")], galeria),
-    bloque("variantes", "Modelo 3D o Gaussian splat", "GLB/glTF exportado de SketchUp, Revit, Blender o Twinmotion, o un splat (.spz, .ply, .sog): activa el paseo libre y la maqueta.",
+    bloque("variantes", "Modelo 3D (opcional)", "Modelo 3D (opcional). Lo prepara tu arquitecto o renderista: un archivo GLB de SketchUp, Revit, Blender o Twinmotion, o un escaneo 3D (.spz, .ply, .sog). Activa el paseo libre y la maqueta.",
       [h("button", { class: "btn", onclick: subirModelo }, icono("subir", 16), L ? "Reemplazar" : "Subir modelo")], modelo),
-    bloque("datos", "Documentos", "Memoria de calidades, licencias, nota simple… Marca «Público» para ofrecerlos en la ficha; el resto solo se archiva con el proyecto.",
+    bloque("video", "Música de fondo", "Opcional. Suena en el visor (botón de sonido) y en los vídeos.", [], bloqueMusica()),
+    bloque("datos", "Documentos", "Memoria de calidades, licencias, nota simple… Marca «Público» para ofrecerlos en la ficha; el resto solo se guarda en el proyecto y en la copia de seguridad (no se publica).",
       [h("button", { class: "btn", onclick: async () => { const fs = await elegirArchivos({ aceptar: "", multiple: true }); for (const f of fs) await guardarDocumento(f, /calidad/i.test(f.name) ? "memoria" : /nota/i.test(f.name) ? "nota" : /licen|c[eé]dula/i.test(f.name) ? "licencia" : "otro"); } }, icono("subir", 16), "Subir documentos")], documentos),
   );
   if (L) previsualizar(vistaModelo);

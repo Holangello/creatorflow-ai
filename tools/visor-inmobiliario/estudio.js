@@ -170,6 +170,7 @@ export function enviarTour() {
   // La vista previa muestra lo mismo que se publicará (sin documentación privada).
   const t = tourParaExportar(app.tour, { mapaRutas: urlDe, publico: true });
   if (app.nodo && pano(app.nodo)) t.inicio = app.nodo;
+  if (t.audio?.musica) t.audio.musica.autoplay = false; // en el Estudio la música solo suena si se pulsa el botón de sonido
   postVisor({ tipo: "visor:cargar", tour: t });
   if (app.nodo) postVisor({ tipo: "visor:ir", nodo: app.nodo });
   vp.enviado = true;
@@ -244,7 +245,8 @@ addEventListener("keydown", (e) => {
   if (mod && k === "o") { e.preventDefault(); dialogoAbrir(); return; }
   if (mod && k === "e") { e.preventDefault(); irSeccion("exportar"); return; }
   // Atajos de una tecla: nunca dentro de un campo de texto, y se pueden desactivar en el diálogo "?".
-  if (enCampo(e) || mod || e.altKey || !app.atajos) return;
+  if (enCampo(e) || mod || e.altKey) return;
+  if (!app.atajos && e.key.length === 1) return; // desactivados: solo se ignoran las teclas de carácter (Esc, Enter, Supr… siguen)
   const orden = pasos();
   if (/^[1-9]$/.test(e.key) && +e.key <= orden.length) { irSeccion(orden[+e.key - 1]); e.preventDefault(); return; }
   if (e.key === "?") { mostrarAtajos(); return; }

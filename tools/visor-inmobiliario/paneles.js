@@ -69,6 +69,7 @@ const P = {
   casa: "M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6",
   ficha: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
   camara: "M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  musica: "M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z",
 };
 const RELLENO = new Set(["play", "pausa"]);
 
@@ -147,6 +148,38 @@ export function telefonoValido(t) {
   return internacional || s.length >= 10;
 }
 
+// Enlaces que vienen del tour: solo http(s), mailto, tel o rutas relativas; nunca javascript: ni otros esquemas.
+// En descargas se admiten además blob: del propio origen (vista previa del Estudio) y data: de PDF o imagen (tour autónomo).
+const CON_ESQUEMA = /^[a-z][a-z0-9+.-]*:/i;
+export function urlSegura(u, { descarga = false } = {}) {
+  if (typeof u !== "string") return null;
+  const s = u.trim();
+  if (!s || /[\u0000-\u001f\u007f]/.test(s)) return null;
+  if (/^(https?:|mailto:|tel:)/i.test(s)) return s;
+  if (descarga && s.startsWith(`blob:${location.origin}/`)) return s;
+  if (descarga && /^data:(application\/pdf|image\/(png|jpe?g|webp|gif|avif))[;,]/i.test(s)) return s;
+  return CON_ESQUEMA.test(s) ? null : s;
+}
+// Imágenes del tour (logo, fotos, renders): http(s), blob:, data:image o rutas relativas
+function srcSegura(u) {
+  if (typeof u !== "string" || !u.trim()) return null;
+  const s = u.trim();
+  if (/^(https?:|blob:)/i.test(s) || /^data:image\//i.test(s)) return s;
+  return CON_ESQUEMA.test(s) ? null : s;
+}
+const emailValido = (e) => typeof e === "string" && /^[^\s@<>()"',;:]+@[^\s@<>()"',;:]+\.[^\s@<>()"',;:]+$/.test(e.trim());
+// Números del tour: 349000, "349000" o "349.000,50"
+function numero(v) {
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (typeof v !== "string" || !v.trim()) return null;
+  let t = v.replace(/\s|€|\$|£|EUR/gi, "");
+  t = /^\d{1,3}(\.\d{3})+(,\d+)?$/.test(t) ? t.replace(/\./g, "").replace(",", ".") : t.replace(",", ".");
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+}
+const esTactil = () => !!globalThis.matchMedia?.("(pointer: coarse)").matches;
+const esMac = () => /Mac|iPhone|iPad|iPod/i.test(navigator.userAgentData?.platform ?? navigator.platform ?? navigator.userAgent ?? "");
+
 // ------------------------------------------------------------------ estado del módulo
 let V = null, T = {}, raiz = null;
 const ui = {
@@ -154,8 +187,10 @@ const ui = {
   borrador: { nombre: "", telefono: "", pregunta: "", privacidad: false },
   envio: { estado: "inactivo", error: "" },
   hip: null, descripcionAbierta: false, midiendo: false, guiada: false,
-  capturas: [], capturando: false, zonaManual: false, filtroGaleria: "todo", lightbox: null,
+  capturas: [], capturando: false, tomando: false, zonaManual: false, filtroGaleria: "todo", lightbox: null,
+  tocados: new Set(), interactuado: false, acentoPropio: false,
 };
+const EVENTOS_INTERACCION = ["pointerdown", "keydown", "wheel", "touchstart"];
 const limpiezas = [];
 let mo = null;
 
@@ -196,8 +231,22 @@ export function iniciarPaneles(visor) {
   on("guion:inicio", () => { ui.guiada = true; refrescar(); });
   on("guion:fin", () => { ui.guiada = false; refrescar(); });
   on("medir", (d) => { ui.midiendo = typeof d === "boolean" ? d : !!(d?.activo ?? est().midiendo); refrescar(); });
-  on("listo", () => { T = V.tour ?? T; aplicarMarca(); renderizar(); });
+  // Un tour nuevo (carga inicial, recarga o «visor:cargar» del Estudio) rehace todo lo que dependía del anterior
+  const alTour = () => { cambiarTour(V.tour ?? T); renderizar(); };
+  on("tour", alTour);
+  on("listo", alTour);
+  on("sonido", () => pintarSonido());
   limpiezas.push(alCambiarIdioma(() => renderizar()));
+  // La interfaz no se autooculta hasta que el visitante ha interactuado de verdad (un movimiento sintético no cuenta)
+  if (!ui.interactuado) {
+    const marcar = (e) => {
+      if (e.isTrusted === false) return;
+      ui.interactuado = true; raiz?.classList.add("pn-interactuado");
+      for (const ev of EVENTOS_INTERACCION) removeEventListener(ev, marcar, true);
+    };
+    for (const ev of EVENTOS_INTERACCION) addEventListener(ev, marcar, { capture: true, passive: true });
+    limpiezas.push(() => { for (const ev of EVENTOS_INTERACCION) removeEventListener(ev, marcar, true); });
+  }
 
   const alRedimensionar = () => {
     const d = calcularDisposicion();
@@ -222,6 +271,27 @@ export function destruir() {
   try { document.documentElement.style.removeProperty("--reserva-inferior"); } catch {}
 }
 
+function cambiarTour(nuevo) {
+  T = nuevo ?? {};
+  ui.hip = null; ui.filtroGaleria = "todo"; ui.lightbox = null; ui.descripcionAbierta = false;
+  ui.capturando = false; vaciarCapturas();
+  ui.envio = { estado: "inactivo", error: "" }; ui.tocados = new Set();
+  ui.zonaManual = false; ui.borrador.zona = ui.dialogo === "contacto" ? zonaPorDefecto() : undefined;
+  aplicarMarca();
+  if (T.idiomas?.length && !T.idiomas.includes(idiomaActual())) fijarIdioma(detectarIdioma(T));
+}
+// Por si el núcleo sustituye visor.tour sin avisar: cualquier repintado lo detecta
+function sincronizarTour() {
+  const t = V?.tour;
+  if (!t || t === T) return false;
+  cambiarTour(t);
+  return true;
+}
+function clasesRaiz() {
+  return ["pn-raiz", `pn-disp-${ui.disp}`, ui.abierto && "pn-abierto", ui.dialogo && `pn-con-dialogo pn-dlg-${ui.dialogo}`,
+    ui.capturando && "pn-capturando pn-abierto", ui.interactuado && "pn-interactuado"].filter(Boolean).join(" ");
+}
+
 function calcularDisposicion() {
   const w = innerWidth, hh = innerHeight;
   if (hh <= 500 && w > hh) return "compacta";          // móvil en horizontal
@@ -231,11 +301,11 @@ function calcularDisposicion() {
 
 // ------------------------------------------------------------------ marca y ajustes
 function aplicarMarca() {
-  const raizDoc = document.documentElement;
-  const color = T.marca?.color;
+  const estilo = document.documentElement.style;
+  const color = typeof T.marca?.color === "string" ? T.marca.color.trim() : null;
   const txt = colorTexto(color);
-  if (txt) { raizDoc.style.setProperty("--acento", color); raizDoc.style.setProperty("--acento-texto", txt); }
-  else if (!getComputedStyle(raizDoc).getPropertyValue("--acento-texto").trim()) raizDoc.style.setProperty("--acento-texto", "#1a1205");
+  if (txt) { estilo.setProperty("--acento", color); estilo.setProperty("--acento-texto", txt); ui.acentoPropio = true; }
+  else if (ui.acentoPropio) { estilo.removeProperty("--acento"); estilo.removeProperty("--acento-texto"); ui.acentoPropio = false; }
 }
 
 const AJUSTES_BASE = () => ({
@@ -291,10 +361,11 @@ const hayPintura = () => !!(T.personalizacion && ((T.personalizacion.paredes?.le
 const hayPersonalizar = () => (listaEstilos().length > 1 && tiene(V.fijarEstilo)) || (listaMomentos().length > 0 && tiene(V.fijarMomento)) || (hayPintura() && tiene(V.fijarPintura));
 const idiomasOfrecidos = () => (T.idiomas?.length ? T.idiomas : [idiomaActual()]).filter((c) => diccionario[c]);
 
+const precioNum = () => { const n = numero(inm().precio); return n && n > 0 ? n : null; };
 function textoPrecio() {
-  const i = inm();
-  if (!i.precio) return tr("ficha.precio_consultar");
-  return fmtMoneda(i.precio) + (i.operacion === "alquiler" ? tr("ficha.mes") : "");
+  const precio = precioNum();
+  if (!precio) return tr("ficha.precio_consultar");
+  return fmtMoneda(precio) + (inm().operacion === "alquiler" ? tr("ficha.mes") : "");
 }
 function resumenCorto() {
   const i = inm(), partes = [];
@@ -307,8 +378,9 @@ function resumenCorto() {
 // ------------------------------------------------------------------ render principal
 function renderizar() {
   if (!raiz) return;
+  sincronizarTour();
   const foco = document.activeElement?.dataset?.k;
-  raiz.className = `pn-raiz pn-disp-${ui.disp}` + (ui.abierto ? " pn-abierto" : "") + (ui.dialogo ? ` pn-con-dialogo pn-dlg-${ui.dialogo}` : "") + (ui.capturando ? " pn-capturando pn-abierto" : "");
+  raiz.className = clasesRaiz();
   raiz.replaceChildren(...[
     ui.disp === "hoja" ? null : rail(),
     panel(),
@@ -326,6 +398,7 @@ function renderizar() {
 // Actualiza solo lo que depende del estado del visor sin perder el foco
 function refrescar() {
   if (!raiz) return;
+  if (sincronizarTour()) { renderizar(); return; }
   ui.midiendo = typeof est().midiendo === "boolean" ? est().midiendo : ui.midiendo;
   ui.guiada = typeof est().guionActivo === "boolean" ? est().guionActivo : ui.guiada;
   for (const b of raiz.querySelectorAll("[data-k='medir']")) b.setAttribute("aria-pressed", String(ui.midiendo));
@@ -336,12 +409,15 @@ function refrescar() {
 function rehacerDialogo() {
   const viejo = raiz.querySelector(".pn-dialogo");
   if (!viejo) return;
+  const teniaFoco = viejo.contains(document.activeElement);
   const foco = document.activeElement?.dataset?.k;
   const scroll = viejo.querySelector(".pn-dlg-cuerpo")?.scrollTop ?? 0;
   const nuevo = dialogo();
   viejo.replaceWith(nuevo);
   const c = nuevo.querySelector(".pn-dlg-cuerpo"); if (c) c.scrollTop = scroll;
   if (foco) nuevo.querySelector(`[data-k="${CSS.escape(foco)}"]`)?.focus({ preventScroll: true });
+  // si el control que tenía el foco ya no existe (cambio de pantalla), pasa al botón principal o al título
+  if (teniaFoco && !nuevo.contains(document.activeElement)) (nuevo.querySelector("[autofocus]") ?? nuevo.querySelector(".pn-dlg-tit"))?.focus({ preventScroll: true });
 }
 
 function aviso(texto) {
@@ -378,6 +454,12 @@ function rail() {
           ic(ui.abierto ? "der" : "izq", "pn-ic pn-ic-s")),
     h("div", { class: "pn-rail-grupo" }, items.map(botonIcono)),
   );
+}
+
+function botonContacto(k, clase = "") {
+  return h("button", { type: "button", class: `pn-btn pn-btn-acento pn-contactar ${clase}`.trim(), "data-k": k, "aria-haspopup": "dialog",
+    "aria-expanded": String(ui.dialogo === "contacto"), onclick: (e) => alternarDialogo("contacto", e.currentTarget) },
+    ic("chat"), h("span", {}, tr("contacto.corto")));
 }
 
 function actualizarBotonGuiada(b) {
@@ -423,9 +505,7 @@ function panel() {
       hoja ? cabeceraMarca() : null,
       ui.disp !== "lateral" ? filaHerramientas() : null,
       ...ficha()),
-    ui.disp === "compacta" ? h("div", { class: "pn-panel-pie" },
-      h("button", { type: "button", class: "pn-btn pn-btn-acento pn-btn-ancho", "data-k": "contacto-panel", "aria-haspopup": "dialog", onclick: (e) => abrirDialogo("contacto", e.currentTarget) },
-        ic(canalContacto() === "webhook" ? "chat" : "whatsapp"), h("span", {}, tr("contacto.boton")))) : null,
+    ui.disp === "compacta" ? h("div", { class: "pn-panel-pie" }, botonContacto("contacto-panel", "pn-btn-ancho")) : null,
   );
   if (!hoja && !ui.abierto) p.inert = true;
   if (hoja) prepararArrastre(p);
@@ -435,10 +515,11 @@ function panel() {
 function cabeceraMarca() {
   const m = T.marca ?? {};
   if (!m.nombre && !m.logo) return null;
-  const logo = m.logo ? h("img", { class: "pn-logo", src: m.logo, alt: m.nombre ? R(m.nombre) : "", decoding: "async", onerror: (e) => e.currentTarget.remove() }) : null;
+  const src = srcSegura(m.logo), web = urlSegura(m.web);
+  const logo = src ? h("img", { class: "pn-logo", src, alt: m.nombre ? R(m.nombre) : "", decoding: "async", onerror: (e) => e.currentTarget.remove() }) : null;
   const nombre = m.nombre ? h("span", { class: "pn-marca-nombre" }, R(m.nombre)) : null;
   return h("div", { class: "pn-marca" },
-    m.web ? h("a", { href: m.web, target: "_blank", rel: "noopener", class: "pn-marca-enlace", title: tr("marca.web") }, logo, nombre) : [logo, nombre]);
+    web ? h("a", { href: web, target: "_blank", rel: "noopener noreferrer", class: "pn-marca-enlace", title: tr("marca.web") }, logo, nombre) : [logo, nombre]);
 }
 
 function filaHerramientas() {
@@ -453,12 +534,11 @@ function peek() {
     h("span", { class: "pn-precio pn-precio-s" }, textoPrecio()),
     h("span", { class: "pn-peek-sub" }, resumenCorto() || (i.referencia ? tr("ficha.referencia", { x: i.referencia }) : tr("ficha.pestana"))));
   return h("div", { class: "pn-peek" },
-    h("button", { type: "button", class: "pn-asa", "data-k": "asa", "aria-label": tr("ficha.abrir"), "aria-expanded": String(ui.altura !== "peek"), onclick: () => fijarAltura(ui.altura === "alto" ? "peek" : ui.altura === "medio" ? "alto" : "medio") }, h("span")),
+    h("span", { class: "pn-asa", "data-k": "asa", "aria-hidden": "true" }, h("span")),
     verPrecio,
     h("div", { class: "pn-peek-acc" },
       hayPersonalizar() ? botonIcono({ k: "personalizar-peek", icono: "pincel", etiqueta: tr("personalizar.titulo"), onclick: (e) => alternarDialogo("personalizar", e.currentTarget), extra: { "aria-haspopup": "dialog" } }) : null,
-      h("button", { type: "button", class: "pn-btn pn-btn-acento pn-peek-contacto", "data-k": "contacto-peek", "aria-haspopup": "dialog", onclick: (e) => abrirDialogo("contacto", e.currentTarget) },
-        ic(canalContacto() === "webhook" ? "chat" : "whatsapp"), h("span", {}, tr("contacto.corto")))));
+      botonContacto("contacto-peek", "pn-peek-contacto")));
 }
 
 // --- hoja inferior: alturas, arrastre y reserva para el núcleo
@@ -476,7 +556,7 @@ function fijarAltura(nombre) {
   if (ui.disp !== "hoja") { abrirPanel(nombre !== "peek"); return; }
   ui.altura = nombre;
   colocarHoja(true);
-  for (const b of raiz.querySelectorAll("[data-k='asa'],[data-k='peek-precio']")) b.setAttribute("aria-expanded", String(nombre !== "peek"));
+  for (const b of raiz.querySelectorAll("[data-k='peek-precio']")) b.setAttribute("aria-expanded", String(nombre !== "peek"));
 }
 function colocarHoja(animar) {
   if (!raiz) return;
@@ -488,7 +568,8 @@ function colocarHoja(animar) {
     // Ancho ocupado abajo a la derecha (dock + contacto) para que la galería del núcleo no lo pise.
     requestAnimationFrame(() => {
       let izq = innerWidth;
-      for (const el of raiz?.querySelectorAll(".pn-dock, .pn-herramientas, [class*='pn-dock']") ?? []) {
+      for (const el of raiz?.querySelectorAll(".pn-dock, .pn-rail, .pn-barra-captura") ?? []) {
+        if (getComputedStyle(el).visibility === "hidden") continue;
         const r = el.getBoundingClientRect();
         if (r.width && r.bottom > innerHeight - 140) izq = Math.min(izq, r.left);
       }
@@ -536,7 +617,8 @@ function prepararArrastre(p) {
   const fin = (e) => {
     if (!ini || e.pointerId !== ini.id) return;
     const datos = ini; ini = null;
-    if (!datos.movido) return; // fue un toque: lo gestiona el botón
+    // un toque (sin arrastre) en el fondo del peek o en el asa abre o cierra la hoja; los botones se gestionan solos
+    if (!datos.movido) { if (!e.target.closest("button, a, input, select, textarea")) fijarAltura(ui.altura === "peek" ? "medio" : "peek"); return; }
     e.preventDefault();
     const vel = (e.clientY - datos.y) / Math.max(1, performance.now() - datos.t); // px/ms, + hacia abajo
     const vis = datos.total - (parseFloat(p.style.getPropertyValue("--pn-desp")) || 0) - vel * 180;
@@ -560,9 +642,9 @@ function ficha() {
   const i = inm();
   const tipo = i.tipo ? tr(`tipo.${i.tipo}`) : "";
   const op = i.operacion === "alquiler" ? tr("ficha.alquiler") : i.operacion === "venta" ? tr("ficha.venta") : "";
-  const sup = i.superficie_construida || i.superficie_util;
+  const sup = numero(i.superficie_construida) || numero(i.superficie_util), precio = precioNum();
   let pm2 = null;
-  if (i.precio && sup) pm2 = tr("ficha.precio_m2", { x: fmtMoneda(i.precio / sup, i.operacion === "alquiler" ? 1 : 0) }) + (i.operacion === "alquiler" ? tr("ficha.mes") : "");
+  if (precio && sup) pm2 = tr("ficha.precio_m2", { x: fmtMoneda(precio / sup, i.operacion === "alquiler" ? 1 : 0) }) + (i.operacion === "alquiler" ? tr("ficha.mes") : "");
   const etiquetaTipo = [tipo !== `tipo.${i.tipo}` ? tipo : R(i.tipo), op].filter(Boolean).join(" · ");
 
   const partes = [
@@ -570,7 +652,7 @@ function ficha() {
       etiquetaTipo ? h("p", { class: "pn-sobretitulo" }, etiquetaTipo) : null,
       h("h2", { class: "pn-titulo" }, titulo()),
       h("p", { class: "pn-precio" }, textoPrecio()),
-      h("p", { class: "pn-precio-meta" }, pm2, pm2 && i.referencia ? h("span", { class: "pn-sep", "aria-hidden": "true" }, "·") : null, i.referencia ? tr("ficha.referencia", { x: i.referencia }) : null)),
+      h("p", { class: "pn-precio-meta" }, pm2, pm2 && i.referencia ? h("span", { class: "pn-sep", "aria-hidden": "true" }, "·") : null, i.referencia ? tr("ficha.referencia", { x: R(i.referencia) }) : null)),
     galeriaRenders(),
     datosClave(),
     certificado(),
@@ -579,7 +661,7 @@ function ficha() {
     descripcion(),
     gastos(),
     superficies(),
-    i.operacion !== "alquiler" && i.precio ? hipoteca() : null,
+    i.operacion !== "alquiler" && precio ? hipoteca() : null,
     ubicacion(),
     documentos(),
     agente(),
@@ -687,11 +769,12 @@ function ubicacion() {
   const dir = R(i.direccion);
   const zona = R(i.zona) || (dir ? dir.split(",").slice(-1)[0].trim() : "");
   const texto = exacta ? dir : zona;
-  const u = i.ubicacion;
-  if (!texto && !(u?.lat != null && u?.lng != null)) return null;
+  const lat0 = numero(i.ubicacion?.lat), lng0 = numero(i.ubicacion?.lng);
+  const coord = lat0 != null && lng0 != null && Math.abs(lat0) <= 90 && Math.abs(lng0) <= 180;
+  if (!texto && !coord) return null;
   let osm, google;
-  if (u?.lat != null && u?.lng != null) {
-    const lat = exacta ? u.lat : Math.round(u.lat * 100) / 100, lng = exacta ? u.lng : Math.round(u.lng * 100) / 100;
+  if (coord) {
+    const lat = exacta ? lat0 : Math.round(lat0 * 100) / 100, lng = exacta ? lng0 : Math.round(lng0 * 100) / 100;
     osm = exacta ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}` : `https://www.openstreetmap.org/#map=15/${lat}/${lng}`;
     google = exacta ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}` : `https://www.google.com/maps/@${lat},${lng},15z`;
   } else {
@@ -709,23 +792,38 @@ function credito() {
   return h("p", { class: "pn-credito" }, antes, h("span", { class: "pn-credito-marca" }, "cre8eight"), despues);
 }
 
+function nombreArchivo(url) {
+  if (/^(data|blob):/i.test(url)) return "";
+  const ultimo = url.split(/[?#]/)[0].split("/").pop() ?? "";
+  try { return decodeURIComponent(ultimo); } catch { return ultimo; }
+}
 function documentos() {
-  const docs = [...(inm().documentos ?? []),
-    ...(T.documentacion ?? []).filter((d) => d?.publico === true && (d.archivo || d.url)).map((d) => ({ nombre: d.nombre, url: d.archivo ?? d.url }))];
+  const lista = (v) => (Array.isArray(v) ? v : []);
+  const fuentes = [...lista(inm().documentos), ...lista(T.documentacion).filter((d) => d?.publico === true)];
+  const vistos = new Set(), docs = [];
+  for (const d of fuentes) {
+    const url = urlSegura(d?.url ?? d?.archivo, { descarga: true });
+    if (!url) continue;
+    let clave = url;
+    try { clave = new URL(url, location.href).href; } catch {}
+    if (vistos.has(clave)) continue;
+    vistos.add(clave);
+    docs.push({ nombre: R(d.nombre) || nombreArchivo(url) || tr("ficha.documentos"), url });
+  }
   if (!docs.length) return null;
   return seccion("docs", tr("ficha.documentos"), h("ul", { class: "pn-docs" }, docs.map((d) =>
-    h("li", {}, h("a", { href: d.url, target: "_blank", rel: "noopener", download: "" }, ic("doc"), h("span", {}, R(d.nombre) || d.url.split("/").pop()), ic("descargar", "pn-ic pn-ic-s"))))));
+    h("li", {}, h("a", { href: d.url, target: "_blank", rel: "noopener noreferrer", download: "" }, ic("doc"), h("span", {}, d.nombre), ic("descargar", "pn-ic pn-ic-s"))))));
 }
 
 function agente() {
   const a = T.agente;
   if (!a?.nombre) return null;
   return seccion("agente", tr("ficha.agente"), h("div", { class: "pn-agente" },
-    a.foto ? h("img", { src: a.foto, alt: "", class: "pn-agente-foto", onerror: (e) => e.currentTarget.remove() }) : h("span", { class: "pn-agente-foto pn-agente-ini", "aria-hidden": "true" }, R(a.nombre).split(/\s+/).map((x) => x[0]).slice(0, 2).join("")),
+    srcSegura(a.foto) ? h("img", { src: srcSegura(a.foto), alt: "", class: "pn-agente-foto", onerror: (e) => e.currentTarget.remove() }) : h("span", { class: "pn-agente-foto pn-agente-ini", "aria-hidden": "true" }, R(a.nombre).split(/\s+/).map((x) => x[0]).slice(0, 2).join("")),
     h("div", {}, h("p", { class: "pn-agente-nombre" }, R(a.nombre)), T.marca?.nombre ? h("p", { class: "pn-suave" }, R(T.marca.nombre)) : null),
     h("div", { class: "pn-agente-acc" },
-      a.telefono ? h("a", { class: "pn-btn-ic", href: `tel:${String(a.telefono).replace(/[^\d+]/g, "")}`, "aria-label": `${tr("ficha.llamar")} ${a.telefono}`, "data-tip": tr("ficha.llamar") }, ic("tel")) : null,
-      a.email ? h("a", { class: "pn-btn-ic", href: `mailto:${a.email}?subject=${encodeURIComponent(`${inm().referencia ?? ""} ${titulo()}`.trim())}`, "aria-label": `${tr("ficha.email")} ${a.email}`, "data-tip": tr("ficha.email") }, ic("correo")) : null)));
+      telefonoValido(a.telefono) ? h("a", { class: "pn-btn-ic", href: `tel:${String(a.telefono).replace(/[^\d+]/g, "")}`, "aria-label": `${tr("ficha.llamar")} ${a.telefono}`, "data-tip": tr("ficha.llamar") }, ic("tel")) : null,
+      emailValido(a.email) ? h("a", { class: "pn-btn-ic", href: `mailto:${a.email.trim()}?subject=${encodeURIComponent(`${R(inm().referencia ?? "")} ${titulo()}`.trim())}`, "aria-label": `${tr("ficha.email")} ${a.email}`, "data-tip": tr("ficha.email") }, ic("correo")) : null)));
 }
 
 function avisoLegal() {
@@ -733,15 +831,23 @@ function avisoLegal() {
   if (i.aviso_legal) textos.push(R(i.aviso_legal));
   if (i.estado_obra === "proyecto" && !i.aviso_legal) textos.push(tr("ficha.aviso_proyecto"));
   if ((i.estado_obra === "proyecto" || hayVariantesEstilo()) && !textos.some((t) => /IA|AI|KI/.test(t))) textos.push(tr("ficha.aviso_ia"));
-  const pie = R(T.marca?.pie_legal);
-  if (!textos.length && !pie) return null;
-  return h("footer", { class: "pn-legal" }, textos.map((t) => h("p", {}, ic("info", "pn-ic pn-ic-s"), t)), pie ? h("p", { class: "pn-pie" }, pie) : null);
+  const pie = R(T.marca?.pie_legal), musica = creditoMusica();
+  if (!textos.length && !pie && !musica) return null;
+  return h("footer", { class: "pn-legal" }, textos.map((t) => h("p", {}, ic("info", "pn-ic pn-ic-s"), t)), musica, pie ? h("p", { class: "pn-pie" }, pie) : null);
+}
+// «Música: título · autor (licencia)» cuando el tour declara autor o licencia
+function creditoMusica() {
+  const m = T.audio?.musica;
+  if (!m || (!m.autor && !m.licencia)) return null;
+  const obra = [R(m.titulo), R(m.autor)].filter(Boolean).join(" · "), lic = R(m.licencia);
+  const x = obra && lic ? `${obra} (${lic})` : obra || lic;
+  return h("p", { class: "pn-musica-credito" }, ic("musica", "pn-ic pn-ic-s"), h("span", {}, tr("sonido.credito", { x })));
 }
 
 // ------------------------------------------------------------------ hipoteca
 function hipoteca() {
   const i = inm();
-  ui.hip ??= { precio: i.precio, entrada: 20, interes: i.hipoteca_interes ?? 3, anos: 30 };
+  ui.hip ??= { precio: precioNum(), entrada: 20, interes: numero(i.hipoteca_interes) ?? 3, anos: 30 };
   const s = ui.hip;
   const ids = { p: nuevoId("h"), e: nuevoId("h"), i: nuevoId("h"), a: nuevoId("h") };
   const salida = h("div", { class: "pn-hip-res", "aria-live": "polite" });
@@ -776,14 +882,18 @@ function hipoteca() {
 }
 
 // ------------------------------------------------------------------ contacto: dock (escritorio) y FAB (móvil horizontal)
+function urlWebhook() {
+  const u = urlSegura(T.contacto?.webhook);
+  return u && !/^(mailto|tel):/i.test(u) ? u : null;
+}
 function canalContacto() {
   const c = T.contacto ?? {};
-  const wa = !!numeroWhatsApp(), hook = !!c.webhook;
-  let modo = c.modo ?? (hook ? "webhook" : "whatsapp");
+  const wa = !!numeroWhatsApp(), hook = !!urlWebhook(), mail = emailValido(T.agente?.email);
+  let modo = ["whatsapp", "webhook", "ambos"].includes(c.modo) ? c.modo : hook ? "webhook" : "whatsapp";
   if (modo === "ambos" && !hook) modo = "whatsapp";
   if (modo === "ambos" && !wa) modo = "webhook";
-  if (modo === "whatsapp" && !wa) modo = hook ? "webhook" : T.agente?.email ? "email" : "whatsapp";
-  if (modo === "webhook" && !hook) modo = wa ? "whatsapp" : "email";
+  if (modo === "whatsapp" && !wa) modo = hook ? "webhook" : mail ? "email" : "whatsapp";
+  if (modo === "webhook" && !hook) modo = wa ? "whatsapp" : mail ? "email" : "whatsapp";
   return modo;
 }
 function numeroWhatsApp() {
@@ -798,21 +908,15 @@ function numeroWhatsApp() {
 }
 
 function dockContacto() {
-  const wa = numeroWhatsApp();
-  const compacta = ui.disp === "compacta";
+  const wa = ui.disp === "lateral" ? numeroWhatsApp() : null;
   return h("div", { class: "pn-dock" },
-    compacta
-      ? h("button", { type: "button", class: "pn-fab", "data-k": "contacto-fab", "aria-haspopup": "dialog", "aria-label": tr("contacto.boton"), "data-tip": tr("contacto.boton"), onclick: (e) => alternarDialogo("contacto", e.currentTarget) }, ic(canalContacto() === "webhook" ? "chat" : "whatsapp"))
-      : [
-        h("button", { type: "button", class: "pn-btn pn-btn-acento pn-dock-btn", "data-k": "contacto-dock", "aria-haspopup": "dialog", "aria-expanded": String(ui.dialogo === "contacto"), "aria-label": tr("contacto.boton"), onclick: (e) => alternarDialogo("contacto", e.currentTarget) },
-          ic("chat"), h("span", { class: "pn-dock-largo", "aria-hidden": "true" }, tr("contacto.boton")), h("span", { class: "pn-dock-corto", "aria-hidden": "true" }, tr("contacto.corto"))),
-        wa ? h("a", { class: "pn-btn-ic pn-dock-wa", href: `https://wa.me/${wa}?text=${encodeURIComponent(mensajeRapido())}`, target: "_blank", rel: "noopener", "aria-label": `${tr("contacto.whatsapp")} (${tr("comun.abrir_nueva")})`, "data-tip": tr("contacto.whatsapp"), onclick: () => emitirContacto("whatsapp_directo") }, ic("whatsapp")) : null,
-      ]);
+    botonContacto("contacto-dock", "pn-dock-btn"),
+    wa ? h("a", { class: "pn-btn-ic pn-dock-wa", href: `https://wa.me/${wa}?text=${encodeURIComponent(mensajeRapido())}`, target: "_blank", rel: "noopener noreferrer", "aria-label": `${tr("contacto.whatsapp")} (${tr("comun.abrir_nueva")})`, "data-tip": tr("contacto.whatsapp"), onclick: () => emitirContacto("whatsapp_directo") }, ic("whatsapp")) : null);
 }
 
 function mensajeRapido() {
   const i = inm(), marca = R(T.marca?.nombre);
-  return [marca ? tr("contacto.msg_saludo", { x: marca }) : null, tr("contacto.msg_interes", { x: i.referencia ?? titulo() }), enlaceVista()].filter(Boolean).join("\n");
+  return [marca ? tr("contacto.msg_saludo", { x: marca }) : null, tr("contacto.msg_interes", { x: i.referencia != null ? R(i.referencia) : titulo() }), enlaceVista()].filter(Boolean).join("\n");
 }
 
 // ------------------------------------------------------------------ diálogos
@@ -847,7 +951,7 @@ function escape(e) {
   if (ui.capturando) { e.preventDefault(); salirCaptura(); return; }
   if (ui.dialogo) { e.preventDefault(); cerrarDialogo(); return; }
   const dentro = raiz.contains(document.activeElement);
-  if (ui.disp === "hoja" && ui.altura !== "peek" && dentro) { fijarAltura("peek"); raiz.querySelector("[data-k='asa']")?.focus(); return; }
+  if (ui.disp === "hoja" && ui.altura !== "peek" && dentro) { fijarAltura("peek"); raiz.querySelector("[data-k='peek-precio']")?.focus(); return; }
   if (ui.disp !== "hoja" && ui.abierto && dentro) { abrirPanel(false); raiz.querySelector("[data-k='pestana']")?.focus(); }
 }
 
@@ -916,6 +1020,8 @@ function puedeCompartirArchivos() {
   try { return ui.capturas.length > 0 && tiene(navigator.canShare) && tiene(navigator.share) && navigator.canShare({ files: archivosCapturas() }); }
   catch { return false; }
 }
+const puedeCopiarImagen = () => !!(navigator.clipboard?.write && typeof ClipboardItem !== "undefined");
+const atajoPegar = () => (esMac() ? "⌘V" : "Ctrl+V");
 
 // --- modo captura: se ocultan los paneles y queda una barra "Encuadra la vista y pulsa Capturar"
 function entrarCaptura() {
@@ -928,19 +1034,32 @@ function salirCaptura() {
   renderizar();
   requestAnimationFrame(() => raiz.querySelector(".pn-dialogo [data-k='hacer-foto']")?.focus({ preventScroll: true }));
 }
+const textoNumFotos = (n) => (n === 1 ? tr("contacto.una_foto") : tr("contacto.n_fotos", { x: n }));
 function barraCaptura() {
   const n = ui.capturas.length;
-  return h("section", { class: "pn-barra-captura", role: "region", "aria-label": tr("contacto.hacer_foto") },
-    h("p", { class: "pn-bc-texto" }, ic("camara"), h("span", {}, tr("contacto.encuadra"))),
-    h("span", { class: "pn-bc-num", "aria-live": "polite" }, n === 1 ? tr("contacto.una_foto") : tr("contacto.n_fotos", { x: n })),
-    h("button", { type: "button", class: "pn-btn pn-bc-capturar", "data-k": "capturar", disabled: n >= MAX_FOTOS, onclick: tomarCaptura },
-      h("span", { class: "pn-punto", "aria-hidden": "true" }), tr("contacto.capturar")),
-    h("button", { type: "button", class: "pn-btn pn-btn-acento", "data-k": "captura-listo", onclick: salirCaptura }, ic("ok"), tr("contacto.listo")));
+  return h("section", { class: "pn-barra-captura", role: "region", "aria-label": tr("contacto.hacer_foto"), "aria-describedby": "pn-bc-ayuda" },
+    h("p", { class: "pn-bc-texto", id: "pn-bc-ayuda" }, ic("camara"), h("span", {}, tr("contacto.encuadra"))),
+    h("span", { class: "pn-bc-num", "aria-live": "polite" }, textoNumFotos(n)),
+    h("div", { class: "pn-bc-botones" },
+      h("button", { type: "button", class: "pn-btn pn-bc-capturar", "data-k": "capturar", disabled: n >= MAX_FOTOS, onclick: tomarCaptura },
+        h("span", { class: "pn-punto", "aria-hidden": "true" }), tr("contacto.capturar")),
+      h("button", { type: "button", class: "pn-btn pn-btn-acento", "data-k": "captura-listo", onclick: salirCaptura }, ic("ok"), tr("contacto.listo"))));
+}
+// La barra se actualiza en su sitio: sustituirla rompía los clics en curso (p. ej. en «Listo») y repetía la animación
+function actualizarBarraCaptura() {
+  const barra = raiz?.querySelector(".pn-barra-captura"); if (!barra) return;
+  const n = ui.capturas.length;
+  barra.querySelector(".pn-bc-num").textContent = textoNumFotos(n);
+  const b = barra.querySelector("[data-k='capturar']");
+  if (!b) return;
+  b.disabled = n >= MAX_FOTOS;
+  b.setAttribute("aria-disabled", String(!!ui.tomando));
 }
 
 async function tomarCaptura() {
+  if (ui.tomando) return;
   if (ui.capturas.length >= MAX_FOTOS) { aviso(tr("contacto.max_fotos", { x: MAX_FOTOS })); return; }
-  const btn = raiz.querySelector("[data-k='capturar']"); if (btn) btn.disabled = true;
+  ui.tomando = true; actualizarBarraCaptura();
   try {
     let r = null;
     if (tiene(V.capturar)) r = await V.capturar({ ancho: 1600 });
@@ -959,12 +1078,11 @@ async function tomarCaptura() {
   } catch (e) {
     console.warn("Captura", e);
     aviso(tr("contacto.err_captura"));
-  }
+  } finally { ui.tomando = false; }
   if (ui.capturando) {
-    const vieja = raiz.querySelector(".pn-barra-captura");
-    vieja?.replaceWith(barraCaptura());
+    actualizarBarraCaptura();
     colocarHoja(false);
-    raiz.querySelector(ui.capturas.length >= MAX_FOTOS ? "[data-k='captura-listo']" : "[data-k='capturar']")?.focus({ preventScroll: true });
+    if (ui.capturas.length >= MAX_FOTOS) raiz.querySelector("[data-k='captura-listo']")?.focus({ preventScroll: true });
   }
 }
 function destello() {
@@ -981,7 +1099,7 @@ function vaciarCapturas() { for (const c of ui.capturas) URL.revokeObjectURL(c.u
 
 function descargarFotos() {
   ui.capturas.forEach((c, i) => setTimeout(() => {
-    const a = h("a", { href: c.url, download: `${inm().referencia ?? "vista"}-foto-${i + 1}-${slug(c.estancia)}.${extension(c.blob.type)}` });
+    const a = h("a", { href: c.url, download: `${slug(R(inm().referencia) || "vista")}-foto-${i + 1}-${slug(c.estancia)}.${extension(c.blob.type)}` });
     document.body.append(a); a.click(); a.remove();
   }, i * 250));
 }
@@ -997,83 +1115,198 @@ async function aPNG(blob) {
 // Se llama dentro del gesto del usuario: ClipboardItem acepta la promesa del PNG
 function copiarFoto(i) {
   const c = ui.capturas[i];
-  if (!c || !navigator.clipboard?.write || typeof ClipboardItem === "undefined") return Promise.reject(new Error("portapapeles no disponible"));
+  if (!c || !puedeCopiarImagen()) return Promise.reject(new Error("portapapeles no disponible"));
   return navigator.clipboard.write([new ClipboardItem({ "image/png": aPNG(c.blob) })]);
 }
 function copiarYMarcar(i) {
-  ui.envio = { ...ui.envio, estado: "pegar", indice: i, copiaOk: null };
+  ui.envio = { ...ui.envio, estado: "pegar", indice: i, copiaOk: null, descargadas: false };
   copiarFoto(i).then(() => { ui.envio.copiaOk = true; aviso(tr("contacto.copiada")); }, (e) => { console.warn("Copiar foto", e); ui.envio.copiaOk = false; })
     .finally(() => { if (ui.dialogo === "contacto" && ui.envio.estado === "pegar") rehacerDialogo(); });
 }
 
+// Paso intermedio antes de abrir WhatsApp con fotos (wa.me no admite adjuntos): se explica qué va a pasar
+function abrirWhatsAppConFotos() {
+  const d = datosConsulta();
+  if (puedeCopiarImagen()) copiarYMarcar(0);   // antes de abrir la pestaña: aún dentro del gesto del usuario
+  else { descargarFotos(); ui.envio = { estado: "pegar", indice: ui.capturas.length - 1, copiaOk: false, descargadas: true }; }
+  abrirWhatsApp(d);
+  emitirContacto("whatsapp");
+  rehacerDialogo();
+}
+
+function tiraFotos(actual) {
+  return h("ul", { class: "pn-tira pn-tira-s" }, ui.capturas.map((c, i) =>
+    h("li", { class: actual < 0 || i === actual ? "pn-actual" : "" }, h("img", { src: c.url, alt: tr("contacto.foto_alt", { n: i + 1, x: c.estancia }) }))));
+}
+
+function pantallaExito() {
+  const b = ui.borrador, env = ui.envio, nombre = b.nombre.trim().split(/\s+/)[0] ?? "";
+  const texto = env.porWhatsapp === "confirmado" ? tr("contacto.exito_wa", { x: nombre })
+    : env.porWhatsapp && canalContacto() === "whatsapp" ? tr("contacto.exito_whatsapp") : tr("contacto.exito", { x: nombre });
+  return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: h("div", { class: "pn-estado pn-estado-ok", role: "status" },
+    h("span", { class: "pn-estado-ic" }, ic("ok")), h("p", {}, texto), botonOtra()) };
+}
+function botonOtra() {
+  return h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "otra", autofocus: true, onclick: () => {
+    ui.envio = { estado: "inactivo" }; ui.borrador.pregunta = ""; ui.tocados = new Set(); vaciarCapturas(); rehacerDialogo();
+    raiz.querySelector(".pn-dialogo [data-k='c-pregunta']")?.focus();
+  } }, tr("contacto.otra"));
+}
+
+function pantallaPreparar() {
+  const total = ui.capturas.length, copiar = puedeCopiarImagen();
+  const marca = R(T.marca?.nombre) || R(T.agente?.nombre) || "WhatsApp";
+  const paso3 = !copiar ? tr("contacto.wa_paso3_adjuntar") : esTactil() ? tr("contacto.wa_paso3_tactil") : tr("contacto.wa_paso3_teclado", { x: atajoPegar() });
+  return { titulo: tr("contacto.wa_titulo"), icono: "whatsapp", cuerpo: h("div", { class: "pn-estado pn-estado-pegar" },
+    tiraFotos(-1),
+    h("ol", { class: "pn-pasos", "aria-label": tr("contacto.pasos") },
+      h("li", {}, !copiar ? tr("contacto.wa_paso1_descarga") : total > 1 ? tr("contacto.wa_paso1_varias", { x: total }) : tr("contacto.wa_paso1")),
+      h("li", {}, tr("contacto.wa_paso2", { x: marca })),
+      h("li", {}, paso3)),
+    copiar && total > 1 ? h("p", { class: "pn-nota" }, tr("contacto.wa_mas_fotos")) : null,
+    h("button", { type: "button", class: "pn-btn pn-btn-acento pn-btn-ancho", "data-k": "abrir-wa", autofocus: true, onclick: abrirWhatsAppConFotos }, ic("whatsapp"), tr("contacto.wa_abrir")),
+    h("button", { type: "button", class: "pn-enlace-btn", "data-k": "volver-form", onclick: () => {
+      ui.envio = { estado: "inactivo" }; rehacerDialogo(); raiz.querySelector(".pn-dialogo [data-k='enviar']")?.focus();
+    } }, tr("contacto.volver_form"))) };
+}
+
+function pantallaPegar() {
+  const env = ui.envio, total = ui.capturas.length, n = env.indice + 1;
+  const fallo = env.copiaOk === false && !env.descargadas;
+  const estado = env.descargadas ? tr("contacto.descargadas") : fallo ? tr("contacto.copia_fallida")
+    : env.copiaOk ? tr("contacto.copiada_n", { n, total }) : tr("contacto.copiando");
+  const instruccion = esTactil() ? tr("contacto.wa_paso3_tactil") : tr("contacto.wa_paso3_teclado", { x: atajoPegar() });
+  const boton = (k, primario, icono, texto, onclick) => h("button", { type: "button", "data-k": k, autofocus: primario || null, onclick,
+    class: primario ? "pn-btn pn-btn-acento pn-btn-ancho" : "pn-btn pn-btn-sec" }, ic(icono), texto);
+  const terminar = (primario) => boton("terminado", primario, "ok", tr("contacto.terminado"), () => {
+    ui.envio = { estado: "exito", porWhatsapp: "confirmado" }; rehacerDialogo();
+  });
+  const descargar = (primario) => boton("descargar-fotos", primario, "descargar", tr("contacto.descargar_fotos"), descargarFotos);
+  const reabrir = boton("reabrir-wa", false, "whatsapp", tr("contacto.abrir_whatsapp"), () => abrirWhatsApp(datosConsulta()));
+  // Un solo botón principal por pantalla
+  let principal, otros;
+  if (fallo) { principal = descargar(true); otros = [reabrir, terminar(false)]; }
+  else if (!env.descargadas && n < total) {
+    principal = boton("copiar-siguiente", true, "copiar", tr("contacto.copiar_siguiente", { n: n + 1, total }), () => copiarYMarcar(env.indice + 1));
+    otros = [reabrir, descargar(false)];
+  } else { principal = terminar(true); otros = [reabrir, env.descargadas ? null : descargar(false)]; }
+  return { titulo: tr("contacto.pegar_titulo"), icono: "whatsapp", cuerpo: h("div", { class: "pn-estado pn-estado-pegar" },
+    tiraFotos(env.descargadas ? -1 : env.indice),
+    h("p", { class: fallo ? "pn-aviso" : "pn-guia", role: "status" }, ic(fallo ? "alerta" : env.copiaOk || env.descargadas ? "ok" : "info", "pn-ic pn-ic-s"), h("span", {}, estado)),
+    fallo || env.descargadas ? null : h("p", { class: "pn-guia" }, ic("info", "pn-ic pn-ic-s"), h("span", {}, instruccion)),
+    principal,
+    h("div", { class: "pn-fila" }, otros)) };
+}
+
+// Validación: el error de un campo se borra al escribir y se comprueba al salir del campo
+const VALIDAR = {
+  nombre: (v) => (String(v ?? "").trim() ? null : tr("contacto.err_nombre")),
+  telefono: (v) => (telefonoValido(v) ? null : tr("contacto.err_telefono")),
+  pregunta: (v) => (String(v ?? "").trim() ? null : tr("contacto.err_pregunta")),
+  privacidad: (v) => (v ? null : tr("contacto.err_privacidad")),
+};
+function validar() {
+  const e = {};
+  for (const [k, f] of Object.entries(VALIDAR)) { const m = f(ui.borrador[k]); if (m) e[k] = m; }
+  return e;
+}
+// Pinta o quita el error de un campo sin rehacer el formulario (no se pierden el foco ni el cursor)
+function errorCampo(k, mensaje) {
+  const campos = (ui.envio.campos ??= {});
+  if (mensaje) campos[k] = mensaje; else delete campos[k];
+  const control = raiz?.querySelector(`.pn-dialogo [name="${k}"]`);
+  const caja = control?.closest(".pn-campo"); if (!caja) return;
+  const idErr = `${control.id}-e`;
+  let p = caja.querySelector(".pn-error");
+  caja.classList.toggle("pn-invalido", !!mensaje);
+  if (mensaje) {
+    if (!p) { p = h("p", { class: "pn-error", id: idErr }); caja.append(p); }
+    p.replaceChildren(ic("alerta", "pn-ic pn-ic-s"), mensaje);
+    control.setAttribute("aria-invalid", "true");
+  } else { p?.remove(); control.removeAttribute("aria-invalid"); }
+  const refs = new Set((control.getAttribute("aria-describedby") ?? "").split(/\s+/).filter(Boolean));
+  if (mensaje) refs.add(idErr); else refs.delete(idErr);
+  if (refs.size) control.setAttribute("aria-describedby", [...refs].join(" ")); else control.removeAttribute("aria-describedby");
+}
+const alEscribir = (k) => (e) => {
+  ui.borrador[k] = e.target.value;
+  ui.tocados.add(k);
+  if (ui.envio.campos?.[k]) errorCampo(k, null);
+};
+const alSalir = (k) => (e) => {
+  if (!e.target.isConnected) return; // el formulario se está rehaciendo
+  const v = ui.borrador[k];
+  if (ui.tocados.has(k) || ui.envio.intentado || String(v ?? "").trim()) errorCampo(k, VALIDAR[k](v));
+};
+
 function dlgContacto() {
-  const b = ui.borrador, env = ui.envio, canal = canalContacto();
+  const env = ui.envio;
+  if (env.estado === "exito") return pantallaExito();
+  if (env.estado === "preparar") return pantallaPreparar();
+  if (env.estado === "pegar") return pantallaPegar();
+  const b = ui.borrador, canal = canalContacto();
   const marca = R(T.marca?.nombre) || R(T.agente?.nombre) || "—";
-  const otra = () => h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "otra", autofocus: true, onclick: () => { ui.envio = { estado: "inactivo" }; ui.borrador.pregunta = ""; vaciarCapturas(); rehacerDialogo(); raiz.querySelector(".pn-dialogo [data-k='c-pregunta']")?.focus(); } }, tr("contacto.otra"));
-  if (env.estado === "exito") {
-    return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: h("div", { class: "pn-estado pn-estado-ok", role: "status" },
-      h("span", { class: "pn-estado-ic" }, ic("ok")),
-      h("p", {}, env.porWhatsapp && canal === "whatsapp" ? tr("contacto.exito_whatsapp") : tr("contacto.exito", { x: b.nombre.split(" ")[0] })),
-      otra()) };
-  }
-  if (env.estado === "pegar") {
-    const total = ui.capturas.length, n = env.indice + 1;
-    return { titulo: tr("contacto.pegar_titulo"), icono: "whatsapp", cuerpo: h("div", { class: "pn-estado pn-estado-pegar", role: "status" },
-      h("ul", { class: "pn-tira pn-tira-s" }, ui.capturas.map((c, i) => h("li", { class: i === env.indice ? "pn-actual" : "" }, h("img", { src: c.url, alt: tr("contacto.foto_alt", { n: i + 1, x: c.estancia }) })))),
-      env.copiaOk === false ? h("p", { class: "pn-aviso" }, ic("alerta", "pn-ic pn-ic-s"), tr("contacto.copia_fallida"))
-        : h("p", {}, ic("info", "pn-ic pn-ic-s"), h("span", {}, tr("contacto.pegar", { n, total }))),
-      h("div", { class: "pn-fila" },
-        n < total ? h("button", { type: "button", class: "pn-btn pn-btn-acento", "data-k": "copiar-siguiente", autofocus: true, onclick: () => copiarYMarcar(env.indice + 1) }, ic("copiar"), tr("contacto.copiar_siguiente", { n: n + 1, total })) : null,
-        h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "descargar-fotos", autofocus: n >= total, onclick: descargarFotos }, ic("descargar"), tr("contacto.descargar_fotos"))),
-      h("div", { class: "pn-fila" },
-        h("button", { type: "button", class: "pn-btn pn-btn-wa", "data-k": "reabrir-wa", onclick: () => abrirWhatsApp(datosConsulta()) }, ic("whatsapp"), tr("contacto.abrir_whatsapp")),
-        otra())) };
-  }
   const ids = { n: nuevoId("c"), t: nuevoId("c"), p: nuevoId("c"), v: nuevoId("c"), rg: nuevoId("c"), z: nuevoId("c"), f: nuevoId("c") };
   const err = env.campos ?? {};
-  const campo = (k, id, etiqueta, control) => h("div", { class: "pn-campo" + (err[k] ? " pn-invalido" : "") },
+  const desc = (id, k, extra) => [extra, err[k] ? `${id}-e` : null].filter(Boolean).join(" ") || null;
+  const campo = (k, id, etiqueta, control, clase = "") => h("div", { class: `pn-campo ${clase}`.trim() + (err[k] ? " pn-invalido" : "") },
     h("label", { for: id }, etiqueta), control,
     err[k] ? h("p", { class: "pn-error", id: `${id}-e` }, ic("alerta", "pn-ic pn-ic-s"), err[k]) : null);
-  const guardar = (k) => (e) => { ui.borrador[k] = e.target.type === "checkbox" ? e.target.checked : e.target.value; };
   const enviando = env.estado === "enviando";
-  const pregunta = h("textarea", { id: ids.p, name: "pregunta", rows: "3", "data-k": "c-pregunta", placeholder: tr("contacto.pregunta_ph"), required: true, value: b.pregunta, "aria-invalid": err.pregunta ? "true" : null, "aria-describedby": err.pregunta ? `${ids.p}-e` : null, oninput: guardar("pregunta") });
-  const chips = ["contacto.sug_disponible", "contacto.sug_visita", "contacto.sug_financiacion"].map((k) =>
-    h("button", { type: "button", class: "pn-chip pn-chip-s", "data-k": `sug-${k}`, onclick: () => {
-      const t = tr(k); const actual = pregunta.value.trim();
-      pregunta.value = actual.includes(t) ? actual : actual ? `${actual} ${t}` : t;
-      ui.borrador.pregunta = pregunta.value; pregunta.focus();
-    } }, tr(k)));
-  // selector de estancia o zona
+  const fino = !esTactil();
+  // 1) estancia o zona (con la actual preseleccionada)
   const grupos = opcionesZona();
-  const zona = h("select", { id: ids.z, name: "zona", "data-k": "c-zona", onchange: (e) => { ui.borrador.zona = e.target.value; ui.zonaManual = true; } },
+  const zona = h("span", { class: "pn-select" }, h("select", { id: ids.z, name: "zona", "data-k": "c-zona", autofocus: fino || null,
+    onchange: (e) => { ui.borrador.zona = e.target.value; ui.zonaManual = true; } },
     h("option", { value: "general", selected: b.zona === "general" }, tr("contacto.zona_general")),
     grupos.map((g) => {
       const ops = g.opciones.map((o) => h("option", { value: o.id, selected: b.zona === o.id }, o.nombre));
       return g.nombre ? h("optgroup", { label: g.nombre }, ops) : ops;
-    }));
-  // fotos de la vista
+    })));
+  // 2) fotos de la vista, justo debajo (visibles sin desplazar)
   const nf = ui.capturas.length;
   const fotos = h("div", { class: "pn-campo pn-fotos", role: "group", "aria-labelledby": ids.f },
-    h("div", { class: "pn-et-fila" }, h("span", { class: "pn-et", id: ids.f }, tr("contacto.fotos")), nf ? h("span", { class: "pn-salida" }, nf === 1 ? tr("contacto.una_foto") : tr("contacto.n_fotos", { x: nf })) : null),
+    h("div", { class: "pn-et-fila" }, h("span", { class: "pn-et", id: ids.f }, tr("contacto.fotos")), nf ? h("span", { class: "pn-salida" }, textoNumFotos(nf)) : null),
     nf ? h("ul", { class: "pn-tira" }, ui.capturas.map((c, i) => h("li", {},
       h("img", { src: c.url, alt: tr("contacto.foto_alt", { n: i + 1, x: c.estancia }) }),
       h("span", { class: "pn-tira-et", "aria-hidden": "true" }, c.estancia),
-      h("button", { type: "button", class: "pn-quitar", "data-k": `quitar-${i}`, "aria-label": tr("contacto.quitar_foto", { x: `${i + 1} (${c.estancia})` }), onclick: () => quitarFoto(i) }, ic("cerrar", "pn-ic pn-ic-s")))))
-      : h("p", { class: "pn-nota" }, tr("contacto.fotos_nota")),
-    h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "hacer-foto", disabled: nf >= MAX_FOTOS || !(tiene(V.capturar) || V.lienzo?.toBlob), onclick: entrarCaptura }, ic("camara"), tr("contacto.hacer_foto")));
-  const urlPriv = T.contacto?.url_privacidad;
+      h("button", { type: "button", class: "pn-quitar", "data-k": `quitar-${i}`, "aria-label": tr("contacto.quitar_foto", { x: `${i + 1} (${c.estancia})` }), onclick: () => quitarFoto(i) }, ic("cerrar", "pn-ic pn-ic-s"))))) : null,
+    h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "hacer-foto", disabled: nf >= MAX_FOTOS || !(tiene(V.capturar) || V.lienzo?.toBlob), onclick: entrarCaptura }, ic("camara"), tr("contacto.hacer_foto")),
+    nf ? null : h("p", { class: "pn-nota" }, tr("contacto.fotos_nota")));
+  // 3) pregunta con sugerencias
+  const pregunta = h("textarea", { id: ids.p, name: "pregunta", rows: "3", "data-k": "c-pregunta", placeholder: tr("contacto.pregunta_ph"), required: true, value: b.pregunta,
+    "aria-invalid": err.pregunta ? "true" : null, "aria-describedby": desc(ids.p, "pregunta"), oninput: alEscribir("pregunta"), onblur: alSalir("pregunta") });
+  const chips = ["contacto.sug_disponible", "contacto.sug_visita", "contacto.sug_financiacion"].map((k) =>
+    h("button", { type: "button", class: "pn-chip pn-chip-s", "data-k": `sug-${k}`, onclick: () => {
+      const t = tr(k); const actual = pregunta.value.trim();
+      pregunta.value = actual.includes(t) ? actual : actual ? `${actual} ${t}` : t;
+      ui.borrador.pregunta = pregunta.value; ui.tocados.add("pregunta");
+      if (ui.envio.campos?.pregunta) errorCampo("pregunta", null);
+      pregunta.focus();
+    } }, tr(k)));
+  // 4) datos de contacto
+  const nombre = h("input", { id: ids.n, name: "nombre", type: "text", autocomplete: "name", required: true, "data-k": "c-nombre", value: b.nombre,
+    "aria-invalid": err.nombre ? "true" : null, "aria-describedby": desc(ids.n, "nombre"), oninput: alEscribir("nombre"), onblur: alSalir("nombre") });
+  const telefono = h("input", { id: ids.t, name: "telefono", type: "tel", inputmode: "tel", autocomplete: "tel", required: true, "data-k": "c-telefono", placeholder: "+34 600 123 456", value: b.telefono,
+    "aria-invalid": err.telefono ? "true" : null, "aria-describedby": desc(ids.t, "telefono"), oninput: alEscribir("telefono"), onblur: alSalir("telefono") });
+  const urlPriv = urlSegura(T.contacto?.url_privacidad);
   const viaWhatsApp = canal === "whatsapp";
   const form = h("form", { class: "pn-form", novalidate: true, onsubmit: (e) => { e.preventDefault(); enviarContacto(e.currentTarget); } },
-    h("p", { class: "pn-suave pn-dlg-sub" }, tr("contacto.subtitulo")),
-    campo("nombre", ids.n, tr("contacto.nombre"), h("input", { id: ids.n, name: "nombre", type: "text", autocomplete: "name", required: true, "data-k": "c-nombre", value: b.nombre, autofocus: !b.nombre, "aria-invalid": err.nombre ? "true" : null, "aria-describedby": err.nombre ? `${ids.n}-e` : null, oninput: guardar("nombre") })),
-    campo("telefono", ids.t, tr("contacto.telefono"), h("input", { id: ids.t, name: "telefono", type: "tel", inputmode: "tel", autocomplete: "tel", required: true, "data-k": "c-telefono", placeholder: "+34 600 123 456", value: b.telefono, "aria-invalid": err.telefono ? "true" : null, "aria-describedby": err.telefono ? `${ids.t}-e` : null, oninput: guardar("telefono") })),
     campo("zona", ids.z, tr("contacto.zona"), zona),
-    campo("pregunta", ids.p, tr("contacto.pregunta"), [h("div", { class: "pn-chips", role: "group", "aria-label": tr("contacto.sugerencias") }, chips), pregunta]),
     fotos,
+    campo("pregunta", ids.p, tr("contacto.pregunta"), [h("div", { class: "pn-chips", role: "group", "aria-label": tr("contacto.sugerencias") }, chips), pregunta]),
+    h("div", { class: "pn-fila-datos" },
+      campo("nombre", ids.n, tr("contacto.nombre"), nombre),
+      campo("telefono", ids.t, tr("contacto.telefono"), telefono)),
     h("div", { class: "pn-campo pn-check" + (err.privacidad ? " pn-invalido" : "") },
-      h("input", { id: ids.v, name: "privacidad", type: "checkbox", required: true, checked: b.privacidad, "data-k": "c-priv", "aria-describedby": `${ids.rg}${err.privacidad ? ` ${ids.v}-e` : ""}`, "aria-invalid": err.privacidad ? "true" : null, onchange: guardar("privacidad") }),
+      h("input", { id: ids.v, name: "privacidad", type: "checkbox", required: true, checked: b.privacidad, "data-k": "c-priv",
+        "aria-describedby": desc(ids.v, "privacidad", ids.rg), "aria-invalid": err.privacidad ? "true" : null,
+        onchange: (e) => {
+          ui.borrador.privacidad = e.target.checked; ui.tocados.add("privacidad");
+          errorCampo("privacidad", e.target.checked || !ui.envio.intentado ? null : VALIDAR.privacidad(false));
+        } }),
       h("label", { for: ids.v }, tr("contacto.acepto"), " ",
-        urlPriv ? h("a", { href: urlPriv, target: "_blank", rel: "noopener" }, tr("contacto.politica")) : tr("contacto.politica")),
+        urlPriv ? h("a", { href: urlPriv, target: "_blank", rel: "noopener noreferrer" }, tr("contacto.politica")) : tr("contacto.politica")),
       err.privacidad ? h("p", { class: "pn-error", id: `${ids.v}-e` }, ic("alerta", "pn-ic pn-ic-s"), err.privacidad) : null),
     h("p", { class: "pn-rgpd", id: ids.rg }, R(T.contacto?.texto_privacidad) || tr("contacto.rgpd", { x: marca })),
     env.estado === "error" ? h("div", { class: "pn-estado pn-estado-error", role: "alert" },
@@ -1086,31 +1319,24 @@ function dlgContacto() {
     env.estado === "error" ? null : h("button", { type: "submit", class: "pn-btn pn-btn-acento pn-btn-ancho", "data-k": "enviar", disabled: enviando, "aria-busy": enviando ? "true" : null },
       enviando ? h("span", { class: "pn-giro", "aria-hidden": "true" }) : ic(viaWhatsApp ? "whatsapp" : "chat"),
       enviando ? tr("contacto.enviando") : viaWhatsApp ? tr("contacto.enviar_whatsapp") : tr("contacto.enviar")),
+    h("p", { class: "pn-nota pn-centro" }, tr("contacto.subtitulo")),
   );
   return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: [agenteMini(), form] };
 }
 
 function agenteMini() {
   const a = T.agente; if (!a?.nombre) return null;
+  const foto = srcSegura(a.foto);
   return h("div", { class: "pn-agente pn-agente-mini" },
-    a.foto ? h("img", { src: a.foto, alt: "", class: "pn-agente-foto", onerror: (e) => e.currentTarget.remove() }) : null,
-    h("div", {}, h("p", { class: "pn-agente-nombre" }, R(a.nombre)), h("p", { class: "pn-suave" }, [R(T.marca?.nombre), inm().referencia ? tr("ficha.referencia", { x: inm().referencia }) : null].filter(Boolean).join(" · "))));
-}
-
-function validar() {
-  const b = ui.borrador, e = {};
-  if (!b.nombre.trim()) e.nombre = tr("contacto.err_nombre");
-  if (!telefonoValido(b.telefono)) e.telefono = tr("contacto.err_telefono");
-  if (!b.pregunta.trim()) e.pregunta = tr("contacto.err_pregunta");
-  if (!b.privacidad) e.privacidad = tr("contacto.err_privacidad");
-  return e;
+    foto ? h("img", { src: foto, alt: "", class: "pn-agente-foto", onerror: (e) => e.currentTarget.remove() }) : null,
+    h("div", {}, h("p", { class: "pn-agente-nombre" }, R(a.nombre)), h("p", { class: "pn-suave" }, [R(T.marca?.nombre), inm().referencia ? tr("ficha.referencia", { x: R(inm().referencia) }) : null].filter(Boolean).join(" · "))));
 }
 
 function datosConsulta() {
   const b = ui.borrador;
   return {
     nombre: b.nombre.trim(), telefono: b.telefono.trim(), pregunta: b.pregunta.trim(),
-    referencia: inm().referencia ?? null,
+    referencia: inm().referencia != null ? R(inm().referencia) : null,
     estancia: nombreZona(b.zona), estancia_id: b.zona ?? "general", estancia_actual: nombreEstancia() || est().nodo || null,
     url: enlaceVista(), fecha: new Date().toISOString(), idioma: idiomaActual(), num_fotos: ui.capturas.length,
   };
@@ -1138,33 +1364,26 @@ function abrirWhatsApp(d) {
 }
 
 function emitirContacto(canal) {
-  const detalle = { canal, referencia: inm().referencia ?? null, estancia: est().nodo ?? null, fotos: ui.capturas.length };
+  const detalle = { canal, referencia: inm().referencia != null ? R(inm().referencia) : null, estancia: est().nodo ?? null, fotos: ui.capturas.length };
   // Sin datos personales: este evento puede acabar en window.dataLayer (analítica)
   if (tiene(V.emitir)) { try { V.emitir("contacto", detalle); } catch (e) { console.warn(e); } }
   else window.dispatchEvent(new CustomEvent("visor:contacto", { detail: detalle }));
 }
 
-// WhatsApp con fotos: (a) hoja de compartir del sistema con archivos; (b) wa.me + foto en el portapapeles
+// WhatsApp con fotos: (a) hoja de compartir del sistema con los archivos; (b) paso intermedio + foto en el portapapeles
 function enviarWhatsApp(d) {
-  const texto = mensajeWhatsApp(d);
   if (ui.capturas.length && puedeCompartirArchivos()) {
-    navigator.share({ files: archivosCapturas(), text: texto }).then(() => {
+    navigator.share({ files: archivosCapturas(), text: mensajeWhatsApp(d) }).then(() => {
       emitirContacto("whatsapp_compartir");
       ui.envio = { estado: "exito", porWhatsapp: true }; rehacerDialogo();
     }, (e) => {
       if (e?.name === "AbortError") return; // el usuario cerró la hoja de compartir
       console.warn("share", e);
-      abrirWhatsApp(d); ui.envio = { estado: "pegar", indice: 0, copiaOk: false }; rehacerDialogo();
+      ui.envio = { estado: "preparar" }; rehacerDialogo();
     });
     return;
   }
-  if (ui.capturas.length) {
-    copiarYMarcar(0);       // antes de abrir la pestaña, aún dentro del gesto
-    abrirWhatsApp(d);
-    emitirContacto("whatsapp");
-    rehacerDialogo();
-    return;
-  }
+  if (ui.capturas.length) { ui.envio = { estado: "preparar" }; rehacerDialogo(); return; }
   abrirWhatsApp(d); emitirContacto("whatsapp");
   ui.envio = { estado: "exito", porWhatsapp: true }; rehacerDialogo();
 }
@@ -1193,7 +1412,7 @@ async function enviarContacto(form, forzar) {
   if (form?.elements.privacidad) ui.borrador.privacidad = form.elements.privacidad.checked;
   const errores = validar();
   if (Object.keys(errores).length) {
-    ui.envio = { estado: "inactivo", campos: errores };
+    ui.envio = { estado: "inactivo", campos: errores, intentado: true };
     rehacerDialogo();
     raiz.querySelector(".pn-dialogo [aria-invalid='true']")?.focus();
     return;
@@ -1216,7 +1435,7 @@ async function enviarContacto(form, forzar) {
   const ctrl = new AbortController(); const temporizador = setTimeout(() => ctrl.abort(), 30000);
   try {
     const peticion = await peticionWebhook(d);
-    const r = await fetch(T.contacto.webhook, { method: "POST", ...peticion, signal: ctrl.signal });
+    const r = await fetch(urlWebhook(), { method: "POST", ...peticion, signal: ctrl.signal });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     emitirContacto(canal === "ambos" ? "ambos" : "webhook");
     ui.envio = { estado: "exito", porWhatsapp: canal === "ambos" };
@@ -1232,7 +1451,7 @@ async function enviarContacto(form, forzar) {
 
 // --- galería de renders y planos (lightbox)
 function galeriaRenders() {
-  const items = (T.galeria ?? []).filter((g) => g?.imagen);
+  const items = (Array.isArray(T.galeria) ? T.galeria : []).filter((g) => srcSegura(g?.imagen));
   if (!items.length) return null;
   const tipos = [...new Set(items.map((g) => g.tipo).filter(Boolean))];
   const estancias = [...new Set(items.map((g) => g.estancia).filter(Boolean))];
@@ -1248,7 +1467,7 @@ function galeriaRenders() {
       } }, et))) : null,
     h("ul", { class: "pn-galeria" + (visibles.length >= 3 && (visibles.length - 3) % 3 === 0 ? " pn-galeria-destacada" : "") }, visibles.map((g, i) => h("li", {},
       h("button", { type: "button", class: "pn-gal-btn", "data-k": `gal-item-${i}`, "aria-label": tr("galeria.ampliar", { x: R(g.titulo) || nombreTipo(g.tipo) || String(i + 1) }), onclick: (e) => abrirLightbox(visibles, i, e.currentTarget) },
-        h("img", { src: g.miniatura ?? g.imagen, alt: "", loading: "lazy", decoding: "async" }),
+        h("img", { src: srcSegura(g.miniatura) ?? srcSegura(g.imagen), alt: "", loading: "lazy", decoding: "async" }),
         g.tipo === "render" ? h("span", { class: "pn-gal-tipo", "aria-hidden": "true" }, "Render") : null)))));
   return sec;
 }
@@ -1279,7 +1498,7 @@ function lightbox() {
   const fig = h("figure", { class: "pn-lb-fig",
     onpointerdown: (e) => { x0 = e.clientX; },
     onpointerup: (e) => { if (x0 != null && varias && Math.abs(e.clientX - x0) > 50) moverLightbox(e.clientX < x0 ? 1 : -1); x0 = null; } },
-    h("img", { src: g.imagen, alt: R(g.titulo) || nombreTipo(g.tipo), draggable: "false" }),
+    h("img", { src: srcSegura(g.imagen), alt: R(g.titulo) || nombreTipo(g.tipo), draggable: "false" }),
     h("figcaption", { id: titId },
       g.tipo === "render" ? h("span", { class: "pn-lb-tipo" }, tr("galeria.tipo_render")) : g.tipo ? h("span", { class: "pn-lb-tipo pn-lb-tipo-sec" }, nombreTipo(g.tipo)) : null,
       h("span", { class: "pn-lb-tit" }, R(g.titulo) || (g.estancia ? nombreZona(g.estancia) : "")),
@@ -1330,7 +1549,7 @@ function dlgCompartir() {
     h("div", { class: "pn-qr", "data-url": url },
       h("div", { class: "pn-qr-img", role: "img", "aria-label": tr("compartir.qr_alt") }, h("span", { class: "pn-giro", "aria-hidden": "true" })),
       h("div", { class: "pn-qr-txt" }, h("p", { class: "pn-qr-tit" }, ic("ficha", "pn-ic pn-ic-s"), tr("compartir.qr")), h("p", { class: "pn-suave" }, tr("compartir.qr_nota")),
-        h("a", { class: "pn-btn pn-btn-sec", "data-k": "qr-desc", hidden: true, download: `qr-${(inm().referencia ?? "vista").toString().replace(/[^\w-]+/g, "_")}.svg` }, ic("descargar"), h("span", {}, tr("compartir.descargar_qr"))))),
+        h("a", { class: "pn-btn pn-btn-sec", "data-k": "qr-desc", hidden: true, download: `qr-${slug(R(inm().referencia) || "vista")}.svg` }, ic("descargar"), h("span", {}, tr("compartir.descargar_qr"))))),
   ] };
 }
 
@@ -1371,7 +1590,7 @@ function dlgPersonalizar() {
         return h("button", { type: "button", class: "pn-estilo" + (enNodo ? "" : " pn-no-aqui"), "data-k": `estilo-${st.id}`, "aria-pressed": String(actual === st.id),
           title: enNodo ? null : tr("estilos.no_disponible"),
           onclick: () => { try { V.fijarEstilo?.(st.id); } catch (er) { console.warn(er); } if (!V.on) { V.estado && (V.estado.estilo = st.id); refrescar(); } } },
-          st.miniatura ? h("img", { src: st.miniatura, alt: "", class: "pn-estilo-mini" }) : h("span", { class: "pn-estilo-muestra", "aria-hidden": "true" }, muestras.map((c) => h("i", { style: `background:${c}` }))),
+          srcSegura(st.miniatura) ? h("img", { src: srcSegura(st.miniatura), alt: "", class: "pn-estilo-mini" }) : h("span", { class: "pn-estilo-muestra", "aria-hidden": "true" }, muestras.map((c) => h("i", { style: `background:${c}` }))),
           h("span", { class: "pn-estilo-nombre" }, nombreEstilo(st)));
       })),
       !disp ? h("p", { class: "pn-aviso", role: "status" }, ic("info", "pn-ic pn-ic-s"), tr("estilos.no_disponible")) : null,
@@ -1451,9 +1670,36 @@ function dlgAjustes() {
     deslizador("sensibilidadTactil", ids.t, tr("ajustes.sens_tactil")),
     casilla("invertirY", ids.i, tr("ajustes.invertir_y")),
     casilla("reducirMovimiento", ids.m, tr("ajustes.reducir_movimiento"), tr("ajustes.reducir_nota")),
+    filaMusica(),
     ui.disp === "compacta" && idiomasOfrecidos().length > 1 ? selectorIdioma() : null,
     h("button", { type: "button", class: "pn-enlace-btn", "data-k": "aj-reset", onclick: () => { aplicarAjustes(AJUSTES_BASE()); rehacerDialogo(); } }, tr("ajustes.restablecer")),
   ] };
+}
+
+// Música del proyecto (visor.sonido): interruptor y volumen, sincronizados con el botón del núcleo
+function filaMusica() {
+  const s = V?.sonido;
+  if (!s?.disponible) return null;
+  const id = nuevoId("vol"), vol = Math.round((Number(s.volumen) || 0) * 100);
+  return h("div", { class: "pn-grupo pn-musica" },
+    h("button", { type: "button", role: "switch", class: "pn-interruptor", "aria-checked": String(!!s.activo), "data-k": "aj-musica",
+      onclick: () => { try { V.sonido.alternar(); } catch (e) { console.warn(e); } pintarSonido(); } },
+      h("span", { class: "pn-int-pista", "aria-hidden": "true" }, h("span")), ic("musica"), h("span", {}, tr("sonido.musica"))),
+    h("div", { class: "pn-campo" },
+      h("div", { class: "pn-et-fila" }, h("label", { for: id }, tr("sonido.volumen")), h("output", { for: id, class: "pn-salida", "data-k": "aj-vol-txt" }, `${fmtNum(vol)} %`)),
+      h("input", { id, type: "range", min: "0", max: "100", step: "5", value: String(vol), "data-k": "aj-volumen",
+        oninput: (e) => { try { V.sonido.fijarVolumen(+e.target.value / 100); } catch (er) { console.warn(er); } pintarSonido(); } })));
+}
+function pintarSonido() {
+  const s = V?.sonido;
+  if (!raiz || !s || ui.dialogo !== "ajustes") return;
+  const sw = raiz.querySelector("[data-k='aj-musica']");
+  if (!sw) { if (s.disponible) rehacerDialogo(); return; } // la música terminó de cargar con Ajustes abierto
+  sw.setAttribute("aria-checked", String(!!s.activo));
+  const r = raiz.querySelector("[data-k='aj-volumen']"), txt = raiz.querySelector("[data-k='aj-vol-txt']");
+  const vol = document.activeElement === r ? +r.value : Math.round((Number(s.volumen) || 0) * 100);
+  if (r && document.activeElement !== r) r.value = String(vol);
+  if (txt) txt.textContent = `${fmtNum(vol)} %`;
 }
 
 // --- idioma

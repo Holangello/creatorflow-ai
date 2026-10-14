@@ -1,7 +1,7 @@
 // Paso 1 · Fotos 360: subida, procesado en Web Worker (8192 / 4096 / 512), nombres y orden de la visita.
 import { dimensiones, leerMetadatos, describirCamara, fechaExif, norm180 } from "./estudio-util.js";
 import { app, h, $, icono, cambiar, emitir, on, toast, dialogo, confirmar, guardarArchivo, urlDe, idLibre, elegirArchivos,
-  textoDe, colocado, pano, fmtMB, calcularEnlaces } from "./estudio-nucleo.js";
+  textoDe, colocado, pano, fmtMB, calcularEnlaces, esRapido } from "./estudio-nucleo.js";
 import { campoTexto } from "./estudio-campos.js";
 
 // ------------------------------------------------------------------ procesado (Worker con alternativa en el hilo principal)
@@ -58,17 +58,36 @@ async function siguiente() {
   siguiente();
 }
 
+// Palabras habituales que los nombres de archivo pierden sin tilde (salon.jpg → «Salón»).
+const TILDES = { salon: "salón", salones: "salones", bano: "baño", banos: "baños", habitacion: "habitación", habitaciones: "habitaciones",
+  jardin: "jardín", atico: "ático", balcon: "balcón", galeria: "galería", solarium: "solárium", sotano: "sótano", almacen: "almacén",
+  comun: "común", comunes: "comunes", dia: "día", lavanderia: "lavandería", recepcion: "recepción", porteria: "portería", calefaccion: "calefacción",
+  cocina: "cocina", dormitorio: "dormitorio", vestibulo: "vestíbulo", cubierta: "cubierta", estudio: "estudio", minimo: "mínimo", camara: "cámara" };
 export function nombreSugerido(archivo, i) {
   const base = archivo.replace(/\.[^.]+$/, "");
   if (/^(dji|img|pano|dsc|osmo|vid|r00|pxl|gopr|insp|lrv|cam)[\W_]*\d/i.test(base) || /^[\d\W_]+$/.test(base)) return `Estancia ${i}`;
-  const t = base.replace(/[_-]+/g, " ").replace(/\s+/g, " ").replace(/^\d+\s+/, "").trim();
+  const t = base.replace(/[_-]+/g, " ").replace(/\s+/g, " ").replace(/^\d+\s+/, "").trim()
+    .split(" ").map((w) => TILDES[w.toLowerCase()] ?? w).join(" ");
   return t ? t.charAt(0).toUpperCase() + t.slice(1) : `Estancia ${i}`;
 }
 
-/** Nombres que el usuario escribió en el Asistente Osmo 360 (localStorage `cre8eight:asistente`). */
-function nombresAsistente() {
-  try { const a = JSON.parse(localStorage.getItem("cre8eight:asistente") ?? "null"); return Array.isArray(a?.estancias) ? a.estancias.map((x) => String(x).trim()).filter(Boolean) : []; }
-  catch { return []; }
+/**
+ * Nombres que el usuario escribió en el Asistente Osmo 360 (localStorage `cre8eight:asistente`):
+ * { estancias: ["Salón", "Cocina"], tomas: { Cocina: 2 } } → ["Salón", "Cocina", "Cocina 2"].
+ */
+export function nombresAsistente() {
+  let a;
+  try { a = JSON.parse(localStorage.getItem("cre8eight:asistente") ?? "null"); } catch { return []; }
+  if (!a || typeof a !== "object" || !Array.isArray(a.estancias)) return [];
+  const tomas = a.tomas && typeof a.tomas === "object" && !Array.isArray(a.tomas) ? a.tomas : {};
+  const r = [];
+  for (const x of a.estancias) {
+    if (typeof x !== "string" || !x.trim()) continue;
+    const nombre = x.trim().slice(0, 80);
+    const n = Number.isInteger(tomas[x]) ? Math.min(Math.max(tomas[x], 1), 20) : Number.isInteger(tomas[nombre]) ? Math.min(Math.max(tomas[nombre], 1), 20) : 1;
+    for (let i = 1; i <= n; i++) r.push(i === 1 ? nombre : `${nombre} ${i}`);
+  }
+  return r;
 }
 const EXT_VIDEO = /\.(osv|insv|mp4|mov|m4v|lrv)$/i;
 
@@ -100,14 +119,14 @@ export async function anadirFotos(archivos, { render = false } = {}) {
   if (raras.length) {
     const lista = h("ul", {}, raras.map(({ f, dim, exif }) => h("li", {}, `${f.name}: ${dim.w}×${dim.h} (relación ${(dim.w / dim.h).toFixed(2)}:1)${/dji/i.test(exif?.marca ?? "") ? " · DJI" : ""}`)));
     const r = await dialogo({
-      titulo: raras.length === 1 ? "Esta foto no parece 360°" : `${raras.length} fotos no parecen 360°`,
-      texto: "Las fotos 360 equirectangulares tienen proporción 2:1 (15520×7760 en el Osmo 360, 7680×3840 en HDR). Si la añades, el visor la deformará.",
+      titulo: raras.length === 1 ? "Esta foto no parece una 360 completa" : `${raras.length} fotos no parecen 360 completas`,
+      texto: "Esta foto no parece una 360 completa. Expórtala desde DJI Mimo como “Foto panorámica 360”. Si la añades así, el visor la deformará.",
       cuerpo: h("div", {}, lista, h("div", { class: "suave", style: { fontSize: "13px" } },
         h("p", { style: { margin: "8px 0 4px" } }, h("b", { text: "¿Cómo exportarla bien desde la Osmo 360?" })),
         h("ul", { style: { margin: 0, paddingLeft: "18px" } },
           h("li", { text: "Si ves dos círculos (ojo de pez doble), está sin coser: ábrela en DJI Mimo o DJI Studio y exporta «Foto panorámica 360» (equirectangular)." }),
-          h("li", { text: "Si está recortada o reencuadrada (vista plana, «tiny planet»), exporta de nuevo sin reencuadre, en proyección 360." }),
-          h("li", { text: "Una foto normal (móvil, réflex) úsala en la galería del paso Material, no como estancia 360." })))),
+          h("li", { text: "Si es una foto recortada o con efecto “planeta”, vuelve a exportarla desde DJI Mimo como “Foto panorámica 360”, sin reencuadrar." }),
+          h("li", { text: "Una foto normal (móvil, réflex) súbela a la galería en «Material», no como estancia 360." })))),
       botones: [{ texto: "Omitir esas fotos", valor: "omitir", primario: true }, { texto: "Añadir igualmente", valor: "todas" }],
       ancho: "min(560px, calc(100vw - 32px))",
     });
@@ -141,6 +160,7 @@ export async function anadirFotos(archivos, { render = false } = {}) {
           t.panoramas.push({
             id, nombre: { es: nombre }, planta: app.planta ?? t.plantas[0]?.id,
             imagen: `panos/${id}.jpg`, imagen_movil: rutaMovil, miniatura: `panos/mini/${id}.jpg`, yaw,
+            ...(render ? { origen: "render" } : {}),
           });
           t._estudio.meta[`panos/${id}.jpg`] = { w: r.original.w, h: r.original.h, archivo: f.name, bytes: f.size,
             ...(render ? { render: true } : {}), ...(camara ? { camara } : {}), ...(exif?.fecha ? { fecha: exif.fecha } : {}),
@@ -153,7 +173,7 @@ export async function anadirFotos(archivos, { render = false } = {}) {
     });
     void dim;
   }
-  if (conBrujula) toast(`Orientación automática por brújula en ${conBrujula} foto(s): revísala en «Orientar».`, "aviso", 6000);
+  if (conBrujula) toast(esRapido() ? `Dirección automática por brújula en ${conBrujula} foto(s).` : `Dirección automática por brújula en ${conBrujula} foto(s): revísala en «Dirección y notas».`, esRapido() ? "info" : "aviso", 6000);
   if (lista.length && aceptadas.length) toast("Nombres tomados del Asistente Osmo 360 (en orden de disparo). Puedes cambiarlos.", "info", 5000);
 }
 
@@ -258,6 +278,13 @@ function pintarLista() {
   const { vecinos } = calcularEnlaces();
   const lista = h("div", { class: "lista-fotos", role: "list" });
   let arrastrado = null;
+  const algunaColocada = t.panoramas.some(colocado);
+  const subirBajar = (p, i, d) => {
+    const j = i + d;
+    if (j < 0 || j >= t.panoramas.length) return;
+    mover(p.id, t.panoramas[j].id, d > 0);
+    requestAnimationFrame(() => raiz?.querySelector(`.foto[data-id="${p.id}"] [data-orden="${d > 0 ? "bajar" : "subir"}"]`)?.focus());
+  };
   t.panoramas.forEach((p, i) => {
     const meta = t._estudio.meta[p.imagen];
     const ratio = meta ? meta.w / meta.h : 2;
@@ -265,14 +292,16 @@ function pintarLista() {
     const chips = [
       h("span", { class: "chip", text: `#${i + 1}` }),
       meta ? h("span", { class: `chip ${Math.abs(ratio - 2) > 0.02 ? "error" : ""}`, text: `${meta.w}×${meta.h}${meta.bytes ? " · " + fmtMB(meta.bytes) : ""}`, title: Math.abs(ratio - 2) > 0.02 ? "No es 2:1" : "Equirectangular 2:1" }) : null,
-      colocado(p) ? h("span", { class: "chip ok", text: t.plantas.length > 1 ? `En plano · ${textoDe(planta?.nombre)}` : "En plano" })
-        : h("button", { class: "chip aviso", style: { border: 0, cursor: "pointer" }, text: "Sin colocar en el plano", onclick: () => emitir("ir", { seccion: "plano" }) }),
-      colocado(p) && !(vecinos.get(p.id)?.length) && t.panoramas.length > 1 ? h("span", { class: "chip error", text: "Sin enlaces" }) : null,
+      colocado(p) ? h("span", { class: "chip ok", text: t.plantas.length > 1 ? `En el plano · ${textoDe(planta?.nombre)}` : "En el plano" })
+        : esRapido() && !algunaColocada ? null
+          : h("button", { class: "chip aviso", style: { border: 0, cursor: "pointer" }, text: "Sin colocar en el plano", onclick: () => emitir("ir", { seccion: "plano" }) }),
+      colocado(p) && !(vecinos.get(p.id)?.length) && t.panoramas.length > 1 ? h("span", { class: "chip error", text: "Sin conectar" }) : null,
       p.variantes?.length ? h("span", { class: "chip acento", text: `${p.variantes.length} variantes` }) : null,
-      p.puntos?.length ? h("span", { class: "chip", text: `${p.puntos.length} puntos` }) : null,
-      meta?.render ? h("span", { class: "chip acento", text: "Render 360" }) : null,
+      p.puntos?.length ? h("span", { class: "chip", text: `${p.puntos.length} ${p.puntos.length === 1 ? "nota" : "notas"}` }) : null,
+      meta?.render || p.origen === "render" ? h("span", { class: "chip acento", text: "Render 360" }) : null,
       meta?.camara ? h("span", { class: "chip acento", text: meta.camara, title: meta.fecha ? `Disparada el ${meta.fecha}` : "" }) : null,
-      meta?.brujula != null && !meta.brujulaRevisada ? h("span", { class: "chip aviso", text: "Orientación por brújula: revísala", title: `${meta.brujulaFuente ?? "XMP"} = ${meta.brujula}°` }) : null,
+      meta?.brujula != null && !meta.brujulaRevisada ? (esRapido() ? h("span", { class: "chip ok", text: "Dirección por brújula" })
+        : h("span", { class: "chip aviso", text: "Dirección por brújula: revísala", title: `${meta.brujulaFuente ?? "XMP"} = ${meta.brujula}°` })) : null,
     ];
     const inicio = (t.inicio ?? t.panoramas[0].id) === p.id;
     const fila = h("div", { class: `foto ${p.id === app.nodo ? "sel" : ""}`, role: "listitem", draggable: "true", dataset: { id: p.id } },
@@ -284,6 +313,9 @@ function pintarLista() {
           alCambiar: () => emitir("nombres") }),
         h("div", { class: "meta" }, chips)),
       h("div", { class: "acc" },
+        h("div", { class: "orden-btns" },
+          h("button", { class: "btn fantasma", "data-orden": "subir", title: "Subir en el orden de la visita", "aria-label": `Subir ${textoDe(p.nombre) || p.id}`, disabled: i === 0, onclick: () => subirBajar(p, i, -1) }, "↑"),
+          h("button", { class: "btn fantasma", "data-orden": "bajar", title: "Bajar en el orden de la visita", "aria-label": `Bajar ${textoDe(p.nombre) || p.id}`, disabled: i === t.panoramas.length - 1, onclick: () => subirBajar(p, i, 1) }, "↓")),
         h("button", { class: `btn fantasma icono-btn btn-estrella ${inicio ? "activo" : ""}`, title: inicio ? "Estancia inicial del recorrido" : "Empezar el recorrido aquí", "aria-label": "Estancia inicial", "aria-pressed": String(inicio),
           onclick: () => cambiar((tt) => { tt.inicio = p.id; }) }, icono("estrella", 17)),
         h("button", { class: "btn fantasma icono-btn", title: "Eliminar foto", "aria-label": "Eliminar foto", onclick: async () => {
@@ -316,7 +348,7 @@ function pintarLista() {
     });
     lista.append(fila);
   });
-  return h("div", {}, lista, h("p", { class: "tenue", style: { fontSize: "12.5px", marginTop: "10px" } }, "Consejo: con el cursor en un nombre, ", h("kbd", { text: "Alt" }), " + ", h("kbd", { text: "↑" }), h("kbd", { text: "↓" }), " mueve la foto."));
+  return h("div", {}, lista, h("p", { class: "tenue", style: { fontSize: "12.5px", marginTop: "10px" } }, "El orden de la lista es el de la visita guiada. Cámbialo con las flechas ↑ ↓, arrastrando las filas o con ", h("kbd", { text: "Alt" }), " + ", h("kbd", { text: "↑" }), h("kbd", { text: "↓" }), " desde un nombre."));
 }
 function mover(id, destino, despues) {
   if (id === destino) return;

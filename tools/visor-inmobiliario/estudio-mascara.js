@@ -109,6 +109,7 @@ export async function abrirEditorMascara(pid, vi = null) {
   const ctx = lienzo.getContext("2d");
   const zona = h("div", { class: "lienzo" }, lienzo);
   const bHerr = {}, bCanal = {};
+  let bBorrar = null;
   const herrBtn = (id, ic, txt, tecla) => (bHerr[id] = h("button", { class: "btn", onclick: () => fijarHerr(id), title: `${txt} (${tecla})` }, icono(ic, 16), txt, h("kbd", { text: tecla })));
   const canalBtn = (id, txt, tecla) => (bCanal[id] = h("button", { class: `canal-${id}`, onclick: () => fijarCanal(id), title: `${txt} (${tecla})` }, txt));
   const rango = (min, max, val, fn, etq) => { const r = h("input", { type: "range", min, max, value: val, "aria-label": etq }); const out = h("b", { text: val }); r.oninput = () => { out.textContent = r.value; fn(Number(r.value)); }; return h("label", {}, etq, r, out); };
@@ -129,15 +130,19 @@ export async function abrirEditorMascara(pid, vi = null) {
     zona,
     h("div", { class: "barra" },
       herrBtn("varita", "varita", "Varita", "W"), herrBtn("pincel", "pincel", "Pincel", "B"), herrBtn("goma", "goma", "Goma", "E"),
-      rango(4, 80, S.tol, (x) => { S.tol = x; }, "Tolerancia"),
-      (() => { const c = h("input", { type: "checkbox", checked: true }); c.onchange = () => { S.contiguo = c.checked; }; return h("label", {}, c, "Contigua"); })(),
+      rango(4, 80, 84 - S.tol, (x) => { S.tol = 84 - x; }, "Precisión"), // más precisión = la varita coge colores más parecidos
+      (() => { const c = h("input", { type: "checkbox", checked: true }); c.onchange = () => { S.contiguo = c.checked; }; return h("label", {}, c, "Solo zona continua"); })(),
       rango(2, 160, S.tam, (x) => { S.tam = x; marcar(); }, "Pincel"),
       rango(10, 90, Math.round(S.opac * 100), (x) => { S.opac = x / 100; marcar(); }, "Opacidad"),
-      h("button", { class: "btn peq fantasma", onclick: () => { guardarHist(); mascaras[S.canal].fill(0); repintarCapa(); } }, "Vaciar canal"),
+      (bBorrar = h("button", { class: "btn peq fantasma", onclick: () => { guardarHist(); mascaras[S.canal].fill(0); repintarCapa(); } }, "Borrar paredes")),
       h("span", { class: "tenue", style: { fontSize: "12.5px", marginLeft: "auto" } }, h("kbd", { text: "Alt" }), "+clic resta · rueda = zoom · ", h("kbd", { text: "Espacio" }), "+arrastrar = mover")));
   document.body.append(editor);
   function fijarHerr(id) { S.herr = id; for (const [k, b] of Object.entries(bHerr)) b.classList.toggle("activo", k === id); marcar(); }
-  function fijarCanal(id) { S.canal = id; for (const [k, b] of Object.entries(bCanal)) b.setAttribute("aria-pressed", String(k === id)); }
+  function fijarCanal(id) {
+    S.canal = id;
+    for (const [k, b] of Object.entries(bCanal)) b.setAttribute("aria-pressed", String(k === id));
+    if (bBorrar) bBorrar.textContent = id === "paredes" ? "Borrar paredes" : "Borrar suelo";
+  }
   fijarHerr("varita"); fijarCanal("paredes");
 
   function ajustar() { S.esc = Math.min(ancho / W, alto / H) * 0.98; S.ox = (ancho - W * S.esc) / 2; S.oy = (alto - H * S.esc) / 2; marcar(); }
@@ -203,6 +208,7 @@ export async function abrirEditorMascara(pid, vi = null) {
     else if (mod && k === "y") rehacer();
     else if (mod && k === "s") cerrar(true);
     else if (mod) ok = false;
+    else if (!app.atajos && e.key.length === 1) ok = false; // atajos de una tecla desactivados
     else if (k === "w") fijarHerr("varita");
     else if (k === "b") fijarHerr("pincel");
     else if (k === "e") fijarHerr("goma");

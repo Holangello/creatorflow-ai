@@ -363,6 +363,7 @@ export function archivosFaltantes(t = app.tour) {
   for (const g of t.galeria ?? []) ver(g.imagen, "imagen de la galería");
   for (const d of t.documentacion ?? []) ver(d.archivo, `documento ${textoDe(d.nombre)}`);
   ver(t.libre?.url, "modelo 3D"); ver(t.libre?.colisionador, "colisionador del modelo 3D");
+  ver(t.audio?.musica?.archivo, "música de fondo");
   return r;
 }
 
