@@ -713,3 +713,84 @@ mediciones incompatibles no rechaza nada; autoriza a discutir.
 
 **Y no bloquea nada hoy:** ninguna pieza del plan de las semanas 6 y 7 espera esta medición para
 publicarse.
+
+---
+
+## 14-10-2026 · El cuello no era de acceso, y el sistema lo reforzó cinco semanas
+
+**Encargo de Angello, desde el móvil y sin ordenador:** «la estrategia que haga falta para ver si podemos
+seguir avanzando sin mi ayuda, para empezar de una vez a sacar cosas». Decidido con Maverick. Lo que sigue
+es el registro, con la causa y no solo la medida.
+
+**La frontera, primero, porque toda la estrategia depende de ella:** ningún agente de este sistema puede
+publicar en LinkedIn. No hay integración ni credenciales, y `07-automatizacion.md` ya documenta por qué no
+las va a haber — la API solo permite publicar en Páginas de empresa con app aprobada, no en perfil
+personal. **Cualquier plan que dependa de que publiquemos nosotros es papel mojado**, y decirlo forma parte
+del trabajo.
+
+**La hipótesis con la que se abrió el encargo era falsa, y la escribí yo.** Dije que el cuello era que
+publicar exige abrir un repositorio y eso exige un ordenador. **Hay tres rutas al móvil que no pasan por
+git y las tres funcionan:** el aviso de 09:20 y el de 12:20 pegan el post entero y su primer comentario en
+el chat, `PACK-OFFLINE.md` lo lleva en texto, y el panel es un artefacto abrible. La palanca que iba a
+proponer existe por triplicado desde hace semanas. Construir una cuarta habría sido la quinta semana de
+almacén.
+
+**El cuello real: el sistema nunca ha pedido una decisión binaria, pide una acción compuesta.**
+«Publica» es, de hecho, abrir LinkedIn, pegar el cuerpo, pegar el primer comentario, no editar en dos
+horas, responder comentarios durante sesenta minutos y comentar en cinco publicaciones del ICP. Es un turno
+de hora y media disfrazado de recordatorio. **La prueba de que la fricción es esa y no la ausencia:**
+Angello contesta a esta sesión casi todos los días, con encargos largos y exigentes, y lleva cuatro avisos
+sin contestar la pregunta más corta del sistema, «¿salió?». No es un hombre ausente: es un hombre presente
+que contesta lo que le resulta barato y aplaza lo que le cuesta hora y media.
+
+**Y el hallazgo incómodo, que es el que explica las cinco semanas.** En cinco semanas no ha llegado ni una
+petición de corregir una pieza para poder publicarla, ni un veto, ni un «esta no me representa». **Todos
+los encargos han sido de sistema: planifica, decide, audita, ordena, recuenta.** El sistema los ha servido
+con entusiasmo cada vez. Ahí está el refuerzo: cada día que se pide estrategia y se entrega estrategia
+impecable cierra con sensación de avance y con cero publicaciones. **El cuello está reforzado desde
+dentro**, y este documento es el cuarto de su especie en seis días — si hay un quinto, el quinto es el
+síntoma.
+
+**La prueba más limpia, y es de hoy.** `cola/README.md` se creó para ser la única fuente del recuento
+después de cuatro errores de conteo. Hoy decía «9 con franja y 9 sin fecha» cuando son **10 y 8**, y
+seguía fechado al 09-10: se quedó atrás el 13-10 al dar franja a la pieza del 07-10 y nadie actualizó la
+suma. **El archivo del recuento único llevaba veinticuatro horas equivocándose sobre su propio recuento.**
+La infraestructura de control se desincroniza más rápido de lo que el sistema publica. (Y un quinto error
+de conteo nació hoy en mi propio brief: dije 23 piezas escritas, son 22, y la comprobación independiente
+son las 22 entradas de `banco-posts.json`.)
+
+**Medidas tomadas hoy, y ninguna toca el texto de ninguna pieza:**
+
+1. **`cola/README.md`: cabecera corregida a 10/8 y al 14-10, y la tabla CONGELADA** hasta que haya una
+   pieza publicada. No se recuenta, no se reordena, no se vuelve a auditar. Los errores de recuento
+   desaparecen cuando se deja de recontar.
+2. **`maverick.md`: regla nueva de ESTADO ALMACÉN**, antes de «Modo automático». Mientras haya cero
+   publicadas, la única salida válida de una sesión es un texto pegado listo para publicar o una pregunta
+   de un toque. Nada de planificar, recontar, documentar, auditar o reescribir lo ya cerrado.
+3. **Condición de parada adelantada al cierre del jueves 15**, no del viernes 16. El 15 es la pieza más
+   lista que este sistema ha producido; si falla el 15, el 16 es inventario de septiembre y no prueba nada
+   nuevo. Esperar al 16 sería dejar que la parada la decida la pieza más débil.
+4. **Lo que se deja de hacer, nombrado:** el recuento, la aritmética de pilares —que mide un reparto real
+   de 0/0/0/0/0—, el seguimiento del techo de caracteres como pasada propia, la planificación de semanas
+   cuya propia condición dice que no deben ejecutarse, y las pasadas de criterio como esta.
+
+**Pendiente de Angello, y es todo lo que el sistema necesita hoy: una pregunta de un toque y una decisión.**
+(a) ¿Salió la del lunes 12, sí o no? De ahí cuelgan la rutina de las 19:30, en silencio desde el 17-09, y
+la regla que prohíbe escribir material nuevo. (b) «La firma» tenía franja hoy a las 09:30, ya pasó, y
+caduca el 17-10 con el 15 y el 16 ocupados: o sale fuera de franja o se archiva. **Lo del 30-10 no se
+pregunta hoy**: una pregunta de más convierte dos toques en una conversación.
+
+**Propuesto y NO ejecutado, porque son sus rutinas y no las toco sin su palabra:** borrar el barrido de
+radar de las 13:00, degradar el de las 06:00 a material de apoyo, y reescribir el cierre de las 19:30 a una
+sola pregunta sí/no. Cuatro barridos seguidos sin candidata por imposibilidad de red, y cada miércoles que
+el radar genera produce una pieza que se archivará: ya ha matado dos de vejez (Sora el 09-09, «La partida»
+el 16-09) y «La firma» es la tercera en la rampa.
+
+**Y lo que habría que proponerle si el 21 de octubre seguimos en cero**, escrito hoy para no tener que
+pensarlo entonces: bajar a dos piezas semanales —lunes Autoridad, jueves Oferta— y suspender el pilar de
+actualidad, porque con 18 publicables eso son **nueve semanas de inventario, hasta mediados de diciembre,
+sin escribir una línea**; pagar una herramienta de programación, que es la única palanca que no depende de
+su disciplina diaria y la única cosa que de verdad merece pedirle; y la renuncia que da credibilidad a las
+otras dos: **si sigue en cero, este sistema deja de producir contenido** y se queda solo el aviso de 09:20
+con una pieza del inventario. Cinco franjas semanales nunca fueron una estrategia: fueron una aspiración
+sostenida por una máquina que no pedía permiso.

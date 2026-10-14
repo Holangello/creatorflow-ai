@@ -11,7 +11,7 @@ la misma causa: tres archivos escribiendo a mano el mismo número en tres moment
 versión elegida, sus caracteres medidos y lo que le falta. Este documento ya no repite el número: planifica
 franjas. Si alguna vez una frase de aquí contradice esa tabla, **la que manda es la tabla.**
 
-**Al 09-10: 22 piezas escritas, ninguna publicada. 18 publicables, 9 de ellas ya con franja asignada.**
+**Al 14-10: 22 piezas escritas, ninguna publicada. 18 publicables, 10 de ellas con franja asignada y 8 sin fecha.**
 Lo demás —qué pieza, qué versión, qué le falta— está en `cola/README.md`. Las cuatro que no son
 publicables son **dos archivadas** por caducidad (09-09 y 16-09), **una bloqueada** por cliente y cifras
 autorizadas (15-09) y **una declarada inventario no utilizable** porque su cuerpo nombra un carrusel que
@@ -348,10 +348,16 @@ encuesta **pierde su asignación al 23-10** y vuelve al banco como Humano dispon
 redactar.** Las cuatro piezas de las cuatro franjas fijas están escritas desde septiembre y ninguna se ha
 publicado. El miércoles queda abierto al radar, como siempre.
 
-**Condición de arranque, y es la única de este documento que no depende de un agente.** Esta semana solo
-tiene sentido si la semana 6 ha publicado algo. **Si al cerrar el viernes 16 sigue habiendo cero piezas
-publicadas, estas filas no se ejecutan y la semana 8 no se planifica:** el sistema se declara en estado
-almacén y la única tarea viva es publicar una pieza. Está escrito en `decisiones.md`, en el apartado de los
+**Condición de arranque, y es la única de este documento que no depende de un agente. ADELANTADA EL 14-10
+AL CIERRE DEL JUEVES 15.** Esta semana solo tiene sentido si la semana 6 ha publicado algo. **Si al cerrar
+el jueves 15 sigue habiendo cero piezas publicadas, estas filas no se ejecutan y la semana 8 no se
+planifica:** el sistema se declara en estado almacén y la única tarea viva es publicar una pieza.
+
+**Por qué se adelanta un día, y no es impaciencia.** El jueves 15 es la pieza más lista que este sistema ha
+producido: cadena completa, cero `[DATO]`, puerta de producción resuelta la víspera, texto servido en el
+chat y 627 caracteres que caben en un pantallazo. **Si falla el 15, el viernes 16 no prueba nada nuevo** —es
+inventario reasignado de septiembre— y solo compra un día de cortesía. Esperar al 16 sería dejar que la
+condición de parada la decida la pieza más débil de las dos. Está escrito en `decisiones.md`, en el apartado de los
 dos escenarios.
 
 | Fecha | Día | Pilar | Tipo | Titular de trabajo | Notas | Formato | Intensidad | Estado |

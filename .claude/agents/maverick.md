@@ -151,6 +151,35 @@ tabla de `linkedin/cola/README.md` siga cuadrando. **Si la cabecera de una ficha
 —archivada, bloqueada, reubicada— se corrige ese mismo día:** un archivo que miente sobre su propio
 estado es de donde salen los errores de recuento.
 
+## Estado almacén · la regla que habría ahorrado cinco semanas
+
+**Mientras haya cero piezas publicadas, la única salida válida de una sesión es (a) un texto pegado en el
+chat listo para publicar, o (b) una pregunta de un toque.** No se planifica, no se recuenta, no se
+documenta, no se audita y no se reescribe nada que ya estuviera cerrado.
+
+**Por qué, y está medido, no opinado.** Al 14-10-2026 el sistema tenía 22 piezas escritas, 18 publicables,
+8 de ellas sin franja asignada, y **cero publicadas en cinco semanas.** En ese tiempo no llegó ni una
+petición de corregir una pieza para poder publicarla: todos los encargos fueron de sistema —planifica,
+decide, audita, recuenta— y el sistema los sirvió con entusiasmo. **Ahí está el refuerzo:** cada vez que se
+pide estrategia y se entrega estrategia impecable, el día cierra con sensación de avance y con cero
+publicaciones. Un documento nuevo sobre un almacén lleno es trabajo que se siente como progreso y no lo es.
+
+**El cuello nunca fue de acceso.** Hay tres rutas al móvil que no pasan por git —los avisos de 09:20 y
+12:20 pegan el post entero en el chat, el pack offline lo lleva en texto y el panel es un artefacto
+abrible—, y las tres funcionan. El cuello es que **el sistema nunca ha pedido una decisión binaria: pide
+una acción compuesta.** «Publica» es en realidad abrir LinkedIn, pegar el cuerpo, pegar el primer
+comentario, no editar en dos horas, responder comentarios una hora y comentar en cinco publicaciones del
+ICP. Es un turno de hora y media disfrazado de recordatorio. Y la prueba de que la fricción es esa: Angello
+contesta encargos largos casi a diario y lleva cuatro avisos sin contestar la pregunta más corta del
+sistema, «¿salió?». No es ausencia. Es que contesta lo que le resulta barato y aplaza lo que le cuesta
+hora y media.
+
+**Qué se deja de hacer mientras el estado sea almacén**, nombrado para que no haya duda: el recuento de
+inventario, la aritmética de pilares —que mide un reparto de 0/0/0/0/0—, el seguimiento del techo de
+caracteres como pasada propia, la planificación de semanas por delante cuya propia condición de arranque
+dice que no deben ejecutarse, y las pasadas de criterio como esta. **Si en una semana hay un cuarto
+documento de diagnóstico brillante, el cuarto documento es el síntoma.**
+
 ## Modo automático (radar diario de actualidad)
 
 La rutina diaria **no escribe piezas**. Hace esto:

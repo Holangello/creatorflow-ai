@@ -24,11 +24,24 @@ sistema afirma una cifra de inventario distinta de la de esta tabla, el que mien
 control de `../03-guia-copywriting.md`. Ninguna cifra de esta tabla es una estimación: todas salen de
 contar el texto del banco.
 
-## Inventario, al 09-10-2026
+## Inventario, al 14-10-2026 · **y esta tabla queda congelada**
 
-**22 escritas · 2 archivadas · 1 bloqueada · 1 no utilizable · 18 publicables.**
-De las 18, **9 ya tienen franja asignada** en las semanas 6 y 7 (más el 30-10) y **9 son inventario
-limpio sin fecha**, disponibles para cualquier franja de su pilar.
+**22 escritas · 2 archivadas · 1 bloqueada · 1 no utilizable · 18 publicables · 0 PUBLICADAS.**
+De las 18, **10 tienen franja asignada** y **8 son inventario limpio sin fecha**, disponibles para
+cualquier franja de su pilar.
+
+**Corregido el 14-10, y el error es el mejor argumento de la decisión que viene debajo.** Esta cabecera
+decía «9 con franja y 9 sin fecha» y seguía fechada al 09-10. Se quedó atrás el 13-10, cuando la pieza del
+07-10 recibió franja en el miércoles 14 y nadie actualizó la suma. **El archivo que se creó para ser la
+única fuente del recuento llevaba veinticuatro horas equivocándose sobre su propio recuento**, y hay que
+decirlo así: la infraestructura de control de este sistema se desincroniza más rápido de lo que el sistema
+publica.
+
+**Decisión del 14-10: esta tabla se congela hasta que haya una pieza publicada.** No se recuenta, no se
+reordena y no se vuelve a auditar. El recuento no acerca ninguna pieza a LinkedIn: es contabilidad de un
+almacén que no despacha, y lleva cinco semanas produciendo cuatro errores corregidos con ceremonia. **Los
+errores de recuento desaparecen cuando se deja de recontar.** Lo único que se actualiza aquí es una fila
+que pase a publicada.
 
 | Pieza | Versión | Car. | Estado | Franja | Qué falta |
 | --- | --- | --- | --- | --- | --- |
