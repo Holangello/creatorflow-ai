@@ -314,8 +314,8 @@
 .pn-raiz select option, .pn-raiz select optgroup { background: var(--pn-fondo-menu); color: var(--pn-texto); }
 
 .pn-form { display: grid; gap: 14px; }
-.pn-campo { display: grid; gap: 6px; min-width: 0; }
-.pn-fila-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.pn-campo { display: grid; gap: 6px; min-width: 0; align-content: start; }
+.pn-fila-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; align-items: start; }
 .pn-check { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
 .pn-check label { flex: 1; color: var(--pn-texto); font-size: 14px; line-height: 1.4; padding-top: 2px; min-height: 24px; }
 .pn-check label a { color: var(--pn-acento); }
@@ -520,6 +520,7 @@ body.ui-inactiva .pn-disp-lateral .pn-dock-wa { opacity: .85; }
 .pn-tira-s { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); }
 .pn-tira-s li { opacity: .55; }
 .pn-tira-s li.pn-actual { opacity: 1; outline: 2px solid var(--pn-acento); outline-offset: -2px; }
+.pn-tira-s li.pn-todas { opacity: 1; }
 .pn-guia { display: flex; gap: 8px; align-items: flex-start; color: var(--pn-texto); }
 .pn-guia .pn-ic { color: var(--pn-acento); margin-top: 2px; }
 .pn-estado-pegar { justify-items: stretch; text-align: left; padding: 4px 0; }

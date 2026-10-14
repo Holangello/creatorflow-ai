@@ -715,15 +715,6 @@ function segmentosJPEG(b) {
 }
 
 /**
- * Inserta metadatos XMP GPano (foto esférica equirectangular) en un JPEG, reemplazando cualquier XMP previo.
- * Facebook, Google Fotos/Maps, Kuula y muchos portales detectan así la foto como 360.
- * Si `blob` no es JPEG (PNG/WebP), se convierte a JPEG (calidad 0.92).
- * @param {Blob} blob
- * @param {{ancho?: number, alto?: number, rumboInicial?: number, cabeceoInicial?: number, fovInicial?: number, rumboNorte?: number}} [o]
- *        ancho/alto por defecto los del JPEG. Si alto < ancho/2 se declara como panorama recortado (centrado).
- * @returns {Promise<Blob>} image/jpeg
- */
-/**
  * Re-comprime un JPEG hasta que pese menos de `maxMB` (idealista: 8 MB por foto), bajando calidad y, si hace falta, tamaño.
  * @returns {Promise<Blob>}
  */
@@ -744,6 +735,17 @@ export async function jpegParaPortal(blob, { maxMB = 7.5, ladoMax = 8192 } = {})
   return salida;
 }
 
+/**
+ * Inserta metadatos XMP GPano (foto esférica equirectangular) en un JPEG, reemplazando cualquier XMP previo.
+ * Facebook, Google Fotos/Maps, Kuula y muchos portales detectan así la foto como 360.
+ * Si `blob` no es JPEG (PNG/WebP), se convierte a JPEG (calidad 0.92).
+ * @param {Blob} blob
+ * @param {{ancho?: number, alto?: number, rumboInicial?: number, cabeceoInicial?: number, fovInicial?: number, rumboNorte?: number, maxMB?: number}} [o]
+ *        ancho/alto: por defecto los del JPEG. Si alto < ancho/2 se declara como panorama recortado (centrado).
+ *        rumboInicial: dirección de la vista inicial en grados, RELATIVA al centro de la foto (horario).
+ *        rumboNorte: rumbo de brújula del centro de la foto (PoseHeadingDegrees), si se conoce.
+ * @returns {Promise<Blob>} image/jpeg
+ */
 export async function jpegConGPano(blob, { ancho, alto, rumboInicial = 0, cabeceoInicial = 0, fovInicial = 90, rumboNorte, maxMB } = {}) {
   if (maxMB) blob = await jpegParaPortal(blob, { maxMB });
   let b = new Uint8Array(await blob.arrayBuffer());
@@ -768,7 +770,9 @@ export async function jpegConGPano(blob, { ancho, alto, rumboInicial = 0, cabece
     CroppedAreaImageWidthPixels: W, CroppedAreaImageHeightPixels: H,
     FullPanoWidthPixels: fullW, FullPanoHeightPixels: fullH,
     CroppedAreaLeftPixels: 0, CroppedAreaTopPixels: top,
-    InitialViewHeadingDegrees: grados(rumboInicial),
+    // GPano mide la vista inicial en el mismo marco que PoseHeadingDegrees: con el norte conocido es un rumbo de
+    // brújula (así la leen Google y Photo Sphere Viewer); sin él, es relativa al centro de la foto.
+    InitialViewHeadingDegrees: grados(rumboNorte != null ? rumboNorte + rumboInicial : rumboInicial),
     InitialViewPitchDegrees: Math.round(cabeceoInicial),
     InitialViewRollDegrees: 0,
     InitialHorizontalFOVDegrees: Math.round(fovInicial),
@@ -1114,7 +1118,8 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
 
   if (t.norte != null && Number.isFinite(Number(t.norte))) {
     const nx = W - margen - 60 * u, nz = yPie + 40 * u, R = 52 * u;
-    g.save(); g.translate(nx, nz); g.rotate((Number(t.norte) * Math.PI) / 180);
+    // `norte` es el rumbo de brújula de «arriba» del plano: el norte queda girado −norte (igual que el minimapa).
+    g.save(); g.translate(nx, nz); g.rotate((-Number(t.norte) * Math.PI) / 180);
     g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.lineWidth = 2.5 * u; g.strokeStyle = "#1d1f24"; g.stroke();
     g.beginPath(); g.moveTo(0, -R * 0.85); g.lineTo(R * 0.32, R * 0.45); g.lineTo(0, R * 0.22); g.lineTo(-R * 0.32, R * 0.45); g.closePath();
     g.fillStyle = "#1d1f24"; g.fill();

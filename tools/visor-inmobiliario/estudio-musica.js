@@ -59,7 +59,7 @@ export function bloqueMusica() {
     const avisoLic = h("small", { class: "error-campo", role: "status" });
     const pintarAviso = () => { avisoLic.textContent = lic.checked ? "" : "Obligatorio: sin esta confirmación, Revisar marcará la música como pendiente."; };
     pintarAviso();
-    cont.replaceChildren(
+    cont.replaceChildren(...[
       h("div", { class: "fila", style: { marginBottom: "8px" } },
         h("b", { text: m.titulo || m.archivo.split("/").pop(), style: { flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }),
         h("span", { class: "tenue", text: blob ? fmtMB(blob.size) : "" }),
@@ -80,7 +80,8 @@ export function bloqueMusica() {
       avisoLic,
       h("p", { class: "tenue", id: "nota-licencia-musica", style: { fontSize: "12.5px", margin: "6px 0 0" } },
         "En España, usar música con derechos en una web comercial o en anuncios requiere licencia. Usa bibliotecas libres de derechos o con licencia comercial: ",
-        "Pixabay Music, Free Music Archive (con licencia CC BY, citando al autor) o suscripciones como Epidemic Sound o Artlist."));
+        "Pixabay Music, Free Music Archive (con licencia CC BY, citando al autor) o suscripciones como Epidemic Sound o Artlist."),
+    ].filter(Boolean));
   };
   pintar();
   return cont;

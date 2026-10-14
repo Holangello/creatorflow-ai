@@ -1136,7 +1136,7 @@ function abrirWhatsAppConFotos() {
 
 function tiraFotos(actual) {
   return h("ul", { class: "pn-tira pn-tira-s" }, ui.capturas.map((c, i) =>
-    h("li", { class: actual < 0 || i === actual ? "pn-actual" : "" }, h("img", { src: c.url, alt: tr("contacto.foto_alt", { n: i + 1, x: c.estancia }) }))));
+    h("li", { class: actual < 0 ? "pn-todas" : i === actual ? "pn-actual" : "" }, h("img", { src: c.url, alt: tr("contacto.foto_alt", { n: i + 1, x: c.estancia }) }))));
 }
 
 function pantallaExito() {

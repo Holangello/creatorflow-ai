@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>cre8eight · Sistema de diseño</title>
+<script src="tema.js"></script>
+<link rel="stylesheet" href="tema.css">
+<style>
+  /* Página de muestra: solo maquetación; todo el aspecto sale de tema.css */
+  body { min-height: 100dvh; }
+  .envoltura { width: min(76rem, 100% - 2rem); margin: 0 auto; padding-bottom: var(--e-9); }
+  .cabecera { position: sticky; top: 0; z-index: var(--z-panel); display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-3);
+    margin: 0 calc(50% - 50vw); padding: calc(var(--e-3) + env(safe-area-inset-top, 0px)) max(var(--e-4), calc(50vw - 38rem)) var(--e-3);
+    border-width: 0 0 1px; border-radius: 0; }
+  .logo { font: var(--peso-semi) var(--t-destacado) / 1 var(--fuente-titular); letter-spacing: -0.02em; margin-right: auto; display: flex; align-items: center; gap: var(--e-2); }
+  .logo b { color: var(--c-acento-texto); font-weight: var(--peso-fuerte); }
+  .logo-marca { width: 1.5rem; height: 1.5rem; border-radius: 0.45rem; background: conic-gradient(from 200deg, var(--c-acento), #f3e3bd, var(--c-acento)); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), var(--sombra-1); }
+  .ajuste { display: flex; align-items: center; gap: var(--e-2); }
+  .ajuste .c8-mayus { white-space: nowrap; }
+  h1.titular { font: var(--peso-semi) var(--t-heroe) / 1.05 var(--fuente-titular); letter-spacing: -0.035em; margin: var(--e-8) 0 var(--e-2); text-wrap: balance; }
+  .entradilla { font-size: var(--t-destacado); color: var(--c-texto-2); max-width: 44rem; margin: 0 0 var(--e-7); }
+  h2.seccion { font: var(--peso-semi) var(--t-titulo-g) / 1.1 var(--fuente-titular); letter-spacing: var(--track-titular); margin: var(--e-9) 0 var(--e-2); }
+  .seccion + p { color: var(--c-texto-2); margin: 0 0 var(--e-5); max-width: 44rem; }
+
+  /* «Foto» de un interior hecha con degradados: sirve para comprobar el vidrio sobre fondos reales */
+  .escena { position: relative; overflow: hidden; border-radius: var(--r-5); min-height: 36rem; box-shadow: var(--sombra-2);
+    background:
+      radial-gradient(28% 40% at 16% 34%, #fffdf6 0%, rgba(255, 253, 246, 0.8) 38%, rgba(255, 253, 246, 0) 72%),
+      linear-gradient(90deg, transparent 6%, #fdfbf5 6% 7%, transparent 7% 14%, #fdfbf5 14% 15%, transparent 15% 22%, #fdfbf5 22% 23%, transparent 23%) 0 18% / 100% 46% no-repeat,
+      radial-gradient(22% 16% at 66% 70%, #5c4636 0%, #5c4636 55%, rgba(92, 70, 54, 0) 100%),
+      radial-gradient(9% 22% at 86% 46%, #2f4a3a 0%, rgba(47, 74, 58, 0) 100%),
+      radial-gradient(18% 9% at 50% 26%, rgba(255, 238, 200, 0.95) 0%, rgba(255, 238, 200, 0) 100%),
+      linear-gradient(180deg, #f4efe6 0%, #ebe3d4 60%, #b88a5c 60.4%, #94683f 100%);
+    transition: filter var(--d-3) var(--suave); }
+  .escena[data-fondo="noche"] { background:
+      radial-gradient(10% 14% at 30% 30%, #ffd79a 0%, rgba(255, 190, 110, 0.55) 30%, rgba(255, 170, 90, 0) 100%),
+      radial-gradient(10% 14% at 74% 34%, #ffd79a 0%, rgba(255, 190, 110, 0.5) 30%, rgba(255, 170, 90, 0) 100%),
+      linear-gradient(90deg, transparent 6%, #1b2a44 6% 23%, transparent 23%) 0 18% / 100% 46% no-repeat,
+      radial-gradient(22% 16% at 66% 70%, #2a1d15 0%, #2a1d15 55%, rgba(42, 29, 21, 0) 100%),
+      linear-gradient(180deg, #2b2620 0%, #231e19 60%, #3b2818 60.4%, #24170d 100%); }
+  .escena[data-fondo="contraluz"] { background:
+      radial-gradient(60% 70% at 40% 40%, #ffffff 0%, #ffffff 55%, rgba(255, 255, 255, 0) 100%),
+      linear-gradient(180deg, #fbfaf7, #f2efe8); }
+  .hud { position: absolute; inset: 0; padding: var(--e-4); pointer-events: none; }
+  .hud > * { pointer-events: auto; }
+  .h-titulo { position: absolute; top: var(--e-4); left: var(--e-4); display: flex; align-items: center; gap: var(--e-3); padding: var(--e-2) var(--e-4) var(--e-2) var(--e-2); border-radius: var(--r-pastilla); }
+  .h-titulo .logo-marca { width: 2rem; height: 2rem; border-radius: 50%; }
+  .h-titulo strong { display: block; font: var(--peso-semi) var(--t-ui) / 1.2 var(--fuente); }
+  .h-titulo span { display: block; font-size: var(--t-pie); color: var(--c-texto-2); }
+  .h-modos { position: absolute; top: var(--e-4); left: 50%; transform: translateX(-50%); min-width: 19rem; }
+  .h-iconos { position: absolute; top: var(--e-4); right: var(--e-4); }
+  .h-radar { position: absolute; left: var(--e-4); bottom: var(--e-4); width: 9.5rem; height: 9.5rem; border-radius: 50%; display: grid; place-items: center; overflow: hidden; }
+  .h-radar svg { width: 100%; height: 100%; }
+  .barrido { transform-origin: 50% 50%; animation: c8-girar 4s linear infinite; }
+  .h-galeria { position: absolute; bottom: var(--e-4); left: 50%; transform: translateX(-50%); display: flex; gap: var(--e-2); padding: var(--e-2); border-radius: var(--r-4); max-width: calc(100% - 25rem); overflow-x: auto; scrollbar-width: none; }
+  .h-galeria button { flex: none; width: 4.75rem; height: 3.25rem; border-radius: calc(var(--r-4) - var(--e-2)); border: 2px solid transparent; padding: 0; cursor: pointer; background: linear-gradient(160deg, #e9dfcc, #b48a5f); transition: transform var(--d-3) var(--muelle), border-color var(--d-1); }
+  .h-galeria button:nth-child(2) { background: linear-gradient(160deg, #dfe6ea, #7d8f99); }
+  .h-galeria button:nth-child(3) { background: linear-gradient(160deg, #efe9e0, #c9b79c); }
+  .h-galeria button:nth-child(4) { background: linear-gradient(160deg, #e3ddd2, #6f6253); }
+  .h-galeria button:hover { transform: translateY(-3px) scale(1.04); }
+  .h-galeria button[aria-current="true"] { border-color: var(--c-acento); }
+  .h-ficha { position: absolute; top: 4.75rem; right: var(--e-4); width: min(21rem, calc(100% - 2rem)); border-radius: var(--r-5); padding: var(--e-5); display: grid; gap: var(--e-3); }
+  .precio { font: var(--peso-semi) var(--t-display) / 1 var(--fuente-titular); letter-spacing: -0.03em; }
+  .datos { display: flex; flex-wrap: wrap; gap: var(--e-2) var(--e-4); color: var(--c-texto-2); font-size: var(--t-sec); }
+  .datos b { color: var(--c-texto); font-weight: var(--peso-semi); }
+  .acciones { display: grid; grid-template-columns: 1fr 1fr; gap: var(--e-2); }
+  .h-aviso { position: absolute; bottom: 7.5rem; left: 50%; translate: -50% 0; }
+  .sello { position: absolute; bottom: 5.75rem; right: var(--e-4); }
+
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: var(--e-4); }
+  .caja { border-radius: var(--r-5); padding: var(--e-5); display: grid; gap: var(--e-4); align-content: start; background: var(--c-sup-1); border: 1px solid var(--c-borde); }
+  .caja h3 { margin: 0; font: var(--peso-semi) var(--t-destacado) / 1.2 var(--fuente-titular); }
+  .fila { display: flex; flex-wrap: wrap; gap: var(--e-2); align-items: center; }
+  .muestras { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: var(--e-3); }
+  .muestra { border-radius: var(--r-4); overflow: hidden; border: 1px solid var(--c-borde); background: var(--c-sup-1); }
+  .muestra i { display: block; height: 4rem; }
+  .muestra div { padding: var(--e-2) var(--e-3); font-size: var(--t-pie); display: grid; gap: 2px; }
+  .muestra code { font: var(--t-pie) var(--fuente-mono); color: var(--c-texto-2); }
+  .muestra .ok { color: var(--c-ok); } .muestra .mal { color: var(--c-error); }
+  .escala p { margin: 0; display: flex; align-items: baseline; gap: var(--e-4); }
+  .escala code { width: 7.5rem; flex: none; font: var(--t-pie) var(--fuente-mono); color: var(--c-texto-3); }
+  .pista-mov { position: relative; height: 3rem; border-radius: var(--r-pastilla); background: var(--c-capa-hover); }
+  .bola { position: absolute; top: 0.375rem; left: 0.375rem; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--c-acento); box-shadow: var(--sombra-1); }
+  .pista-mov.ir .bola { left: calc(100% - 2.625rem); }
+  #mov-muelle .bola { transition: left var(--d-4) var(--muelle); }
+  #mov-rebote .bola { transition: left 800ms var(--muelle-rebote); }
+  #mov-suave .bola { transition: left var(--d-3) var(--salida); }
+  .avisos-zona { position: fixed; bottom: calc(var(--e-5) + env(safe-area-inset-bottom, 0px)); left: 50%; translate: -50% 0; z-index: var(--z-aviso); display: grid; gap: var(--e-2); justify-items: center; }
+  .ic-sonido .onda { transform-origin: 30% 50%; animation: onda 1.6s var(--suave) infinite; }
+  .ic-sonido .onda + .onda { animation-delay: 0.25s; }
+  @keyframes onda { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+  .ic-pantalla path { transition: transform var(--d-3) var(--muelle); }
+  button:hover .ic-pantalla path:nth-child(1) { transform: translate(-1.5px, -1.5px); }
+  button:hover .ic-pantalla path:nth-child(2) { transform: translate(1.5px, -1.5px); }
+  button:hover .ic-pantalla path:nth-child(3) { transform: translate(1.5px, 1.5px); }
+  button:hover .ic-pantalla path:nth-child(4) { transform: translate(-1.5px, 1.5px); }
+  .ic-tema .disco { transition: r var(--d-4) var(--muelle); }
+  .ic-tema .mordisco { transition: cx var(--d-4) var(--muelle), cy var(--d-4) var(--muelle); }
+  .ic-tema .rayos { transition: opacity var(--d-2), transform var(--d-4) var(--muelle); transform-origin: 12px 12px; }
+  :root[data-tema="oscuro"] .ic-tema .rayos { opacity: 0; transform: rotate(-45deg) scale(0.6); }
+  :root[data-tema="claro"] .ic-tema .mordisco { cx: 30px; cy: -6px; }
+  :root[data-tema="claro"] .ic-tema .disco { r: 4.5px; }
+  .ic-contacto .punto { animation: c8-latido 1.4s var(--suave) infinite; transform-box: fill-box; transform-origin: center; }
+  .ic-contacto .punto:nth-of-type(2) { animation-delay: 0.15s; } .ic-contacto .punto:nth-of-type(3) { animation-delay: 0.3s; }
+  @media (max-width: 760px) {
+    .cabecera { position: static; gap: var(--e-2); }
+    .ajuste .c8-mayus { display: none; }
+    .h-titulo { right: var(--e-4); }
+    .h-iconos { top: 5rem; flex-direction: column; }
+    .h-iconos > .c8-separador { width: auto; height: 1px; margin: var(--e-1) var(--e-2); }
+    .h-radar { width: 6.5rem; height: 6.5rem; top: 5rem; }
+    .h-modos { top: auto; bottom: var(--e-4); min-width: 0; width: calc(100% - 2rem); }
+    .h-galeria, .sello, .h-aviso { display: none; }
+    .h-ficha { top: auto; bottom: 4.75rem; left: var(--e-4); right: var(--e-4); width: auto; }
+    .escena { min-height: 46rem; }
+  }
+</style>
+</head>
+<body class="c8-base">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 18.5 5.5"/></symbol>
+    <symbol id="i-ayuda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-camara" viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.4-2h6.2l1.4 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-compartir" viewBox="0 0 24 24"><path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.2 2.4 2.4 4.6-5"/></symbol>
+  </defs>
+</svg>
+
+<header class="cabecera c8-vidrio c8-vidrio--texto">
+  <span class="logo"><i class="logo-marca" aria-hidden="true"></i><span>cre<b>8</b>eight</span></span>
+  <div class="ajuste"><span class="c8-mayus" id="et-tema">Apariencia</span>
+    <div class="c8-segmentado" role="radiogroup" aria-labelledby="et-tema" data-pref="tema">
+      <label><input type="radio" name="tema" value="auto"><span>Auto</span></label>
+      <label><input type="radio" name="tema" value="claro"><span>Claro</span></label>
+      <label><input type="radio" name="tema" value="oscuro"><span>Oscuro</span></label>
+    </div></div>
+  <div class="ajuste"><span class="c8-mayus" id="et-talla">Tamaño</span>
+    <div class="c8-segmentado" role="radiogroup" aria-labelledby="et-talla" data-pref="talla">
+      <label><input type="radio" name="talla" value="s"><span>S</span></label>
+      <label><input type="radio" name="talla" value="m"><span>M</span></label>
+      <label><input type="radio" name="talla" value="l"><span>L</span></label>
+    </div></div>
+  <div class="ajuste"><span class="c8-mayus" id="et-fondo">Foto</span>
+    <div class="c8-segmentado" role="radiogroup" aria-labelledby="et-fondo" id="fondos">
+      <label><input type="radio" name="fondo" value="dia" checked><span>Día</span></label>
+      <label><input type="radio" name="fondo" value="noche"><span>Noche</span></label>
+      <label><input type="radio" name="fondo" value="contraluz"><span>Contraluz</span></label>
+    </div></div>
+</header>
+
+<main class="envoltura">
+  <h1 class="titular">Vidrio líquido, mínimo y luminoso.</h1>
+  <p class="entradilla">El sistema de diseño común de cre8eight: los controles flotan sobre la vivienda como piezas de cristal, la tipografía es la de Apple (SF) o Inter, y todo se adapta a modo claro u oscuro, a tres tamaños y a cualquier pantalla.</p>
+
+  <section class="escena" id="escena" data-fondo="dia" aria-label="Ejemplo del visor sobre una foto">
+    <div class="hud">
+      <div class="h-titulo c8-vidrio c8-vidrio--texto"><i class="logo-marca" aria-hidden="true"></i><div><strong>Ático en Chamberí</strong><span>Salón · Planta 1</span></div></div>
+      <div class="h-modos c8-segmentado c8-vidrio" role="radiogroup" aria-label="Modo">
+        <label><input type="radio" name="modo" checked><span>Recorrido</span></label>
+        <label><input type="radio" name="modo"><span>Libre 3D</span></label>
+        <label><input type="radio" name="modo"><span>Maqueta</span></label>
+      </div>
+      <div class="h-iconos c8-pastilla c8-vidrio" role="toolbar" aria-label="Herramientas">
+        <button class="c8-boton c8-boton--icono" aria-pressed="true" aria-label="Radar"><svg class="c8-icono"><use href="#i-radar"/></svg></button>
+        <button class="c8-boton c8-boton--icono" aria-label="Silenciar música">
+          <svg class="c8-icono ic-sonido" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13L7 14.5H4z"/><path class="onda" d="M15 9.5a3.5 3.5 0 0 1 0 5"/><path class="onda" d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
+        <button class="c8-boton c8-boton--icono" aria-label="Cambiar apariencia" id="alternar-tema">
+          <svg class="c8-icono ic-tema" viewBox="0 0 24 24"><mask id="m-luna"><rect width="24" height="24" fill="#fff"/><circle class="mordisco" cx="17" cy="7" r="6.5" fill="#000"/></mask>
+            <circle class="disco" cx="12" cy="12" r="8" mask="url(#m-luna)" fill="currentColor" stroke="none"/>
+            <g class="rayos"><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g></svg></button>
+        <button class="c8-boton c8-boton--icono" aria-label="Ayuda"><svg class="c8-icono"><use href="#i-ayuda"/></svg></button>
+        <span class="c8-separador" aria-hidden="true"></span>
+        <button class="c8-boton c8-boton--icono" aria-label="Pantalla completa">
+          <svg class="c8-icono ic-pantalla" viewBox="0 0 24 24"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9"/><path d="M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9"/><path d="M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15"/><path d="M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></svg></button>
+      </div>
+      <div class="h-ficha c8-vidrio c8-vidrio--texto">
+        <span class="c8-mayus">En venta · Obra nueva</span>
+        <div class="precio c8-num">685.000 €</div>
+        <div class="datos c8-num"><span><b>3</b> hab.</span><span><b>2</b> baños</span><span><b>118</b> m²</span><span>Certificado <b>A</b></span></div>
+        <div class="acciones">
+          <button class="c8-boton c8-boton--primario">
+            <svg class="c8-icono ic-contacto" viewBox="0 0 24 24"><path d="M5 18.5V7.5A2.5 2.5 0 0 1 7.5 5h9A2.5 2.5 0 0 1 19 7.5v6a2.5 2.5 0 0 1-2.5 2.5H9z"/><circle class="punto" cx="9" cy="10.6" r=".6" fill="currentColor"/><circle class="punto" cx="12" cy="10.6" r=".6" fill="currentColor"/><circle class="punto" cx="15" cy="10.6" r=".6" fill="currentColor"/></svg>
+            Contactar</button>
+          <button class="c8-boton c8-boton--secundario"><svg class="c8-icono"><use href="#i-camara"/></svg>Foto de la vista</button>
+        </div>
+      </div>
+      <div class="h-radar c8-vidrio" aria-label="Radar">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-opacity=".18"/>
+          <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-opacity=".18"/>
+          <path d="M22 30h40v26H38v18H22z" fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="1.6" stroke-linejoin="round"/>
+          <g class="barrido"><path d="M50 50 50 4A46 46 0 0 1 82.5 17.5z" fill="var(--c-acento)" opacity=".18"/></g>
+          <path d="M50 50 44 39h12z" fill="var(--c-acento)" transform="rotate(20 50 50)"/>
+          <circle cx="50" cy="50" r="3.2" fill="var(--c-acento)" stroke="#fff" stroke-width="1.4"/>
+        </svg>
+      </div>
+      <nav class="h-galeria c8-vidrio" aria-label="Estancias"><button aria-current="true" aria-label="Salón"></button><button aria-label="Cocina"></button><button aria-label="Dormitorio"></button><button aria-label="Baño"></button></nav>
+      <span class="sello c8-etiqueta c8-vidrio">Recreación virtual · IA</span>
+      <div class="h-aviso c8-aviso c8-vidrio c8-vidrio--texto" data-tipo="ok" role="status"><svg class="c8-icono"><use href="#i-ok"/></svg>Foto añadida a tu consulta</div>
+    </div>
+  </section>
+
+  <h2 class="seccion">Componentes</h2>
+  <p>Cada componente tiene sus estados (normal, encima, pulsado, desactivado, cargando y foco) y se adapta solo al tema y a la talla.</p>
+  <div class="rejilla">
+    <div class="caja">
+      <h3>Botones</h3>
+      <div class="fila"><button class="c8-boton c8-boton--primario">Publicar recorrido</button><button class="c8-boton c8-boton--secundario">Vista previa</button><button class="c8-boton c8-boton--fantasma">Cancelar</button></div>
+      <div class="fila"><button class="c8-boton c8-boton--whatsapp">Abrir WhatsApp</button><button class="c8-boton c8-boton--peligro">Borrar foto</button><button class="c8-boton c8-boton--primario" aria-busy="true">Exportando</button><button class="c8-boton c8-boton--secundario" disabled>Desactivado</button></div>
+      <div class="fila"><button class="c8-boton c8-boton--s c8-boton--secundario">Pequeño</button><button class="c8-boton c8-boton--icono c8-boton--secundario" aria-label="Compartir"><svg class="c8-icono"><use href="#i-compartir"/></svg></button><button class="c8-boton c8-boton--icono c8-boton--secundario" aria-pressed="true" aria-label="Radar activo"><svg class="c8-icono"><use href="#i-radar"/></svg></button></div>
+    </div>
+    <div class="caja">
+      <h3>Selección</h3>
+      <div class="c8-segmentado" role="radiogroup" aria-label="Ambiente"><label><input type="radio" name="amb" checked><span>Día</span></label><label><input type="radio" name="amb"><span>Atardecer</span></label><label><input type="radio" name="amb"><span>Noche</span></label></div>
+      <ul class="c8-lista">
+        <li><span class="c8-fila-texto">Música<small>Ambiente · Pixabay (CC0)</small></span><input type="checkbox" class="c8-interruptor" role="switch" checked aria-label="Música"></li>
+        <li><span class="c8-fila-texto">Radar</span><input type="checkbox" class="c8-interruptor" role="switch" aria-label="Radar"></li>
+        <li><span class="c8-fila-texto">Volumen</span><input type="range" class="c8-deslizador" style="max-width: 10rem" value="40" aria-label="Volumen"></li>
+      </ul>
+    </div>
+    <div class="caja">
+      <h3>Formulario</h3>
+      <div class="c8-campo"><label for="f-nombre">Nombre</label><input id="f-nombre" autocomplete="name" placeholder="Tu nombre"></div>
+      <div class="c8-campo"><label for="f-tel">Teléfono</label><input id="f-tel" inputmode="tel" value="612 34" aria-invalid="true" aria-describedby="f-tel-error"><span class="c8-error" id="f-tel-error">Revisa el número: faltan cifras.</span></div>
+      <div class="c8-campo"><label for="f-preg">Tu pregunta</label><textarea id="f-preg" placeholder="¿Cuánto mide la terraza?"></textarea><span class="c8-ayuda">Puedes adjuntar fotos de la vista.</span></div>
+    </div>
+    <div class="caja">
+      <h3>Etiquetas, avisos y actividad</h3>
+      <div class="fila"><span class="c8-etiqueta">Render / infografía</span><span class="c8-etiqueta c8-etiqueta--acento">Recreación virtual · IA</span><span class="c8-etiqueta">Iluminación simulada</span></div>
+      <div class="fila"><button class="c8-boton c8-boton--secundario" id="probar-aviso">Mostrar aviso</button><button class="c8-boton c8-boton--secundario" id="probar-dialogo">Abrir diálogo</button><span class="c8-cargando" role="progressbar" aria-label="Cargando"></span></div>
+    </div>
+  </div>
+
+  <h2 class="seccion">Color</h2>
+  <p>Contraste medido en vivo sobre el fondo de la página con el tema activo (AA: 4,5 para texto, 3 para iconos y bordes).</p>
+  <div class="muestras" id="muestras"></div>
+
+  <h2 class="seccion">Tipografía</h2>
+  <p>SF Pro en los dispositivos de Apple e Inter Variable en el resto, con tamaño óptico automático.</p>
+  <div class="caja escala" id="escala"></div>
+
+  <h2 class="seccion">Movimiento</h2>
+  <p>Muelles en lugar de curvas lineales: los paneles llegan con inercia y se asientan. Con «Reducir movimiento» todo es instantáneo.</p>
+  <div class="caja">
+    <div class="fila"><button class="c8-boton c8-boton--secundario" id="probar-mov">Reproducir</button></div>
+    <span class="c8-mayus">Muelle (paneles)</span><div class="pista-mov" id="mov-muelle"><i class="bola"></i></div>
+    <span class="c8-mayus">Muelle con rebote (iconos)</span><div class="pista-mov" id="mov-rebote"><i class="bola"></i></div>
+    <span class="c8-mayus">Salida suave (desvanecidos)</span><div class="pista-mov" id="mov-suave"><i class="bola"></i></div>
+  </div>
+</main>
+
+<div class="avisos-zona" id="avisos" aria-live="polite"></div>
+<dialog class="c8-dialogo c8-vidrio c8-vidrio--denso" id="dialogo" aria-labelledby="dialogo-titulo">
+  <h2 class="c8-panel-titulo" id="dialogo-titulo">Enviar por WhatsApp</h2>
+  <ol class="c8-sec"><li>Copiamos la foto de la vista.</li><li>Se abre el chat con la agencia.</li><li>Pega la foto y envía.</li></ol>
+  <div class="fila" style="justify-content: flex-end"><button class="c8-boton c8-boton--fantasma" value="cancelar" onclick="this.closest('dialog').close()">Cancelar</button><button class="c8-boton c8-boton--whatsapp" onclick="this.closest('dialog').close()">Abrir WhatsApp</button></div>
+</dialog>
+
+<script>
+  // Preferencias ⇄ controles
+  document.querySelectorAll("[data-pref]").forEach((grupo) => {
+    const clave = grupo.dataset.pref;
+    grupo.addEventListener("change", (e) => cre8Tema.fijar(clave, e.target.value));
+  });
+  function marcar() {
+    const p = cre8Tema.preferencias;
+    document.querySelectorAll("[data-pref]").forEach((g) => { const r = g.querySelector(`input[value="${p[g.dataset.pref]}"]`); if (r) r.checked = true; });
+    medir();
+  }
+  cre8Tema.alCambiar(marcar);
+  document.getElementById("alternar-tema").addEventListener("click", () => cre8Tema.fijar("tema", cre8Tema.efectivo.tema === "oscuro" ? "claro" : "oscuro"));
+  document.getElementById("fondos").addEventListener("change", (e) => { document.getElementById("escena").dataset.fondo = e.target.value; });
+
+
+  // Avisos y diálogo
+  document.getElementById("probar-aviso").addEventListener("click", () => {
+    const a = document.createElement("div");
+    a.className = "c8-aviso c8-vidrio c8-vidrio--texto"; a.dataset.tipo = "ok"; a.setAttribute("role", "status");
+    a.innerHTML = '<svg class="c8-icono c8-icono--dibujar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" pathLength="1"/><path d="m8.5 12.2 2.4 2.4 4.6-5" pathLength="1"/></svg>Enlace copiado';
+    document.getElementById("avisos").append(a);
+    setTimeout(() => { a.classList.add("c8-saliendo"); a.addEventListener("animationend", () => a.remove(), { once: true }); }, 2600);
+  });
+  document.getElementById("probar-dialogo").addEventListener("click", () => document.getElementById("dialogo").showModal());
+  document.getElementById("probar-mov").addEventListener("click", () => document.querySelectorAll(".pista-mov").forEach((p) => p.classList.toggle("ir")));
+
+  // Contraste medido con los colores reales del tema activo
+  const TOKENS = [
+    ["--c-texto", "texto", 4.5], ["--c-texto-2", "texto", 4.5], ["--c-texto-3", "texto", 4.5], ["--c-acento-texto", "texto", 4.5],
+    ["--c-acento", "relleno", 3], ["--c-foco", "foco", 3], ["--c-ok", "texto", 4.5], ["--c-aviso", "texto", 4.5], ["--c-error", "texto", 4.5], ["--c-info", "texto", 4.5],
+  ];
+  const lienzo = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+  function rgb(color) { lienzo.clearRect(0, 0, 1, 1); lienzo.fillStyle = "#000"; lienzo.fillStyle = color; lienzo.fillRect(0, 0, 1, 1); return [...lienzo.getImageData(0, 0, 1, 1).data].slice(0, 3); }
+  function lum([r, g, b]) { const f = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); }
+  function contraste(a, b) { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function resolver(v) { const s = document.createElement("i"); s.style.color = `var(${v})`; document.body.append(s); const c = getComputedStyle(s).color; s.remove(); return c; }
+  function medir() {
+    const fondo = rgb(resolver("--c-fondo"));
+    document.getElementById("muestras").innerHTML = TOKENS.map(([v, uso, min]) => {
+      const c = resolver(v), r = contraste(rgb(c), fondo);
+      return `<div class="muestra"><i style="background:${c}"></i><div><code>${v}</code><span>${uso} · <b class="${r >= min ? "ok" : "mal"}">${r.toFixed(2)}:1</b> ${r >= min ? "✓" : "✗"}</span></div></div>`;
+    }).join("");
+  }
+  // Escala tipográfica
+  document.getElementById("escala").innerHTML = [["--t-heroe", "Vidrio líquido"], ["--t-display", "685.000 €"], ["--t-titulo-g", "Ático en Chamberí"], ["--t-titulo", "Datos del inmueble"], ["--t-destacado", "Salón con terraza orientada al sur"], ["--t-cuerpo", "Luminoso, con suelos de roble y carpintería de aluminio."], ["--t-ui", "Contactar · Foto de la vista"], ["--t-sec", "Planta 1 · 118 m² construidos"], ["--t-pie", "Recreación virtual · IA"], ["--t-micro", "EN VENTA"]]
+    .map(([v, t]) => `<p><code>${v}</code><span style="font-size: var(${v}); font-family: var(--fuente-titular); line-height: 1.15; letter-spacing: ${v === "--t-heroe" || v === "--t-display" ? "-0.03em" : "var(--track-ui)"}">${t}</span></p>`).join("");
+  marcar();
+</script>
+</body>
+</html>

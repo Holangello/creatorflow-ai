@@ -169,7 +169,7 @@ h2.sub { font: 600 13px/1.3 system-ui, sans-serif; text-transform: uppercase; le
 .vacio-grande.sobre, .zona-soltar.sobre { border-color: var(--acento); background: var(--acento-sua); }
 .vacio-grande h3 { margin: 0; font: 500 20px/1.2 var(--serif); color: var(--texto); }
 .vacio-grande p { margin: 0; max-width: 520px; }
-.vacio-grande .ico { color: var(--acento); }
+.vacio-grande > .ico { color: var(--acento); }
 
 /* ------------------------------------------------------------ fotos */
 .zona-soltar { border: 1.5px dashed var(--borde2); border-radius: var(--radio); padding: 14px 16px; display: flex; align-items: center; gap: 14px;
@@ -393,7 +393,8 @@ dialog.dialogo .botones { display: flex; justify-content: flex-end; gap: 8px; ma
   #pasos .etq { align-items: center; }
   #pasos .insignia { position: absolute; top: 3px; right: 3px; min-width: 16px; height: 16px; font-size: 10px; padding: 0 4px; }
   #pasos button[aria-current="page"]::before { left: -8px; }
-  #pasos button.subpaso { min-height: 44px; margin-left: 0; }
+  #pasos button.subpaso { min-height: 44px; margin-left: 0; padding: 6px 0; }
+  #pasos button.subpaso .etq b { font-size: 9.5px; letter-spacing: -.1px; }
   .editor-plano { grid-template-columns: minmax(0, 1fr) 230px; }
   .seccion { padding: 18px 18px 36px; }
   .herramientas .btn kbd { display: none; }
@@ -474,10 +475,25 @@ dialog.dialogo .botones { display: flex; justify-content: flex-end; gap: 8px; ma
 .avanzado > .contenido { padding-top: 12px; }
 .qr { width: 132px; height: 132px; background: var(--qr-fondo); padding: 6px; border-radius: 8px; flex: 0 0 auto; }
 .qr svg { width: 100%; height: 100%; display: block; }
+.qr svg path, .qr svg rect { stroke: none; }
 .pasos-publicar { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
 .mini-datos { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 14px; }
 .btn.colocando { background: var(--acento-sua); border-color: var(--acento); color: var(--acento); }
 .foto .orden-btns { display: flex; flex-direction: column; gap: 2px; }
 .foto .orden-btns .btn { width: 30px; min-height: 26px; padding: 0; }
-@media (pointer: coarse) { .foto .orden-btns .btn { width: var(--toque); min-height: 36px; } }
+@media (pointer: coarse) { .foto .orden-btns .btn { width: var(--toque); min-height: var(--toque); } }
 .badge-whatsapp { color: var(--whatsapp); }
+
+a.btn { text-decoration: none; }
+#pasos .pie-pasos button.enlace { display: inline; padding: 0; min-height: 0; background: none; color: var(--acento); border-radius: 0; text-decoration: underline; }
+#pasos .pie-pasos button.enlace:hover { background: none; color: var(--texto); }
+.pie-paso .btn.fantasma { min-width: 0; }
+.herramientas .btn kbd { display: none; }
+@media (min-width: 1600px) { .herramientas .btn kbd { display: inline-block; } }
+.opciones-modo { display: grid; gap: 8px; }
+.opciones-modo .btn { flex-direction: column; align-items: flex-start; gap: 4px; white-space: normal; text-align: left; padding: 12px 14px; min-height: 64px; }
+.opciones-modo .btn span { color: var(--suave); font-size: 13px; }
+
+#pasos .modo-compacto { display: none; }
+@media (max-width: 1280px) { #pasos .modo-compacto { display: flex; margin-top: auto; } }
+.variante .chip { white-space: normal; }

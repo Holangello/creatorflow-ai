@@ -70,6 +70,8 @@ function pintarPasos() {
   });
   const otroModo = esRapido() ? "completo" : "rapido";
   nav.replaceChildren(...items,
+    h("button", { class: "modo-compacto", title: esRapido() ? "Modo rápido: pulsa para ver todas las herramientas" : "Modo completo: pulsa para volver al modo rápido", onclick: () => cambiarModo(otroModo) },
+      h("span", { class: "num" }, icono("ajustar", 13)), h("span", { class: "etq" }, h("b", { text: esRapido() ? "Rápido" : "Completo" }))),
     h("div", { class: "pie-pasos" },
       h("div", { class: "modo-actual" }, h("b", { text: esRapido() ? "Modo rápido" : "Modo completo" }), " · ",
         h("button", { class: "enlace", onclick: () => cambiarModo(otroModo) }, esRapido() ? "ver todas las herramientas" : "volver al modo rápido")),

@@ -356,7 +356,7 @@ function pintar() {
       [h("button", { class: "btn primario", onclick: async () => subirRenders360(await elegirArchivos({ aceptar: "image/jpeg,image/png,image/webp", multiple: true })) }, icono("subir", 16), "Subir renders 360")]),
     bloque("fotos", "Renders fijos e imágenes", "Infografías y fotos para la galería del visor. Los renders se rotulan «Render / infografía».",
       [h("button", { class: "btn", onclick: async () => subirGaleria(await elegirArchivos({ aceptar: "image/*", multiple: true })) }, icono("subir", 16), "Subir imágenes")], galeria),
-    bloque("variantes", "Modelo 3D (opcional)", "Modelo 3D (opcional). Lo prepara tu arquitecto o renderista: un archivo GLB de SketchUp, Revit, Blender o Twinmotion, o un escaneo 3D (.spz, .ply, .sog). Activa el paseo libre y la maqueta.",
+    bloque("variantes", "Modelo 3D (opcional)", "Lo prepara tu arquitecto o renderista. Activa el paseo libre y la maqueta. Formatos: GLB (SketchUp, Revit, Blender, Twinmotion) o escaneo 3D (.spz, .ply, .sog).",
       [h("button", { class: "btn", onclick: subirModelo }, icono("subir", 16), L ? "Reemplazar" : "Subir modelo")], modelo),
     bloque("video", "Música de fondo", "Opcional. Suena en el visor (botón de sonido) y en los vídeos.", [], bloqueMusica()),
     bloque("datos", "Documentos", "Memoria de calidades, licencias, nota simple… Marca «Público» para ofrecerlos en la ficha; el resto solo se guarda en el proyecto y en la copia de seguridad (no se publica).",

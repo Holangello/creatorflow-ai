@@ -38,8 +38,8 @@ export async function iniciarProyecto() {
 
 /** Pregunta cómo trabajar: Rápido (5 pasos, recomendado) o Completo (todas las herramientas). */
 export function elegirModo() {
-  const opcion = (modo, titulo, texto, recomendado) => h("button", { class: `btn opcion-modo ${recomendado ? "activo" : ""}`, "data-modo": modo,
-    onclick: (e) => { e.currentTarget.closest("dialog").querySelectorAll(".opcion-modo").forEach((b) => b.classList.toggle("activo", b === e.currentTarget)); } },
+  const opcion = (modo, titulo, texto, recomendado) => h("button", { class: `btn opcion-modo ${recomendado ? "activo" : ""}`, "data-modo": modo, "aria-pressed": String(!!recomendado),
+    onclick: (e) => { e.currentTarget.closest("dialog").querySelectorAll(".opcion-modo").forEach((b) => { b.classList.toggle("activo", b === e.currentTarget); b.setAttribute("aria-pressed", String(b === e.currentTarget)); }); } },
     h("b", { text: titulo }), h("span", { text: texto }));
   const cuerpo = h("div", { class: "opciones-modo", role: "group", "aria-label": "Modo de trabajo" },
     opcion("rapido", "Rápido (recomendado)", "5 pasos y unos 5 minutos: fotos, plano opcional, 8 datos, revisar y publicar.", true),

@@ -89,6 +89,13 @@ try {
   await a.waitForTimeout(800);
   ok(await a.evaluate(() => document.querySelectorAll("#pasos > section").length >= 10), "asistente: pasos presentes");
   ok(a.errores.length === 0, `asistente: sin errores ${a.errores.slice(0, 2).join(" | ")}`);
+  const t = await pagina("tema-muestra.html", { ancho: 390, alto: 844, movil: true });
+  await t.waitForTimeout(500);
+  const tema = await t.evaluate(() => { cre8Tema.fijar("tema", "claro"); cre8Tema.fijar("talla", "l");
+    const r = [document.documentElement.dataset.tema, document.documentElement.dataset.talla, getComputedStyle(document.body).backgroundColor];
+    cre8Tema.fijar("tema", "auto"); cre8Tema.fijar("talla", "m"); return r; });
+  ok(tema[0] === "claro" && tema[1] === "l" && tema[2] === "rgb(245, 245, 247)", `tema: claro y talla L se aplican (${tema.join(", ")})`);
+  ok(t.errores.length === 0, `tema: sin errores ${t.errores.slice(0, 2).join(" | ")}`);
 } catch (err) {
   ok(false, `excepción: ${err.message}`);
 } finally {

@@ -1,0 +1,722 @@
+/* cre8eight · tema.css — sistema de diseño común del visor, el Estudio y el Asistente.
+   Estilo «minimal liquid glass»: controles de vidrio que flotan sobre la imagen, tipografía SF / Inter,
+   acento champán, movimiento con muelle.
+
+   Uso en cada página (en este orden, dentro de <head>):
+     <script src="tema.js"></script>              síncrono: fija tema y talla antes de pintar
+     <link rel="stylesheet" href="tema.css">       antes del CSS propio de la página
+     <body class="c8-base">                        opcional: tipografía y colores base
+
+   Atributos en <html> (los pone tema.js):
+     data-tema="claro|oscuro"   data-talla="s|m|l"   data-transparencia="normal|reducida"   data-movimiento="normal|reducido"
+
+   Reglas:
+   - Colores, vidrio, radios, sombras y tiempos se toman SIEMPRE de estas variables: nada de colores fijos en los componentes.
+   - Tamaños en rem: la raíz escala con la pantalla (fluida) y con la talla S/M/L elegida.
+   - Prefijo c8- en las clases para no chocar con los estilos existentes.
+   Documentación: docs/diseno/sistema.md · Muestra viva: tema-muestra.html */
+
+/* ------------------------------------------------------------------ Tipografía */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(vendor/fonts/inter/inter-latin-opsz-normal.woff2) format("woff2-variations"),
+       url(vendor/fonts/inter/inter-latin-opsz-normal.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(vendor/fonts/inter/inter-latin-ext-opsz-normal.woff2) format("woff2-variations"),
+       url(vendor/fonts/inter/inter-latin-ext-opsz-normal.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF,
+    U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ------------------------------------------------------------------ Tokens independientes del tema */
+:root {
+  /* Familias: SF Pro en Apple; Inter (autoalojada) en el resto */
+  --fuente: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter Variable", Inter, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fuente-titular: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Variable", Inter, "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fuente-editorial: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --fuente-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --peso-normal: 400;
+  --peso-medio: 510;
+  --peso-semi: 590;
+  --peso-fuerte: 680;
+
+  /* Escala tipográfica (rem: escala con la pantalla y la talla) */
+  --t-micro: 0.6875rem;     /* 11 · etiquetas en mayúsculas */
+  --t-pie: 0.75rem;         /* 12 · pies, sellos */
+  --t-sec: 0.8125rem;       /* 13 · texto secundario */
+  --t-ui: 0.875rem;         /* 14 · botones, controles */
+  --t-cuerpo: 1rem;         /* 16 · texto */
+  --t-destacado: 1.125rem;  /* 18 */
+  --t-titulo: 1.375rem;     /* 22 · títulos de panel */
+  --t-titulo-g: 1.75rem;    /* 28 */
+  --t-display: 2.25rem;     /* 36 · precio */
+  --t-heroe: 3rem;          /* 48 · portada */
+  --lh-ajustado: 1.15;
+  --lh-ui: 1.3;
+  --lh-texto: 1.5;
+  --track-titular: -0.022em;
+  --track-ui: -0.006em;
+  --track-mayus: 0.08em;
+
+  /* Espaciado */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-5: 1.25rem;
+  --e-6: 1.5rem;
+  --e-7: 2rem;
+  --e-8: 2.5rem;
+  --e-9: 3rem;
+
+  /* Radios concéntricos: radio interior = radio exterior − separación */
+  --r-1: 0.375rem;
+  --r-2: 0.625rem;
+  --r-3: 0.875rem;
+  --r-4: 1.25rem;
+  --r-5: 1.75rem;
+  --r-pastilla: 999px;
+
+  /* Controles */
+  --alto-control: 2.5rem;       /* 40 px a talla M */
+  --alto-control-s: 2rem;
+  --icono: 1.25rem;
+  --icono-s: 1rem;
+  --icono-l: 1.5rem;
+  --trazo-icono: 1.6;
+  --toque-minimo: 44px;         /* WCAG 2.5.5: nunca menos en pantallas táctiles */
+
+  /* Movimiento: muelles generados con amortiguación 0,78 (2 % de rebote) y 0,6 (9,5 %) */
+  --muelle: linear(0, 0.004 1%, 0.024 2.5%, 0.057 4%, 0.099 5.5%, 0.205 8.5%, 0.441 14.5%, 0.553 17.5%, 0.653 20.5%,
+    0.74 23.5%, 0.812 26.5%, 0.871 29.5%, 0.917 32.5%, 0.952 35.5%, 0.977 38.5%, 0.998 42%, 1.012 46%, 1.019 50.5%,
+    1.019 58%, 1.003 82.5%, 1);
+  --muelle-rebote: linear(0, 0.008 1%, 0.029 2%, 0.062 3%, 0.128 4.5%, 0.239 6.5%, 0.551 11.5%, 0.667 13.5%, 0.772 15.5%,
+    0.862 17.5%, 0.935 19.5%, 0.993 21.5%, 1.036 23.5%, 1.072 26%, 1.084 27.5%, 1.092 29%, 1.095 31%, 1.092 33%, 1.08 36%,
+    1.034 44%, 1.015 48%, 1 52.5%, 0.993 57%, 0.991 63%, 1 83%, 1);
+  --salida: cubic-bezier(0.16, 1, 0.3, 1);
+  --entrada: cubic-bezier(0.7, 0, 0.84, 0);
+  --suave: cubic-bezier(0.4, 0, 0.2, 1);
+  --d-1: 120ms;    /* realce, color */
+  --d-2: 220ms;    /* pulsación, interruptores */
+  --d-3: 380ms;    /* paneles, avisos */
+  --d-4: 620ms;    /* muelles completos, entradas de página */
+
+  /* Capas */
+  --z-hud: 10;
+  --z-panel: 20;
+  --z-menu: 30;
+  --z-dialogo: 40;
+  --z-aviso: 50;
+  --z-carga: 60;
+
+  /* Colores fijos en cualquier tema */
+  --c-whatsapp: #15803d;            /* 5,0:1 con texto blanco */
+  --c-whatsapp-marca: #25d366;      /* solo para el icono */
+  --c-qr-fondo: #ffffff;            /* el QR necesita fondo claro siempre */
+  --ce-a: #00a651; --ce-b: #4cb848; --ce-c: #bfd730; --ce-d: #e8d900; --ce-e: #fdb913; --ce-f: #f37021; --ce-g: #ed1c24;
+
+  /* Vidrio: parámetros comunes */
+  --vidrio-desenfoque: 22px;
+  --vidrio-saturacion: 170%;
+
+  /* Luz especular que sigue al puntero (la actualiza tema.js) */
+  --luz-x: 50vw;
+  --luz-y: -20vh;
+}
+
+@supports not (transition-timing-function: linear(0, 1)) {
+  :root {
+    --muelle: cubic-bezier(0.2, 0.9, 0.25, 1.02);
+    --muelle-rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+/* ------------------------------------------------------------------ Escala: fluida × talla S/M/L
+   La base respeta el tamaño de letra del navegador (em en la raíz) y crece con la pantalla:
+   14 px en móvil · 15 en 1280×800 · 17 en 1920×1080 · 20 en 2560×1440 · 24 en 4K al 100 %. */
+html { --talla: 1; font-size: calc(clamp(0.875em, 0.75vmin + 0.5625em, 1.5em) * var(--talla)); }
+html[data-talla="s"] { --talla: 0.875; }
+html[data-talla="l"] { --talla: 1.18; }
+@media (pointer: coarse) {
+  :root { --alto-control: max(2.75rem, var(--toque-minimo)); --alto-control-s: max(2.25rem, 36px); }
+}
+
+/* ------------------------------------------------------------------ Tema oscuro (por defecto) */
+:root,
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+  --c-fondo: #0a0b0d;
+  --c-sup-1: #121418;
+  --c-sup-2: #1a1d22;
+  --c-sup-3: #22262c;
+  --c-texto: #f5f5f7;
+  --c-texto-2: #a9adb5;           /* 8,7:1 sobre el fondo */
+  --c-texto-3: #8b9099;           /* ≥ 4,7:1 hasta --c-sup-3 */
+  --c-borde: rgba(255, 255, 255, 0.1);
+  --c-borde-2: rgba(255, 255, 255, 0.18);
+  --c-separador: rgba(255, 255, 255, 0.08);
+  --c-capa-hover: rgba(255, 255, 255, 0.08);
+  --c-capa-activa: rgba(255, 255, 255, 0.14);
+  --c-campo: rgba(0, 0, 0, 0.28);
+  --c-scroll: rgba(255, 255, 255, 0.22);
+  --c-pista: #2c3037;             /* fondo de interruptores y deslizadores */
+  --c-segmento: rgba(255, 255, 255, 0.16);   /* opción elegida del control segmentado */
+
+  --c-acento: #cfad66;            /* champán: relleno de botones principales */
+  --c-sobre-acento: #15110a;      /* 8,8:1 */
+  --c-acento-texto: color-mix(in oklab, var(--c-acento) 86%, white);  /* enlaces y etiquetas sobre oscuro */
+  --c-acento-suave: color-mix(in srgb, var(--c-acento) 16%, transparent);
+  --c-foco: var(--c-acento);
+
+  --c-ok: #4cc38a;
+  --c-aviso: #f2c14e;
+  --c-error: #ff7b72;
+  --c-info: #7aa7ff;
+  --c-error-fondo: rgba(255, 123, 114, 0.12);
+
+  /* Vidrio: alfa mínima calculada para el peor fondo (pared blanca) */
+  --vidrio: rgba(22, 24, 28, 0.56);         /* controles solo icono: ≥ 3:1 */
+  --vidrio-texto: rgba(20, 22, 26, 0.78);   /* paneles con texto: ≥ 4,5:1 (AA) incluso el secundario */
+  --c-texto-2-vidrio: #c3c7cd;              /* 5,3:1 en el peor caso (vidrio sobre blanco) */
+  --c-texto-3-vidrio: #b8bcc3;              /* 4,7:1 */
+  --vidrio-denso: rgba(18, 20, 24, 0.9);    /* menús y diálogos */
+  --vidrio-borde: rgba(255, 255, 255, 0.14);
+  --vidrio-reflejo-1: rgba(255, 255, 255, 0.36);
+  --vidrio-reflejo-2: rgba(255, 255, 255, 0.07);
+  --vidrio-brillo: rgba(255, 255, 255, 0.1);
+  --vidrio-luz: rgba(255, 255, 255, 0.5);
+  --velo: rgba(0, 0, 0, 0.5);
+
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.22);
+  --sombra-2: 0 2px 6px rgba(0, 0, 0, 0.26), 0 16px 44px rgba(0, 0, 0, 0.36);
+  --sombra-3: 0 4px 12px rgba(0, 0, 0, 0.3), 0 30px 80px rgba(0, 0, 0, 0.5);
+  --sombra-texto: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* ------------------------------------------------------------------ Tema claro */
+:root[data-tema="claro"] {
+  color-scheme: light;
+  --c-fondo: #f5f5f7;
+  --c-sup-1: #ffffff;
+  --c-sup-2: #f0f0f3;
+  --c-sup-3: #e8e8ed;
+  --c-texto: #1d1d1f;
+  --c-texto-2: #55555c;           /* 6,8:1 */
+  --c-texto-3: #636369;           /* ≥ 4,6:1 hasta --c-sup-3 */
+  --c-borde: rgba(0, 0, 0, 0.09);
+  --c-borde-2: rgba(0, 0, 0, 0.16);
+  --c-separador: rgba(0, 0, 0, 0.07);
+  --c-capa-hover: rgba(0, 0, 0, 0.05);
+  --c-capa-activa: rgba(0, 0, 0, 0.09);
+  --c-campo: rgba(255, 255, 255, 0.75);
+  --c-scroll: rgba(0, 0, 0, 0.22);
+  --c-pista: #dcdce1;
+  --c-segmento: #ffffff;
+
+  --c-acento: #c9a55a;
+  --c-sobre-acento: #1a1408;      /* 7,9:1 */
+  --c-acento-texto: color-mix(in oklab, var(--c-acento) 62%, black);   /* ≈ 5,5:1 sobre blanco */
+  --c-acento-suave: color-mix(in srgb, var(--c-acento) 18%, transparent);
+  --c-foco: color-mix(in oklab, var(--c-acento) 70%, black);
+
+  --c-ok: #1d7f4e;
+  --c-aviso: #8a5a00;
+  --c-error: #c4372e;
+  --c-info: #2563c9;
+  --c-error-fondo: rgba(196, 55, 46, 0.08);
+
+  --vidrio: rgba(255, 255, 255, 0.5);       /* ≥ 3:1 sobre negro */
+  --vidrio-texto: rgba(255, 255, 255, 0.78);/* ≥ 4,5:1 sobre negro, también el secundario */
+  --c-texto-2-vidrio: #4a4a51;              /* 5,2:1 en el peor caso (vidrio sobre negro) */
+  --c-texto-3-vidrio: #505057;
+  --vidrio-denso: rgba(255, 255, 255, 0.9);
+  --vidrio-borde: rgba(255, 255, 255, 0.7);
+  --vidrio-reflejo-1: rgba(255, 255, 255, 0.95);
+  --vidrio-reflejo-2: rgba(255, 255, 255, 0.4);
+  --vidrio-brillo: rgba(255, 255, 255, 0.65);
+  --vidrio-luz: rgba(255, 255, 255, 0.9);
+  --velo: rgba(24, 24, 28, 0.28);
+
+  --sombra-1: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(15, 20, 30, 0.08), 0 4px 14px rgba(15, 20, 30, 0.1);
+  --sombra-2: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(15, 20, 30, 0.08), 0 16px 44px rgba(15, 20, 30, 0.16);
+  --sombra-3: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(15, 20, 30, 0.1), 0 30px 80px rgba(15, 20, 30, 0.24);
+  --sombra-texto: none;
+}
+
+/* ------------------------------------------------------------------ Accesibilidad: transparencia y movimiento */
+:root[data-transparencia="reducida"] {
+  --vidrio: var(--c-sup-2);
+  --vidrio-texto: var(--c-sup-1);
+  --vidrio-denso: var(--c-sup-1);
+  --vidrio-desenfoque: 0px;
+  --vidrio-saturacion: 100%;
+  --vidrio-reflejo-1: transparent;
+  --vidrio-reflejo-2: transparent;
+  --vidrio-luz: transparent;
+}
+:root[data-movimiento="reducido"] {
+  --muelle: linear(0, 1);
+  --muelle-rebote: linear(0, 1);
+  --d-1: 1ms;
+  --d-2: 1ms;
+  --d-3: 1ms;
+  --d-4: 1ms;
+}
+:root[data-movimiento="reducido"] *,
+:root[data-movimiento="reducido"] *::before,
+:root[data-movimiento="reducido"] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+/* ------------------------------------------------------------------ Base (opcional: <body class="c8-base">) */
+.c8-base {
+  margin: 0;
+  background: var(--c-fondo);
+  color: var(--c-texto);
+  font: var(--peso-normal) var(--t-cuerpo) / var(--lh-texto) var(--fuente);
+  letter-spacing: var(--track-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+.c8-base :where(h1, h2, h3, h4) {
+  font-family: var(--fuente-titular);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--track-titular);
+  line-height: var(--lh-ajustado);
+  text-wrap: balance;
+}
+.c8-base :where(p, li) { text-wrap: pretty; }
+.c8-base :where(a) { color: var(--c-acento-texto); text-decoration-thickness: 0.06em; text-underline-offset: 0.18em; }
+.c8-base :where(button, input, select, textarea) { font: inherit; letter-spacing: inherit; color: inherit; }
+.c8-base :where(:focus-visible) { outline: 2px solid var(--c-foco); outline-offset: 2px; }
+.c8-base ::selection { background: color-mix(in srgb, var(--c-acento) 38%, transparent); }
+.c8-base :where(*) { scrollbar-width: thin; scrollbar-color: var(--c-scroll) transparent; }
+
+/* ------------------------------------------------------------------ Utilidades de texto */
+.c8-num { font-variant-numeric: tabular-nums; }
+.c8-mayus { font-size: var(--t-micro); font-weight: var(--peso-semi); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-texto-2); }
+.c8-sec { color: var(--c-texto-2); font-size: var(--t-sec); }
+.c8-editorial { font-family: var(--fuente-editorial); letter-spacing: 0; }
+.c8-visualmente-oculto {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* ------------------------------------------------------------------ Material: vidrio líquido
+   El elemento debe estar posicionado (relative/absolute/fixed): :where() deja que gane la posición del componente.
+   Ojo: backdrop-filter convierte el elemento en contenedor de sus hijos fixed, y un vidrio dentro de otro solo
+   desenfoca el contenido del padre: dentro de un vidrio usa rellenos (--c-capa-*), no otro vidrio. */
+:where(.c8-vidrio) { position: relative; }
+.c8-vidrio {
+  /* sobre fondos imprevisibles el texto secundario sube de contraste */
+  --c-texto-2: var(--c-texto-2-vidrio);
+  --c-texto-3: var(--c-texto-3-vidrio);
+  isolation: isolate;
+  background: var(--vidrio);
+  -webkit-backdrop-filter: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion));
+  backdrop-filter: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion));
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: var(--sombra-1), inset 0 1px 0 var(--vidrio-brillo);
+}
+.c8-vidrio.c8-vidrio--texto { background: var(--vidrio-texto); box-shadow: var(--sombra-2), inset 0 1px 0 var(--vidrio-brillo); }
+.c8-vidrio.c8-vidrio--denso { background: var(--vidrio-denso); box-shadow: var(--sombra-3), inset 0 1px 0 var(--vidrio-brillo); }
+/* Borde especular: más intenso arriba a la izquierda, como un canto de cristal pulido */
+.c8-vidrio::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(140deg, var(--vidrio-reflejo-1) 0%, transparent 34%, transparent 66%, var(--vidrio-reflejo-2) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+/* Luz que sigue al puntero sobre el canto (solo con ratón) */
+@media (hover: hover) and (pointer: fine) {
+  .c8-vidrio::before {
+    background:
+      radial-gradient(14rem circle at var(--luz-x) var(--luz-y), var(--vidrio-luz), transparent 70%) fixed,
+      linear-gradient(140deg, var(--vidrio-reflejo-1) 0%, transparent 34%, transparent 66%, var(--vidrio-reflejo-2) 100%);
+  }
+}
+
+/* ------------------------------------------------------------------ Iconos (SVG de trazo, estilo SF Symbols) */
+.c8-icono {
+  width: var(--icono);
+  height: var(--icono);
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--trazo-icono);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+/* Dibujo al aparecer: usa pathLength="1" en los trazos */
+.c8-icono--dibujar :is(path, line, polyline, circle, rect) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: c8-dibujar var(--d-4) var(--salida) forwards;
+}
+.c8-icono--dibujar :nth-child(2) { animation-delay: 60ms; }
+.c8-icono--dibujar :nth-child(3) { animation-delay: 120ms; }
+.c8-icono--dibujar :nth-child(4) { animation-delay: 180ms; }
+@keyframes c8-dibujar { to { stroke-dashoffset: 0; } }
+@keyframes c8-latido { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.18); } }
+@keyframes c8-girar { to { transform: rotate(1turn); } }
+@keyframes c8-aparecer {
+  from { opacity: 0; transform: translateY(0.5rem) scale(0.97); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes c8-desaparecer { to { opacity: 0; transform: translateY(0.25rem) scale(0.98); } }
+
+/* ------------------------------------------------------------------ Botón */
+.c8-boton {
+  box-sizing: border-box;
+  --b-fondo: var(--c-capa-hover);
+  --b-texto: var(--c-texto);
+  --b-borde: transparent;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-height: var(--alto-control);
+  min-width: var(--alto-control);
+  padding: 0 var(--e-4);
+  border: 1px solid var(--b-borde);
+  border-radius: var(--r-pastilla);
+  background: var(--b-fondo);
+  color: var(--b-texto);
+  font: var(--peso-medio) var(--t-ui) / 1 var(--fuente);
+  letter-spacing: var(--track-ui);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), border-color var(--d-1) var(--suave),
+    box-shadow var(--d-2) var(--suave), transform var(--d-3) var(--muelle), opacity var(--d-2) var(--suave);
+}
+.c8-boton:hover { --b-fondo: var(--c-capa-activa); }
+.c8-boton:active { transform: scale(0.96); transition-duration: var(--d-1); }
+.c8-boton:focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; }
+.c8-boton:disabled, .c8-boton[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; transform: none; }
+.c8-boton--primario {
+  --b-fondo: var(--c-acento);
+  --b-texto: var(--c-sobre-acento);
+  font-weight: var(--peso-semi);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 6px 18px color-mix(in srgb, var(--c-acento) 32%, transparent);
+}
+.c8-boton--primario:hover { --b-fondo: color-mix(in oklab, var(--c-acento) 90%, white); }
+.c8-boton--secundario { --b-fondo: var(--c-capa-hover); --b-borde: var(--c-borde); }
+.c8-boton--fantasma { --b-fondo: transparent; }
+.c8-boton--fantasma:hover { --b-fondo: var(--c-capa-hover); }
+.c8-boton--peligro { --b-fondo: transparent; --b-texto: var(--c-error); --b-borde: color-mix(in srgb, var(--c-error) 45%, transparent); }
+.c8-boton--peligro:hover { --b-fondo: var(--c-error-fondo); }
+.c8-boton--whatsapp { --b-fondo: var(--c-whatsapp); --b-texto: #fff; font-weight: var(--peso-semi); }
+.c8-boton--whatsapp:hover { --b-fondo: color-mix(in oklab, var(--c-whatsapp) 88%, white); }
+.c8-boton--icono { padding: 0; width: var(--alto-control); }
+.c8-boton--icono .c8-icono { width: var(--icono); height: var(--icono); }
+.c8-boton--s { min-height: var(--alto-control-s); min-width: var(--alto-control-s); padding: 0 var(--e-3); font-size: var(--t-sec); }
+.c8-boton--s.c8-boton--icono { width: var(--alto-control-s); padding: 0; }
+.c8-boton--bloque { display: flex; width: 100%; }
+.c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
+/* Cargando: <button aria-busy="true"> */
+.c8-boton[aria-busy="true"] { color: transparent; pointer-events: none; }
+.c8-boton[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 50%;
+  border: 2px solid var(--b-texto);
+  border-right-color: transparent;
+  animation: c8-girar 0.7s linear infinite;
+}
+
+/* ------------------------------------------------------------------ Pastilla: barra flotante de controles */
+.c8-pastilla {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-1);
+  padding: var(--e-1);
+  border-radius: var(--r-pastilla);
+}
+.c8-pastilla > .c8-separador { width: 1px; align-self: stretch; margin: var(--e-2) var(--e-1); background: var(--c-borde-2); }
+.c8-pastilla--vertical { flex-direction: column; }
+.c8-pastilla--vertical > .c8-separador { width: auto; height: 1px; align-self: stretch; margin: var(--e-1) var(--e-2); }
+.c8-pastilla .c8-boton { --b-fondo: transparent; }
+.c8-pastilla .c8-boton:hover { --b-fondo: var(--c-capa-hover); }
+.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
+
+/* ------------------------------------------------------------------ Control segmentado (radios), hasta 6 opciones
+   <div class="c8-segmentado" role="radiogroup"><label><input type="radio" name="x"><span>Día</span></label>…</div> */
+.c8-segmentado {
+  --n: 3;
+  --i: 0;
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  padding: 3px;
+  border-radius: var(--r-pastilla);
+  background: var(--c-capa-hover);
+  border: 1px solid var(--c-borde);
+  isolation: isolate;
+}
+.c8-segmentado:has(> label:nth-child(2):last-child) { --n: 2; }
+.c8-segmentado:has(> label:nth-child(4):last-child) { --n: 4; }
+.c8-segmentado:has(> label:nth-child(5):last-child) { --n: 5; }
+.c8-segmentado:has(> label:nth-child(6):last-child) { --n: 6; }
+.c8-segmentado:has(> label:nth-child(2) input:checked) { --i: 1; }
+.c8-segmentado:has(> label:nth-child(3) input:checked) { --i: 2; }
+.c8-segmentado:has(> label:nth-child(4) input:checked) { --i: 3; }
+.c8-segmentado:has(> label:nth-child(5) input:checked) { --i: 4; }
+.c8-segmentado:has(> label:nth-child(6) input:checked) { --i: 5; }
+.c8-segmentado::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--n));
+  border-radius: var(--r-pastilla);
+  background: var(--c-segmento);
+  box-shadow: var(--sombra-1);
+  transform: translateX(calc(100% * var(--i)));
+  transition: transform var(--d-4) var(--muelle);
+}
+.c8-segmentado:not(:has(input:checked))::after { opacity: 0; }
+/* Sobre la imagen: el segmentado puede ser de vidrio (el material manda sobre el relleno) */
+.c8-segmentado.c8-vidrio { background: var(--vidrio-texto); border-color: var(--vidrio-borde); }
+.c8-segmentado.c8-vidrio::after { box-shadow: inset 0 1px 0 var(--vidrio-brillo), var(--sombra-1); }
+.c8-segmentado.c8-vidrio > label { color: var(--c-texto-2); text-shadow: var(--sombra-texto); }
+.c8-segmentado.c8-vidrio > label:has(input:checked) { color: var(--c-texto); }
+.c8-segmentado > label {
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--alto-control) - 6px);
+  padding: 0 var(--e-3);
+  border-radius: var(--r-pastilla);
+  font: var(--peso-medio) var(--t-ui) / 1 var(--fuente);
+  color: var(--c-texto-2);
+  cursor: pointer;
+  transition: color var(--d-2) var(--suave);
+  white-space: nowrap;
+}
+.c8-segmentado > label:has(input:checked) { color: var(--c-texto); font-weight: var(--peso-semi); }
+.c8-segmentado > label:has(input:focus-visible) { outline: 2px solid var(--c-foco); outline-offset: -2px; }
+.c8-segmentado input { position: absolute; opacity: 0; pointer-events: none; }
+
+/* ------------------------------------------------------------------ Interruptor: <input type="checkbox" role="switch" class="c8-interruptor"> */
+.c8-interruptor {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  width: 2.875rem;
+  height: 1.75rem;
+  margin: 0;
+  border-radius: var(--r-pastilla);
+  background: var(--c-pista);
+  box-shadow: inset 0 0 0 1px var(--c-borde);
+  cursor: pointer;
+  transition: background-color var(--d-2) var(--suave);
+}
+.c8-interruptor::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(1.75rem - 4px);
+  height: calc(1.75rem - 4px);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  transition: transform var(--d-4) var(--muelle), width var(--d-2) var(--suave);
+}
+.c8-interruptor:active::after { width: calc(1.75rem + 2px); }
+.c8-interruptor:checked { background: var(--c-acento); box-shadow: none; }
+.c8-interruptor:checked::after { transform: translateX(calc(2.875rem - 1.75rem)); }
+.c8-interruptor:checked:active::after { transform: translateX(calc(2.875rem - 1.75rem - 6px)); }
+.c8-interruptor:focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; }
+.c8-interruptor:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ------------------------------------------------------------------ Deslizador: <input type="range" class="c8-deslizador" style="--valor: 40%"> */
+.c8-deslizador {
+  --valor: 50%;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.c8-deslizador::-webkit-slider-runnable-track {
+  height: 0.375rem;
+  border-radius: var(--r-pastilla);
+  background: linear-gradient(to right, var(--c-acento) var(--valor), var(--c-pista) var(--valor));
+}
+.c8-deslizador::-moz-range-track { height: 0.375rem; border-radius: var(--r-pastilla); background: var(--c-pista); }
+.c8-deslizador::-moz-range-progress { height: 0.375rem; border-radius: var(--r-pastilla); background: var(--c-acento); }
+.c8-deslizador::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  margin-top: -0.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+  transition: transform var(--d-3) var(--muelle);
+}
+.c8-deslizador::-moz-range-thumb {
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.c8-deslizador:active::-webkit-slider-thumb { transform: scale(1.12); }
+.c8-deslizador:focus-visible { outline: none; }
+.c8-deslizador:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--c-foco); }
+.c8-deslizador:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--c-foco); }
+
+/* ------------------------------------------------------------------ Campo de formulario */
+.c8-campo { display: grid; gap: var(--e-1); }
+.c8-campo > label, .c8-campo > .c8-campo-etiqueta { font: var(--peso-medio) var(--t-sec) / var(--lh-ui) var(--fuente); color: var(--c-texto-2); }
+.c8-campo :is(input:not([type="checkbox"], [type="radio"], [type="range"]), select, textarea),
+.c8-entrada {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--alto-control);
+  padding: var(--e-2) var(--e-3);
+  border: 1px solid var(--c-borde);
+  border-radius: var(--r-3);
+  background: var(--c-campo);
+  color: var(--c-texto);
+  font: var(--peso-normal) var(--t-cuerpo) / var(--lh-ui) var(--fuente);
+  transition: border-color var(--d-1) var(--suave), box-shadow var(--d-2) var(--suave);
+}
+.c8-campo textarea { min-height: 5.5rem; resize: vertical; }
+.c8-campo ::placeholder, .c8-entrada::placeholder { color: var(--c-texto-3); opacity: 1; }
+.c8-campo :is(input, select, textarea):hover, .c8-entrada:hover { border-color: var(--c-borde-2); }
+.c8-campo :is(input, select, textarea):focus-visible, .c8-entrada:focus-visible {
+  outline: none;
+  border-color: var(--c-foco);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-foco) 30%, transparent);
+}
+.c8-campo :is(input, select, textarea)[aria-invalid="true"], .c8-entrada[aria-invalid="true"] {
+  border-color: var(--c-error);
+  background: var(--c-error-fondo);
+}
+.c8-campo .c8-ayuda { font-size: var(--t-pie); color: var(--c-texto-3); }
+.c8-campo .c8-error { font-size: var(--t-pie); color: var(--c-error); font-weight: var(--peso-medio); }
+.c8-campo .c8-error:empty { display: none; }
+
+/* ------------------------------------------------------------------ Lista agrupada (ajustes estilo iOS) */
+.c8-lista { margin: 0; padding: 0; list-style: none; border-radius: var(--r-4); background: var(--c-capa-hover); overflow: hidden; }
+.c8-lista > li, .c8-lista > .c8-fila {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: var(--alto-control);
+  padding: var(--e-2) var(--e-4);
+}
+.c8-lista > li + li, .c8-lista > .c8-fila + .c8-fila { box-shadow: inset 0 1px 0 var(--c-separador); }
+.c8-lista .c8-fila-texto { flex: 1; min-width: 0; }
+.c8-lista .c8-fila-texto small { display: block; color: var(--c-texto-3); font-size: var(--t-pie); }
+
+/* ------------------------------------------------------------------ Etiqueta / sello */
+.c8-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-1);
+  min-height: 1.5rem;
+  padding: 0 var(--e-2);
+  border-radius: var(--r-pastilla);
+  background: var(--c-capa-hover);
+  border: 1px solid var(--c-borde);
+  color: var(--c-texto-2);
+  font: var(--peso-semi) var(--t-pie) / 1 var(--fuente);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.c8-etiqueta.c8-vidrio { background: var(--vidrio-texto); border-color: var(--vidrio-borde); color: var(--c-texto); }
+.c8-etiqueta--acento { background: var(--c-acento-suave); border-color: color-mix(in srgb, var(--c-acento) 40%, transparent); color: var(--c-acento-texto); }
+
+/* ------------------------------------------------------------------ Tarjeta y panel */
+.c8-tarjeta { box-sizing: border-box; border-radius: var(--r-5); padding: var(--e-5); }
+.c8-panel-titulo { margin: 0; font: var(--peso-semi) var(--t-titulo) / var(--lh-ajustado) var(--fuente-titular); letter-spacing: var(--track-titular); }
+
+/* ------------------------------------------------------------------ Aviso flotante (toast) */
+.c8-aviso {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  max-width: min(32rem, calc(100vw - 2rem));
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-4);
+  font: var(--peso-medio) var(--t-ui) / var(--lh-ui) var(--fuente);
+  animation: c8-aparecer var(--d-4) var(--muelle) both;
+}
+.c8-aviso[data-tipo="ok"] .c8-icono { color: var(--c-ok); }
+.c8-aviso[data-tipo="error"] .c8-icono { color: var(--c-error); }
+.c8-aviso.c8-saliendo { animation: c8-desaparecer var(--d-2) var(--entrada) forwards; }
+
+/* ------------------------------------------------------------------ Diálogo: <dialog class="c8-dialogo c8-vidrio c8-vidrio--denso"> */
+.c8-dialogo {
+  box-sizing: border-box;
+  width: min(30rem, calc(100vw - 2rem));
+  max-height: min(85dvh, 48rem);
+  padding: var(--e-6);
+  border-radius: var(--r-5);
+  color: var(--c-texto);
+  overflow: auto;
+}
+.c8-dialogo[open] { animation: c8-aparecer var(--d-4) var(--muelle) both; }
+.c8-dialogo::backdrop {
+  background: var(--velo);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+:root[data-transparencia="reducida"] .c8-dialogo::backdrop { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* ------------------------------------------------------------------ Indicador de actividad */
+.c8-cargando {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 15%, var(--c-texto-2));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  animation: c8-girar 0.8s linear infinite;
+}
+
+/* ------------------------------------------------------------------ Entrada escalonada de listas: style="--orden: 3" */
+.c8-entrar { animation: c8-aparecer var(--d-4) var(--muelle) both; animation-delay: calc(var(--orden, 0) * 40ms); }

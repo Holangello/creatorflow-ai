@@ -1308,7 +1308,7 @@ function alternarSonido() {
   if (sonido.activo) { if (sonido.el?.paused) arrancarSonido(); else fundido(volumenObjetivo(), 0.5); }
   else { fundido(0, 0.5); setTimeout(() => { if (!sonido.activo && !sonido.grabando) sonido.el?.pause(); pintarSonido(); }, 600); }
   pintarSonido();
-  visor.emitir("sonido", { activo: sonido.activo });
+  visor.emitir("sonido", { activo: sonido.activo, volumen: volumenObjetivo(true) });
 }
 
 function fijarVolumen(v) {
@@ -1317,6 +1317,7 @@ function fijarVolumen(v) {
   volSonido.value = String(Math.round(sonido.volumen * 100));
   if (sonido.volumen > 0 && !sonido.activo) return alternarSonido();
   fundido(volumenObjetivo(), 0.15);
+  visor.emitir("sonido", { activo: sonido.activo, volumen: sonido.volumen });
 }
 
 function pintarSonido() {

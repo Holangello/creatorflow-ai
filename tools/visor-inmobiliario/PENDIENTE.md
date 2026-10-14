@@ -30,21 +30,36 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
 - [x] **Fase 1 · Construcción y primera auditoría.**
   - Construido: visor, paneles, exportación, Estudio y Asistente Osmo 360.
   - Auditorías: QA, UX y Maverick (`docs/auditorias/fase1-*.md`), con sus correcciones.
-- [ ] **Fase 2 · Auditoría QA E2E + UX del Estudio, y correcciones.**
-  - [x] Núcleo del visor, `exportar.js`, asistente y ESQUEMA (commit d2373d7).
-  - [x] Música por proyecto: botón de sonido y volumen en el visor; ZIP, HTML autónomo y vídeo con música (commit bfa85a1).
-  - [ ] Estudio: encargo completo en `fase2-encargos.md § Estudio`. Lo hace el agente «Build tour creation Studio».
-    - Puntos QA: C1, A3, A4, A5, M1–M4, M6 y los de severidad baja.
-    - Puntos UX: P3–P8, P13–P15 y los 20 textos.
-    - Además: Continuar, Modo Rápido, alternativa sin arrastre, anclas `#paso`, subida de música y licencia, «Incluir música» en vídeo, y solo variables CSS.
-  - [ ] Paneles: encargo completo en `fase2-encargos.md § Paneles`. Lo hace el agente «Build viewer UI panels».
-    - Evento `tour`, validación de URLs, documentos sin duplicar.
-    - Puntos UX: P9–P12 y P15.
-    - No autoocultar antes de interactuar.
-    - i18n de `sello.*` y `sonido.*`, fila «Música» en Ajustes, crédito musical en la ficha.
-  - [ ] Verificar cada punto de ambos encargos con `npm run prueba` y con pruebas dirigidas. Después: commit, push y marcar esta fase.
+- [x] **Fase 2 · Auditoría QA E2E + UX del Estudio, y correcciones.** Verificada con `npm run prueba` y con las pruebas de los agentes sobre el código combinado:
+  - Modo rápido, ZIP público frente a copia de seguridad, restaurar, iPad, «Colocar» sin arrastre, fallo de guardado.
+  - Paneles: 97 comprobaciones, más el tour hostil con el código actual (sin `javascript:` ni ejecución de código).
+  - [x] Núcleo, `exportar.js`, asistente y ESQUEMA. Música por proyecto.
+  - [x] Estudio:
+    - QA: C1, A3, A4, A5, M1–M4, M6 y bajos.
+    - UX: P3–P8, P13–P15 y los textos.
+    - Además: Continuar, Modo Rápido, «Colocar», `#paso` y música con licencia.
+  - [x] Paneles:
+    - Evento `tour`, URLs seguras, documentos sin duplicar.
+    - P9–P12 y P15, sin autoocultar antes de interactuar.
+    - i18n, fila «Música» y crédito musical.
+    - `paneles.css` todo en variables `--pn-*`.
+  - [x] Decisiones del núcleo:
+    - `norte` = rumbo de brújula de «arriba» del plano. La flecha va girada −norte en el minimapa, el Estudio y el plano impreso (corregido `exportarPlano`); está en ESQUEMA.
+    - GPano: con `PoseHeadingDegrees`, la vista inicial se escribe como rumbo de brújula, igual que Google y Photo Sphere Viewer.
+    - El evento `sonido` lleva `{activo, volumen}` y también se emite al cambiar el volumen.
+  - Pendiente para la fase 4: el lienzo del plano y el editor de máscara del Estudio aún dibujan con colores fijos.
 - [ ] **Fase 3 · Esencialismo y organización** (ver «Encargos de la fase 3»).
 - [ ] **Fase 4 · Diseño premium «minimal liquid glass»** con tema claro/oscuro y tallas S/M/L (ver «Encargo de la fase 4»).
+  - [x] Base del sistema, adelantada mientras terminaba la fase 2. Documentado en `docs/diseno/sistema.md`, con la tabla de migración de variables.
+    - `tema.css`: tokens, vidrio, componentes `c8-*`, claro y oscuro con contraste AA calculado, tallas fluidas S/M/L, muelles.
+    - `tema.js`: preferencias compartidas, `?tema=` y `?talla=` en la URL, transparencia y movimiento reducidos.
+    - Inter Variable en `vendor/fonts/inter` (OFL).
+    - `tema-muestra.html`: muestra viva.
+  - [ ] Aplicarlo a `visor.css` + `index.html`, `paneles.css`, `estudio.css` y `asistente-osmo.html`.
+  - [ ] Ajustes «Apariencia» y «Tamaño».
+  - [ ] `marca.color` → `--c-sobre-acento`.
+  - [ ] Fuentes en el HTML autónomo y en el ZIP.
+  - [ ] Matriz de capturas y auditorías.
 - [ ] **Fase 5 · Entrega** (ver «Pasos de la fase 5»).
 
 ## Requisitos del cliente (no se pueden eliminar, solo refinar)

@@ -244,7 +244,7 @@ function pintar() {
     partes.push(zonaSoltar(h("div", { class: "vacio-grande" },
       icono("fotos", 42),
       h("h3", { text: "Empieza con las fotos 360 del inmueble" }),
-      h("p", { text: "Una foto por estancia, tomada a 1,5 m de altura en el centro de cada espacio. Puedes soltar aquí varias a la vez, un ZIP exportado antes o una carpeta con tour.json." }),
+      h("p", { text: "Una foto por estancia, tomada a 1,5 m de altura en el centro de cada espacio. Puedes soltar aquí varias a la vez, una copia de seguridad (ZIP) o una carpeta con tour.json." }),
       h("div", { class: "fila", style: { justifyContent: "center" } },
         h("button", { class: "btn primario grande", onclick: elegir }, icono("subir", 18), "Elegir fotos"),
         h("button", { class: "btn grande", onclick: () => emitir("abrir") }, icono("abrir", 18), "Abrir proyecto")),

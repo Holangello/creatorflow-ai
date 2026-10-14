@@ -77,7 +77,7 @@ function pintarUI() {
 function pintarPlantas() {
   const b = $("#barra-plantas");
   if (!b) return;
-  b.replaceChildren(
+  b.replaceChildren(...[
     ...app.tour.plantas.map((pl) => h("button", {
       class: "pestana", role: "tab", "aria-selected": String(pl.id === planta().id), text: textoDe(pl.nombre) || pl.id,
       title: "Doble clic para renombrar",
@@ -88,7 +88,7 @@ function pintarPlantas() {
     h("div", { class: "relleno", style: { flex: 1 } }),
     h("button", { class: "btn peq", onclick: subirPlano, title: "Plano del arquitecto: PDF, DXF, PNG o JPG" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
     (() => { const sig = app.pasoSiguiente?.("plano"); return sig ? h("button", { class: "btn peq primario", "data-continuar": sig.id, onclick: () => emitir("ir", { seccion: sig.id }) }, `Continuar → ${sig.titulo}`) : null; })(),
-  );
+  ].filter(Boolean));
 }
 function pintarHerramientas() {
   const b = $("#herramientas");
@@ -680,7 +680,7 @@ function eventosLienzo() {
       const n = nodoEn(sx, sy);
       if (!n) {
         const l = enlaceEn(sx, sy);
-        if (l) { alternarEnlace(...l); toast("Enlace quitado", "info"); }
+        if (l) { alternarEnlace(...l); toast("Conexión quitada", "info"); }
         else { S.enlaceDesde = null; pintarHerramientas(); }
         marcar(); return;
       }
@@ -688,7 +688,7 @@ function eventosLienzo() {
       if (S.enlaceDesde === n.id) { S.enlaceDesde = null; pintarHerramientas(); marcar(); return; }
       const ya = calcularEnlaces().efectivos.has(claveEnlace(S.enlaceDesde, n.id));
       alternarEnlace(S.enlaceDesde, n.id);
-      toast(ya ? `Enlace quitado: ${nombreDe(pano(S.enlaceDesde))} ↔ ${nombreDe(n)}` : `Enlazadas: ${nombreDe(pano(S.enlaceDesde))} ↔ ${nombreDe(n)}`, ya ? "info" : "ok");
+      toast(ya ? `Desconectadas: ${nombreDe(pano(S.enlaceDesde))} ↔ ${nombreDe(n)}` : `Conectadas: ${nombreDe(pano(S.enlaceDesde))} ↔ ${nombreDe(n)}`, ya ? "info" : "ok");
       S.enlaceDesde = e.shiftKey ? n.id : null;
       pintarHerramientas(); pintarLado(); marcar();
     }
@@ -864,7 +864,7 @@ function iniciarArrastreFicha(e, id) {
  */
 const anguloNorte = () => Math.round(norm360(-(app.tour.norte ?? 0)));
 function fijarNorte(aguja, conRender = true) {
-  cambiar((t) => { t.norte = Math.round(norm360(-aguja)); }, { clave: "norte", tipo: "datos", render: false });
+  cambiar((t) => { t.norte = Math.round(norm360(-aguja)); t._estudio.norteFijado = true; }, { clave: "norte", tipo: "datos", render: false });
   const a = anguloNorte();
   const dial = lado?.querySelector(".dial-norte");
   if (dial) { dial.querySelector(".aguja").style.transform = `rotate(${a}deg)`; dial.setAttribute("aria-valuenow", a); dial.setAttribute("aria-valuetext", `${a} grados`); }

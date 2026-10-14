@@ -63,6 +63,9 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
 
   "altura_camara": 1.5,
   "radio_enlace_auto": 4.5,
+  "norte": 20,                          // rumbo de brújula (grados, horario desde el norte) de la dirección «arriba» del plano.
+                                        // La flecha del norte se dibuja girada −norte. Rumbo de brújula de una dirección del plano = norte + rumbo.
+                                        // Con brújula: yaw de la foto = rumbo de brújula del centro de la foto − norte.
   "inicio": "salon",
 
   "plantas": [                          // si falta: una única planta con `plano`/`muros` de nivel superior (v1)
@@ -178,7 +181,8 @@ el clic avanza hacia la flecha o la estancia que hay bajo la mira.
 Eventos (`visor.on`), también emitidos como `CustomEvent("visor:<evento>")` en `window` y enviados a
 `window.dataLayer` si existe (analítica):
 `listo`, `tour` (tras cada carga, también `visor:cargar`), `nodo` ({id}), `modo`, `estilo`, `momento`, `pintura`, `medida` ({metros, tipo}), `contacto` ({canal}),
-`guion:inicio`, `guion:fin`, `idioma`.
+`guion:inicio`, `guion:paso` ({paso, nodo, texto}), `guion:pausa`, `guion:fin`, `idioma`, `sonido` ({activo, volumen}; al silenciar/activar
+y al cambiar el volumen).
 
 ## 3. Mensajes `postMessage` (Estudio ↔ visor en `<iframe src="index.html?embed">`)
 
