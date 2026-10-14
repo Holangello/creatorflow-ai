@@ -29,7 +29,8 @@ export async function procesarImagen(blob, { tamanos = [8192, 4096, 512], calida
       const lienzo = new OffscreenCanvas(w, h);
       const ctx = lienzo.getContext("2d");
       if (!ctx) throw new Error("lienzo demasiado grande");
-      ctx.drawImage(bmp, 0, 0);
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(bmp, 0, 0, w, h); // con tamaño explícito: algunos navegadores ignoran resizeWidth
       progreso(0.05 + ((i + 0.6) / tamanos.length) * 0.9, "Comprimiendo");
       jpg = await lienzo.convertToBlob({ type: "image/jpeg", quality: calidad });
       lienzo.width = lienzo.height = 1; // libera la memoria del lienzo
