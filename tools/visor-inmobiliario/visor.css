@@ -27,7 +27,8 @@ html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--tex
 #lienzo:active { cursor: grabbing; }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
-svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+/* Solo los iconos de la interfaz (no SVG de datos como el QR) */
+:is(button, a, .icono, #iconos, #minimapa) svg, svg.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
 #barra, #modos, #iconos .icono, #minimapa, #galeria, #ficha, #ayuda, #aviso, #pista, #subtitulo, .barra-contextual, .medida-etq {
   background: var(--panel); border: 1px solid var(--borde); border-radius: var(--radio);

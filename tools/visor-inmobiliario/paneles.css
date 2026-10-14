@@ -515,3 +515,6 @@ body.ui-inactiva .pn-disp-lateral .pn-dock-wa { opacity: .85; }
 /* crédito del software */
 .pn-credito { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--pn-borde-2); font-size: 11.5px; color: var(--pn-suave); text-align: center; letter-spacing: .02em; opacity: .8; }
 .pn-credito-marca { font-weight: 600; letter-spacing: .04em; color: var(--pn-texto); }
+
+/* Los SVG "de datos" (QR) no deben heredar el trazo de los iconos del núcleo (QR ilegible). */
+.pn-qr-img svg, .pn-qr-img svg * { stroke: none !important; }
