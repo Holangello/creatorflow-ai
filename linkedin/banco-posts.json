@@ -781,15 +781,11 @@
     "chosen": 0,
     "hora": "12:30",
     "pilar": "Oferta · Captación",
-    "formato": "Carrusel PDF · 8 slides",
+    "formato": "Solo texto · el carrusel quedó no producido",
     "tono": "metodo",
-    "metrica": "Mensajes privados con la palabra «mitad», y guardados del carrusel",
-    "media": {
-      "tag": "Carrusel · slide 1 de 8",
-      "title": "LA MITAD DE UN PROYECTO DE VÍDEO NO LA HACE TU PROVEEDOR",
-      "note": "Tipografía pura sobre negro, un solo acento por slide, el 07 sin nada de color. Brief completo de linkedin-designer en la ficha."
-    },
-    "data": "**Nada que confirmar. Cero cifras y ningún `[DATO]`:** no dice cuántas piezas, ni plazos, ni precios, ni número de personas. Los únicos dígitos de toda la pieza son los ordinales 01/02/03 de la lista y la numeración 0X/08 de los slides. **Lo único que decidir es de diseño, no de dato:** el diseñador mantiene esos ordinales porque son el único refuerzo no cromático del orden de la serie, que es requisito de accesibilidad; si los quieres fuera, la sustitución limpia es llevar el ticker de tres barras al kicker y el carrusel se queda sin un solo dígito más. **Y la versión 3 no es elegible**, por un defecto de premisa explicado en la ficha.",
+    "metrica": "Mensajes privados con la palabra «mitad»",
+    "media": null,
+    "data": "**Puerta de producción cerrada el 14-10 a las 19:30: el PDF no llegó, así que la pieza sale en texto, sin tocar una palabra del copy, y el brief visual queda `no producido`.** No se aplaza ni se alarga: la banda de esta pieza es la de carrusel (400-700) y sigue siéndolo al degradarse, por la regla cerrada el 14-10 en `03-guia-copywriting.md`. Sale a 627 caracteres y es correcto. **Nada que confirmar. Cero cifras y ningún `[DATO]`:** no dice cuántas piezas, ni plazos, ni precios, ni número de personas. Los únicos dígitos de toda la pieza son los ordinales 01/02/03 de la lista y la numeración 0X/08 de los slides. **Lo único que decidir es de diseño, no de dato:** el diseñador mantiene esos ordinales porque son el único refuerzo no cromático del orden de la serie, que es requisito de accesibilidad; si los quieres fuera, la sustitución limpia es llevar el ticker de tres barras al kicker y el carrusel se queda sin un solo dígito más. **Y la versión 3 no es elegible**, por un defecto de premisa explicado en la ficha.",
     "alts": [
       {
         "name": "La mitad que no se factura",

@@ -53,7 +53,7 @@ limpio sin fecha**, disponibles para cualquier franja de su pilar.
 | 08-10 · El documento que cierra el briefing | 1 | 1.315 | publicable | sin fecha | — |
 | 09-10 · La señal y la factura | 1 | 1.191 | publicable | sin fecha | — |
 | 12-10 · La mitad que nadie firma | 1 | 1.427 | **publicable · se publicó o no, no se sabe** | lun 12-10 | **Estado real desconocido y escrito como desconocido.** Se avisó el 12 a las 09:20 con el texto pegado en el chat; no ha llegado respuesta y la rutina de las 19:30 sigue en silencio con cuatro avisos sin contestar, así que nadie en el repositorio puede afirmar que salió ni que no salió. **No se escribe «publicada» sin que Angello lo diga.** De esta incógnita cuelga la condición de arranque de la semana 7 |
-| 15-10 · La mitad que no se factura | 1 | 627 | publicable | jue 15-10 | Carrusel o texto según la puerta del 14. En texto sale a 627, y es correcto: banda de carrusel |
+| 15-10 · La mitad que no se factura | 1 | 627 | publicable | jue 15-10 | **Sale en texto:** la puerta del 14 se cerró sin PDF y el brief queda `no producido`. 627 caracteres, y es correcto: banda de carrusel |
 
 **Qué cambió respecto del recuento del 08-10, y por qué daba otro número.** Decía «publicables:
 diecisiete» y se quedó corto por una razón y largo por otra, y las dos se corrigen aquí: contaba como

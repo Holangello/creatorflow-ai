@@ -1,7 +1,13 @@
 # 2026-10-15 · Oferta · eje 4 «Responsabilidad compartida» · «La mitad que no se factura»
 
 **Estado:** creada. Tres versiones + brief visual. **Elegida por Maverick: A, «La mitad que no se factura».**
-**Publicar:** jueves 15 de octubre, 12:30. Intensidad método. **Carrusel PDF de 8 slides + texto.**
+**Publicar:** jueves 15 de octubre, 12:30. Intensidad método. **SOLO TEXTO.**
+**Puerta de producción cerrada el 14-10 a las 19:30: el PDF no llegó.** `linkedin/activos/` contenía un
+solo archivo, su propio README. Así que se aplica lo que esta ficha decidió el 09-10, cinco días antes de
+que llegara el día: **la pieza sale en texto, sin tocar una palabra del copy**, y el brief visual de abajo
+queda marcado `NO PRODUCIDO`. **No se aplaza, no se sustituye y no se alarga:** la banda de esta pieza es la
+de carrusel (400-700) y sigue siéndolo al degradarse, por la regla que se cerró el 14-10 en
+`03-guia-copywriting.md`. Sale a 627 caracteres y es correcto.
 **Métrica principal:** mensajes privados con la palabra «mitad», y guardados del carrusel.
 **Palabra clave de DM: «mitad».** No colisiona con «sistema» (01-10) ni «alcance» (08-10).
 
@@ -169,7 +175,13 @@ Cómo lo pedimos nosotros ahora: agenciamakers.com
 
 ---
 
-## Brief de producción visual · `linkedin-designer`
+## Brief de producción visual · `linkedin-designer` · **NO PRODUCIDO**
+
+**Marcado `no producido` el 14-10 a las 19:30**, en la puerta que esta misma ficha fijó el 09-10. No se
+exportó el PDF y ningún agente del sistema puede exportarlo: son 110 minutos de Figma y son tiempo de
+Angello. **El brief no se borra ni caduca:** la pieza ya salió en texto, y si algún día se produce, el
+carrusel se puede publicar como pieza propia o acompañar a una futura. Lo que no se hace es retener un
+jueves por un formato.
 
 **Formato:** carrusel PDF, 8 páginas, 1080 × 1350 px (4:5). Objetivo real de peso: por debajo de 2 MB.
 **Archivo:** `linkedin_2026-10-15_lo-que-tiene-que-estar-de-tu-lado.pdf`

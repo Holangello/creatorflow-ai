@@ -22,7 +22,7 @@ Ninguno producido. La columna que decide es la última: **qué pasa si el archiv
 
 | Pieza | Franja | Activo pedido | Brief | Si no llega |
 | --- | --- | --- | --- | --- |
-| 15-10 «Lo que tiene que estar de tu lado» | jue 15-10, 12:30 | Carrusel PDF, 8 páginas | Completo, en la ficha de la pieza. Producción estimada por el diseñador: 110 min en Figma | **Sale en texto, sin tocar una palabra.** Puerta de producción la noche del 14 |
+| 15-10 «Lo que tiene que estar de tu lado» | jue 15-10, 12:30 | Carrusel PDF, 8 páginas · **NO PRODUCIDO** | Completo, en la ficha de la pieza. Producción estimada por el diseñador: 110 min en Figma | **Puerta cerrada el 14-10 a las 19:30 sin PDF: la pieza salió en texto**, sin tocar una palabra, a 627 caracteres. El brief sigue vivo por si algún día se produce |
 | 23-10 «Rechacé un proyecto y me llamaron arrogante» | vie 23-10, 09:30 | Foto propia 4:5, sin posado ni filtro | `media` del banco. No es la foto reservada para la pieza biográfica | **Sale en texto.** El cuerpo no nombra la foto |
 | 17-09 «El contenido lo hacemos dentro» | sin fecha · inventario de Oferta **limpio** | **Ya no es requisito.** Imagen única 1200 × 1500, queda como mejora opcional | En su ficha | **Sale en texto, y es el estado por defecto de esta pieza.** La cuenta ya está entera en el cuerpo y repetida con sus divisiones en el primer comentario |
 | 01-10 «Qué recibe un cliente cada mes» | sin fecha · inventario de Oferta | Carrusel PDF, 10 páginas | `cola/2026-10-01-carrusel-tres-cosas-cada-mes.md` | **Sale en texto.** El cuerpo no nombra el carrusel |
