@@ -39,10 +39,10 @@ una consecuencia de planificación que conviene no perder:** hasta hoy se escrib
 «Oferta no tiene ninguna alternativa limpia de inventario» porque el 01-10 y el 10-09 estaban bloqueados
 por un archivo y el 17-09 por un dato. **Ya no es cierto: Oferta tiene una.**
 
-**El 01-10 y el 15-10 abren una pregunta de regla, no de archivo.** Las dos están escritas como carrusel
-—687 y 627 caracteres— y las dos salen en texto si el PDF no llega. El rango de texto de
-`../03-guia-copywriting.md` empieza en 900. **No se toca ni una palabra por esto**: queda anotado en
-`../cola/README.md` para que lo decida el estratega el día en que una de las dos salga degradada.
+**El 01-10 y el 15-10 ya no abren ninguna pregunta.** Las dos están escritas en banda de carrusel —687 y
+627 caracteres— y las dos salen en texto si el PDF no llega, **a su cuenta y sin tocar una palabra.** El
+suelo de 900 no aplica a una pieza degradada: regla cerrada el 14-10 en `../03-guia-copywriting.md`, que es
+el único sitio donde vive.
 
 ## El único activo que de verdad bloquea una pieza
 

@@ -46,7 +46,8 @@
 - **Frases: objetivo 15 palabras.** Tolerancia medida: **hasta el 10% de las frases del post por
   encima de 15, y ninguna por encima de 25.** Si una frase necesita coma, prueba con punto.
 - Párrafos de 1 a 3 líneas. Línea en blanco entre párrafos.
-- Un post de texto: 900 a 1.600 caracteres. Con carrusel o vídeo: 400 a 700.
+- Un post de texto: 900 a 1.600 caracteres. Con carrusel o vídeo: 400 a 700. **La banda se fija al
+  escribir, según el formato planificado, y no se recalcula después.**
 - Listas: 3 elementos. Ni 2 ni 5.
 - Emojis: máximo 3, solo como viñeta. Nunca en el gancho.
 
@@ -73,6 +74,47 @@ es lo que impide que el 10% se gaste en párrafos ilegibles.
 práctica donde la guía pedía algo razonable y se incumplió. Tener un número que nadie cumple es peor
 que no tenerlo; cambiar un número que sí se cumple porque dos piezas lo pasaron es peor todavía.
 
+### El suelo de 900 no sobrevive a una degradación de formato · 14-10-2026
+
+**La banda se fija al escribir y no se recalcula al publicar.** Una pieza escrita y medida en la banda de
+carrusel o vídeo (400-700) que sale en texto porque el activo no se produjo **sigue medida contra 400-700**.
+El suelo de 900 no aplica, y no se añade ni un carácter para alcanzarlo.
+
+**Por qué, y es la misma asimetría de arriba.** Techo y suelo tienen el mismo punto de control: el momento
+de escribir. El suelo existe para que **una pieza que se decide como solo texto** no se escriba como un
+fragmento delgado, no para obligar a rellenar una pieza ya cerrada. Rellenar 627 hasta 900 son 273
+caracteres de relleno que hay que propagar al banco y a los artefactos, y es la deriva de longitud que este
+sistema corrigió dos veces el 13-10. Y choca de frente con la regla 3 de `04-guia-diseno.md`: si el suelo
+aplicara, la puerta de producción obligaría a reescribir la víspera la pieza que la regla manda publicar
+**sin tocar una palabra**.
+
+**Condiciones para acogerse, las cuatro comprobables. Si falla una, la pieza no se degrada: vuelve al
+redactor.**
+
+1. **Banda declarada antes de la puerta.** La ficha trae la cuenta medida y la banda 400-700 escritas con
+   fecha anterior a la de la puerta de producción. Una banda retroactiva no vale: sin esta condición
+   cualquier pieza corta se reetiqueta «carrusel» a posteriori.
+2. **Dentro de su banda, no por debajo: 400 caracteres o más.** Por debajo de 400 no es una lista corta, es
+   un post incompleto, y no hay exención.
+3. **El cuerpo no nombra el activo.** Ni «el carrusel», ni «los slides», ni «desliza», ni «abajo», ni «en el
+   documento». Es la regla 5 de `04-guia-diseno.md` y se comprueba buscando esas palabras en el cuerpo.
+4. **Nada necesario para entender la pieza vive solo en el activo.** Tesis, enumeración completa y CTA único
+   están en el cuerpo, comprobado **contra la tabla de slides de la propia ficha**. Si un slide aporta un
+   elemento del argumento que el cuerpo no tiene, falla la regla 1 de `04-guia-diseno.md`.
+
+**La forma del cuerpo no es condición, y esto es lo que evita volver a decidir pieza a pieza.** Da igual que
+sea lista numerada o prosa: el 15-10 es una lista y el 01-10 es prosa con una enumeración de tres, y las dos
+se acogen igual. Escribir la regla sobre «las listas aguantan solas» habría dejado fuera al 01-10 al día
+siguiente.
+
+**Esta exención no autoriza escribir corto a propósito.** La banda de 400-700 sigue exigiendo la regla 2 de
+`04-guia-diseno.md`: hueco de producción reservado, con fecha y duración. El 01-10 y el 15-10 se escribieron
+antes de esa regla y se acogen como heredadas. Una pieza escrita después sin producción reservada no está en
+banda de carrusel: está por debajo del suelo de texto, y eso se arregla al escribir, no en la puerta.
+
+**Se anota al publicar:** la ficha queda `no producido` y el inventario dice «publicada en texto · banda de
+carrusel». Así una cuenta de 627 no se lee luego como un suelo incumplido.
+
 ## CTA por fase (uno solo por pieza)
 - **Atracción:** "¿Cuál de las tres os pasa?" / "Guarda esto para la próxima reunión de marketing."
 - **Conversación:** "Cuéntame en comentarios cómo lo resolvéis vosotros." / "A o B, ¿cuál elegirías?"
@@ -92,7 +134,9 @@ que no tenerlo; cambiar un número que sí se cumple porque dos piezas lo pasaro
 - Fase captación: cómo funciona el siguiente paso + enlace a agenciamakers.com.
 
 ## Checklist final (reglas B2B)
-- [ ] ¿Caracteres del cuerpo contados y dentro del techo? (texto 900-1.600 · carrusel o vídeo 400-700)
+- [ ] ¿Caracteres del cuerpo contados y dentro de la banda del formato con que se escribe? (texto
+      900-1.600 · carrusel o vídeo 400-700). **Si la pieza se degrada a texto por falta de activo, su
+      banda sigue siendo la de carrusel.**
 - [ ] ¿Frases de más de 15 palabras por debajo del 10%, y ninguna por encima de 25?
 - [ ] ¿El cuerpo se sostiene solo si el activo visual no se produce? (`04-guia-diseno.md`, regla 1)
 - [ ] ¿Habla a un decisor de empresa?

@@ -28,10 +28,19 @@ se pierde es el hueco de formato, y eso se corrige reservando producción, no ap
 Es la regla 1 de `04-guia-diseno.md`, y esta pieza es la que mejor la cumple de todo el sistema.
 
 **Medidas de la versión A, añadidas el 09-10 por el punto de control nuevo de
-`03-guia-copywriting.md`:** cuerpo sin hashtags **628 caracteres** (banda de carrusel o vídeo:
-400-700), **ninguna frase por encima de 15 palabras.** Si sale en texto se queda por debajo de la banda
-de 900 de un post de solo texto, y eso es deliberado: la pieza es una lista, y una lista corta aguanta
-mejor sola que estirada.
+`03-guia-copywriting.md` y recontadas el 14-10:** cuerpo sin hashtags **627 caracteres** (banda de
+carrusel o vídeo: 400-700), **ninguna frase por encima de 15 palabras.** Si sale en texto queda por
+debajo de la banda de 900 de un post de solo texto, **y es correcto: la banda de una pieza no se
+recalcula al degradar el formato** (`03-guia-copywriting.md`, «El suelo de 900 no sobrevive a una
+degradación de formato»). **Esta ficha no decide esa regla**, solo comprueba sus cuatro condiciones:
+banda declarada el 09-10, 627 ≥ 400, el cuerpo no nombra el carrusel —comprobado buscando «carrusel»,
+«slide», «desliza», «abajo» y «documento», cero ocurrencias— y los tres elementos, la sentencia y el CTA
+viven en el cuerpo.
+
+**Y aquí había un carácter mal, que es poco y es el mecanismo de siempre.** Esta ficha decía **628** y
+los dos README decían **627**. Al medir el cuerpo el 14-10 salen **627**: los README tenían razón y la
+ficha no. Queda 627 en los tres sitios. Un número escrito a mano en tres documentos se desincroniza
+aunque sea por uno.
 
 ## Retipada: esto no es un C3
 

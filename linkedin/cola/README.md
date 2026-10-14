@@ -45,7 +45,7 @@ limpio sin fecha**, disponibles para cualquier franja de su pilar.
 | 23-09 · La regla de lectura | A | **1.587** | publicable · **una frase por confirmar** | vie 30-10 | Reescrita el 13-10 en una sola pasada: otra formulación de la regla, confesión con otro objeto —su propia lectura, no una propuesta— y recorte dentro del techo. **Falta que Angello confirme que ese hábito de lectura es suyo**; si no lo es, se quita el párrafo entero y queda en 1.422 |
 | 24-09 · Para quién no es | A | 1.422 | publicable | jue 22-10 | — |
 | 30-09 · La cláusula que falta | A | 1.545 | publicable | vie 16-10 | — |
-| 01-10 · El mes por dentro | A | 687 | publicable | sin fecha | Carrusel opcional. **Ojo al suelo de caracteres**, abajo |
+| 01-10 · El mes por dentro | A | 687 | publicable | sin fecha | Carrusel opcional. Si no llega el PDF sale en texto a 687, y es correcto: banda de carrusel |
 | 02-10 · El último metro | 1 | 1.412 | publicable | sin fecha | — |
 | 05-10 · La aritmética | B | 1.437 | publicable | sin fecha | — |
 | 06-10 · El código a la vista | A | 1.276 | publicable | mar 20-10 | — · desbloqueada el 09-10 |
@@ -53,7 +53,7 @@ limpio sin fecha**, disponibles para cualquier franja de su pilar.
 | 08-10 · El documento que cierra el briefing | 1 | 1.315 | publicable | sin fecha | — |
 | 09-10 · La señal y la factura | 1 | 1.191 | publicable | sin fecha | — |
 | 12-10 · La mitad que nadie firma | 1 | 1.427 | **publicable · se publicó o no, no se sabe** | lun 12-10 | **Estado real desconocido y escrito como desconocido.** Se avisó el 12 a las 09:20 con el texto pegado en el chat; no ha llegado respuesta y la rutina de las 19:30 sigue en silencio con cuatro avisos sin contestar, así que nadie en el repositorio puede afirmar que salió ni que no salió. **No se escribe «publicada» sin que Angello lo diga.** De esta incógnita cuelga la condición de arranque de la semana 7 |
-| 15-10 · La mitad que no se factura | 1 | 627 | publicable | jue 15-10 | Carrusel o texto según la puerta del 14. **Ojo al suelo de caracteres**, abajo |
+| 15-10 · La mitad que no se factura | 1 | 627 | publicable | jue 15-10 | Carrusel o texto según la puerta del 14. En texto sale a 627, y es correcto: banda de carrusel |
 
 **Qué cambió respecto del recuento del 08-10, y por qué daba otro número.** Decía «publicables:
 diecisiete» y se quedó corto por una razón y largo por otra, y las dos se corrigen aquí: contaba como
@@ -88,14 +88,13 @@ del 23-09 comprobaba contra sus vecinas de calendario y nunca contra la pieza qu
 **Cuando una pieza cambia de fecha, se recomprueba contra las piezas que la citan, no solo contra las que
 tiene al lado.**
 
-## El suelo de caracteres, y es un hueco de regla, no un error de pieza
+## El suelo de caracteres · cerrado el 14-10-2026, y la regla no vive aquí
 
-`../03-guia-copywriting.md` da dos rangos: **texto 900–1.600** y **carrusel o vídeo 400–700**. La regla
-de activo visual del 09-10 dice que si el archivo no llega, **la pieza sale en texto**. Las dos piezas
-escritas como carrusel —el 01-10 con 687 y el 15-10 con 627— están dentro de su rango como carrusel y
-**por debajo del suelo de texto si salen degradadas.** No se toca ni una palabra por esto: es una
-pregunta de regla que decide el estratega, no un defecto de las piezas. Queda escrita aquí para que
-aparezca el día en que una de las dos salga sin PDF.
+El 01-10 (687) y el 15-10 (627) están escritas en la banda de carrusel (400-700) y quedan por debajo del
+suelo de texto de 900 si el PDF no llega. **Decidido: el suelo de 900 no aplica a una pieza que se degrada a
+texto, y no se toca ni una palabra.** La regla, con sus cuatro condiciones comprobables, vive en
+`../03-guia-copywriting.md` y solo ahí. Esta tabla no la repite: si un archivo del sistema dice otra cosa, el
+que manda es la guía.
 
 ## Fase actual del sistema: inventario
 
