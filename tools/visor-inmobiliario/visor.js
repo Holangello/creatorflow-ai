@@ -39,6 +39,7 @@ const FALLBACK = {
   "estilo.contemporaneo_minimalista": "Contemporáneo", "estilo.clasico": "Clásico",
   "momento.dia": "Día", "momento.atardecer": "Atardecer", "momento.noche": "Noche", "momento.simulado": "(simulación)",
   "nav.ir_a": "Ir a {x}", "nav.metros": "{x} m", "galeria.titulo": "Estancias",
+  "sello.ia": "Recreación virtual · IA", "sello.render": "Render / infografía", "sello.simulado": "Iluminación simulada",
 };
 let i18n = null;
 function tr(k, vars) {
@@ -501,13 +502,13 @@ function precargarVecinos(nodo) {
 /** Origen de la imagen visible: "foto" real, "render" o "ia" (estilos), y si la luz es simulada. */
 function origenVisible() {
   const v = int.fuenteActual?.variante;
-  const origen = v ? v.origen ?? (v.estilo && v.estilo !== "original" ? "ia" : "foto") : "foto";
+  const origen = v ? v.origen ?? (v.estilo && v.estilo !== "original" ? "ia" : "foto") : int.actual?.origen ?? "foto";
   return { origen, simulado: !!int.fuenteActual?.sim };
 }
 function actualizarSello() {
   const { origen, simulado } = origenVisible();
   const el = $("#sello-ia");
-  const txt = origen === "ia" ? "Recreación virtual · IA" : origen === "render" ? "Render / infografía" : simulado ? "Iluminación simulada" : "";
+  const txt = origen === "ia" ? tr("sello.ia") : origen === "render" ? tr("sello.render") : simulado ? tr("sello.simulado") : "";
   el.textContent = txt;
   el.hidden = !txt || estado.modo !== "tour";
   return txt;
@@ -1491,6 +1492,8 @@ Object.assign(visor, {
     if (e) return { id: e.id, nombre: e.nombre };
     return int.actual ? { id: int.actual.id, nombre: int.actual.nombre } : null;
   },
+  /** Durante la grabación de vídeo, la visita guiada y las transiciones avanzan por reloj real. */
+  tiempoReal(si) { int.tiempoReal = !!si; },
   /** Texto del aviso legal de la vista actual ("" si es una foto real). */
   sello: () => (estado.modo === "tour" ? actualizarSello() : ""),
   radar(modo) {
@@ -1665,9 +1668,10 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   estado.rumbo = h?.rumbo != null && !isNaN(h.rumbo) && int.nodos.has(h?.nodo) ? h.rumbo : (inicio.rumbo_inicial ?? inicio.yaw ?? 0) * GRAD;
   if (h?.cabeceo != null && !isNaN(h.cabeceo)) estado.cabeceo = h.cabeceo;
   if (renderer) await irA(inicio, { instantaneo: true });
-  if (h?.fov && !isNaN(h.fov)) fijarZoom(h.fov / int.fovBase);
   else { int.actual = inicio; estado.nodo = inicio.id; }
+  if (h?.fov && !isNaN(h.fov)) fijarZoom(h.fov / int.fovBase);
   dibujarPlantas();
+  visor.emitir("tour", {}); // los paneles se repintan con los datos nuevos (p. ej. vista previa del Estudio)
 }
 
 // ------------------------------------------------------------------ bucle y arranque
@@ -1697,10 +1701,12 @@ function renderizar() {
 
 function bucle() {
   reloj.update();
-  const dt = Math.min(reloj.getDelta(), 0.1);
+  const dtReal = reloj.getDelta();
+  const dt = Math.min(dtReal, 0.1);
+  const dtGuion = int.tiempoReal ? Math.min(dtReal, 1) : dt; // grabando: la visita sigue el reloj real
   if (estado.modo === "tour") {
-    pasoTransicion(dt);
-    guion.paso(dt);
+    pasoTransicion(dtGuion);
+    guion.paso(dtGuion);
     giroTeclado(dt);
     cabeceoTeclado(dt);
     actualizarBarraGuion();

@@ -246,17 +246,16 @@
     <section data-titulo="Crear en el Estudio" class="tarjeta" hidden>
       <div class="num">Paso 7 · 15–20 min</div>
       <h1>Crea el recorrido en cre8eight Estudio</h1>
-      <p class="intro">Abre el Estudio en el ordenador o en el iPad y sigue sus pasos. Todo se guarda solo.</p>
+      <p class="intro">Abre el Estudio en el ordenador o en el iPad y elige <b>Modo rápido</b> (recomendado). Sigue el botón <b>Continuar</b> de cada paso: todo se guarda solo.</p>
       <p><a class="btn primario" href="estudio.html">Abrir el Estudio</a></p>
       <ol style="padding-left: 20px">
-        <li><b>Fotos:</b> arrastra la carpeta. El Estudio detecta que son de la Osmo 360, las ordena por hora, les pone los nombres de tu lista y crea las versiones para web y móvil.</li>
-        <li><b>Plano:</b> sube el plano (PDF, imagen o DXF del arquitecto) y <b>calíbralo</b>: marca dos puntos y escribe la distancia real en metros.</li>
-        <li><b>Colocar:</b> arrastra cada foto a su sitio en el plano. Dibuja las estancias para que aparezcan los m².</li>
-        <li><b>Orientar:</b> en cada foto, gira hasta mirar hacia la puerta indicada y pulsa "Alinear". Si disparaste siempre con la misma orientación, solo tendrás que hacerlo una vez.</li>
-        <li><b>Enlaces:</b> comprueba que todas las estancias están conectadas (las flechas del suelo).</li>
-        <li><b>Ficha:</b> precio, superficies, <b>certificado energético</b> (obligatorio en anuncios), características, contacto y WhatsApp.</li>
-        <li><b>Extras:</b> estilos de decoración, versión de noche, colores de pared, renders y planos del arquitecto.</li>
+        <li><a href="estudio.html#fotos"><b>Fotos</b></a>: arrastra la carpeta. El Estudio detecta que son de la Osmo 360, las ordena por hora y les pone los nombres de tu lista (incluidas las tomas repetidas: "Cocina", "Cocina 2").</li>
+        <li><a href="estudio.html#plano"><b>Plano</b></a>: sube el plano (PDF, imagen o DXF del arquitecto), <b>calíbralo</b> con dos puntos y una distancia real, coloca cada foto donde pusiste la cámara y dibuja las estancias para ver los m². Las conexiones entre estancias se crean solas.</li>
+        <li><a href="estudio.html#datos"><b>Datos</b></a>: precio, superficies, habitaciones, baños, <b>certificado energético</b> (obligatorio en anuncios), WhatsApp y política de privacidad.</li>
+        <li><a href="estudio.html#revisar"><b>Revisar</b></a>: corrige lo que te marque (por ejemplo, fotos sin orientar).</li>
+        <li><a href="estudio.html#exportar"><b>Publicar</b></a>: "Publicar mi recorrido" y, si quieres, vídeo, fotos para portales, plano y dossier.</li>
       </ol>
+      <details><summary>Opcional: modo completo</summary><p>Añade renders y planos del arquitecto (Material), ajusta la dirección de cada foto y añade notas (Orientar), y crea estilos de decoración, versión de noche y colores de pared (Variantes).</p></details>
     </section>
 
     <!-- 8 ---------------------------------------------------------------->
@@ -326,7 +325,16 @@
   const CLAVE = "cre8eight:asistente";
   const leer = () => { try { return JSON.parse(localStorage.getItem(CLAVE)) ?? {}; } catch { return {}; } };
   const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(est)); } catch {} };
-  const est = Object.assign({ paso: 0, marcas: {}, estancias: [], tomas: {}, vistos: [] }, leer());
+  // Datos guardados validados: un localStorage corrupto no debe romper el asistente.
+  const crudo = leer();
+  const obj = (v) => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
+  const est = {
+    paso: Number.isInteger(crudo.paso) ? crudo.paso : 0,
+    marcas: obj(crudo.marcas),
+    estancias: Array.isArray(crudo.estancias) ? crudo.estancias.filter((x) => typeof x === "string" && x.trim()) : [],
+    tomas: obj(crudo.tomas),
+    vistos: Array.isArray(crudo.vistos) ? crudo.vistos.filter(Number.isInteger) : [],
+  };
 
   const secciones = [...document.querySelectorAll("#pasos > section")];
   const pasos = document.querySelector(".pasos");

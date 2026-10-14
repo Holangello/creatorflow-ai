@@ -73,7 +73,8 @@ body.raton-capturado :is(#barra, #modos, #iconos, #galeria) { opacity: 0; pointe
 #minimapa .mini { position: absolute; right: 6px; bottom: 6px; width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center;
   border: 1px solid var(--borde); background: rgba(0,0,0,.55); padding: 0; }
 #minimapa .mini svg { width: 18px; height: 18px; }
-#plantas { position: absolute; left: 6px; top: 6px; display: flex; gap: 4px; z-index: 1; }
+#plantas { position: absolute; left: 6px; right: 46px; top: 6px; display: flex; gap: 4px; z-index: 1; overflow-x: auto; scrollbar-width: none; }
+#plantas button { white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis; flex: 0 0 auto; }
 #plantas button { font-size: 12px; padding: 4px 8px; border-radius: 7px; border: 1px solid var(--borde); background: rgba(0,0,0,.55); min-height: 30px; }
 #plantas button[aria-pressed="true"] { background: var(--acento); color: var(--acento-texto); border-color: transparent; }
 

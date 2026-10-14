@@ -29,7 +29,8 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
   "contacto": {
     "modo": "whatsapp",                 // "whatsapp" (abre wa.me con el mensaje) | "webhook" (POST JSON) | "ambos"
     "whatsapp": "34600111222",          // número de la empresa en formato internacional sin '+'
-    "webhook": "https://hook.eu1.make.com/xxxx",   // recibe {nombre, telefono, pregunta, referencia, estancia, url, fecha, idioma}
+    "webhook": "https://hook.eu1.make.com/xxxx",   // recibe {nombre, telefono, pregunta, referencia, estancia, estancia_id, url, fecha, idioma}
+    "webhook_formato": "multipart",     // "multipart" (por defecto; con fotos foto_1..n) | "json" (fotos en base64). El servidor debe permitir CORS
     "url_privacidad": "https://www.ejemplo.com/privacidad",
     "texto_privacidad": "Texto"
   },
@@ -88,6 +89,7 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
       "id": "salon", "nombre": "Texto", "planta": "p0",
       "imagen": "panos/salon.jpg", "imagen_movil": "panos/movil/salon.jpg", "miniatura": "panos/mini/salon.jpg",
       "x": 3, "z": 2.5, "yaw": 0, "rumbo_inicial": 110, "altura_camara": 1.5,
+      "origen": "foto",                   // "foto" (por defecto) | "render" (render 360 de arquitecto/renderista) | "ia"
       "enlaces": ["cocina"],
       "puntos": [{ "yaw": -90, "pitch": 5, "titulo": "Texto", "texto": "Texto", "imagen": "fotos/x.jpg", "video": "https://…", "enlace": "https://…" }],
       "variantes": [                    // imágenes alternativas del mismo punto (misma orientación/encuadre)
@@ -168,7 +170,7 @@ el clic avanza hacia la flecha o la estancia que hay bajo la mira.
 
 Eventos (`visor.on`), también emitidos como `CustomEvent("visor:<evento>")` en `window` y enviados a
 `window.dataLayer` si existe (analítica):
-`listo`, `nodo` ({id}), `modo`, `estilo`, `momento`, `pintura`, `medida` ({metros, tipo}), `contacto` ({canal}),
+`listo`, `tour` (tras cada carga, también `visor:cargar`), `nodo` ({id}), `modo`, `estilo`, `momento`, `pintura`, `medida` ({metros, tipo}), `contacto` ({canal}),
 `guion:inicio`, `guion:fin`, `idioma`.
 
 ## 3. Mensajes `postMessage` (Estudio ↔ visor en `<iframe src="index.html?embed">`)
@@ -186,3 +188,8 @@ Visor → Estudio (`window.parent`):
 
 ## 4. Tour embebido (archivo HTML autónomo)
 Si existe `window.TOUR_EMBEBIDO` (objeto tour con imágenes en `data:`), el visor lo usa en lugar de `fetch(tour.json)`.
+
+## 5. Exportación pública vs copia de seguridad
+`exportarZIP(tour, archivos)` y `exportarHTMLAutonomo()` publican solo lo público (`soloPublico()`): sin `documentacion`
+con `publico: false`, sin la carpeta `estudio/` ni claves internas `_*`. La copia de seguridad del proyecto usa
+`exportarZIP(tour, archivos, { copiaSeguridad: true })`.

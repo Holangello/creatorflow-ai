@@ -68,6 +68,24 @@ function limpiarTour(tour) {
   }));
 }
 
+/**
+ * Copia del tour y de los archivos sin nada privado: documentación con `publico: false`, la carpeta `estudio/`
+ * (proyecto de trabajo) ni metadatos internos (claves que empiezan por "_").
+ */
+export function soloPublico(tour, archivos = new Map()) {
+  const t = limpiarTour(tour);
+  const privadas = new Set((t.documentacion ?? []).filter((d) => !d.publico).map((d) => normalizar(d.archivo ?? "")).filter(Boolean));
+  t.documentacion = (t.documentacion ?? []).filter((d) => d.publico);
+  if (!t.documentacion.length) delete t.documentacion;
+  const filtrados = new Map();
+  for (const [ruta, blob] of archivos ?? []) {
+    const r = normalizar(ruta);
+    if (r.startsWith("estudio/") || privadas.has(r)) continue;
+    filtrados.set(ruta, blob);
+  }
+  return { tour: t, archivos: filtrados };
+}
+
 /** Lista de referencias a archivos dentro del tour: { obj, clave, tipo, ruta }. */
 function referencias(t) {
   const refs = [];
@@ -255,10 +273,12 @@ Generado el ${new Date().toLocaleString("es-ES")}.
  * @param {{incluirVisor?: boolean, base?: string, onProgreso?: (f:number)=>void}} [opciones]
  * @returns {Promise<Blob>} application/zip; propiedad extra `avisos: string[]`
  */
-export async function exportarZIP(tour, archivos = new Map(), { incluirVisor = true, base, onProgreso } = {}) {
+export async function exportarZIP(tour, archivos = new Map(), { incluirVisor = true, base, onProgreso, copiaSeguridad = false } = {}) {
   const { zipSync, strToU8 } = await import("./vendor/fflate.js");
   base ??= baseDe();
   archivos ??= new Map();
+  // Publicar ≠ copia de seguridad: en lo público nunca van documentos privados ni datos internos del Estudio.
+  if (!copiaSeguridad) ({ tour, archivos } = soloPublico(tour, archivos));
   const avisos = [];
   const salida = {}; // ruta → [Uint8Array, opciones]
   const poner = async (ruta, blob) => {
@@ -339,6 +359,7 @@ const LADO_POR_TIPO = { mini: 512, logo: 1024, foto: 2048, plano: 4096 };
 export async function exportarHTMLAutonomo(tour, archivos = new Map(), { calidad = "movil", base, incluirLibre = false, onProgreso } = {}) {
   base ??= baseDe();
   archivos ??= new Map();
+  ({ tour, archivos } = soloPublico(tour, archivos));
   const avisos = [];
   const traer = async (f) => {
     const r = await fetch(new URL(f, MODULO));
@@ -586,6 +607,7 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   // Sincronización con el render WebGL: el lienzo del visor (sin preserveDrawingBuffer) solo es legible justo
   // después de renderizar. Orden de preferencia: evento "frame" del núcleo → visor.renderizar() → rAF.
   let ultimoFrame = 0;
+  let cancelado = false;
   const alFrame = () => { ultimoFrame = performance.now(); componer(); };
   // Una sola suscripción por evento: visor.on si existe (si no, el CustomEvent de window).
   const on = (ev, fn) => {
@@ -613,6 +635,9 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   const conTamano = typeof visor.tamanoCaptura === "function";
   if (conTamano) visor.tamanoCaptura(W, H);
   quitar.push(() => { if (conTamano) visor.tamanoCaptura(null); });
+  // La visita avanza por reloj real (no por fotogramas): el vídeo dura lo mismo en un equipo lento o rápido.
+  visor.tiempoReal?.(true);
+  quitar.push(() => visor.tiempoReal?.(false));
   componer();
   bucle();
   rec.start(1000);
@@ -620,11 +645,12 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   const progreso = setInterval(() => onProgreso?.(Math.min(0.99, (performance.now() - t0) / 1000 / duracionEstimada)), 250);
   try {
     await new Promise((ok, mal) => {
-      const fin = on("guion:fin", () => { fin(); ok(); });
+      const fin = on("guion:fin", () => { fin(); if (!cancelado) ok(); });
       quitar.push(fin);
       const tope = setTimeout(() => { console.warn("[grabarVideo] no llegó guion:fin: se corta por tiempo"); ok(); }, (maxSegundos ?? duracionEstimada + 60) * 1000);
       quitar.push(() => clearTimeout(tope));
-      senal?.addEventListener("abort", () => { visor.guion.parar?.(); mal(new DOMException("Grabación cancelada", "AbortError")); }, { once: true });
+      // Primero se rechaza y luego se para la visita: parar() emite "guion:fin" de forma síncrona.
+      senal?.addEventListener("abort", () => { cancelado = true; mal(new DOMException("Grabación cancelada", "AbortError")); visor.guion.parar?.(); }, { once: true });
       Promise.resolve(visor.guion.iniciar()).catch(mal);
     });
     await new Promise((r) => setTimeout(r, 400)); // último fotograma
@@ -638,7 +664,13 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   }
   onProgreso?.(1);
   const tipo = (mimeType || trozos[0]?.type || `video/${extension}`).split(";")[0];
-  return { blob: new Blob(trozos, { type: tipo }), extension, mimeType: mimeType || tipo, ancho: W, alto: H, segundos: (performance.now() - t0) / 1000 };
+  const segundos = (performance.now() - t0) / 1000;
+  let blob = new Blob(trozos, { type: tipo });
+  // MediaRecorder no escribe la duración en los WebM: sin ella los portales muestran 0:00 o lo rechazan.
+  if (extension === "webm") {
+    try { const { default: arreglar } = await import("./vendor/fix-webm-duration.js"); blob = await arreglar(blob, Math.round(segundos * 1000), { logger: false }); } catch (e) { console.warn("[grabarVideo] duración WebM", e); }
+  }
+  return { blob, extension, mimeType: mimeType || tipo, ancho: W, alto: H, segundos };
 }
 
 // ======================================================================= JPEG 360 con GPano (XMP)
