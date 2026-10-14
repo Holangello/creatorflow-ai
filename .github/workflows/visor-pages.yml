@@ -1,0 +1,47 @@
+# Publica el visor inmobiliario y el Estudio en GitHub Pages.
+# Activación (una vez): Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# Resultado: https://<usuario>.github.io/<repo>/        (visor; ?demo para la demo)
+#            https://<usuario>.github.io/<repo>/estudio.html
+#            https://<usuario>.github.io/<repo>/tours/<referencia>/   (tours subidos a tools/visor-inmobiliario/tours/)
+name: Visor inmobiliario · GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["tools/visor-inmobiliario/**", ".github/workflows/visor-pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: tools/visor-inmobiliario
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Compilar el visor autónomo (para exportar HTML offline)
+        run: npm ci && npm run build
+      - name: Preparar el sitio
+        run: |
+          mkdir -p ../../_sitio
+          rsync -a --exclude node_modules --exclude '*.py' --exclude package-lock.json ./ ../../_sitio/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _sitio
+      - id: despliegue
+        uses: actions/deploy-pages@v4

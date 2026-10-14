@@ -1,0 +1,19 @@
+{
+  "name": "visor-inmobiliario",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Visor web de recorridos 360 / 3D para inmobiliarias. Build del visor autónomo (un solo archivo) para exportar a HTML offline.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:dev": "node build.mjs --sin-minificar"
+  },
+  "dependencies": {
+    "@sparkjsdev/spark": "2.1.0",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "fflate": "0.8.3"
+  }
+}

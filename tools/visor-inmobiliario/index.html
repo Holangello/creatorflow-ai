@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0f12">
   <title>Recorrido Virtual 3D</title>
-  <meta name="description" content="Visor de recorridos virtuales 360 y navegación libre 3D para inmuebles.">
+  <meta name="description" content="Recorrido virtual 360, paseo libre en 3D y maqueta interactiva del inmueble.">
   <link rel="stylesheet" href="visor.css">
+  <link rel="stylesheet" href="paneles.css">
   <script type="importmap">
     {
       "imports": {
@@ -18,71 +20,70 @@
 </head>
 <body>
   <div id="app">
-    <canvas id="lienzo" aria-label="Vista 3D del inmueble"></canvas>
-    <div id="etiquetas" aria-hidden="true"></div>
+    <canvas id="lienzo" tabindex="0" role="application" aria-roledescription="visor 3D" aria-label="Recorrido virtual"></canvas>
+    <div id="etiquetas"></div>
 
     <header id="barra">
-      <h1 id="titulo">Recorrido virtual</h1>
-      <nav id="modos" role="tablist" aria-label="Modo de visita">
-        <button role="tab" data-modo="tour" aria-selected="true">Recorrido 360</button>
-        <button role="tab" data-modo="libre" aria-selected="false">Modo libre 3D</button>
-      </nav>
+      <img id="logo" alt="" hidden>
+      <div class="titulos">
+        <h1 id="titulo">Recorrido virtual</h1>
+        <p id="estancia" aria-live="polite"></p>
+      </div>
     </header>
+    <nav id="modos" role="tablist" aria-label="Modo de visita">
+      <button type="button" role="tab" data-modo="tour" aria-selected="true">Recorrido 360</button>
+      <button type="button" role="tab" data-modo="libre" aria-selected="false">Modo libre 3D</button>
+      <button type="button" role="tab" data-modo="maqueta" aria-selected="false">Maqueta 3D</button>
+    </nav>
 
-    <div id="estancia" aria-live="polite"></div>
+    <div id="iconos">
+      <button id="btn-giro" type="button" class="icono" aria-label="Giroscopio" aria-pressed="false" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M3 9a10 10 0 0 0 0 6M21 9a10 10 0 0 1 0 6"/></svg>
+      </button>
+      <button id="btn-ayuda" type="button" class="icono" aria-label="Controles">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 1 1 3.6 2.4c-.7.3-1.1.9-1.1 1.6v.6"/><circle cx="12" cy="17" r=".6"/></svg>
+      </button>
+      <button id="btn-pantalla" type="button" class="icono" aria-label="Pantalla completa">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+    </div>
 
     <aside id="minimapa" aria-label="Plano">
-      <canvas id="mapa"></canvas>
-      <button id="btn-mapa" class="mini" title="Ampliar plano" aria-label="Ampliar plano">⤢</button>
+      <div id="plantas" role="group" aria-label="Plantas" hidden></div>
+      <canvas id="mapa" aria-hidden="true"></canvas>
+      <button id="btn-mapa" type="button" class="mini" aria-label="Ampliar plano" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>
+      </button>
     </aside>
 
-    <div id="galeria" role="list" aria-label="Estancias"></div>
+    <nav id="galeria" aria-label="Estancias"></nav>
 
-    <div id="acciones">
-      <button id="btn-giro" class="icono" title="Giroscopio" aria-label="Activar giroscopio" hidden>🧭</button>
-      <button id="btn-ayuda" class="icono" title="Controles" aria-label="Ver controles">?</button>
-      <button id="btn-pantalla" class="icono" title="Pantalla completa" aria-label="Pantalla completa">⛶</button>
+    <div id="subtitulo" aria-live="polite" hidden></div>
+    <div id="cortinilla" hidden>
+      <button type="button" role="slider" aria-label="Comparar antes y después" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"/></svg>
+      </button>
     </div>
-
     <div id="joystick" aria-hidden="true"><div id="joystick-pomo"></div></div>
+    <div id="pista" role="status" hidden></div>
 
-    <div id="ficha" role="dialog" aria-modal="false" hidden>
-      <button class="cerrar" aria-label="Cerrar">×</button>
-      <h2></h2>
+    <div id="ficha" role="dialog" aria-modal="false" aria-labelledby="ficha-titulo" hidden>
+      <button type="button" class="cerrar" aria-label="Cerrar">×</button>
+      <h2 id="ficha-titulo"></h2>
       <p></p>
+      <div class="media"></div>
     </div>
 
-    <div id="ayuda" role="dialog" aria-label="Controles" hidden>
-      <button class="cerrar" aria-label="Cerrar">×</button>
-      <h2>Controles</h2>
-      <div class="cols">
-        <section>
-          <h3>Recorrido 360</h3>
-          <ul>
-            <li><kbd>Arrastrar</kbd> mirar alrededor</li>
-            <li><kbd>W</kbd>/<kbd>↑</kbd> avanzar a la estancia de enfrente</li>
-            <li><kbd>S</kbd>/<kbd>↓</kbd> volver atrás</li>
-            <li><kbd>A</kbd><kbd>D</kbd>/<kbd>←</kbd><kbd>→</kbd> girar</li>
-            <li><kbd>Rueda</kbd>/<kbd>pellizco</kbd> zoom</li>
-            <li>Toca las flechas del suelo o el plano</li>
-          </ul>
-        </section>
-        <section>
-          <h3>Modo libre 3D</h3>
-          <ul>
-            <li><kbd>Clic</kbd> capturar ratón (<kbd>Esc</kbd> soltar)</li>
-            <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> caminar</li>
-            <li><kbd>←</kbd><kbd>→</kbd> girar · <kbd>Shift</kbd> correr</li>
-            <li><kbd>Espacio</kbd>/<kbd>C</kbd> subir/bajar (sin suelo)</li>
-            <li>Móvil: joystick izquierda, arrastra a la derecha para mirar</li>
-          </ul>
-        </section>
-      </div>
+    <div id="ayuda" role="dialog" aria-modal="false" aria-labelledby="ayuda-titulo" hidden>
+      <button type="button" class="cerrar" aria-label="Cerrar">×</button>
+      <h2 id="ayuda-titulo">Controles</h2>
+      <div class="cols"></div>
     </div>
 
-    <div id="carga" hidden><div class="barra"><div></div></div><span>Cargando…</span></div>
+    <div id="carga" hidden><div class="barra"><div></div></div></div>
     <div id="aviso" role="status" hidden></div>
-    <div id="editor" hidden></div>
+    <div id="paneles"></div>
+    <noscript><p class="sin-js">Este recorrido necesita JavaScript.</p></noscript>
   </div>
   <script type="module" src="visor.js"></script>
 </body>

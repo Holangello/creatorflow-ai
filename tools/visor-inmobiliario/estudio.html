@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Estudio · Recorridos 3D</title>
+  <meta name="description" content="Crea recorridos virtuales 360 para inmuebles sin tocar código: fotos, plano, enlaces, estilos y exportación.">
+  <link rel="stylesheet" href="estudio.css">
+</head>
+<body class="seccion-fotos">
+  <header id="barra-sup">
+    <div class="marca-estudio" aria-label="Estudio de recorridos">
+      <span class="logo-e">E</span>
+      <span class="nombre-app">Estudio</span>
+    </div>
+    <button id="nombre-proyecto" class="nombre-proyecto" title="Proyectos guardados (Ctrl+O)">Proyecto sin título</button>
+    <span id="estado-guardado" class="estado-guardado" role="status" aria-live="polite"></span>
+    <div class="relleno"></div>
+    <div class="grupo-botones">
+      <button id="btn-deshacer" class="btn icono-btn" title="Deshacer (Ctrl+Z)" aria-label="Deshacer"></button>
+      <button id="btn-rehacer" class="btn icono-btn" title="Rehacer (Ctrl+Shift+Z)" aria-label="Rehacer"></button>
+    </div>
+    <button id="btn-atajos" class="btn icono-btn" title="Atajos de teclado (?)" aria-label="Atajos de teclado"></button>
+    <button id="btn-abrir" class="btn" title="Abrir proyecto, ZIP o carpeta (Ctrl+O)"></button>
+    <button id="btn-exportar" class="btn primario" title="Exportar y publicar (Ctrl+E)"></button>
+  </header>
+
+  <nav id="pasos" aria-label="Pasos del recorrido"></nav>
+
+  <main id="trabajo" tabindex="-1"></main>
+
+  <aside id="vista" aria-label="Vista previa del recorrido">
+    <div class="vista-cab">
+      <span class="vista-titulo">Vista previa</span>
+      <select id="vista-nodo" aria-label="Estancia en la vista previa"></select>
+      <button id="vista-recargar" class="btn icono-btn" title="Recargar vista previa" aria-label="Recargar vista previa"></button>
+      <button id="vista-plegar" class="btn icono-btn" title="Ampliar / reducir vista previa" aria-label="Ampliar vista previa"></button>
+    </div>
+    <div class="vista-marco">
+      <iframe id="iframe-visor" src="index.html?embed" title="Vista previa del visor" allow="fullscreen; gyroscope; accelerometer"></iframe>
+      <div id="vista-vacia" class="vista-vacia">
+        <p>Añade fotos 360 para ver aquí el recorrido tal y como lo verán tus clientes.</p>
+      </div>
+      <div id="vista-modo" class="vista-modo" hidden></div>
+    </div>
+    <div id="vista-pie" class="vista-pie"></div>
+  </aside>
+
+  <div id="arrastre" class="arrastre" hidden>
+    <div><strong>Suelta aquí</strong><span>Fotos 360 (JPG), un ZIP exportado o una carpeta con tour.json</span></div>
+  </div>
+  <div id="toasts" aria-live="polite"></div>
+
+  <script type="module" src="estudio.js"></script>
+</body>
+</html>
