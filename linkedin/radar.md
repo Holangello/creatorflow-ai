@@ -6,7 +6,29 @@ primaria. Angello decide cuál se publica; nadie redacta nada sin que lo pida.
 **Caducidad:** una entrada con más de 72 horas se archiva al final del documento o se borra.
 La ventaja competitiva de una noticia son 12 a 48 horas.
 
-**Último barrido:** 13-10-2026, 06:00. **Sin candidata verificable, y el motivo es material, no de criterio.**
+**Último barrido:** 14-10-2026, 06:00. **Sin candidata, y el frente de red sigue cerrado.** Tercer barrido
+consecutivo sin nada verificable en primaria. Hoy no condicionaba ninguna fila —el miércoles 14 se cerró
+ayer con «La firma» y el jueves 15 está creado desde el 09-10— así que el barrido se ha gastado otra vez en
+reintentar dominios, que es donde está el cuello.
+
+**Reintento, y ya van tres días:** `microsoft.ai`, `tavus.io`, `advertising.amazon.com`, `blog.google`,
+`openai.com` y `www.lamoncloa.gob.es` responden todos igual. **Ninguno se abre.** Y conviene decir lo que eso
+significa sin rodeos: no es que no haya noticias, es que **este sistema no puede verificar ninguna**, porque
+las primarias viven en los dominios que la red de la sesión rechaza. La regla no se relaja por eso.
+
+**Lo que ha salido y por qué no entra.** Dos nombres que vuelven sin fecha utilizable: el rumor de Seedance
+2.5, que sigue siendo rumor por cuarto día, y Gemini Omni, que aparece siempre en blogs de terceros y nunca
+con una entrada de Google fechada. Y uno que sí es real pero viejo: **los tres modelos de Microsoft AI
+—transcripción, voz e imagen— son de abril de 2026**, no de esta semana; estaban ya en el radar como
+pendientes de verificar desde el 1 de octubre, y lo que faltaba no era encontrarlos, era abrir su primaria.
+Sigue faltando.
+
+**Consecuencia para el miércoles 21, que es lo único que esto decide.** Su nivel 4 lo consumió el 14 y solo
+le quedan radar o el nivel 5. Quedan los barridos del 16, el 19 y el 20. **Si los tres vienen como estos
+tres, el miércoles 21 deja de ser actualidad**, y no por falta de criterio ni de temas: por no poder abrir
+una página.
+
+**Barrido anterior:** 13-10-2026, 06:00. **Sin candidata verificable, y el motivo es material, no de criterio.**
 Este era el barrido que ancla la fila del miércoles 14, así que el resultado importa más que otros días.
 
 **Lo que ha salido y por qué ninguna entra.** Dos pistas con cuerpo y las dos se caen en la primaria.
