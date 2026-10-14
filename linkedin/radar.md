@@ -28,6 +28,18 @@ le quedan radar o el nivel 5. Quedan los barridos del 16, el 19 y el 20. **Si lo
 tres, el miércoles 21 deja de ser actualidad**, y no por falta de criterio ni de temas: por no poder abrir
 una página.
 
+**Segundo barrido del 14-10, 13:00. Sin candidata, y a partir de hoy estos barridos se anotan en una línea.**
+Cero nivel 3 y cero nivel 2. Mañana es carrusel de captación, que el techo del protocolo protege expresamente
+—«nunca desplazar el carrusel de captación salvo que la noticia toque la oferta»—, así que la barra de hoy
+era más alta que de costumbre y nada se acercó. Mismos seis dominios, mismo rechazo, cuarto día. Del lado de
+plataformas solo salen guías de marketing de terceros sobre formatos de 2026 y cifras de caída de alcance
+orgánico sin autor oficial: **ninguna es un anuncio y ninguna tiene primaria.**
+
+**Y una nota de método, porque tres entradas casi idénticas en tres días son ruido.** Mientras el bloqueo de
+red siga igual, un barrido sin candidata se anota en una línea con la fecha y los dominios reintentados. Lo
+que merece párrafo es un cambio: que un dominio se abra, que entre una candidata, o que el bloqueo deje de
+explicar el vacío.
+
 **Barrido anterior:** 13-10-2026, 06:00. **Sin candidata verificable, y el motivo es material, no de criterio.**
 Este era el barrido que ancla la fila del miércoles 14, así que el resultado importa más que otros días.
 
