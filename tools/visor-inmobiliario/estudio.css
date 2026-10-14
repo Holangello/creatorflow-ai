@@ -291,7 +291,7 @@ body.grabando #iframe-visor { position: relative; inset: auto; transform-origin:
 
 /* ------------------------------------------------------------ datos */
 .pestanas { display: flex; gap: 2px; border-bottom: 1px solid var(--borde); margin-bottom: 18px; overflow-x: auto; }
-.pestanas button { border: 0; background: transparent; color: var(--suave); padding: 9px 13px; border-bottom: 2px solid transparent; white-space: nowrap; margin-bottom: -1px; }
+.pestanas button { border: 0; background: transparent; color: var(--suave); padding: 9px 11px; border-bottom: 2px solid transparent; white-space: nowrap; margin-bottom: -1px; }
 .pestanas button[aria-selected="true"] { color: var(--texto); border-bottom-color: var(--acento); }
 .pestanas button:hover { color: var(--texto); }
 .letras-ce { display: flex; gap: 3px; }

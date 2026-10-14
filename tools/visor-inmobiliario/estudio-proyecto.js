@@ -117,6 +117,13 @@ async function importarMapa(mapa, nombre) {
   try { tour = JSON.parse(await mapa.get(rutaTour).text()); }
   catch { throw new Error("tour.json no es un JSON válido"); }
   if (tour.demo) throw new Error("es el tour de demostración");
+  const meta = mapa.get(prefijo + "estudio/proyecto.json");
+  if (meta) {
+    try {
+      const m = JSON.parse(await meta.text());
+      if (m?.estudio) { tour._estudio = m.estudio; for (const p of tour.panoramas ?? []) delete p.enlaces; }
+    } catch { /* metadatos dañados: se reconstruyen */ }
+  }
   normalizarTour(tour);
   const archivos = new Map();
   for (const r of rutas) {

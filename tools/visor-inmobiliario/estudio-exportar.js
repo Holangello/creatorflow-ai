@@ -196,6 +196,8 @@ function pintarExportar() {
       boton: "Descargar ZIP", necesita: ["exportarZIP"],
       accion: async (prog) => {
         const { t: tt, archivos } = datosExport();
+        // Metadatos del Estudio (enlaces manuales, calibración, tamaños originales…) para poder reabrir el ZIP sin perder nada.
+        archivos.set("estudio/proyecto.json", new Blob([JSON.stringify({ app: "cre8eight Estudio", version: 1, estudio: app.tour._estudio }, null, 1)], { type: "application/json" }));
         const z = await EXP.exportarZIP(tt, archivos, { incluirVisor: true, onProgreso: prog });
         descargar(z, `${ref}.zip`);
         return z.avisos?.length ? `Descargado (${fmtMB(z.size)}) con ${z.avisos.length} aviso(s): ${z.avisos[0]}` : `Descargado (${fmtMB(z.size)})`;

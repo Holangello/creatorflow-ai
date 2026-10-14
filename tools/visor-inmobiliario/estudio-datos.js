@@ -5,7 +5,7 @@ import { slug } from "./estudio-util.js";
 import { campoTexto, campo, campoSiNo } from "./estudio-campos.js";
 
 const PESTANAS = [
-  ["inmueble", "Inmueble"], ["marca", "Marca y agente"], ["contacto", "Contacto"], ["textos", "Idiomas y textos"],
+  ["inmueble", "Inmueble"], ["marca", "Marca y agente"], ["contacto", "Contacto"], ["textos", "Idiomas"],
   ["personalizacion", "Colores y estilos"], ["secciones", "Secciones"], ["guion", "Visita guiada"],
 ];
 const LETRAS = { A: "#00a651", B: "#4cb848", C: "#bfd730", D: "#e8d900", E: "#fdb913", F: "#f37021", G: "#ed1c24" };

@@ -443,7 +443,7 @@ export function dialogo({ titulo, texto, cuerpo, botones = [{ texto: "Aceptar", 
     const d = h("dialog", { class: "dialogo", style: ancho ? { width: ancho } : null });
     const cerrar = (v) => { ok(v); if (d.open) d.close(); d.remove(); };
     d.addEventListener("close", () => { ok(undefined); d.remove(); });
-    d.append(
+    d.append(...[
       h("h2", { text: titulo }),
       texto ? h("p", { class: "suave", text: texto }) : null,
       cuerpo ?? null,
@@ -451,7 +451,7 @@ export function dialogo({ titulo, texto, cuerpo, botones = [{ texto: "Aceptar", 
         class: `btn ${b.primario ? "primario" : ""} ${b.peligro ? "peligro" : ""}`, text: b.texto,
         onclick: () => cerrar(typeof b.valor === "function" ? b.valor() : b.valor),
       }))),
-    );
+    ].filter(Boolean));
     d.addEventListener("cancel", (e) => { e.preventDefault(); cerrar(undefined); });
     document.body.append(d);
     d.showModal();
