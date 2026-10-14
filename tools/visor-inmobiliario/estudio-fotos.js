@@ -1,5 +1,5 @@
 // Paso 1 · Fotos 360: subida, procesado en Web Worker (8192 / 4096 / 512), nombres y orden de la visita.
-import { dimensiones } from "./estudio-util.js";
+import { dimensiones, leerMetadatos, describirCamara, fechaExif, norm180 } from "./estudio-util.js";
 import { app, h, $, icono, cambiar, emitir, on, toast, dialogo, confirmar, guardarArchivo, urlDe, idLibre, elegirArchivos,
   textoDe, colocado, pano, fmtMB, calcularEnlaces } from "./estudio-nucleo.js";
 import { campoTexto } from "./estudio-campos.js";
@@ -65,27 +65,65 @@ export function nombreSugerido(archivo, i) {
   return t ? t.charAt(0).toUpperCase() + t.slice(1) : `Estancia ${i}`;
 }
 
-/** Añade fotos 360 al proyecto (validación 2:1 y procesado). */
+/** Nombres que el usuario escribió en el Asistente Osmo 360 (localStorage `cre8eight:asistente`). */
+function nombresAsistente() {
+  try { const a = JSON.parse(localStorage.getItem("cre8eight:asistente") ?? "null"); return Array.isArray(a?.estancias) ? a.estancias.map((x) => String(x).trim()).filter(Boolean) : []; }
+  catch { return []; }
+}
+const EXT_VIDEO = /\.(osv|insv|mp4|mov|m4v|lrv)$/i;
+
+export function avisoVideo(nombres) {
+  return dialogo({
+    titulo: "Esto es vídeo 360",
+    texto: `${nombres.slice(0, 3).join(", ")}${nombres.length > 3 ? "…" : ""}: los archivos .OSV de la Osmo 360 (y los MP4/MOV) son vídeo, no fotos.`,
+    cuerpo: h("div", { class: "suave" },
+      h("ol", { style: { paddingLeft: "20px", margin: "0 0 8px" } },
+        h("li", {}, "Ábrelo en ", h("b", { text: "DJI Studio" }), " (ordenador) o ", h("b", { text: "DJI Mimo" }), " (móvil)."),
+        h("li", {}, "Expórtalo como ", h("b", { text: "MP4 equirectangular 8K" }), " (proyección 360, sin reencuadre)."),
+        h("li", {}, "Úsalo para entrenar un Gaussian Splat del paseo libre (Postshot, Brush, RealityScan) o extrae fotogramas con extraer_fotogramas.py.")),
+      h("p", { style: { margin: 0 } }, "Para el recorrido 360 usa el modo ", h("b", { text: "Foto panorámica" }), " de la cámara (JPG 15520×7760). ", h("a", { href: "asistente-osmo.html", target: "_blank", text: "Ver la guía" }))),
+    botones: [{ texto: "Entendido", primario: true }],
+  });
+}
+
+/** Añade fotos 360 al proyecto: lee EXIF/XMP (Osmo 360), valida 2:1, ordena por hora de disparo y procesa. */
 export async function anadirFotos(archivos, { render = false } = {}) {
-  const fotos = archivos.filter((f) => /^image\//.test(f.type) || /\.(jpe?g|png|webp)$/i.test(f.name));
+  const videos = archivos.filter((f) => EXT_VIDEO.test(f.name) || /^video\//.test(f.type));
+  if (videos.length) await avisoVideo(videos.map((f) => f.name));
+  const fotos = archivos.filter((f) => !EXT_VIDEO.test(f.name) && (/^image\//.test(f.type) || /\.(jpe?g|png|webp)$/i.test(f.name)));
   if (!fotos.length) return;
-  const info = await Promise.all(fotos.map(async (f) => ({ f, dim: await dimensiones(f).catch(() => null) })));
+  const info = await Promise.all(fotos.map(async (f) => ({ f, dim: await dimensiones(f).catch(() => null), exif: await leerMetadatos(f).catch(() => null) })));
+  // Orden de disparo (EXIF DateTimeOriginal) = orden de la visita guiada; sin fecha, por nombre.
+  info.sort((a, b) => (fechaExif(a.exif?.fecha) ?? Infinity) - (fechaExif(b.exif?.fecha) ?? Infinity) || a.f.name.localeCompare(b.f.name, "es", { numeric: true }));
   const raras = info.filter(({ dim }) => dim && Math.abs(dim.w / dim.h - 2) > 0.02);
   let aceptadas = info;
   if (raras.length) {
-    const lista = h("ul", {}, raras.map(({ f, dim }) => h("li", {}, `${f.name}: ${dim.w}×${dim.h} (relación ${(dim.w / dim.h).toFixed(2)}:1)`)));
+    const lista = h("ul", {}, raras.map(({ f, dim, exif }) => h("li", {}, `${f.name}: ${dim.w}×${dim.h} (relación ${(dim.w / dim.h).toFixed(2)}:1)${/dji/i.test(exif?.marca ?? "") ? " · DJI" : ""}`)));
     const r = await dialogo({
       titulo: raras.length === 1 ? "Esta foto no parece 360°" : `${raras.length} fotos no parecen 360°`,
-      texto: "Las fotos 360 equirectangulares tienen proporción 2:1 (p. ej. 15520×7760 en el Osmo 360). Si es una foto normal o un panorama recortado, el visor la deformará.",
-      cuerpo: lista,
+      texto: "Las fotos 360 equirectangulares tienen proporción 2:1 (15520×7760 en el Osmo 360, 7680×3840 en HDR). Si la añades, el visor la deformará.",
+      cuerpo: h("div", {}, lista, h("div", { class: "suave", style: { fontSize: "13px" } },
+        h("p", { style: { margin: "8px 0 4px" } }, h("b", { text: "¿Cómo exportarla bien desde la Osmo 360?" })),
+        h("ul", { style: { margin: 0, paddingLeft: "18px" } },
+          h("li", { text: "Si ves dos círculos (ojo de pez doble), está sin coser: ábrela en DJI Mimo o DJI Studio y exporta «Foto panorámica 360» (equirectangular)." }),
+          h("li", { text: "Si está recortada o reencuadrada (vista plana, «tiny planet»), exporta de nuevo sin reencuadre, en proyección 360." }),
+          h("li", { text: "Una foto normal (móvil, réflex) úsala en la galería del paso Material, no como estancia 360." })))),
       botones: [{ texto: "Omitir esas fotos", valor: "omitir", primario: true }, { texto: "Añadir igualmente", valor: "todas" }],
+      ancho: "min(560px, calc(100vw - 32px))",
     });
     if (!r) return;
     if (r === "omitir") aceptadas = info.filter((x) => !raras.includes(x));
   }
-  for (const { f, dim } of aceptadas) {
+  const lista = nombresAsistente();
+  const usados = new Set(app.tour.panoramas.map((p) => textoDe(p.nombre).toLowerCase()));
+  const pendientesAsist = lista.filter((n) => !usados.has(n.toLowerCase()));
+  let conBrujula = 0;
+  for (const { f, dim, exif } of aceptadas) {
     const n = app.tour.panoramas.length + cola.filter((x) => x.estado === "espera" || x.estado === "procesando").length + 1;
-    const nombre = nombreSugerido(f.name, n);
+    const nombre = pendientesAsist.length ? pendientesAsist.shift() : nombreSugerido(f.name, n);
+    const camara = describirCamara(exif, dim);
+    const rumbo = Number.isFinite(exif?.rumbo) ? exif.rumbo : null;
+    if (rumbo != null) conBrujula++;
     encolar({
       nombre: f.name, estado: "espera", progreso: 0, fase: "En cola",
       ejecutar: async (progreso) => {
@@ -98,18 +136,25 @@ export async function anadirFotos(archivos, { render = false } = {}) {
         if (m.ancho !== g.ancho) await guardarArchivo(rutaMovil, m.blob);
         await guardarArchivo(`panos/mini/${id}.jpg`, mini.blob);
         cambiar((t) => {
+          // Orientación automática por brújula: yaw = rumbo de la cámara − norte del plano.
+          const yaw = rumbo != null ? Math.round(norm180(rumbo - (t.norte ?? 0)) * 10) / 10 : 0;
           t.panoramas.push({
             id, nombre: { es: nombre }, planta: app.planta ?? t.plantas[0]?.id,
-            imagen: `panos/${id}.jpg`, imagen_movil: rutaMovil, miniatura: `panos/mini/${id}.jpg`, yaw: 0,
+            imagen: `panos/${id}.jpg`, imagen_movil: rutaMovil, miniatura: `panos/mini/${id}.jpg`, yaw,
           });
-          t._estudio.meta[`panos/${id}.jpg`] = { w: r.original.w, h: r.original.h, archivo: f.name, bytes: f.size, ...(render ? { render: true } : {}) };
+          t._estudio.meta[`panos/${id}.jpg`] = { w: r.original.w, h: r.original.h, archivo: f.name, bytes: f.size,
+            ...(render ? { render: true } : {}), ...(camara ? { camara } : {}), ...(exif?.fecha ? { fecha: exif.fecha } : {}),
+            ...(rumbo != null ? { brujula: rumbo, brujulaFuente: exif.rumboFuente } : {}), ...(r.limitado ? { limitado: true } : {}) };
           if (!t.inicio) t.inicio = id;
         });
         if (!app.nodo) { app.nodo = id; emitir("nodo", {}); }
+        if (r.limitado) toast("Este dispositivo limita el tamaño de imagen: la foto se guardó a menor resolución. Prepárala en un ordenador para 8K.", "aviso", 7000);
       },
     });
     void dim;
   }
+  if (conBrujula) toast(`Orientación automática por brújula en ${conBrujula} foto(s): revísala en «Orientar».`, "aviso", 6000);
+  if (lista.length && aceptadas.length) toast("Nombres tomados del Asistente Osmo 360 (en orden de disparo). Puedes cambiarlos.", "info", 5000);
 }
 
 /** Para tours importados: genera miniatura / versión móvil si faltan y guarda dimensiones. */
@@ -161,10 +206,12 @@ function render(cont) {
 function pintar() {
   if (!raiz) return;
   const t = app.tour;
-  const elegir = async () => anadirFotos(await elegirArchivos({ aceptar: "image/jpeg,image/png,image/webp", multiple: true }));
+  const elegir = async () => anadirFotos(await elegirArchivos({ aceptar: "image/jpeg,image/png,image/webp,.osv,.insv,video/*", multiple: true }));
+  const asistente = () => h("a", { class: "enlace-asistente", href: "asistente-osmo.html", target: "_blank", rel: "noopener" }, icono("info", 15), "¿Primera vez? Abre el Asistente Osmo 360");
   const cab = h("div", { class: "cab-seccion" },
     h("div", {}, h("h1", { text: "Fotos 360" }),
-      h("p", { text: "Arrastra las fotos equirectangulares del Osmo 360 (JPG 2:1). Se optimizan en tu ordenador y se les quita la ubicación GPS. El orden de la lista es el de la visita guiada." })),
+      h("p", { text: "Arrastra las fotos panorámicas de la DJI Osmo 360 (JPG 2:1, 120 MP o HDR 30 MP). Se optimizan en tu ordenador, se les quita la ubicación GPS y se ordenan por hora de disparo: ese es el orden de la visita guiada." }),
+      asistente()),
     t.panoramas.length ? h("div", { class: "acciones" }, h("button", { class: "btn primario", onclick: elegir }, icono("mas", 16), "Añadir fotos")) : null);
   const zonaSoltar = (el) => {
     el.addEventListener("dragover", (e) => { if ([...e.dataTransfer.types].includes("Files")) { e.preventDefault(); el.classList.add("sobre"); } });
@@ -181,7 +228,7 @@ function pintar() {
       h("div", { class: "fila", style: { justifyContent: "center" } },
         h("button", { class: "btn primario grande", onclick: elegir }, icono("subir", 18), "Elegir fotos"),
         h("button", { class: "btn grande", onclick: () => emitir("abrir") }, icono("abrir", 18), "Abrir proyecto")),
-      h("small", { class: "tenue", text: "Se generan 3 tamaños: 8192 px (ordenador), 4096 px (móvil) y 512 px (galería). Hasta 120 MP por foto." }),
+      h("small", { class: "tenue", text: "Consejo Osmo 360: modo Foto panorámica, trípode a 1,5 m y nada a menos de 0,75 m de la cámara (el cosido falla). Se generan 3 tamaños: 8192 px (ordenador), 4096 px (móvil) y 512 px (galería)." }),
     )));
   } else {
     partes.push(zonaSoltar(h("div", { class: "zona-soltar" }, icono("subir", 22),
@@ -224,6 +271,8 @@ function pintarLista() {
       p.variantes?.length ? h("span", { class: "chip acento", text: `${p.variantes.length} variantes` }) : null,
       p.puntos?.length ? h("span", { class: "chip", text: `${p.puntos.length} puntos` }) : null,
       meta?.render ? h("span", { class: "chip acento", text: "Render 360" }) : null,
+      meta?.camara ? h("span", { class: "chip acento", text: meta.camara, title: meta.fecha ? `Disparada el ${meta.fecha}` : "" }) : null,
+      meta?.brujula != null && !meta.brujulaRevisada ? h("span", { class: "chip aviso", text: "Orientación por brújula: revísala", title: `${meta.brujulaFuente ?? "XMP"} = ${meta.brujula}°` }) : null,
     ];
     const inicio = (t.inicio ?? t.panoramas[0].id) === p.id;
     const fila = h("div", { class: `foto ${p.id === app.nodo ? "sel" : ""}`, role: "listitem", draggable: "true", dataset: { id: p.id } },
@@ -289,7 +338,7 @@ export const seccionFotos = {
   alCambiarNodo: marcarSel,
   salir: () => { raiz = null; },
   soltar: async (lista) => {
-    const fotos = lista.filter(({ archivo }) => /\.(jpe?g|png|webp)$/i.test(archivo.name));
+    const fotos = lista.filter(({ archivo }) => /\.(jpe?g|png|webp|osv|insv|mp4|mov|m4v)$/i.test(archivo.name));
     if (fotos.length && fotos.length === lista.length) { await anadirFotos(fotos.map((f) => f.archivo)); return true; }
     return false;
   },

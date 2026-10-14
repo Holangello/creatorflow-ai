@@ -144,6 +144,7 @@ export function crearMaqueta(ctx) {
     escena: () => escena,
     activar(si) {
       if (si && !construida) construir();
+      if (!si && hover) { hover.material.opacity = hover.userData.opacidadBase; hover = null; }
       controles.enabled = si;
       capa.hidden = !si;
       if (usaModelo) ctx.ocultarTecho(si);
@@ -152,7 +153,9 @@ export function crearMaqueta(ctx) {
     redimensionar(aspecto) { camara.aspect = aspecto; camara.updateProjectionMatrix(); },
     cuadro,
     reiniciar() {
-      superficies.forEach((s) => s.parent?.remove(s));
+      hover = null;
+      superficies.forEach((s) => { s.parent?.remove(s); s.geometry.dispose(); s.material.dispose(); });
+      if (escena && !usaModelo) escena.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose?.(); } });
       superficies.length = 0;
       etiquetas.forEach((e) => e.el.remove());
       etiquetas.length = 0;

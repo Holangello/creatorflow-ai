@@ -131,7 +131,7 @@ const textoNombre = (p) => (typeof p.nombre === "string" ? p.nombre : p.nombre?.
 $("#vista-nodo").onchange = (e) => { app.nodo = e.target.value; emitir("nodo", { origen: "selector" }); };
 $("#vista-recargar").append(icono("recargar", 16));
 $("#vista-plegar").append(icono("ampliar", 16));
-$("#vista-recargar").onclick = () => { vp.listo = false; iframe.src = "index.html?embed"; };
+$("#vista-recargar").onclick = () => { vp.listo = false; iframe.src = "index.html?embed&estudio"; };
 $("#vista-plegar").onclick = () => {
   if (matchMedia("(max-width: 860px)").matches) document.body.classList.toggle("vista-abierta");
   else document.body.classList.toggle("vista-grande");

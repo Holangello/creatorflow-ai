@@ -101,6 +101,7 @@ if (renderer) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 }
 visor.lienzo = lienzo;
+Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size }) });
 
 // ------------------------------------------------------------------ escena 360
 const escena360 = new THREE.Scene();
@@ -201,24 +202,32 @@ function cargarImagen(url, color = true, intentos = 2) {
 function cargarTex(clave, crear, fija = false) {
   let e = cache.get(clave);
   if (!e) {
-    e = { usado: 0, fija, tex: null };
+    e = { usado: 0, fija, tex: null, reservas: 0 };
     e.promesa = Promise.resolve().then(crear).then((t) => (e.tex = t));
     e.promesa.catch(() => cache.delete(clave));
     cache.set(clave, e);
   }
   e.usado = performance.now();
+  e.reservas++; // protegida hasta que se asigne (ver liberarReservas)
+  setTimeout(() => { e.reservas = Math.max(0, e.reservas - 1); podar(); }, 4000);
   podar();
   return e.promesa;
 }
 
+/** Libera una textura de la GPU; las de render target (demo) liberan su render target completo. */
+function liberarTex(t) { (t.userData?.rt ?? t).dispose(); }
+
 function podar() {
-  if (cache.size <= LIMITE_TEX) return;
+  const podables = [...cache.entries()].filter(([, e]) => !e.fija); // las fijas (base de la demo) no cuentan
+  if (podables.length <= LIMITE_TEX) return;
   const enUso = new Set([U.texA.value, U.texB.value, U.texC.value, U.mascA.value, U.mascB.value]);
-  const libres = [...cache.entries()].filter(([, e]) => e.tex && !e.fija && !enUso.has(e.tex)).sort((a, b) => a[1].usado - b[1].usado);
-  while (cache.size > LIMITE_TEX && libres.length) {
+  const libres = podables.filter(([, e]) => e.tex && !e.reservas && !enUso.has(e.tex)).sort((a, b) => a[1].usado - b[1].usado);
+  let sobran = podables.length - LIMITE_TEX;
+  while (sobran-- > 0 && libres.length) {
     const [k, e] = libres.shift();
-    e.tex.dispose();
+    liberarTex(e.tex);
     cache.delete(k);
+    for (const kl of [...luces.keys()]) if (kl === k) luces.delete(kl);
   }
 }
 
@@ -355,8 +364,13 @@ function construirPuntos() {
   const n = int.actual;
   const alt = alturaNodo(n);
   for (const destino of n.vecinos) {
-    const dx = destino.x - n.x, dz = destino.z - n.z;
-    const dist = Math.hypot(dx, dz) || 1;
+    let dx = destino.x - n.x, dz = destino.z - n.z;
+    let dist = Math.hypot(dx, dz);
+    const vertical = dist < 0.3; // escalera: mismo punto en otra planta → flecha al frente (o al rumbo indicado)
+    if (vertical) {
+      const r = ((n.rumbo_enlaces?.[destino.id] ?? n.rumbo_inicial ?? n.yaw ?? 0) * GRAD);
+      dx = Math.sin(r); dz = -Math.cos(r); dist = 1;
+    }
     const r = THREE.MathUtils.clamp(dist * 0.6, 1.3, 3.2);
     const g = new THREE.Group();
     g.position.set((dx / dist) * r, -alt, (dz / dist) * r);
@@ -376,7 +390,7 @@ function construirPuntos() {
     etq.className = "etq";
     const otraPlanta = destino.planta !== n.planta ? ` · ${texto(plantaPorId(destino.planta)?.nombre) || tr("plano.planta")}` : "";
     etq.textContent = texto(destino.nombre) + otraPlanta;
-    etq.setAttribute("aria-label", `${tr("nav.ir_a", { x: texto(destino.nombre) })}, ${tr("nav.metros", { x: metros(dist) })}`);
+    etq.setAttribute("aria-label", vertical ? tr("nav.ir_a", { x: texto(destino.nombre) + otraPlanta }) : `${tr("nav.ir_a", { x: texto(destino.nombre) })}, ${tr("nav.metros", { x: metros(dist) })}`);
     etq.onclick = () => irA(destino);
     etiquetas.append(etq);
     etiquetasActivas.push({ el: etq, pos: new THREE.Vector3(g.position.x, g.position.y + 0.35, g.position.z) });
@@ -414,14 +428,21 @@ async function irA(destino, { instantaneo = false } = {}) {
   if (typeof destino === "string") destino = int.nodos.get(destino);
   if (!destino || !renderer) return;
   if (destino === int.actual && !int.transicion) return;
-  if (int.transicion) await int.transicion.promesa;
-  if (destino === int.actual) return;
-  const desde = int.actual;
+  // Ficha de petición: si llega otra navegación mientras esta carga, gana la última.
+  const ficha = (int.navFicha = (int.navFicha ?? 0) + 1);
   mostrarCarga(true);
   let slot;
   try { slot = await prepararSlot(destino); }
-  catch (e) { aviso(e.message, 6000, { reintentar: () => irA(destino) }); mostrarCarga(false); return; }
+  catch (e) {
+    if (ficha === int.navFicha) { aviso(e.message, 6000, { reintentar: () => irA(destino) }); mostrarCarga(false); }
+    return;
+  }
+  if (ficha !== int.navFicha) return;
+  while (int.transicion) await int.transicion.promesa;
+  if (ficha !== int.navFicha) return;
   mostrarCarga(false);
+  if (destino === int.actual) return;
+  const desde = int.actual;
   ocultarFicha();
   if (!desde || instantaneo || estado.modo !== "tour") {
     asignar("A", slot);
@@ -539,14 +560,27 @@ function pasoTransicion(dt) {
 }
 
 /** Fundido en la misma estancia (cambio de estilo o momento). */
-async function refrescarAmbiente(evento) {
+async function refrescarAmbiente(evento, anterior) {
   aplicarAmbienteLibre();
   if (!int.actual || !renderer) return visor.emitir(evento, { id: estado[evento] });
-  if (int.transicion) await int.transicion.promesa;
+  const ficha = (int.ambFicha = (int.ambFicha ?? 0) + 1);
+  while (int.transicion) await int.transicion.promesa;
+  if (ficha !== int.ambFicha) return;
+  const nodo = int.actual;
   mostrarCarga(true);
   let slot;
-  try { slot = await prepararSlot(int.actual); } catch (e) { aviso(e.message); mostrarCarga(false); return; }
+  try { slot = await prepararSlot(nodo); }
+  catch (e) {
+    // Imagen rota: se vuelve al estilo/momento anterior para que el estado refleje lo que se ve.
+    if (ficha === int.ambFicha) { aviso(e.message); mostrarCarga(false); estado[evento] = anterior; aplicarAmbienteLibre(); visor.emitir(evento, { id: anterior }); }
+    return;
+  }
+  if (ficha !== int.ambFicha) return;
+  while (int.transicion) await int.transicion.promesa;
+  if (ficha !== int.ambFicha) return;
   mostrarCarga(false);
+  // Si mientras tanto se cambió de estancia, la llegada ya aplicó el estilo/momento nuevo.
+  if (int.actual !== nodo) return visor.emitir(evento, { id: estado[evento] });
   if (slot.f.clave === int.fuenteActual?.clave || estado.modo !== "tour") {
     asignar("A", slot);
     int.fuenteActual = slot.f;
@@ -713,8 +747,15 @@ function moverLibre(dt) {
       if (!mz) L.vel.z = 0;
     }
   }
-  L.pos.x += mx; L.pos.z += mz;
   const alt = int.tour.altura_camara ?? 1.5;
+  if (L.suelo && (mx || mz) && L.enSuelo !== false) {
+    // Escalón máximo de 0,3 m: no se puede "subir" a camas, mesas o encimeras.
+    rayo.set(vTmp.set(L.pos.x + mx, L.pos.y + 0.3, L.pos.z + mz), ABAJO);
+    rayo.far = alt + 6;
+    const h = rayo.intersectObjects(L.colisiones, true)[0];
+    if (h && h.point.y + alt - L.pos.y > 0.3) { mx = mz = 0; L.vel.set(0, 0, 0); }
+  }
+  L.pos.x += mx; L.pos.z += mz;
   if (L.suelo) {
     // Gravedad y salto (Espacio). En el suelo se sigue la altura con suavidad (escalones, rampas).
     rayo.set(vTmp.set(L.pos.x, L.pos.y + 0.3, L.pos.z), ABAJO);
@@ -841,7 +882,7 @@ function interaccion(ev) {
 
 lienzo.addEventListener("pointerdown", (e) => {
   if (guion.activo && !guion.pausado) guion.alternarPausa(); // tocar la escena pausa la visita (no la cancela)
-  lienzo.setPointerCapture(e.pointerId);
+  if (document.pointerLockElement !== lienzo) { try { lienzo.setPointerCapture(e.pointerId); } catch {} }
   punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });
   ocultarPista("arrastra");
   // Joystick flotante: pulgar en la mitad izquierda en modo libre táctil.
@@ -969,9 +1010,9 @@ document.addEventListener("pointerlockchange", () => {
 });
 
 function clic(e) {
-  if (medicion?.clic(e.clientX, e.clientY)) return;
   const capturado = document.pointerLockElement === lienzo;
   if (capturado) e = { clientX: innerWidth / 2, clientY: innerHeight / 2, pointerType: "mouse" }; // se actúa sobre la mira
+  if (medicion?.clic(e.clientX, e.clientY)) return;
   if (estado.modo === "tour") {
     ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
     rayo.setFromCamera(ndc, camara);
@@ -1187,6 +1228,7 @@ function aviso(txt, ms = 4500, { reintentar } = {}) {
   clearTimeout(tAviso);
   tAviso = setTimeout(() => (el.hidden = true), ms);
 }
+const urlSegura = (u) => (typeof u === "string" && /^(https?:|mailto:|tel:|\.{0,2}\/|[\w-]+\.[\w]+)/i.test(u.trim()) && !/^\s*javascript:/i.test(u) ? u : null);
 function mostrarFicha(p) {
   const f = $("#ficha");
   f.querySelector("h2").textContent = texto(p.titulo);
@@ -1194,8 +1236,8 @@ function mostrarFicha(p) {
   const media = f.querySelector(".media");
   media.replaceChildren();
   if (p.imagen) { const i = new Image(); i.src = p.imagen; i.alt = texto(p.titulo); media.append(i); }
-  if (p.video) { const a = document.createElement("a"); a.href = p.video; a.target = "_blank"; a.rel = "noopener"; a.textContent = "▶ Vídeo"; media.append(a); }
-  if (p.enlace) { const a = document.createElement("a"); a.href = p.enlace; a.target = "_blank"; a.rel = "noopener"; a.textContent = "↗ Más información"; media.append(a); }
+  if (urlSegura(p.video)) { const a = document.createElement("a"); a.href = urlSegura(p.video); a.target = "_blank"; a.rel = "noopener"; a.textContent = "▶ Vídeo"; media.append(a); }
+  if (urlSegura(p.enlace)) { const a = document.createElement("a"); a.href = urlSegura(p.enlace); a.target = "_blank"; a.rel = "noopener"; a.textContent = "↗ Más información"; media.append(a); }
   f.hidden = false;
   f.querySelector(".cerrar").focus({ preventScroll: true });
 }
@@ -1261,10 +1303,12 @@ function modosDisponibles() {
 }
 
 async function cambiarModo(modo) {
+  int.modoPedido = modo;
   if (modo === estado.modo || !renderer) return;
   if (!modosDisponibles().includes(modo)) return;
   if (modo === "libre" || (modo === "maqueta" && ["demo", "glb"].includes(int.tour.libre?.tipo))) {
     try { await prepararLibre(); } catch { return; }
+    if (int.modoPedido !== modo) return; // se pidió otro modo mientras cargaba
   }
   $("#pista").hidden = true;
   if (modo === "libre") {
@@ -1354,8 +1398,8 @@ Object.assign(visor, {
   modo: (m) => cambiarModo(m),
   t: (v) => texto(v),
   tr,
-  fijarEstilo(id) { if (estado.estilo === id) return; estado.estilo = id; return refrescarAmbiente("estilo"); },
-  fijarMomento(id) { if (estado.momento === id) return; estado.momento = id; return refrescarAmbiente("momento"); },
+  fijarEstilo(id) { if (estado.estilo === id) return; const ant = estado.estilo; estado.estilo = id; return refrescarAmbiente("estilo", ant); },
+  fijarMomento(id) { if (estado.momento === id) return; const ant = estado.momento; estado.momento = id; return refrescarAmbiente("momento", ant); },
   fijarPintura({ paredes = null, suelos = null } = {}) {
     estado.pintura = { paredes, suelos };
     const p = hexALineal(paredes), s = hexALineal(suelos);
@@ -1402,7 +1446,8 @@ Object.assign(visor, {
   },
   ajustes(obj = {}) {
     Object.assign(int.ajustes, obj);
-    almacen.guardar("visor:ajustes", int.ajustes);
+    // Solo se guardan las preferencias que el usuario ha cambiado (no se congela prefers-reduced-motion).
+    almacen.guardar("visor:ajustes", { ...almacen.leer("visor:ajustes", {}), ...obj });
     if ("fov" in obj) redimensionar();
     return { ...int.ajustes };
   },
@@ -1477,7 +1522,7 @@ function enviarPadre(msg) {
   if (EMBED && window.parent !== window) window.parent.postMessage(msg, location.origin === "null" ? "*" : location.origin);
 }
 addEventListener("message", async (e) => {
-  if (e.source !== window.parent || window.parent === window) return;
+  if (!EMBED || e.source !== window.parent || window.parent === window) return;
   if (location.origin !== "null" && e.origin !== location.origin) return;
   const m = e.data ?? {};
   if (m.tipo === "visor:cargar" && m.tour) await cargarEnVisor(structuredClone(m.tour), { mantenerVista: true });
@@ -1489,18 +1534,20 @@ addEventListener("message", async (e) => {
 });
 
 function leerHash() {
-  const h = decodeURIComponent(location.hash.slice(1));
-  if (h.startsWith("v=")) {
-    const [nodo, r, c, f] = h.slice(2).split(",");
-    return { nodo, rumbo: +r * GRAD, cabeceo: +c * GRAD, fov: +f };
+  const dec = (x) => { try { return decodeURIComponent(x); } catch { return null; } };
+  const crudo = location.hash.slice(1);
+  if (crudo.startsWith("v=")) {
+    const [nodo, r, c, f] = crudo.slice(2).split(","); // se separa antes de decodificar (ids con comas codificadas)
+    return { nodo: dec(nodo), rumbo: +r * GRAD, cabeceo: +c * GRAD, fov: +f };
   }
+  const h = dec(crudo);
   return h ? { nodo: h } : null;
 }
 
 // ------------------------------------------------------------------ carga del tour
 async function obtenerTour() {
   if (window.TOUR_EMBEBIDO) return window.TOUR_EMBEBIDO;
-  if (params.has("demo") || EMBED) {
+  if (params.has("demo") || (EMBED && params.has("estudio"))) {
     const { DEMO_TOUR } = await import("./demo.js");
     return structuredClone(DEMO_TOUR);
   }
@@ -1524,12 +1571,33 @@ async function obtenerTour() {
   }
 }
 
+/** Única puerta de entrada de datos: limpia y valida el tour para que un dato roto no tumbe el visor. */
 function normalizar(t) {
-  t.panoramas ??= [];
-  if (!t.plantas?.length) t.plantas = [{ id: "p0", nombre: "", plano: t.plano, muros: t.muros }];
+  const fin = (n) => Number.isFinite(+n);
+  const punto = (v) => Array.isArray(v) && v.length >= 2 && fin(v[0]) && fin(v[1]);
+  const avisar = (m) => console.warn(`[cre8eight] ${m}`);
+  t.panoramas = (Array.isArray(t.panoramas) ? t.panoramas : []).filter((p) => {
+    const ok = p && p.id != null && (p.imagen || p.textura || t.demo);
+    if (!ok) avisar(`panorama descartado (sin id o sin imagen): ${JSON.stringify(p)?.slice(0, 80)}`);
+    return ok;
+  });
+  const vistos = new Set();
+  for (const p of t.panoramas) {
+    p.id = String(p.id);
+    if (vistos.has(p.id)) { avisar(`id repetido "${p.id}"`); p.id = `${p.id}-${vistos.size}`; }
+    vistos.add(p.id);
+    p.x = fin(p.x) ? +p.x : 0; p.z = fin(p.z) ? +p.z : 0;
+    if (p.enlaces != null && !Array.isArray(p.enlaces)) delete p.enlaces;
+    if (p.puntos != null && !Array.isArray(p.puntos)) p.puntos = [];
+    if (p.variantes != null && !Array.isArray(p.variantes)) p.variantes = [];
+  }
+  if (!Array.isArray(t.plantas) || !t.plantas.length) t.plantas = [{ id: "p0", nombre: "", plano: t.plano, muros: t.muros }];
+  for (const pl of t.plantas) pl.muros = (Array.isArray(pl.muros) ? pl.muros : []).filter((m) => Array.isArray(m) && m.length === 4 && m.every(fin));
   const p0 = t.plantas[0].id;
   for (const p of t.panoramas) p.planta ??= p0;
-  t.estancias = (t.estancias ?? []).map((e) => ({ ...e, planta: e.planta ?? p0 }));
+  t.estancias = (Array.isArray(t.estancias) ? t.estancias : [])
+    .map((e) => ({ ...e, planta: e.planta ?? p0, poligono: Array.isArray(e.poligono) ? e.poligono.filter(punto).map((v) => [+v[0], +v[1]]) : [] }))
+    .filter((e) => { if (e.poligono.length < 3) avisar(`estancia "${e.id ?? "?"}" sin polígono válido: se ignora en el plano`); return true; });
   if (!t.estilos?.length) {
     const ids = [...new Set(t.panoramas.flatMap((p) => (p.variantes ?? []).map((v) => v.estilo).filter(Boolean)))];
     t.estilos = ids.length ? [{ id: "original" }, ...ids.map((id) => ({ id }))] : [];
@@ -1557,7 +1625,7 @@ function enlazar(t) {
   for (const p of t.panoramas) {
     if (p.enlaces) continue;
     for (const v of t.panoramas) {
-      if (v !== p && v.planta === p.planta && Math.hypot(v.x - p.x, v.z - p.z) <= radio && !p.vecinos.includes(v)) { p.vecinos.push(v); v.vecinos.push(p); }
+      if (v !== p && !v.enlaces && v.planta === p.planta && Math.hypot(v.x - p.x, v.z - p.z) <= radio && !p.vecinos.includes(v)) { p.vecinos.push(v); v.vecinos.push(p); }
     }
   }
 }
@@ -1565,7 +1633,7 @@ function enlazar(t) {
 async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   const vistaPrevia = mantenerVista && int.actual ? { nodo: int.actual.id, rumbo: estado.rumbo, cabeceo: estado.cabeceo } : null;
   if (int.transicion) { int.transicion.resolver(); int.transicion = null; }
-  for (const [, e] of cache) if (e.tex && !e.fija) e.tex.dispose();
+  for (const [, e] of cache) if (e.tex && !e.fija) liberarTex(e.tex);
   cache.clear(); luces.clear();
   int.actual = null; int.fuenteActual = null;
   U.mezcla.value = 0;
@@ -1588,6 +1656,7 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   if (!int.nodos.size) {
     estado.planta = t.plantas[0].id;
     if (t.libre) await cambiarModo("libre");
+    else aviso(tr("aviso.error_carga", { x: texto(t.titulo) || "tour" }), 600000, { reintentar: () => location.reload() });
     return;
   }
   const h = vistaPrevia ?? leerHash();
@@ -1595,8 +1664,8 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   estado.planta = inicio.planta;
   estado.rumbo = h?.rumbo != null && !isNaN(h.rumbo) && int.nodos.has(h?.nodo) ? h.rumbo : (inicio.rumbo_inicial ?? inicio.yaw ?? 0) * GRAD;
   if (h?.cabeceo != null && !isNaN(h.cabeceo)) estado.cabeceo = h.cabeceo;
-  if (h?.fov && !isNaN(h.fov)) int.zoom = THREE.MathUtils.clamp(h.fov / int.fovBase, 0.45, 1.2);
   if (renderer) await irA(inicio, { instantaneo: true });
+  if (h?.fov && !isNaN(h.fov)) fijarZoom(h.fov / int.fovBase);
   else { int.actual = inicio; estado.nodo = inicio.id; }
   dibujarPlantas();
 }

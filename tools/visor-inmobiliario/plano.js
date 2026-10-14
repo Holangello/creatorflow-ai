@@ -15,6 +15,7 @@ export function crearPlano(canvas, ctx) {
     const src = p?.plano?.imagen;
     if (!src) return null;
     if (!imagenes.has(src)) {
+      if (imagenes.size > 12) imagenes.delete(imagenes.keys().next().value);
       const img = new Image();
       img.onload = () => dibujar();
       img.src = src;
@@ -33,7 +34,7 @@ export function crearPlano(canvas, ctx) {
     } else {
       const pts = ctx.nodos().filter((n) => n.planta === p.id).map((n) => [n.x, n.z]);
       for (const mu of p.muros ?? []) pts.push([mu[0], mu[1]], [mu[2], mu[3]]);
-      for (const e of ctx.tour().estancias ?? []) if (e.planta === p.id) pts.push(...e.poligono);
+      for (const e of ctx.tour().estancias ?? []) if (e.planta === p.id && Array.isArray(e.poligono)) pts.push(...e.poligono);
       const lim = ctx.tour().libre?.limites;
       if (lim) pts.push([lim[0], lim[1]], [lim[2], lim[3]]);
       if (!pts.length) pts.push([-5, -5], [5, 5]);

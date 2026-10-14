@@ -52,9 +52,10 @@ export const almacen = {
 
 /** Convierte "#rrggbb" a [r, g, b] lineales (0-1). */
 export function hexALineal(hex) {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex ?? "");
+  let m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex ?? "");
   if (!m) return null;
-  const n = parseInt(m[1], 16);
+  const h = m[1].length === 3 ? m[1].replace(/./g, (c) => c + c) : m[1];
+  const n = parseInt(h, 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
     c /= 255;
     return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;

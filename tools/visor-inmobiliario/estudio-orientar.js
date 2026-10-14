@@ -12,14 +12,15 @@ function actual() { return pano(app.nodo) ?? app.tour.panoramas[0]; }
 
 export function girar(delta) {
   const p = actual(); if (!p) return;
-  cambiar(() => { const q = pano(p.id); q.yaw = redondear(norm180((q.yaw ?? 0) + delta), 1); }, { clave: "yaw:" + p.id, tipo: "yaw", render: false });
+  cambiar((t) => { const q = pano(p.id); q.yaw = redondear(norm180((q.yaw ?? 0) + delta), 1); revisada(t, q); }, { clave: "yaw:" + p.id, tipo: "yaw", render: false });
   pintarYaw();
 }
 function fijarYaw(v) {
   const p = actual(); if (!p) return;
-  cambiar(() => { pano(p.id).yaw = redondear(norm180(v), 1); }, { clave: "yaw:" + p.id, tipo: "yaw", render: false });
+  cambiar((t) => { const q = pano(p.id); q.yaw = redondear(norm180(v), 1); revisada(t, q); }, { clave: "yaw:" + p.id, tipo: "yaw", render: false });
   pintarYaw();
 }
+const revisada = (t, q) => { const m = t._estudio.meta[q.imagen]; if (m?.brujula != null) m.brujulaRevisada = true; };
 function yawLocalVista() {
   const v = app.vista, p = actual();
   if (!v || !p || v.nodo !== p.id) return null;
@@ -260,7 +261,7 @@ export const seccionOrientar = {
   resumen: () => {
     const ps = app.tour.panoramas;
     const n = ps.reduce((s, p) => s + (p.puntos?.length ?? 0), 0);
-    const orientadas = ps.filter((p) => (p.yaw ?? 0) !== 0).length;
+    const orientadas = ps.filter((p) => { const m = app.tour._estudio.meta[p.imagen]; return (p.yaw ?? 0) !== 0 && !(m?.brujula != null && !m.brujulaRevisada); }).length;
     return { texto: ps.length ? `${orientadas}/${ps.length} orientadas · ${n} puntos` : "Yaw y puntos", hecho: ps.length > 1 && orientadas >= ps.length - 1 };
   },
   render,

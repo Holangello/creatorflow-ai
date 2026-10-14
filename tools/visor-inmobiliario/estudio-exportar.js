@@ -48,6 +48,8 @@ export function comprobar() {
       if (fuera.length) add("conexo", "aviso", "Hay zonas que no se conectan con el inicio", `Inalcanzables: ${lista(fuera.map(nombreDe))}. Falta un enlace (p. ej. la escalera entre plantas).`, { seccion: "plano" });
       else add("aislados", "ok", "Todas las fotos están enlazadas", "", { seccion: "plano" });
     }
+    const brujula = ps.filter((p) => t._estudio.meta[p.imagen]?.brujula != null && !t._estudio.meta[p.imagen]?.brujulaRevisada);
+    if (brujula.length) add("brujula", "aviso", "Orientación automática por brújula sin revisar", `Comprueba que las flechas coinciden con las puertas: ${lista(brujula.map(nombreDe))}.`, { seccion: "orientar" });
     const sinOrientar = ps.filter((p) => !p.yaw);
     if (sinOrientar.length === ps.length) add("yaw", "aviso", "Ninguna foto está orientada", "Las flechas pueden no coincidir con las puertas. Usa el asistente de alineación.", { seccion: "orientar" });
   }

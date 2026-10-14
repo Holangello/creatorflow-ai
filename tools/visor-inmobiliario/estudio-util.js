@@ -251,7 +251,7 @@ export function describirCamara(meta, dim) {
   const mp = Math.round((dim.w * dim.h) / 1e6);
   const nombre = esOsmo ? (/ii|2/i.test((meta.modelo ?? "").replace(/osmo\s*-?360/i, "")) ? "Osmo 360 II" : "Osmo 360") : null;
   if (!nombre) return null;
-  const modo = dim.w >= 15000 ? `${mp} MP` : dim.w >= 7000 && dim.w < 8000 ? `HDR ${mp} MP` : `${mp} MP`;
+  const modo = dim.w >= 15000 ? `${mp} MP` : dim.w >= 7000 && dim.w < 8000 ? "HDR 30 MP" : `${mp} MP`;
   return `${nombre} · ${modo}`;
 }
 /** "2025:03:14 10:22:31" → milisegundos (o null). */

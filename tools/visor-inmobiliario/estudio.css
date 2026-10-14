@@ -411,3 +411,6 @@ body.vista-grande { grid-template-columns: var(--ancho-pasos) minmax(0, 1fr); gr
 .texto-trad.compacto input { padding-right: 70px; }
 .texto-trad.compacto textarea { padding-right: 70px; }
 .texto-trad.compacto:has(textarea) .idiomas { top: 8px; transform: none; }
+
+.enlace-asistente { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; font-weight: 500; color: var(--acento); text-decoration: none; }
+.enlace-asistente:hover { text-decoration: underline; }

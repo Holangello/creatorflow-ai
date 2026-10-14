@@ -187,7 +187,7 @@ export async function importarArchivosSoltados(lista) {
     if (ok) return importarCarpeta(lista);
     return;
   }
-  const fotos = lista.filter(({ archivo }) => /^image\/(jpeg|png|webp)$/.test(archivo.type) || /\.(jpe?g|png|webp)$/i.test(archivo.name));
+  const fotos = lista.filter(({ archivo }) => /^image\/(jpeg|png|webp)$/.test(archivo.type) || /\.(jpe?g|png|webp|osv|insv|mp4|mov|m4v)$/i.test(archivo.name));
   if (fotos.length) {
     emitir("ir", { seccion: "fotos" });
     return anadirFotos(fotos.map((f) => f.archivo));

@@ -23,6 +23,7 @@ html, body { margin: 0; height: 100%; background: var(--fondo); color: var(--tex
   font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 #app { position: fixed; inset: 0; height: 100dvh; user-select: none; -webkit-user-select: none; }
 #lienzo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; outline: none; }
+#lienzo:focus-visible { outline: 3px solid var(--acento); outline-offset: -3px; }
 #lienzo:active { cursor: grabbing; }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }

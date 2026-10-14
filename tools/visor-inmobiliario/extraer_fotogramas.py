@@ -6,8 +6,9 @@ equirectangulares. Este script extrae fotogramas del vídeo 360 (exportado
 como equirectangular desde DJI Studio / DJI Mimo) y, de cada uno, genera
 varias vistas en perspectiva con el filtro v360 de ffmpeg:
 
-  8 vistas horizontales (cada 45°) + 2 inclinadas hacia el suelo y techo
-  → con 1 fotograma cada 0,5 s y un recorrido de 3 min salen ~3600 fotos.
+  12 vistas por fotograma: 8 horizontales (cada 45°), 2 hacia el suelo y 2 hacia el techo
+  → con 2 fotogramas por segundo y un recorrido de 3 min salen ~4300 fotos.
+  Si sales en las vistas hacia el suelo, borra los archivos v08_* y v09_*.
 
 Uso:
   python3 extraer_fotogramas.py recorrido.mp4 --salida fotogramas --fps 2

@@ -293,8 +293,9 @@ export function generarPanoramas(_THREE, renderer, nodos, altura) {
   function renderEquirect(n, { ancho = 2048, srgb = false, tipo = THREE.HalfFloatType } = {}) {
     cubo.position.set(n.x, altura, n.z);
     cubo.update(renderer, escena);
-    const rt = new THREE.WebGLRenderTarget(ancho, ancho / 2, { type: tipo, generateMipmaps: false, minFilter: THREE.LinearFilter });
+    const rt = new THREE.WebGLRenderTarget(ancho, ancho / 2, { type: tipo, generateMipmaps: false, minFilter: THREE.LinearFilter, depthBuffer: false });
     rt.texture.wrapS = THREE.RepeatWrapping;
+    rt.texture.userData.rt = rt; // para liberar el render target completo (no solo la textura)
     quad.material.uniforms.srgb.value = srgb ? 1 : 0;
     const previo = renderer.getRenderTarget();
     renderer.setRenderTarget(rt);

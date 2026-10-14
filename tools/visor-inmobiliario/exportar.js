@@ -82,6 +82,8 @@ function referencias(t) {
     for (const v of p.variantes ?? []) { add(v, "imagen", "pano"); add(v, "imagen_movil", "pano_movil"); add(v, "mascara", "mascara"); }
   }
   for (const d of t.inmueble?.documentos ?? []) add(d, "url", "doc");
+  for (const g of t.galeria ?? []) add(g, "imagen", "foto");
+  for (const d of t.documentacion ?? []) if (d.publico) add(d, "archivo", "doc");
   add(t.libre, "url", "libre");
   add(t.libre, "colisionador", "libre");
   return refs;
@@ -346,6 +348,8 @@ export async function exportarHTMLAutonomo(tour, archivos = new Map(), { calidad
   let js, css;
   try { [js, css] = await Promise.all([traer("dist/visor-autonomo.js"), traer("dist/visor-autonomo.css")]); }
   catch (e) { throw new Error(`Falta el visor compilado (dist/visor-autonomo.js): ejecuta "npm install && npm run build" en tools/visor-inmobiliario (${e.message})`); }
+  // Un build antiguo no sabe leer el tour incrustado y mostraría la demo: mejor un error claro.
+  if (!js.includes("TOUR_EMBEBIDO")) throw new Error('El visor compilado (dist/) está desactualizado: ejecuta "npm run build" en tools/visor-inmobiliario y vuelve a exportar.');
   let cuerpo = "", lang = "es", tituloDoc = "Recorrido virtual";
   try {
     const html = await traer("index.html");
@@ -489,7 +493,7 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   const acento = tour.marca?.color ?? "#c8a24a";
   const titulo = t(tour.titulo);
   const precio = precioTexto(tour, idioma);
-  const contacto = [tour.agente?.nombre, tour.agente?.telefono ?? (tour.contacto?.whatsapp ? "+" + tour.contacto.whatsapp : null), !tour.agente?.telefono && tour.marca?.web ? tour.marca.web.replace(/^https?:\/\//, "") : null].filter(Boolean).join(" · ");
+  const contacto = [t(tour.agente?.nombre), tour.agente?.telefono ?? (tour.contacto?.whatsapp ? "+" + tour.contacto.whatsapp : null), !tour.agente?.telefono && tour.marca?.web ? tour.marca.web.replace(/^https?:\/\//, "") : null].filter(Boolean).join(" · ");
   let logo = null;
   if (conMarca && tour.marca?.logo) logo = await cargarImagen(tour.marca.logo, {}).catch(() => null);
   const guion = Array.isArray(tour.guion) && tour.guion.length ? tour.guion : (tour.panoramas ?? []).map((p) => ({ nodo: p.id, segundos: 5 }));
@@ -498,14 +502,9 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   let nodoActual = visor.estado?.nodo ?? null;
   let pasoTexto = "";
   const nombreNodo = (id) => t((tour.panoramas ?? []).find((p) => p.id === id)?.nombre) || "";
-  const alNodo = (e) => {
-    nodoActual = e?.id ?? e?.detail?.id ?? e ?? nodoActual;
-    // subtítulo: primer paso del guion para ese nodo que aún no se haya mostrado
-    const paso = guion.find((p) => p.nodo === nodoActual && !p._visto);
-    if (paso) paso._visto = true;
-    pasoTexto = paso?.texto ? t(paso.texto) : "";
-  };
-  const alPaso = (e) => { const p = e?.paso ?? e?.detail?.paso ?? e; if (p?.texto) pasoTexto = t(p.texto); if (p?.nodo) nodoActual = p.nodo; };
+  // El núcleo emite "guion:paso" con { paso (índice), nodo, texto }: es la fuente de los subtítulos.
+  const alNodo = (e) => { nodoActual = e?.id ?? nodoActual; };
+  const alPaso = (e) => { pasoTexto = e?.texto ? t(e.texto) : ""; if (e?.nodo) nodoActual = e.nodo; };
 
   const c = lienzo(W, H);
   const g = c.getContext("2d", { alpha: false });
@@ -538,7 +537,7 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
       x += lw + 28 * u;
     } else if (tour.marca?.nombre) {
       g.font = fuente(700, 30); g.fillStyle = acento; g.textBaseline = "top";
-      g.fillText(textoAjustado(g, tour.marca.nombre.toUpperCase(), W * 0.4), x, y);
+      g.fillText(textoAjustado(g, t(tour.marca.nombre).toUpperCase(), W * 0.4), x, y);
     }
     g.textBaseline = "top"; g.fillStyle = "#fff";
     g.shadowColor = "rgba(0,0,0,.5)"; g.shadowBlur = 8 * u;
@@ -588,7 +587,11 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   // después de renderizar. Orden de preferencia: evento "frame" del núcleo → visor.renderizar() → rAF.
   let ultimoFrame = 0;
   const alFrame = () => { ultimoFrame = performance.now(); componer(); };
-  const on = (ev, fn) => { visor.on?.(ev, fn); const w = (e) => fn(e.detail); addEventListener(`visor:${ev}`, w); return () => { visor.off?.(ev, fn); removeEventListener(`visor:${ev}`, w); }; };
+  // Una sola suscripción por evento: visor.on si existe (si no, el CustomEvent de window).
+  const on = (ev, fn) => {
+    if (typeof visor.on === "function") { visor.on(ev, fn); return () => visor.off?.(ev, fn); }
+    const w = (e) => fn(e.detail); addEventListener(`visor:${ev}`, w); return () => removeEventListener(`visor:${ev}`, w);
+  };
   const quitar = [on("frame", alFrame), on("nodo", alNodo), on("guion:paso", alPaso)];
   let raf = 0;
   const bucle = () => {
@@ -632,7 +635,6 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
     if (rec.state !== "inactive") rec.stop();
     await parado;
     stream.getTracks().forEach((tr) => tr.stop());
-    guion.forEach((p) => delete p._visto);
   }
   onProgreso?.(1);
   const tipo = (mimeType || trozos[0]?.type || `video/${extension}`).split(";")[0];
@@ -900,7 +902,7 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
   }
   g.textBaseline = "alphabetic"; g.fillStyle = "#1d1f24";
   const titulo = tx(t.titulo);
-  if (!imgLogo && t.marca?.nombre) { g.font = F(700, 34 * u); g.fillStyle = acento; g.fillText(t.marca.nombre.toUpperCase(), xc, 88 * u); g.fillStyle = "#1d1f24"; }
+  if (!imgLogo && t.marca?.nombre) { g.font = F(700, 34 * u); g.fillStyle = acento; g.fillText(tx(t.marca.nombre).toUpperCase(), xc, 88 * u); g.fillStyle = "#1d1f24"; }
   g.font = F(700, 54 * u);
   g.fillText(textoAjustado(g, titulo || "Plano", W - xc - margen - 500 * u), xc, imgLogo || !t.marca?.nombre ? 120 * u : 150 * u);
   const sub = [plantas.length > 1 || planta.nombre ? tx(planta.nombre) : "", t.inmueble?.direccion && t.inmueble?.mostrar_direccion_exacta ? t.inmueble.direccion : ""].filter(Boolean).join(" · ");
@@ -1154,6 +1156,7 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
   const urlsTemporales = [];
   const urlDe = async (ruta) => {
     if (!ruta) return null;
+    if (ruta.blob instanceof Blob) ruta = ruta.blob; // resultado de visor.capturar()
     if (ruta instanceof Blob) { const u = URL.createObjectURL(ruta); urlsTemporales.push(u); return u; }
     if (archivos?.has(ruta) || archivos?.has(normalizar(ruta))) return urlDe(await obtenerBlob(ruta, { archivos, base }));
     return resolverURL(ruta, base);
@@ -1192,7 +1195,7 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
 <title>${esc(tx(t.titulo) || "Ficha")}${i.referencia ? " · " + esc(i.referencia) : ""}</title>
 <style>
   @page { size: A4; margin: 12mm 12mm 14mm; }
-  :root { --acento: ${esc(acento)}; --tinta: #1d1f24; --gris: #5b6270; }
+  :root { --acento: ${/^#[0-9a-f]{3,8}$/i.test(acento) ? acento : "#c8a24a"}; --tinta: #1d1f24; --gris: #5b6270; }
   * { box-sizing: border-box; }
   body { margin: 0; font: 10.5pt/1.45 "Helvetica Neue", Arial, system-ui, sans-serif; color: var(--tinta); background: #e9ebef; }
   .hoja { width: 210mm; margin: 12px auto; background: #fff; padding: 12mm; box-shadow: 0 2px 14px rgba(0,0,0,.15); }
@@ -1257,7 +1260,7 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
   <div class="contacto">
     <div>
       <p><strong>${es ? "Visita virtual 3D" : "3D virtual tour"}</strong>${enlace ? (es ? " · escanea el código QR" : " · scan the QR code") : ""}</p>
-      ${t.agente?.nombre ? `<p>${esc(t.agente.nombre)}${t.marca?.nombre ? ` · ${esc(t.marca.nombre)}` : ""}</p>` : t.marca?.nombre ? `<p>${esc(t.marca.nombre)}</p>` : ""}
+      ${t.agente?.nombre ? `<p>${esc(tx(t.agente.nombre))}${t.marca?.nombre ? ` · ${esc(tx(t.marca.nombre))}` : ""}</p>` : t.marca?.nombre ? `<p>${esc(tx(t.marca.nombre))}</p>` : ""}
       ${t.agente?.telefono ? `<p>☎ ${esc(t.agente.telefono)}</p>` : ""}
       ${t.agente?.email ? `<p>✉ ${esc(t.agente.email)}</p>` : ""}
       ${t.marca?.web ? `<p>${esc(t.marca.web.replace(/^https?:\/\//, ""))}</p>` : ""}
