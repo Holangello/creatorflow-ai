@@ -1,0 +1,61 @@
+{
+  "titulo": "Piso reformado en Calle Mayor 12, 3º B",
+  "altura_camara": 1.5,
+  "plano": { "imagen": "plano.png", "ancho_m": 11.5, "alto_m": 8.2 },
+  "inicio": "salon",
+  "radio_enlace_auto": 4.5,
+  "panoramas": [
+    {
+      "id": "salon",
+      "nombre": "Salón",
+      "imagen": "panos/salon.jpg",
+      "imagen_movil": "panos/movil/salon.jpg",
+      "miniatura": "panos/mini/salon.jpg",
+      "x": 3.2, "z": 2.6, "yaw": 0, "rumbo_inicial": 30,
+      "enlaces": ["cocina", "pasillo"],
+      "puntos": [
+        { "yaw": -80, "pitch": 5, "titulo": "Ventanal a la calle", "texto": "Orientación sur, carpintería de aluminio con rotura de puente térmico." }
+      ]
+    },
+    {
+      "id": "cocina",
+      "nombre": "Cocina",
+      "imagen": "panos/cocina.jpg",
+      "imagen_movil": "panos/movil/cocina.jpg",
+      "miniatura": "panos/mini/cocina.jpg",
+      "x": 8.4, "z": 2.0, "yaw": 0
+    },
+    {
+      "id": "pasillo",
+      "nombre": "Pasillo",
+      "imagen": "panos/pasillo.jpg",
+      "imagen_movil": "panos/movil/pasillo.jpg",
+      "miniatura": "panos/mini/pasillo.jpg",
+      "x": 3.0, "z": 5.6, "yaw": 0,
+      "enlaces": ["salon", "dormitorio", "bano"]
+    },
+    {
+      "id": "dormitorio",
+      "nombre": "Dormitorio principal",
+      "imagen": "panos/dormitorio.jpg",
+      "imagen_movil": "panos/movil/dormitorio.jpg",
+      "miniatura": "panos/mini/dormitorio.jpg",
+      "x": 1.6, "z": 7.0, "yaw": 0
+    },
+    {
+      "id": "bano",
+      "nombre": "Baño",
+      "imagen": "panos/bano.jpg",
+      "imagen_movil": "panos/movil/bano.jpg",
+      "miniatura": "panos/mini/bano.jpg",
+      "x": 5.2, "z": 7.0, "yaw": 0
+    }
+  ],
+  "libre": {
+    "tipo": "splat",
+    "url": "escena.sog",
+    "rotacion": [180, 0, 0],
+    "colisionador": "colisionador.glb",
+    "inicio": [3.2, 2.6, 30]
+  }
+}

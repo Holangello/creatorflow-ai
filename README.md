@@ -25,6 +25,7 @@ CreatorFlow AI centralizes practical AI workflows, reusable prompts, automation 
 - Automation scripts
 - File organization tools
 - Camera setup documentation
+- Real estate 3D tour viewer (360 photo tours + game-style free walk with Gaussian Splatting) — see [`tools/visor-inmobiliario`](tools/visor-inmobiliario/README.md) and the [guide](docs/recorridos-3d-inmobiliaria.md)
 
 ## Roadmap
 

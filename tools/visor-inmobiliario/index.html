@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Recorrido Virtual 3D</title>
+  <meta name="description" content="Visor de recorridos virtuales 360 y navegación libre 3D para inmuebles.">
+  <link rel="stylesheet" href="visor.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/",
+        "@sparkjsdev/spark": "https://cdn.jsdelivr.net/npm/@sparkjsdev/spark@2.1.0/dist/spark.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="lienzo" aria-label="Vista 3D del inmueble"></canvas>
+    <div id="etiquetas" aria-hidden="true"></div>
+
+    <header id="barra">
+      <h1 id="titulo">Recorrido virtual</h1>
+      <nav id="modos" role="tablist" aria-label="Modo de visita">
+        <button role="tab" data-modo="tour" aria-selected="true">Recorrido 360</button>
+        <button role="tab" data-modo="libre" aria-selected="false">Modo libre 3D</button>
+      </nav>
+    </header>
+
+    <div id="estancia" aria-live="polite"></div>
+
+    <aside id="minimapa" aria-label="Plano">
+      <canvas id="mapa"></canvas>
+      <button id="btn-mapa" class="mini" title="Ampliar plano" aria-label="Ampliar plano">⤢</button>
+    </aside>
+
+    <div id="galeria" role="list" aria-label="Estancias"></div>
+
+    <div id="acciones">
+      <button id="btn-giro" class="icono" title="Giroscopio" aria-label="Activar giroscopio" hidden>🧭</button>
+      <button id="btn-ayuda" class="icono" title="Controles" aria-label="Ver controles">?</button>
+      <button id="btn-pantalla" class="icono" title="Pantalla completa" aria-label="Pantalla completa">⛶</button>
+    </div>
+
+    <div id="joystick" aria-hidden="true"><div id="joystick-pomo"></div></div>
+
+    <div id="ficha" role="dialog" aria-modal="false" hidden>
+      <button class="cerrar" aria-label="Cerrar">×</button>
+      <h2></h2>
+      <p></p>
+    </div>
+
+    <div id="ayuda" role="dialog" aria-label="Controles" hidden>
+      <button class="cerrar" aria-label="Cerrar">×</button>
+      <h2>Controles</h2>
+      <div class="cols">
+        <section>
+          <h3>Recorrido 360</h3>
+          <ul>
+            <li><kbd>Arrastrar</kbd> mirar alrededor</li>
+            <li><kbd>W</kbd>/<kbd>↑</kbd> avanzar a la estancia de enfrente</li>
+            <li><kbd>S</kbd>/<kbd>↓</kbd> volver atrás</li>
+            <li><kbd>A</kbd><kbd>D</kbd>/<kbd>←</kbd><kbd>→</kbd> girar</li>
+            <li><kbd>Rueda</kbd>/<kbd>pellizco</kbd> zoom</li>
+            <li>Toca las flechas del suelo o el plano</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Modo libre 3D</h3>
+          <ul>
+            <li><kbd>Clic</kbd> capturar ratón (<kbd>Esc</kbd> soltar)</li>
+            <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> caminar</li>
+            <li><kbd>←</kbd><kbd>→</kbd> girar · <kbd>Shift</kbd> correr</li>
+            <li><kbd>Espacio</kbd>/<kbd>C</kbd> subir/bajar (sin suelo)</li>
+            <li>Móvil: joystick izquierda, arrastra a la derecha para mirar</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div id="carga" hidden><div class="barra"><div></div></div><span>Cargando…</span></div>
+    <div id="aviso" role="status" hidden></div>
+    <div id="editor" hidden></div>
+  </div>
+  <script type="module" src="visor.js"></script>
+</body>
+</html>
