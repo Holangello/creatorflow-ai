@@ -8,7 +8,7 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
   Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
   Claude-Session: https://claude.ai/code/session_01DCs2M5EPDi1niEcZDrP6PF
   ```
-- **Tarea programada:** «cre8eight: continuar trabajo pendiente» reactiva la sesión cada 2 horas para seguir con lo pendiente. Cuando todo esté terminado, se borra (`delete_trigger`) y se avisa al usuario.
+- **Tarea programada:** «cre8eight: continuar trabajo pendiente» (`trig_01JefEhn3G2D3urL2CP7Uux4`, cron `35 */2 * * *` UTC) reactiva la sesión cada 2 horas para seguir con lo pendiente. Cuando todo esté terminado, se borra con `delete_trigger` y se avisa al usuario.
 - **Idioma:** el usuario escribe en español; responde en español.
 
 ## Cómo retomar (5 minutos)
