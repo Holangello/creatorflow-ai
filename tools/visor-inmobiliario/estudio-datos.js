@@ -6,7 +6,7 @@ import { campoTexto, campo, campoSiNo } from "./estudio-campos.js";
 
 const PESTANAS = [
   ["inmueble", "Inmueble"], ["marca", "Marca y agente"], ["contacto", "Contacto"], ["textos", "Idiomas y textos"],
-  ["personalizacion", "Colores y estilos"], ["guion", "Visita guiada"],
+  ["personalizacion", "Colores y estilos"], ["secciones", "Secciones"], ["guion", "Visita guiada"],
 ];
 const LETRAS = { A: "#00a651", B: "#4cb848", C: "#bfd730", D: "#e8d900", E: "#fdb913", F: "#f37021", G: "#ed1c24" };
 const SUGERENCIAS = ["Exterior", "Luminoso", "Armarios empotrados", "Cocina equipada", "Suelo radiante", "Ventanas con doble acristalamiento",
@@ -27,7 +27,7 @@ function pintar() {
   const tabs = h("div", { class: "pestanas", role: "tablist" }, PESTANAS.map(([id, n]) => h("button", {
     role: "tab", "aria-selected": String(id === pestana), text: n, onclick: () => { pestana = id; pintar(); },
   })));
-  const cuerpo = { inmueble, marca, contacto, textos, personalizacion, guion }[pestana]();
+  const cuerpo = { inmueble, marca, contacto, textos, personalizacion, secciones, guion }[pestana]();
   raiz.replaceChildren(
     h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Datos del anuncio" }),
       h("p", { text: "Lo que verá el cliente en la ficha del visor y en el dossier. Todo es opcional salvo lo que exige la ley (certificado energético)." }))),
@@ -318,7 +318,52 @@ function personalizacion() {
     h("h2", { class: "sub", text: "Aviso legal de imágenes" }),
     h("div", { class: "tarjeta" },
       campoTexto(ob(["inmueble"]), "aviso_legal", { etiqueta: "Aviso que se muestra con los estilos", tipo: "datos", placeholder: "Imágenes de estilos generadas con IA, con fines orientativos. El mobiliario no está incluido." }),
-      h("button", { class: "btn peq fantasma", style: { marginTop: "8px" }, onclick: () => { cambiar(() => { ob(["inmueble"])().aviso_legal = { es: "Imágenes de estilos generadas con inteligencia artificial, con fines orientativos. El mobiliario y la decoración no están incluidos.", en: "Style images generated with AI, for illustrative purposes only. Furniture and decoration are not included." }; }, { tipo: "datos" }); pintar(); } }, "Usar texto recomendado")));
+      h("button", { class: "btn peq fantasma", style: { marginTop: "8px" }, onclick: () => { cambiar(() => { ob(["inmueble"])().aviso_legal = { es: "Imágenes no contractuales. Los renders y los estilos de decoración (generados con inteligencia artificial) son orientativos; el mobiliario y la decoración no están incluidos.", en: "Images are for illustrative purposes only. Renders and decoration styles (AI-generated) are indicative; furniture and decoration are not included." }; }, { tipo: "datos" }); pintar(); } }, "Usar texto recomendado")));
+}
+
+// ------------------------------------------------------------------ secciones (agrupar estancias)
+const SECCIONES_DEF = [
+  ["dia", { es: "Zona de día", en: "Living area" }, /sal[oó]n|estar|comedor|cocina|office|recibidor|entrada|hall|living|kitchen|dining/i],
+  ["noche", { es: "Zona de noche", en: "Sleeping area" }, /dormitorio|habitaci[oó]n|suite|ba[nñ]o|aseo|vestidor|bedroom|bath/i],
+  ["exterior", { es: "Exterior y zonas comunes", en: "Outdoor & common areas" }, /terraza|jard[ií]n|piscina|balc[oó]n|patio|garaje|trastero|fachada|comunidad|portal|azotea|exterior|terrace|garden|pool/i],
+];
+export function seccionesSugeridas(t) {
+  const r = SECCIONES_DEF.map(([id, nombre]) => ({ id, nombre: structuredClone(nombre), estancias: [] }));
+  for (const p of t.panoramas) {
+    const n = textoDe(p.nombre) + " " + p.id;
+    const i = SECCIONES_DEF.findIndex(([, , re]) => re.test(n));
+    r[i >= 0 ? i : 0].estancias.push(p.id);
+  }
+  return r;
+}
+function secciones() {
+  const t = T();
+  const activo = Array.isArray(t.secciones);
+  const lista = activo ? t.secciones : seccionesSugeridas(t);
+  const materializar = () => { if (!Array.isArray(app.tour.secciones)) app.tour.secciones = seccionesSugeridas(app.tour); };
+  const de = (pid) => lista.findIndex((s) => (s.estancias ?? []).includes(pid));
+  return h("div", {},
+    h("p", { class: "suave", style: { marginTop: 0 }, text: "Agrupa las estancias para que el cliente las encuentre en la galería y en el formulario de contacto. Se proponen grupos según los nombres." }),
+    h("div", { class: "fila", style: { marginBottom: "12px" } },
+      activo ? h("span", { class: "chip acento", text: "Secciones activas" }) : h("span", { class: "chip", text: "Sugerencia (aún sin activar)" }),
+      h("div", { style: { flex: 1 } }),
+      !activo ? h("button", { class: "btn peq primario", onclick: () => { cambiar(materializar, { tipo: "datos" }); pintar(); } }, "Usar secciones") : null,
+      activo ? h("button", { class: "btn peq", onclick: () => { cambiar(() => { app.tour.secciones.push({ id: `seccion-${app.tour.secciones.length + 1}`, nombre: { es: "Nueva sección" }, estancias: [] }); }, { tipo: "datos" }); pintar(); } }, icono("mas", 14), "Añadir sección") : null,
+      activo ? h("button", { class: "btn peq fantasma", onclick: () => { cambiar(() => { app.tour.secciones = seccionesSugeridas(app.tour); }, { tipo: "datos" }); pintar(); } }, "Volver a sugerir") : null,
+      activo ? h("button", { class: "btn peq fantasma", onclick: () => { cambiar(() => { delete app.tour.secciones; }, { tipo: "datos" }); pintar(); } }, "No usar secciones") : null),
+    h("div", { class: "tarjeta" },
+      activo ? h("div", { style: { display: "flex", flexDirection: "column", gap: "6px", marginBottom: "14px" } }, t.secciones.map((s, i) => h("div", { class: "fila", style: { flexWrap: "nowrap" } },
+        h("div", { style: { flex: 1 } }, campoTexto(() => app.tour.secciones[i], "nombre", { etiqueta: "Nombre de la sección", compacto: true, tipo: "datos" })),
+        h("span", { class: "chip", text: `${s.estancias?.length ?? 0} estancias` }),
+        h("button", { class: "btn fantasma icono-btn", "aria-label": "Quitar sección", onclick: () => { cambiar(() => { app.tour.secciones.splice(i, 1); }, { tipo: "datos" }); pintar(); } }, icono("basura", 15))))) : null,
+      t.panoramas.length ? t.panoramas.map((p) => {
+        const sel = h("select", { "aria-label": `Sección de ${textoDe(p.nombre)}`, disabled: !activo }, h("option", { value: "-1", text: "— Sin sección —" }), lista.map((s, i) => h("option", { value: String(i), text: textoDe(s.nombre) })));
+        sel.value = String(de(p.id));
+        sel.onchange = () => { cambiar(() => { materializar(); for (const s of app.tour.secciones) s.estancias = (s.estancias ?? []).filter((x) => x !== p.id); const j = Number(sel.value); if (j >= 0) app.tour.secciones[j].estancias.push(p.id); }, { tipo: "datos" }); };
+        return h("div", { class: "fila", style: { flexWrap: "nowrap", marginBottom: "6px" } },
+          h("img", { src: urlDe(p.miniatura), alt: "", style: { width: "64px", height: "32px", objectFit: "cover", borderRadius: "4px" } }),
+          h("span", { style: { flex: 1 }, text: textoDe(p.nombre) || p.id }), h("div", { style: { width: "240px" } }, sel));
+      }) : h("p", { class: "tenue", style: { margin: 0 }, text: "Añade fotos para agruparlas." })));
 }
 
 // ------------------------------------------------------------------ visita guiada

@@ -229,3 +229,8 @@ body.raton-capturado #lienzo { cursor: none; }
 @media (max-width: 900px) { #minimapa.radar:not(.grande) { width: 150px; height: 150px; } }
 @media (max-width: 560px) { #minimapa.radar:not(.grande) { width: 124px; height: 124px; } #minimapa.radar .mini { width: 28px; height: 28px; } }
 @media (max-height: 500px) and (orientation: landscape) { #minimapa.radar:not(.grande) { width: 120px; height: 120px; } }
+
+/* Aviso legal visible cuando la imagen es una recreación (IA/render) o la luz es simulada */
+#sello-ia { position: absolute; z-index: 9; top: calc(70px + var(--seg-sup)); left: 50%; transform: translateX(-50%); padding: 4px 10px;
+  border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .02em; background: rgba(0,0,0,.6); border: 1px solid var(--borde); pointer-events: none; }
+@media (max-width: 900px) { #sello-ia { top: auto; bottom: calc(var(--abajo) + 136px); } }

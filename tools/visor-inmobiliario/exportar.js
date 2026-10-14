@@ -473,7 +473,7 @@ function textoAjustado(g, s, maxAncho) {
  * @param {number} [o.maxSegundos] tope de seguridad si nunca llega "guion:fin" (por defecto duración del guion + 60 s)
  * @returns {Promise<{blob: Blob, extension: "mp4"|"webm", mimeType: string, ancho: number, alto: number, segundos: number}>}
  */
-export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 1080, conMarca = true, onProgreso, senal, maxSegundos, bitrate } = {}) {
+export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 1080, conMarca = true, onProgreso, senal, maxSegundos, bitrate, maxMB = 90 } = {}) {
   if (!visor?.lienzo) throw new Error("grabarVideo: falta visor.lienzo (canvas WebGL)");
   if (!visor.guion?.iniciar) throw new Error("grabarVideo: el visor no tiene visita guiada (visor.guion.iniciar)");
   if (typeof MediaRecorder === "undefined") throw new Error("Este navegador no puede grabar vídeo (MediaRecorder)");
@@ -559,6 +559,15 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
       g.fillText(s, W / 2, H - barra - 64 * u);
       g.textAlign = "left";
     }
+    // aviso legal incrustado si la vista es una recreación (IA / render) o la iluminación es simulada
+    const sello = typeof visor.sello === "function" ? visor.sello() : "";
+    if (sello) {
+      g.font = fuente(700, 26);
+      const sw2 = g.measureText(sello).width + 36 * u;
+      rectRedondeado(g, W - sw2 - 40 * u, sup * 1.05, sw2, 46 * u, 23 * u);
+      g.fillStyle = "rgba(0,0,0,.6)"; g.fill();
+      g.fillStyle = "#fff"; g.textBaseline = "middle"; g.fillText(sello, W - sw2 - 22 * u, sup * 1.05 + 23 * u);
+    }
     // barra inferior: estancia + contacto
     g.fillStyle = "rgba(12,14,18,.78)"; g.fillRect(0, H - barra, W, barra);
     g.fillStyle = acento; g.fillRect(0, H - barra, W, 6 * u);
@@ -590,7 +599,9 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   };
 
   const stream = c.captureStream(fps);
-  const rec = new MediaRecorder(stream, { ...(mimeType ? { mimeType } : {}), videoBitsPerSecond: bitrate ?? Math.round(Math.min(16e6, W * H * fps * 0.12)) });
+  // idealista admite vídeos de hasta 100 MB: se limita el bitrate para no pasar de `maxMB` según la duración prevista.
+  const bitrateTope = Math.round((maxMB * 8e6) / (duracionEstimada + 8) * 0.9);
+  const rec = new MediaRecorder(stream, { ...(mimeType ? { mimeType } : {}), videoBitsPerSecond: bitrate ?? Math.min(Math.round(Math.min(16e6, W * H * fps * 0.12)), bitrateTope) });
   const trozos = [];
   rec.ondataavailable = (e) => { if (e.data?.size) trozos.push(e.data); };
   const parado = new Promise((ok) => { rec.onstop = ok; });
@@ -666,7 +677,29 @@ function segmentosJPEG(b) {
  *        ancho/alto por defecto los del JPEG. Si alto < ancho/2 se declara como panorama recortado (centrado).
  * @returns {Promise<Blob>} image/jpeg
  */
-export async function jpegConGPano(blob, { ancho, alto, rumboInicial = 0, cabeceoInicial = 0, fovInicial = 90, rumboNorte } = {}) {
+/**
+ * Re-comprime un JPEG hasta que pese menos de `maxMB` (idealista: 8 MB por foto), bajando calidad y, si hace falta, tamaño.
+ * @returns {Promise<Blob>}
+ */
+export async function jpegParaPortal(blob, { maxMB = 7.5, ladoMax = 8192 } = {}) {
+  const limite = maxMB * 1024 * 1024;
+  if (blob.size <= limite && blob.type === "image/jpeg") return blob;
+  const bmp = await createImageBitmap(blob);
+  let w = Math.min(bmp.width, ladoMax), h = Math.round((bmp.height * w) / bmp.width);
+  let calidad = 0.9, salida = null;
+  for (let i = 0; i < 8; i++) {
+    const c = lienzo(w, h);
+    c.getContext("2d").drawImage(bmp, 0, 0, w, h);
+    salida = await aBlob(c, "image/jpeg", calidad);
+    if (salida.size <= limite) break;
+    if (calidad > 0.72) calidad -= 0.06; else { w = Math.round(w * 0.85); h = Math.round(h * 0.85); }
+  }
+  bmp.close?.();
+  return salida;
+}
+
+export async function jpegConGPano(blob, { ancho, alto, rumboInicial = 0, cabeceoInicial = 0, fovInicial = 90, rumboNorte, maxMB } = {}) {
+  if (maxMB) blob = await jpegParaPortal(blob, { maxMB });
   let b = new Uint8Array(await blob.arrayBuffer());
   if (!(b[0] === 0xff && b[1] === 0xd8)) {
     const bmp = await createImageBitmap(blob);
@@ -694,10 +727,10 @@ export async function jpegConGPano(blob, { ancho, alto, rumboInicial = 0, cabece
     InitialViewRollDegrees: 0,
     InitialHorizontalFOVDegrees: Math.round(fovInicial),
     ...(rumboNorte != null ? { PoseHeadingDegrees: grados(rumboNorte) } : {}),
-    StitchingSoftware: "Visor inmobiliario",
+    StitchingSoftware: "cre8eight",
   };
   const xmp = `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="visor-inmobiliario">
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="cre8eight">
  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="" xmlns:GPano="http://ns.google.com/photos/1.0/panorama/"
 ${Object.entries(atributos).map(([k, v]) => `   GPano:${k}="${esc(v)}"`).join("\n")}/>

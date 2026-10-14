@@ -20,6 +20,7 @@ const S = {
   arrastre: null, punteros: new Map(), imgs: new Map(), lienzo: null, ctx: null, sucio: true, ro: null, raf: 0,
 };
 let raiz = null, lado = null, pista = null, avisoEscala = null;
+window.__plano = S; // pruebas automáticas
 
 const planta = () => app.tour.plantas.find((p) => p.id === app.planta) ?? app.tour.plantas[0];
 const enPlanta = (p) => (p.planta ?? app.tour.plantas[0]?.id) === planta()?.id;

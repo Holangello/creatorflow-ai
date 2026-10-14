@@ -68,6 +68,7 @@ const P = {
   externo: "M14 4h6v6M20 4l-9 9M18 14v6H4V6h6",
   casa: "M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6",
   ficha: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
+  camara: "M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
 };
 const RELLENO = new Set(["play", "pausa"]);
 
@@ -153,6 +154,7 @@ const ui = {
   borrador: { nombre: "", telefono: "", pregunta: "", privacidad: false },
   envio: { estado: "inactivo", error: "" },
   hip: null, descripcionAbierta: false, midiendo: false, guiada: false,
+  capturas: [], capturando: false, zonaManual: false, filtroGaleria: "todo", lightbox: null,
 };
 const limpiezas = [];
 let mo = null;
@@ -306,13 +308,15 @@ function resumenCorto() {
 function renderizar() {
   if (!raiz) return;
   const foco = document.activeElement?.dataset?.k;
-  raiz.className = `pn-raiz pn-disp-${ui.disp}` + (ui.abierto ? " pn-abierto" : "") + (ui.dialogo ? ` pn-con-dialogo pn-dlg-${ui.dialogo}` : "");
+  raiz.className = `pn-raiz pn-disp-${ui.disp}` + (ui.abierto ? " pn-abierto" : "") + (ui.dialogo ? ` pn-con-dialogo pn-dlg-${ui.dialogo}` : "") + (ui.capturando ? " pn-capturando pn-abierto" : "");
   raiz.replaceChildren(...[
     ui.disp === "hoja" ? null : rail(),
     panel(),
     ui.disp === "hoja" ? null : dockContacto(),
     h("div", { class: "pn-velo", hidden: !(ui.dialogo && ui.disp !== "lateral" && ui.dialogo !== "personalizar"), onclick: cerrarDialogo }),
     dialogo(),
+    ui.capturando ? barraCaptura() : null,
+    ui.lightbox ? lightbox() : null,
     h("div", { class: "pn-toast", role: "status", "aria-live": "polite" }),
   ].filter(Boolean));
   colocarHoja(false);
@@ -554,6 +558,7 @@ function ficha() {
       h("h2", { class: "pn-titulo" }, titulo()),
       h("p", { class: "pn-precio" }, textoPrecio()),
       h("p", { class: "pn-precio-meta" }, pm2, pm2 && i.referencia ? h("span", { class: "pn-sep", "aria-hidden": "true" }, "·") : null, i.referencia ? tr("ficha.referencia", { x: i.referencia }) : null)),
+    galeriaRenders(),
     datosClave(),
     certificado(),
     vacio(i.caracteristicas) ? null : seccion("caract", tr("ficha.caracteristicas"),
@@ -566,6 +571,7 @@ function ficha() {
     documentos(),
     agente(),
     avisoLegal(),
+    credito(),
   ];
   return partes.filter(Boolean);
 }
@@ -685,8 +691,14 @@ function ubicacion() {
     h("div", { class: "pn-fila" }, enlace(osm, tr("ficha.osm")), enlace(google, tr("ficha.google"))));
 }
 
+function credito() {
+  const [antes, despues] = tr("marca.creado_con", { x: "\u0000" }).split("\u0000");
+  return h("p", { class: "pn-credito" }, antes, h("span", { class: "pn-credito-marca" }, "cre8eight"), despues);
+}
+
 function documentos() {
-  const docs = inm().documentos ?? [];
+  const docs = [...(inm().documentos ?? []),
+    ...(T.documentacion ?? []).filter((d) => d?.publico === true && (d.archivo || d.url)).map((d) => ({ nombre: d.nombre, url: d.archivo ?? d.url }))];
   if (!docs.length) return null;
   return seccion("docs", tr("ficha.documentos"), h("ul", { class: "pn-docs" }, docs.map((d) =>
     h("li", {}, h("a", { href: d.url, target: "_blank", rel: "noopener", download: "" }, ic("doc"), h("span", {}, R(d.nombre) || d.url.split("/").pop()), ic("descargar", "pn-ic pn-ic-s"))))));
@@ -796,7 +808,10 @@ function alternarDialogo(tipo, opener) { if (ui.dialogo === tipo) cerrarDialogo(
 function abrirDialogo(tipo, opener) {
   ui.opener = opener ?? document.activeElement;
   ui.dialogo = tipo;
-  if (tipo === "contacto" && ui.envio.estado !== "enviando" && ui.envio.estado !== "exito") ui.envio = { estado: "inactivo", error: "" };
+  if (tipo === "contacto") {
+    if (!["enviando", "exito", "pegar"].includes(ui.envio.estado)) ui.envio = { estado: "inactivo", error: "" };
+    if (!ui.zonaManual || !ui.borrador.zona) ui.borrador.zona = zonaPorDefecto();
+  }
   if (ui.disp === "compacta" && tipo !== "personalizar") ui.abierto = false;
   renderizar();
   const d = raiz.querySelector(".pn-dialogo");
@@ -815,6 +830,8 @@ function cerrarDialogo() {
 
 function escape(e) {
   if (!raiz) return;
+  if (ui.lightbox) { e.preventDefault(); cerrarLightbox(); return; }
+  if (ui.capturando) { e.preventDefault(); salirCaptura(); return; }
   if (ui.dialogo) { e.preventDefault(); cerrarDialogo(); return; }
   const dentro = raiz.contains(document.activeElement);
   if (ui.disp === "hoja" && ui.altura !== "peek" && dentro) { fijarAltura("peek"); raiz.querySelector("[data-k='asa']")?.focus(); return; }
@@ -835,16 +852,170 @@ function dialogo() {
 }
 
 // --- contacto
+const MAX_FOTOS = 6;
+
+// Estancias agrupadas para el selector "¿Sobre qué estancia…?": por tour.secciones, si no por planta
+function opcionesZona() {
+  const nombres = new Map();
+  for (const e of T.estancias ?? []) if (e?.id) nombres.set(e.id, { nombre: R(e.nombre) || e.id, planta: e.planta });
+  for (const p of panoramas()) if (p?.id && !nombres.has(p.id)) nombres.set(p.id, { nombre: R(p.nombre) || p.id, planta: p.planta });
+  const usados = new Set(), nombresUsados = new Set(), grupos = [];
+  const opc = (id) => {
+    const n = nombres.get(id);
+    if (!n || usados.has(id) || nombresUsados.has(n.nombre)) return null;
+    usados.add(id); nombresUsados.add(n.nombre);
+    return { id, nombre: n.nombre };
+  };
+  if (T.secciones?.length) {
+    for (const s of T.secciones) {
+      const o = (s.estancias ?? []).map(opc).filter(Boolean);
+      if (o.length) grupos.push({ nombre: R(s.nombre) || s.id, opciones: o });
+    }
+  } else if ((T.plantas?.length ?? 0) > 1) {
+    for (const pl of T.plantas) {
+      const o = [...nombres.keys()].filter((id) => nombres.get(id).planta === pl.id).map(opc).filter(Boolean);
+      if (o.length) grupos.push({ nombre: R(pl.nombre) || pl.id, opciones: o });
+    }
+  }
+  const resto = [...nombres.keys()].map(opc).filter(Boolean);
+  if (resto.length) grupos.push({ nombre: grupos.length ? tr("contacto.zona_otras") : null, opciones: resto });
+  return grupos;
+}
+function zonaPorDefecto() {
+  const todas = opcionesZona().flatMap((g) => g.opciones);
+  let actual = null;
+  try { actual = V.estanciaActual?.() ?? null; } catch {}
+  for (const id of [actual?.id, est().nodo]) if (id && todas.some((o) => o.id === id)) return id;
+  const porNombre = todas.find((o) => o.nombre === (R(actual?.nombre) || nombreEstancia()));
+  return porNombre?.id ?? "general";
+}
+function nombreZona(id) {
+  if (!id || id === "general") return tr("contacto.zona_general");
+  return opcionesZona().flatMap((g) => g.opciones).find((o) => o.id === id)?.nombre ?? id;
+}
+
+const extension = (tipo) => ({ "image/png": "png", "image/webp": "webp" })[tipo] ?? "jpg";
+const slug = (t) => String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").toLowerCase() || "vista";
+function archivosCapturas() {
+  return ui.capturas.map((c, i) => new File([c.blob], `foto-${i + 1}-${slug(c.estancia)}.${extension(c.blob.type)}`, { type: c.blob.type || "image/jpeg" }));
+}
+function puedeCompartirArchivos() {
+  try { return ui.capturas.length > 0 && tiene(navigator.canShare) && tiene(navigator.share) && navigator.canShare({ files: archivosCapturas() }); }
+  catch { return false; }
+}
+
+// --- modo captura: se ocultan los paneles y queda una barra "Encuadra la vista y pulsa Capturar"
+function entrarCaptura() {
+  ui.capturando = true;
+  renderizar();
+  requestAnimationFrame(() => raiz.querySelector("[data-k='capturar']")?.focus({ preventScroll: true }));
+}
+function salirCaptura() {
+  ui.capturando = false;
+  renderizar();
+  requestAnimationFrame(() => raiz.querySelector(".pn-dialogo [data-k='hacer-foto']")?.focus({ preventScroll: true }));
+}
+function barraCaptura() {
+  const n = ui.capturas.length;
+  return h("section", { class: "pn-barra-captura", role: "region", "aria-label": tr("contacto.hacer_foto") },
+    h("p", { class: "pn-bc-texto" }, ic("camara"), h("span", {}, tr("contacto.encuadra"))),
+    h("span", { class: "pn-bc-num", "aria-live": "polite" }, n === 1 ? tr("contacto.una_foto") : tr("contacto.n_fotos", { x: n })),
+    h("button", { type: "button", class: "pn-btn pn-bc-capturar", "data-k": "capturar", disabled: n >= MAX_FOTOS, onclick: tomarCaptura },
+      h("span", { class: "pn-punto", "aria-hidden": "true" }), tr("contacto.capturar")),
+    h("button", { type: "button", class: "pn-btn pn-btn-acento", "data-k": "captura-listo", onclick: salirCaptura }, ic("ok"), tr("contacto.listo")));
+}
+
+async function tomarCaptura() {
+  if (ui.capturas.length >= MAX_FOTOS) { aviso(tr("contacto.max_fotos", { x: MAX_FOTOS })); return; }
+  const btn = raiz.querySelector("[data-k='capturar']"); if (btn) btn.disabled = true;
+  try {
+    let r = null;
+    if (tiene(V.capturar)) r = await V.capturar({ ancho: 1600 });
+    else if (V.lienzo?.toBlob) {
+      try { V.renderizar?.(); } catch {}
+      r = { blob: await new Promise((ok) => V.lienzo.toBlob(ok, "image/jpeg", 0.85)) };
+    }
+    if (!r?.blob) throw new Error("captura vacía");
+    let estancia = r.estancia;
+    if (estancia && typeof estancia === "object") estancia = R(estancia.nombre) || estancia.id;
+    if (!estancia) { try { const e = V.estanciaActual?.(); estancia = e ? R(e.nombre) || e.id : ""; } catch {} }
+    estancia ||= nombreEstancia() || est().nodo || "";
+    ui.capturas.push({ blob: r.blob, url: URL.createObjectURL(r.blob), nodo: r.nodo ?? est().nodo ?? null, estancia: String(estancia), enlace: r.enlace ?? enlaceVista() });
+    destello();
+    aviso(tr("contacto.capturada", { x: ui.capturas.length }));
+  } catch (e) {
+    console.warn("Captura", e);
+    aviso(tr("contacto.err_captura"));
+  }
+  if (ui.capturando) {
+    const vieja = raiz.querySelector(".pn-barra-captura");
+    vieja?.replaceWith(barraCaptura());
+    raiz.querySelector(ui.capturas.length >= MAX_FOTOS ? "[data-k='captura-listo']" : "[data-k='capturar']")?.focus({ preventScroll: true });
+  }
+}
+function destello() {
+  const d = h("div", { class: "pn-destello", "aria-hidden": "true" });
+  raiz.append(d); setTimeout(() => d.remove(), 450);
+}
+function quitarFoto(i) {
+  const [c] = ui.capturas.splice(i, 1);
+  if (c) URL.revokeObjectURL(c.url);
+  rehacerDialogo();
+  raiz.querySelector(`.pn-dialogo [data-k='quitar-${Math.min(i, ui.capturas.length - 1)}']`)?.focus() ?? raiz.querySelector(".pn-dialogo [data-k='hacer-foto']")?.focus();
+}
+function vaciarCapturas() { for (const c of ui.capturas) URL.revokeObjectURL(c.url); ui.capturas = []; }
+
+function descargarFotos() {
+  ui.capturas.forEach((c, i) => setTimeout(() => {
+    const a = h("a", { href: c.url, download: `${inm().referencia ?? "vista"}-foto-${i + 1}-${slug(c.estancia)}.${extension(c.blob.type)}` });
+    document.body.append(a); a.click(); a.remove();
+  }, i * 250));
+}
+
+async function aPNG(blob) {
+  if (blob.type === "image/png") return blob;
+  const bmp = await createImageBitmap(blob);
+  const c = document.createElement("canvas"); c.width = bmp.width; c.height = bmp.height;
+  c.getContext("2d").drawImage(bmp, 0, 0);
+  bmp.close?.();
+  return await new Promise((ok, mal) => c.toBlob((b) => (b ? ok(b) : mal(new Error("PNG"))), "image/png"));
+}
+// Se llama dentro del gesto del usuario: ClipboardItem acepta la promesa del PNG
+function copiarFoto(i) {
+  const c = ui.capturas[i];
+  if (!c || !navigator.clipboard?.write || typeof ClipboardItem === "undefined") return Promise.reject(new Error("portapapeles no disponible"));
+  return navigator.clipboard.write([new ClipboardItem({ "image/png": aPNG(c.blob) })]);
+}
+function copiarYMarcar(i) {
+  ui.envio = { ...ui.envio, estado: "pegar", indice: i, copiaOk: null };
+  copiarFoto(i).then(() => { ui.envio.copiaOk = true; aviso(tr("contacto.copiada")); }, (e) => { console.warn("Copiar foto", e); ui.envio.copiaOk = false; })
+    .finally(() => { if (ui.dialogo === "contacto" && ui.envio.estado === "pegar") rehacerDialogo(); });
+}
+
 function dlgContacto() {
   const b = ui.borrador, env = ui.envio, canal = canalContacto();
   const marca = R(T.marca?.nombre) || R(T.agente?.nombre) || "—";
+  const otra = () => h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "otra", autofocus: true, onclick: () => { ui.envio = { estado: "inactivo" }; ui.borrador.pregunta = ""; vaciarCapturas(); rehacerDialogo(); raiz.querySelector(".pn-dialogo [data-k='c-pregunta']")?.focus(); } }, tr("contacto.otra"));
   if (env.estado === "exito") {
     return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: h("div", { class: "pn-estado pn-estado-ok", role: "status" },
       h("span", { class: "pn-estado-ic" }, ic("ok")),
       h("p", {}, env.porWhatsapp && canal === "whatsapp" ? tr("contacto.exito_whatsapp") : tr("contacto.exito", { x: b.nombre.split(" ")[0] })),
-      h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "otra", autofocus: true, onclick: () => { ui.envio = { estado: "inactivo" }; ui.borrador.pregunta = ""; rehacerDialogo(); } }, tr("contacto.otra"))) };
+      otra()) };
   }
-  const ids = { n: nuevoId("c"), t: nuevoId("c"), p: nuevoId("c"), v: nuevoId("c"), rg: nuevoId("c") };
+  if (env.estado === "pegar") {
+    const total = ui.capturas.length, n = env.indice + 1;
+    return { titulo: tr("contacto.pegar_titulo"), icono: "whatsapp", cuerpo: h("div", { class: "pn-estado pn-estado-pegar", role: "status" },
+      h("ul", { class: "pn-tira pn-tira-s" }, ui.capturas.map((c, i) => h("li", { class: i === env.indice ? "pn-actual" : "" }, h("img", { src: c.url, alt: tr("contacto.foto_alt", { n: i + 1, x: c.estancia }) })))),
+      env.copiaOk === false ? h("p", { class: "pn-aviso" }, ic("alerta", "pn-ic pn-ic-s"), tr("contacto.copia_fallida"))
+        : h("p", {}, ic("info", "pn-ic pn-ic-s"), h("span", {}, tr("contacto.pegar", { n, total }))),
+      h("div", { class: "pn-fila" },
+        n < total ? h("button", { type: "button", class: "pn-btn pn-btn-acento", "data-k": "copiar-siguiente", autofocus: true, onclick: () => copiarYMarcar(env.indice + 1) }, ic("copiar"), tr("contacto.copiar_siguiente", { n: n + 1, total })) : null,
+        h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "descargar-fotos", autofocus: n >= total, onclick: descargarFotos }, ic("descargar"), tr("contacto.descargar_fotos"))),
+      h("div", { class: "pn-fila" },
+        h("button", { type: "button", class: "pn-btn pn-btn-wa", "data-k": "reabrir-wa", onclick: () => abrirWhatsApp(datosConsulta()) }, ic("whatsapp"), tr("contacto.abrir_whatsapp")),
+        otra())) };
+  }
+  const ids = { n: nuevoId("c"), t: nuevoId("c"), p: nuevoId("c"), v: nuevoId("c"), rg: nuevoId("c"), z: nuevoId("c"), f: nuevoId("c") };
   const err = env.campos ?? {};
   const campo = (k, id, etiqueta, control) => h("div", { class: "pn-campo" + (err[k] ? " pn-invalido" : "") },
     h("label", { for: id }, etiqueta), control,
@@ -858,12 +1029,33 @@ function dlgContacto() {
       pregunta.value = actual.includes(t) ? actual : actual ? `${actual} ${t}` : t;
       ui.borrador.pregunta = pregunta.value; pregunta.focus();
     } }, tr(k)));
+  // selector de estancia o zona
+  const grupos = opcionesZona();
+  const zona = h("select", { id: ids.z, name: "zona", "data-k": "c-zona", onchange: (e) => { ui.borrador.zona = e.target.value; ui.zonaManual = true; } },
+    h("option", { value: "general", selected: b.zona === "general" }, tr("contacto.zona_general")),
+    grupos.map((g) => {
+      const ops = g.opciones.map((o) => h("option", { value: o.id, selected: b.zona === o.id }, o.nombre));
+      return g.nombre ? h("optgroup", { label: g.nombre }, ops) : ops;
+    }));
+  // fotos de la vista
+  const nf = ui.capturas.length;
+  const fotos = h("div", { class: "pn-campo pn-fotos", role: "group", "aria-labelledby": ids.f },
+    h("div", { class: "pn-et-fila" }, h("span", { class: "pn-et", id: ids.f }, tr("contacto.fotos")), nf ? h("span", { class: "pn-salida" }, nf === 1 ? tr("contacto.una_foto") : tr("contacto.n_fotos", { x: nf })) : null),
+    nf ? h("ul", { class: "pn-tira" }, ui.capturas.map((c, i) => h("li", {},
+      h("img", { src: c.url, alt: tr("contacto.foto_alt", { n: i + 1, x: c.estancia }) }),
+      h("span", { class: "pn-tira-et", "aria-hidden": "true" }, c.estancia),
+      h("button", { type: "button", class: "pn-quitar", "data-k": `quitar-${i}`, "aria-label": tr("contacto.quitar_foto", { x: `${i + 1} (${c.estancia})` }), onclick: () => quitarFoto(i) }, ic("cerrar", "pn-ic pn-ic-s")))))
+      : h("p", { class: "pn-nota" }, tr("contacto.fotos_nota")),
+    h("button", { type: "button", class: "pn-btn pn-btn-sec", "data-k": "hacer-foto", disabled: nf >= MAX_FOTOS || !(tiene(V.capturar) || V.lienzo?.toBlob), onclick: entrarCaptura }, ic("camara"), tr("contacto.hacer_foto")));
   const urlPriv = T.contacto?.url_privacidad;
+  const viaWhatsApp = canal === "whatsapp";
   const form = h("form", { class: "pn-form", novalidate: true, onsubmit: (e) => { e.preventDefault(); enviarContacto(e.currentTarget); } },
     h("p", { class: "pn-suave pn-dlg-sub" }, tr("contacto.subtitulo")),
     campo("nombre", ids.n, tr("contacto.nombre"), h("input", { id: ids.n, name: "nombre", type: "text", autocomplete: "name", required: true, "data-k": "c-nombre", value: b.nombre, autofocus: !b.nombre, "aria-invalid": err.nombre ? "true" : null, "aria-describedby": err.nombre ? `${ids.n}-e` : null, oninput: guardar("nombre") })),
     campo("telefono", ids.t, tr("contacto.telefono"), h("input", { id: ids.t, name: "telefono", type: "tel", inputmode: "tel", autocomplete: "tel", required: true, "data-k": "c-telefono", placeholder: "+34 600 123 456", value: b.telefono, "aria-invalid": err.telefono ? "true" : null, "aria-describedby": err.telefono ? `${ids.t}-e` : null, oninput: guardar("telefono") })),
+    campo("zona", ids.z, tr("contacto.zona"), zona),
     campo("pregunta", ids.p, tr("contacto.pregunta"), [h("div", { class: "pn-chips", role: "group", "aria-label": tr("contacto.sugerencias") }, chips), pregunta]),
+    fotos,
     h("div", { class: "pn-campo pn-check" + (err.privacidad ? " pn-invalido" : "") },
       h("input", { id: ids.v, name: "privacidad", type: "checkbox", required: true, checked: b.privacidad, "data-k": "c-priv", "aria-describedby": `${ids.rg}${err.privacidad ? ` ${ids.v}-e` : ""}`, "aria-invalid": err.privacidad ? "true" : null, onchange: guardar("privacidad") }),
       h("label", { for: ids.v }, tr("contacto.acepto"), " ",
@@ -876,9 +1068,10 @@ function dlgContacto() {
       h("div", { class: "pn-fila" },
         h("button", { type: "submit", class: "pn-btn pn-btn-sec", "data-k": "reintentar" }, tr("comun.reintentar")),
         numeroWhatsApp() ? h("button", { type: "button", class: "pn-btn pn-btn-wa", "data-k": "enviar-wa", onclick: (e) => enviarContacto(e.currentTarget.form, "whatsapp") }, ic("whatsapp"), tr("contacto.enviar_whatsapp")) : null)) : null,
+    viaWhatsApp && nf && puedeCompartirArchivos() ? h("p", { class: "pn-nota pn-guia" }, ic("info", "pn-ic pn-ic-s"), h("span", {}, tr("contacto.elige_chat", { x: marca }))) : null,
     env.estado === "error" ? null : h("button", { type: "submit", class: "pn-btn pn-btn-acento pn-btn-ancho", "data-k": "enviar", disabled: enviando, "aria-busy": enviando ? "true" : null },
-      enviando ? h("span", { class: "pn-giro", "aria-hidden": "true" }) : ic(canal === "whatsapp" ? "whatsapp" : "chat"),
-      enviando ? tr("contacto.enviando") : canal === "whatsapp" ? tr("contacto.enviar_whatsapp") : tr("contacto.enviar")),
+      enviando ? h("span", { class: "pn-giro", "aria-hidden": "true" }) : ic(viaWhatsApp ? "whatsapp" : "chat"),
+      enviando ? tr("contacto.enviando") : viaWhatsApp ? tr("contacto.enviar_whatsapp") : tr("contacto.enviar")),
   );
   return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: [agenteMini(), form] };
 }
@@ -903,8 +1096,9 @@ function datosConsulta() {
   const b = ui.borrador;
   return {
     nombre: b.nombre.trim(), telefono: b.telefono.trim(), pregunta: b.pregunta.trim(),
-    referencia: inm().referencia ?? null, estancia: nombreEstancia() || est().nodo || null,
-    url: enlaceVista(), fecha: new Date().toISOString(), idioma: idiomaActual(),
+    referencia: inm().referencia ?? null,
+    estancia: nombreZona(b.zona), estancia_id: b.zona ?? "general", estancia_actual: nombreEstancia() || est().nodo || null,
+    url: enlaceVista(), fecha: new Date().toISOString(), idioma: idiomaActual(), num_fotos: ui.capturas.length,
   };
 }
 
@@ -916,60 +1110,99 @@ function mensajeWhatsApp(d) {
     "",
     `*${tr("contacto.msg_nombre")}:* ${d.nombre}`,
     `*${tr("contacto.msg_telefono")}:* ${d.telefono}`,
+    `*${tr("contacto.msg_zona")}:* ${d.estancia}`,
     `*${tr("contacto.msg_pregunta")}:* ${d.pregunta}`,
-    d.estancia ? `*${tr("contacto.msg_estancia")}:* ${d.estancia}` : null,
+    ...ui.capturas.map((c, i) => `${tr("contacto.msg_foto", { n: i + 1, x: c.estancia })}: ${c.enlace}`),
     `*${tr("contacto.msg_vista")}:* ${d.url}`,
   ].filter((x) => x != null).join("\n");
 }
 
 function abrirWhatsApp(d) {
   const n = numeroWhatsApp(); if (!n) return false;
-  const url = `https://wa.me/${n}?text=${encodeURIComponent(mensajeWhatsApp(d))}`;
-  const w = window.open(url, "_blank", "noopener");
-  if (w === null && !document.hasFocus?.()) return true; // noopener devuelve null: se asume abierto
+  window.open(`https://wa.me/${n}?text=${encodeURIComponent(mensajeWhatsApp(d))}`, "_blank", "noopener");
   return true;
 }
 
 function emitirContacto(canal) {
-  const detalle = { canal, referencia: inm().referencia ?? null, estancia: est().nodo ?? null };
+  const detalle = { canal, referencia: inm().referencia ?? null, estancia: est().nodo ?? null, fotos: ui.capturas.length };
   // Sin datos personales: este evento puede acabar en window.dataLayer (analítica)
   if (tiene(V.emitir)) { try { V.emitir("contacto", detalle); } catch (e) { console.warn(e); } }
   else window.dispatchEvent(new CustomEvent("visor:contacto", { detail: detalle }));
 }
 
+// WhatsApp con fotos: (a) hoja de compartir del sistema con archivos; (b) wa.me + foto en el portapapeles
+function enviarWhatsApp(d) {
+  const texto = mensajeWhatsApp(d);
+  if (ui.capturas.length && puedeCompartirArchivos()) {
+    navigator.share({ files: archivosCapturas(), text: texto }).then(() => {
+      emitirContacto("whatsapp_compartir");
+      ui.envio = { estado: "exito", porWhatsapp: true }; rehacerDialogo();
+    }, (e) => {
+      if (e?.name === "AbortError") return; // el usuario cerró la hoja de compartir
+      console.warn("share", e);
+      abrirWhatsApp(d); ui.envio = { estado: "pegar", indice: 0, copiaOk: false }; rehacerDialogo();
+    });
+    return;
+  }
+  if (ui.capturas.length) {
+    copiarYMarcar(0);       // antes de abrir la pestaña, aún dentro del gesto
+    abrirWhatsApp(d);
+    emitirContacto("whatsapp");
+    rehacerDialogo();
+    return;
+  }
+  abrirWhatsApp(d); emitirContacto("whatsapp");
+  ui.envio = { estado: "exito", porWhatsapp: true }; rehacerDialogo();
+}
+
+const aBase64 = (blob) => new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = mal; r.readAsDataURL(blob); });
+
+async function peticionWebhook(d) {
+  if (!ui.capturas.length) return { body: JSON.stringify(d), headers: { "Content-Type": "application/json" }, keepalive: true };
+  const meta = ui.capturas.map((c, i) => ({ n: i + 1, estancia: c.estancia, nodo: c.nodo, enlace: c.enlace }));
+  const archivos = archivosCapturas();
+  if (T.contacto?.webhook_formato === "json") {
+    const fotos = await Promise.all(ui.capturas.map(async (c, i) => ({ ...meta[i], nombre: archivos[i].name, tipo: archivos[i].type, base64: await aBase64(c.blob) })));
+    return { body: JSON.stringify({ ...d, fotos }), headers: { "Content-Type": "application/json" } };
+  }
+  const fd = new FormData();
+  for (const [k, v] of Object.entries(d)) fd.append(k, v == null ? "" : String(v));
+  fd.append("fotos", JSON.stringify(meta));
+  archivos.forEach((f, i) => fd.append(`foto_${i + 1}`, f, f.name));
+  return { body: fd };
+}
+
 async function enviarContacto(form, forzar) {
   if (ui.envio.estado === "enviando") return;
   // sincroniza por si el navegador autocompletó sin disparar input
-  if (form) for (const k of ["nombre", "telefono", "pregunta"]) if (form.elements[k]) ui.borrador[k] = form.elements[k].value;
+  if (form) for (const k of ["nombre", "telefono", "pregunta", "zona"]) if (form.elements[k]) ui.borrador[k] = form.elements[k].value;
   if (form?.elements.privacidad) ui.borrador.privacidad = form.elements.privacidad.checked;
   const errores = validar();
   if (Object.keys(errores).length) {
     ui.envio = { estado: "inactivo", campos: errores };
     rehacerDialogo();
-    const primero = raiz.querySelector(".pn-dialogo [aria-invalid='true']");
-    primero?.focus();
+    raiz.querySelector(".pn-dialogo [aria-invalid='true']")?.focus();
     return;
   }
   guardarLS(CLAVE_CONTACTO, { nombre: ui.borrador.nombre.trim(), telefono: ui.borrador.telefono.trim() });
   const d = datosConsulta();
   const canal = forzar ?? canalContacto();
 
-  if (canal === "whatsapp") {
-    abrirWhatsApp(d); emitirContacto("whatsapp");
-    ui.envio = { estado: "exito", porWhatsapp: true }; rehacerDialogo(); return;
-  }
+  // Todo lo que abre ventanas, comparte o copia va antes del primer await (gesto del usuario)
+  if (canal === "whatsapp") { enviarWhatsApp(d); return; }
   if (canal === "email") {
     const a = T.agente?.email;
     location.href = `mailto:${a}?subject=${encodeURIComponent(tr("contacto.titulo") + (d.referencia ? ` · ${d.referencia}` : ""))}&body=${encodeURIComponent(mensajeWhatsApp(d).replace(/\*/g, ""))}`;
     emitirContacto("email"); ui.envio = { estado: "exito" }; rehacerDialogo(); return;
   }
-  // webhook (y "ambos": WhatsApp se abre ya, dentro del gesto del usuario, para que no lo bloquee el navegador)
+  // "ambos": WhatsApp se abre ya con el texto (las fotos llegan por el webhook)
   if (canal === "ambos") abrirWhatsApp(d);
   if (navigator.onLine === false) { ui.envio = { estado: "error", error: tr("contacto.sin_conexion") }; rehacerDialogo(); return; }
   ui.envio = { estado: "enviando" }; rehacerDialogo();
-  const ctrl = new AbortController(); const temporizador = setTimeout(() => ctrl.abort(), 15000);
+  const ctrl = new AbortController(); const temporizador = setTimeout(() => ctrl.abort(), 30000);
   try {
-    const r = await fetch(T.contacto.webhook, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d), signal: ctrl.signal, keepalive: true });
+    const peticion = await peticionWebhook(d);
+    const r = await fetch(T.contacto.webhook, { method: "POST", ...peticion, signal: ctrl.signal });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     emitirContacto(canal === "ambos" ? "ambos" : "webhook");
     ui.envio = { estado: "exito", porWhatsapp: canal === "ambos" };
@@ -981,6 +1214,79 @@ async function enviarContacto(form, forzar) {
     rehacerDialogo();
     raiz.querySelector(ui.envio.estado === "exito" ? ".pn-dialogo [data-k='otra']" : ".pn-dialogo [data-k='reintentar']")?.focus();
   }
+}
+
+// --- galería de renders y planos (lightbox)
+function galeriaRenders() {
+  const items = (T.galeria ?? []).filter((g) => g?.imagen);
+  if (!items.length) return null;
+  const tipos = [...new Set(items.map((g) => g.tipo).filter(Boolean))];
+  const estancias = [...new Set(items.map((g) => g.estancia).filter(Boolean))];
+  const filtros = [["todo", tr("galeria.todo")],
+    ...(tipos.length > 1 ? tipos.map((t) => [`tipo:${t}`, nombreTipo(t)]) : []),
+    ...(estancias.length > 1 ? estancias.map((e) => [`est:${e}`, nombreZona(e)]) : [])];
+  const f = filtros.some(([k]) => k === ui.filtroGaleria) ? ui.filtroGaleria : "todo";
+  const visibles = items.filter((g) => f === "todo" || (f.startsWith("tipo:") ? g.tipo === f.slice(5) : g.estancia === f.slice(4)));
+  const sec = seccion("galeria", tr("galeria.renders"),
+    filtros.length > 2 ? h("div", { class: "pn-chips pn-filtros", role: "group", "aria-label": tr("galeria.filtro") }, filtros.map(([k, et]) =>
+      h("button", { type: "button", class: "pn-chip pn-chip-s", "data-k": `gal-${k}`, "aria-pressed": String(k === f), onclick: () => {
+        ui.filtroGaleria = k; const nueva = galeriaRenders(); sec.replaceWith(nueva); nueva.querySelector(`[data-k="gal-${CSS.escape(k)}"]`)?.focus();
+      } }, et))) : null,
+    h("ul", { class: "pn-galeria" + (visibles.length >= 3 && (visibles.length - 3) % 3 === 0 ? " pn-galeria-destacada" : "") }, visibles.map((g, i) => h("li", {},
+      h("button", { type: "button", class: "pn-gal-btn", "data-k": `gal-item-${i}`, "aria-label": tr("galeria.ampliar", { x: R(g.titulo) || nombreTipo(g.tipo) || String(i + 1) }), onclick: (e) => abrirLightbox(visibles, i, e.currentTarget) },
+        h("img", { src: g.miniatura ?? g.imagen, alt: "", loading: "lazy", decoding: "async" }),
+        g.tipo === "render" ? h("span", { class: "pn-gal-tipo", "aria-hidden": "true" }, "Render") : null)))));
+  return sec;
+}
+const nombreTipo = (t) => (t ? (tr(`galeria.tipo_${t}`) !== `galeria.tipo_${t}` ? tr(`galeria.tipo_${t}`) : t) : "");
+
+function abrirLightbox(lista, i, opener) {
+  ui.lightbox = { lista, i, opener: opener?.dataset?.k };
+  raiz.querySelector(".pn-lb")?.remove();
+  raiz.append(lightbox());
+  requestAnimationFrame(() => raiz.querySelector(".pn-lb [data-k='lb-cerrar']")?.focus());
+}
+function cerrarLightbox() {
+  const k = ui.lightbox?.opener; ui.lightbox = null;
+  raiz.querySelector(".pn-lb")?.remove();
+  if (k) raiz.querySelector(`[data-k="${CSS.escape(k)}"]`)?.focus();
+}
+function moverLightbox(d) {
+  const lb = ui.lightbox; if (!lb) return;
+  lb.i = (lb.i + d + lb.lista.length) % lb.lista.length;
+  const foco = document.activeElement?.dataset?.k;
+  raiz.querySelector(".pn-lb")?.replaceWith(lightbox());
+  raiz.querySelector(`.pn-lb [data-k="${foco ?? "lb-cerrar"}"]`)?.focus();
+}
+function lightbox() {
+  const { lista, i } = ui.lightbox, g = lista[i], varias = lista.length > 1;
+  const titId = nuevoId("lb");
+  let x0 = null;
+  const fig = h("figure", { class: "pn-lb-fig",
+    onpointerdown: (e) => { x0 = e.clientX; },
+    onpointerup: (e) => { if (x0 != null && varias && Math.abs(e.clientX - x0) > 50) moverLightbox(e.clientX < x0 ? 1 : -1); x0 = null; } },
+    h("img", { src: g.imagen, alt: R(g.titulo) || nombreTipo(g.tipo), draggable: "false" }),
+    h("figcaption", { id: titId },
+      g.tipo === "render" ? h("span", { class: "pn-lb-tipo" }, tr("galeria.tipo_render")) : g.tipo ? h("span", { class: "pn-lb-tipo pn-lb-tipo-sec" }, nombreTipo(g.tipo)) : null,
+      h("span", { class: "pn-lb-tit" }, R(g.titulo) || (g.estancia ? nombreZona(g.estancia) : "")),
+      g.estancia && R(g.titulo) ? h("span", { class: "pn-suave" }, nombreZona(g.estancia)) : null,
+      g.autor ? h("span", { class: "pn-suave" }, tr("galeria.autor", { x: R(g.autor) })) : null,
+      varias ? h("span", { class: "pn-lb-n" }, tr("galeria.n_de", { n: i + 1, total: lista.length })) : null));
+  const caja = h("div", { class: "pn-lb", role: "dialog", "aria-modal": "true", "aria-label": tr("galeria.visor"), "aria-describedby": titId,
+    onkeydown: (e) => {
+      if (e.key === "ArrowRight" && varias) { e.preventDefault(); moverLightbox(1); }
+      else if (e.key === "ArrowLeft" && varias) { e.preventDefault(); moverLightbox(-1); }
+      else if (e.key === "Tab") { // foco atrapado
+        const f = [...caja.querySelectorAll("button")]; const a = f.indexOf(document.activeElement);
+        e.preventDefault(); f[(a + (e.shiftKey ? -1 : 1) + f.length) % f.length]?.focus();
+      }
+    },
+    onclick: (e) => { if (e.target === caja) cerrarLightbox(); } },
+    fig,
+    varias ? h("button", { type: "button", class: "pn-btn-ic pn-lb-ant", "data-k": "lb-ant", "aria-label": tr("galeria.anterior"), onclick: () => moverLightbox(-1) }, ic("izq")) : null,
+    varias ? h("button", { type: "button", class: "pn-btn-ic pn-lb-sig", "data-k": "lb-sig", "aria-label": tr("galeria.siguiente"), onclick: () => moverLightbox(1) }, ic("der")) : null,
+    h("button", { type: "button", class: "pn-btn-ic pn-lb-cerrar", "data-k": "lb-cerrar", "aria-label": tr("comun.cerrar"), onclick: cerrarLightbox }, ic("cerrar")));
+  return caja;
 }
 
 // --- compartir

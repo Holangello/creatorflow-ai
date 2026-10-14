@@ -92,7 +92,7 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
       "puntos": [{ "yaw": -90, "pitch": 5, "titulo": "Texto", "texto": "Texto", "imagen": "fotos/x.jpg", "video": "https://…", "enlace": "https://…" }],
       "variantes": [                    // imágenes alternativas del mismo punto (misma orientación/encuadre)
         { "estilo": "nordico", "momento": "dia", "imagen": "panos/salon-nordico.jpg", "imagen_movil": "…" },
-        { "momento": "noche", "imagen": "panos/salon-noche.jpg" },
+        { "momento": "noche", "imagen": "panos/salon-noche.jpg", "origen": "foto" },   // origen: "foto" | "render" | "ia"
         { "estilo": "industrial", "imagen": "panos/salon-industrial.jpg", "mascara": "panos/mascaras/salon-industrial.png" }
       ],
       "mascara": "panos/mascaras/salon.png"   // equirectangular; canal R = paredes, G = suelo (blanco = superficie)
@@ -131,6 +131,9 @@ Estado global `{ estilo, momento }` (por defecto `original` / `dia`). Para cada 
 Máscara de pintura: la variante usa su propia `mascara` si la trae; si no la trae y cambia de estilo (otro mobiliario),
 la pintura se desactiva en esa vista (`visor.estado.pinturaDisponible = false`); las variantes solo de momento reutilizan
 la máscara base (mismo encuadre y mismos muebles).
+
+`origen` (por defecto "ia" en variantes de estilo y "foto" en las de solo momento) muestra un sello legal en el visor
+("Recreación virtual · IA", "Render / infografía" o "Iluminación simulada") y se incrusta en capturas y vídeos.
 
 Si `estilo` no está disponible en un panorama, se muestra la base y el panel avisa ("estilo no disponible en esta estancia").
 

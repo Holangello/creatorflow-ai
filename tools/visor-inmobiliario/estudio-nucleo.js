@@ -315,6 +315,16 @@ export function tourParaExportar(t = app.tour, { mapaRutas = null } = {}) {
     if (ce?.en_tramite) { delete ce.consumo_letra; delete ce.emisiones_letra; delete ce.consumo_valor; delete ce.emisiones_valor; }
     if (ce && !ce.en_tramite) delete ce.en_tramite;
   }
+  // Documentación pública → también en la ficha (inmueble.documentos)
+  for (const d of c.documentacion ?? []) {
+    if (!d.publico || !d.archivo) continue;
+    c.inmueble ??= {}; c.inmueble.documentos ??= [];
+    if (!c.inmueble.documentos.some((x) => x.url === d.archivo)) c.inmueble.documentos.push({ nombre: d.nombre, url: d.archivo });
+  }
+  if (c.secciones) {
+    const ids = new Set(c.panoramas.map((p) => p.id));
+    c.secciones = c.secciones.map((s) => ({ ...s, estancias: (s.estancias ?? []).filter((x) => ids.has(x)) }));
+  }
   if (c.contacto?.modo === "whatsapp") delete c.contacto.webhook;
   if (c.contacto?.modo === "webhook") delete c.contacto.whatsapp;
   if (c.contacto?.whatsapp) c.contacto.whatsapp = String(c.contacto.whatsapp).replace(/\D/g, "");
@@ -450,7 +460,8 @@ export function dialogo({ titulo, texto, cuerpo, botones = [{ texto: "Aceptar", 
   });
 }
 export async function pedir(titulo, etiqueta, valor = "", { tipo = "text", ayuda } = {}) {
-  const inp = h("input", { type: tipo, value: valor, step: "any" });
+  // Los números se piden como texto (inputmode decimal) para aceptar la coma decimal española.
+  const inp = h("input", { type: tipo === "number" ? "text" : tipo, inputmode: tipo === "number" ? "decimal" : null, value: valor, autocomplete: "off" });
   const cuerpo = h("label", { class: "campo" }, h("span", { text: etiqueta }), inp, ayuda ? h("small", { text: ayuda }) : null);
   inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); inp.closest("dialog").querySelector(".btn.primario").click(); } });
   return dialogo({ titulo, cuerpo, botones: [{ texto: "Cancelar", valor: null }, { texto: "Aceptar", primario: true, valor: () => inp.value }] });

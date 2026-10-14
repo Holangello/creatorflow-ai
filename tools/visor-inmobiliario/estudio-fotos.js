@@ -93,12 +93,14 @@ export async function anadirFotos(archivos, { render = false } = {}) {
         const id = idLibre(nombre, [...app.tour.panoramas.map((p) => p.id), ...app.archivos.keys()].map((x) => x));
         const [g, m, mini] = r.salidas;
         await guardarArchivo(`panos/${id}.jpg`, g.blob);
-        await guardarArchivo(`panos/movil/${id}.jpg`, m.blob);
+        // Si la foto ya es ≤ 4096 px, la versión móvil es la misma imagen: no se duplica.
+        const rutaMovil = m.ancho === g.ancho ? `panos/${id}.jpg` : `panos/movil/${id}.jpg`;
+        if (m.ancho !== g.ancho) await guardarArchivo(rutaMovil, m.blob);
         await guardarArchivo(`panos/mini/${id}.jpg`, mini.blob);
         cambiar((t) => {
           t.panoramas.push({
             id, nombre: { es: nombre }, planta: app.planta ?? t.plantas[0]?.id,
-            imagen: `panos/${id}.jpg`, imagen_movil: `panos/movil/${id}.jpg`, miniatura: `panos/mini/${id}.jpg`, yaw: 0,
+            imagen: `panos/${id}.jpg`, imagen_movil: rutaMovil, miniatura: `panos/mini/${id}.jpg`, yaw: 0,
           });
           t._estudio.meta[`panos/${id}.jpg`] = { w: r.original.w, h: r.original.h, archivo: f.name, bytes: f.size, ...(render ? { render: true } : {}) };
           if (!t.inicio) t.inicio = id;

@@ -173,7 +173,7 @@ escena360.add(grupoFlechas);
 
 // ------------------------------------------------------------------ texturas (caché LRU)
 const cache = new Map();
-const LIMITE_TEX = esTactil ? 6 : 14;
+const LIMITE_TEX = esTactil ? 4 : 14; // móvil: una textura 4096×2048 ≈ 32 MB de GPU
 const cargadorTex = new THREE.TextureLoader();
 
 function ajustarTextura(tex, color = true) {
@@ -444,10 +444,11 @@ function llegar(nodo) {
   grupoFlechas.visible = true;
   construirPuntos();
   anunciarEstancia(nodo);
+  actualizarSello();
   document.querySelectorAll("#galeria button").forEach((b) => b.setAttribute("aria-current", String(b.dataset.id === nodo.id)));
   $('#galeria button[aria-current="true"]')?.scrollIntoView?.({ block: "nearest", inline: "center", behavior: reducido() ? "auto" : "smooth" });
   if (!EMBED && int.tour && !int.tour.demo) history.replaceState(null, "", `#${encodeURIComponent(nodo.id)}`);
-  for (const v of nodo.vecinos) fuenteDe(v).cargar().catch(() => {}); // precarga
+  precargarVecinos(nodo);
   // Mantener W/↑ pulsada encadena estancias, como caminar en un videojuego.
   setTimeout(() => {
     const k = int.teclas;
@@ -460,6 +461,30 @@ function llegar(nodo) {
   dibujarMapa();
   visor.emitir("nodo", { id: nodo.id });
   enviarPadre({ tipo: "visor:vista", ...vistaParaPadre() });
+}
+
+/** Precarga: en escritorio todas las vecinas; en móvil solo la que queda delante (memoria de GPU limitada). */
+function precargarVecinos(nodo) {
+  let lista = nodo.vecinos;
+  if (esTactil && lista.length > 1) {
+    lista = [...lista].sort((a, b) => Math.abs(angDif(rumbo(a.x - nodo.x, a.z - nodo.z), estado.rumbo)) - Math.abs(angDif(rumbo(b.x - nodo.x, b.z - nodo.z), estado.rumbo))).slice(0, 1);
+  }
+  for (const v of lista) fuenteDe(v).cargar().catch(() => {});
+}
+
+/** Origen de la imagen visible: "foto" real, "render" o "ia" (estilos), y si la luz es simulada. */
+function origenVisible() {
+  const v = int.fuenteActual?.variante;
+  const origen = v ? v.origen ?? (v.estilo && v.estilo !== "original" ? "ia" : "foto") : "foto";
+  return { origen, simulado: !!int.fuenteActual?.sim };
+}
+function actualizarSello() {
+  const { origen, simulado } = origenVisible();
+  const el = $("#sello-ia");
+  const txt = origen === "ia" ? "Recreación virtual · IA" : origen === "render" ? "Render / infografía" : simulado ? "Iluminación simulada" : "";
+  el.textContent = txt;
+  el.hidden = !txt || estado.modo !== "tour";
+  return txt;
 }
 
 function anunciarEstancia(n) {
@@ -497,6 +522,7 @@ function pasoTransicion(dt) {
       estado.pinturaDisponible = U.hayMascA.value > 0;
       if (!estado.estiloDisponible) aviso(tr("aviso.estilo_no_disponible"), 3500);
       if (estado.comparar) actualizarComparacion();
+      actualizarSello();
     }
     tr_.resolver();
   }
@@ -517,6 +543,7 @@ async function refrescarAmbiente(evento) {
     estado.momentoSimulado = !!slot.f.sim;
     estado.estiloDisponible = slot.f.estiloOk;
     estado.pinturaDisponible = U.hayMascA.value > 0;
+    actualizarSello();
   } else {
     asignar("B", slot);
     let resolver;
@@ -524,7 +551,7 @@ async function refrescarAmbiente(evento) {
     int.transicion = { t: 0, dur: reducido() ? 0.2 : evento === "momento" ? 1.4 : 0.9, tipo: "fundido", slot, resolver, promesa };
     await promesa;
   }
-  for (const v of int.actual.vecinos) fuenteDe(v).cargar().catch(() => {});
+  precargarVecinos(int.actual);
   visor.emitir(evento, { id: estado[evento] });
 }
 
@@ -1204,6 +1231,7 @@ async function cambiarModo(modo) {
   document.querySelectorAll("#modos button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.modo === modo)));
   etiquetas.hidden = modo !== "tour";
   cortinilla.hidden = !(estado.comparar && modo === "tour");
+  actualizarSello();
   $("#btn-giro").hidden = !(esTactil && modo === "tour" && "DeviceOrientationEvent" in window);
   camara.position.set(0, 0, 0);
   camara.fov = int.fovBase * (modo === "tour" ? int.zoom : 1);
@@ -1334,6 +1362,15 @@ Object.assign(visor, {
       const izq = [texto(int.tour.marca?.nombre) || "cre8eight", int.tour.inmueble?.referencia, est && texto(est.nombre)].filter(Boolean).join(" · ");
       g.fillText(izq, h * 0.4, alto - h / 2);
     }
+    // Aviso legal incrustado si la imagen no es una foto real (publicidad no engañosa).
+    const sello = estado.modo === "tour" ? actualizarSello() : "";
+    if (sello) {
+      const t = Math.round(alto * 0.03);
+      g.font = `600 ${t}px system-ui, sans-serif`;
+      const w = g.measureText(sello).width + t * 1.4;
+      g.fillStyle = "rgba(0,0,0,.6)"; g.fillRect(ancho - w - t, t, w, t * 1.9);
+      g.fillStyle = "#fff"; g.textBaseline = "middle"; g.fillText(sello, ancho - w - t + t * 0.7, t * 1.95);
+    }
     const vista = visor.vista();
     const enlace = visor.enlaceVista();
     return new Promise((ok) => c.toBlob((blob) => ok({ blob, nodo: estado.nodo, estancia: est, enlace, vista }), tipo, calidad));
@@ -1349,6 +1386,8 @@ Object.assign(visor, {
     if (e) return { id: e.id, nombre: e.nombre };
     return int.actual ? { id: int.actual.id, nombre: int.actual.nombre } : null;
   },
+  /** Texto del aviso legal de la vista actual ("" si es una foto real). */
+  sello: () => (estado.modo === "tour" ? actualizarSello() : ""),
   radar(modo) {
     if (modo === "oculto") { int.radarVisible = false; }
     else if (modo === "radar" || modo === "plano") { int.radar = modo; int.radarVisible = true; }

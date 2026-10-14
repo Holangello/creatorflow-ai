@@ -37,6 +37,7 @@ export function campoTexto(obj, clave, { etiqueta, multilinea = false, placehold
     alCambiar?.(input.value);
   });
   input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !multilinea) { e.preventDefault(); input.blur(); return; }
     if (e.altKey && /^[1-9]$/.test(e.key)) { const c = idiomas()[+e.key - 1]; if (c) { e.preventDefault(); tabs.querySelector(`button:nth-child(${e.key})`)?.click(); } }
   });
   pintarTabs();

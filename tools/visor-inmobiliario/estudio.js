@@ -234,4 +234,5 @@ addEventListener("drop", async (e) => {
 // ------------------------------------------------------------------ arranque
 addEventListener("beforeunload", () => { guardarAhora(); });
 try { const s = localStorage.getItem("estudio:seccion"); if (porId[s]) app.seccion = s; } catch {}
+window.__estudio = app; // para depurar y para las pruebas automáticas
 await iniciarProyecto();

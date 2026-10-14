@@ -69,6 +69,10 @@ export function comprobar() {
   if (malas.length) add("variantes", malas.some((m) => m.pr.nivel === "error") ? "error" : "aviso", "Variantes con tamaño o proporción distintos a la foto base", lista(malas.map((m) => `${nombreDe(m.p)} (${m.pr.texto})`), 3), { seccion: "variantes" });
   const conEstilo = ps.some((p) => (p.variantes ?? []).some((v) => v.estilo && v.estilo !== "original"));
   if (conEstilo && !textoDe(I.aviso_legal).trim()) add("aviso_ia", "error", "Estilos con IA sin aviso legal", "Indica que las imágenes de estilos son orientativas y generadas con IA.", { seccion: "datos", pestana: "personalizacion" });
+  const meta = t._estudio.meta;
+  const renders = (t.galeria ?? []).filter((g) => g.tipo === "render").length + ps.filter((p) => meta[p.imagen]?.render).length
+    + ps.reduce((s, p) => s + (p.variantes ?? []).filter((v) => meta[v.imagen]?.render).length, 0);
+  if (renders && !textoDe(I.aviso_legal).trim()) add("aviso_render", "error", `${renders} render(s) sin rótulo legal`, "Las infografías deben indicar que son imágenes orientativas (p. ej. «Imágenes no contractuales»). Añade el aviso legal.", { seccion: "datos", pestana: "personalizacion" });
   if (ps.some((p) => p.mascara)) {
     const sinM = ps.flatMap((p) => (p.mascara ? (p.variantes ?? []).filter((v) => v.estilo && v.estilo !== "original" && !v.mascara).map((v) => `${nombreDe(p)} · ${nombreEstilo(v.estilo)}`) : []));
     if (sinM.length) add("mascaras", "aviso", "Estilos sin máscara: no se podrá cambiar el color en ellos", lista(sinM, 3), { seccion: "variantes" });
