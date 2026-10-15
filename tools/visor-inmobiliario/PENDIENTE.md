@@ -69,6 +69,24 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - Música que no carga → el botón desaparece.
     - Tema: sin `backdrop-filter`, `color-mix`, máscaras ni `:has()`.
     - `docs/calidad.md`.
+  - [x] Informe A recibido (`docs/auditorias/fase3-esencialista.md`). Aplicado ya lo del núcleo que no depende de la organización:
+    - Parpadeo de `ui-inactiva` corregido.
+    - Vista previa del Estudio sin la demo: lista en 0,5 s frente a 13 s.
+    - three.js minificado en el importmap.
+    - GLTFLoader y OrbitControls bajo demanda.
+    - Soltar archivos solo con `?dev`.
+    - Pantalla completa oculta sin la API.
+    - Momentos solo con foto real.
+    - ZIP público sin `demo.js`, `exportar.js` ni `fflate`.
+    - HTML autónomo con el bundle ligero: 1,04 MB frente a más de 6 MB.
+    - Nunca se comparten enlaces `file://`.
+    - `url_publica` documentada.
+  - [ ] Esperando el informe B (organización) para conciliar el resto. Pendientes:
+    - Núcleo: N4 (radar oculto sin plano), N5 (modo juego, ronda 2 de decisiones), N7–N9 y N12.
+    - Paneles: PA1–PA11.
+    - Estudio: E1–E18.
+    - Asistente: A1–A6.
+    - Utilidades comunes: `urlSegura` está en dos sitios con reglas distintas.
 - [ ] **Fase 4 · Diseño premium «minimal liquid glass»** con tema claro/oscuro y tallas S/M/L (ver «Encargo de la fase 4»).
   - [x] Base del sistema, adelantada mientras terminaba la fase 2. Documentado en `docs/diseno/sistema.md`, con la tabla de migración de variables.
     - `tema.css`: tokens, vidrio, componentes `c8-*`, claro y oscuro con contraste AA calculado, tallas fluidas S/M/L, muelles.

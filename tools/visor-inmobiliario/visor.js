@@ -2,7 +2,6 @@
 // Recorrido 360 (fotos equirectangulares) + modo libre (gaussian splat / GLB) + maqueta 3D,
 // con estilos, día/noche, pintura de paredes, medición, visita guiada y API pública.
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { GRAD, angDif, rumbo, Emisor, almacen, hexALineal, areaPoligono, puntoEnPoligono, formatoMetros } from "./util.js";
 import { crearPlano } from "./plano.js";
 import { crearMedicion } from "./medicion.js";
@@ -26,7 +25,7 @@ const FALLBACK = {
   "ayuda.subir": "Sin suelo (splat): Espacio subir · C bajar", "ayuda.capturar": "Clic para capturar el ratón (Esc para soltar)",
   "ayuda.joystick": "Móvil: pulgar izquierdo para caminar, arrastra a la derecha para mirar", "ayuda.plano": "M mostrar/ocultar mapa · R radar o plano · V cambiar modo · 1-9 estancias · H ayuda",
   "aviso.cargando": "Cargando…", "aviso.error_carga": "No se pudo cargar {x}", "aviso.sin_tour": "No se encontró tour.json. Mostrando la demo.",
-  "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D", "aviso.contexto_perdido": "Se perdió el contexto gráfico", "aviso.reintentar": "Reintentar",
+  "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D", "aviso.vista_vacia": "La vista previa aparecerá aquí cuando añadas fotos 360.", "aviso.contexto_perdido": "Se perdió el contexto gráfico", "aviso.reintentar": "Reintentar",
   "aviso.clic_explorar": "Haz clic para explorar", "aviso.libre_tactil": "Pulgar izquierdo para caminar · arrastra a la derecha para mirar",
   "aviso.libre_raton": "WASD o flechas para caminar · ratón para mirar · Espacio saltar · Shift correr", "aviso.arrastra": "Arrastra para mirar",
   "aviso.estilo_no_disponible": "Este estilo no está disponible en esta estancia",
@@ -649,6 +648,10 @@ const rayo = new THREE.Raycaster();
 const ABAJO = new THREE.Vector3(0, -1, 0);
 let pisoDemo = null;
 
+/** GLTFLoader bajo demanda: solo lo necesitan el modo libre con GLB y el colisionador. */
+let promesaGLTF = null;
+const cargadorGLTF = () => (promesaGLTF ??= import("three/addons/loaders/GLTFLoader.js").then((m) => m.GLTFLoader));
+
 async function prepararLibre() {
   const L = int.libre;
   const cfg = int.tour.libre;
@@ -665,7 +668,7 @@ async function prepararLibre() {
       L.modelo = pisoDemo.grupo;
       aplicarAmbienteLibre();
     } else if (cfg.tipo === "glb") {
-      const gltf = await new GLTFLoader().loadAsync(cfg.url);
+      const gltf = await new (await cargadorGLTF())().loadAsync(cfg.url);
       aplicarTransformacion(gltf.scene, cfg);
       escenaLibre.add(gltf.scene, new THREE.HemisphereLight(0xffffff, 0x444444, 2.5));
       L.colisiones = [gltf.scene];
@@ -674,7 +677,7 @@ async function prepararLibre() {
       await cargarSplat({ url: cfg.url }, cfg);
     }
     if (cfg.colisionador) {
-      const gltf = await new GLTFLoader().loadAsync(cfg.colisionador);
+      const gltf = await new (await cargadorGLTF())().loadAsync(cfg.colisionador);
       aplicarTransformacion(gltf.scene, cfg);
       gltf.scene.traverse((o) => { if (o.isMesh) o.material = matInvisible; });
       escenaLibre.add(gltf.scene);
@@ -1422,6 +1425,7 @@ $("#btn-mapa").onclick = alternarMapa;
 $("#btn-radar").onclick = alternarRadarVisible;
 $("#btn-vista-mapa").onclick = cambiarRadar;
 aplicarRadar();
+$("#btn-pantalla").hidden = !(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 $("#btn-pantalla").onclick = () => {
   const el = document.documentElement;
   if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen ?? document.webkitExitFullscreen)?.call(document);
@@ -1463,6 +1467,10 @@ async function cambiarModo(modo) {
   if (modo === "libre" || (modo === "maqueta" && ["demo", "glb"].includes(int.tour.libre?.tipo))) {
     try { await prepararLibre(); } catch { return; }
     if (int.modoPedido !== modo) return; // se pidió otro modo mientras cargaba
+  }
+  if (modo === "maqueta" && maqueta) {
+    try { await maqueta.prepararControles(); } catch (e) { aviso(e.message, 6000); return; }
+    if (int.modoPedido !== modo) return;
   }
   $("#pista").hidden = true;
   if (modo === "libre") {
@@ -1751,10 +1759,12 @@ function leerHash() {
 // ------------------------------------------------------------------ carga del tour
 async function obtenerTour() {
   if (window.TOUR_EMBEBIDO) return window.TOUR_EMBEBIDO;
-  if (params.has("demo") || (EMBED && params.has("estudio"))) {
+  if (params.has("demo")) {
     const { DEMO_TOUR } = await import("./demo.js");
     return structuredClone(DEMO_TOUR);
   }
+  // Vista previa del Estudio: arranca vacía (sin generar la demo, que costaba ~13 s) y espera «visor:cargar».
+  if (EMBED && params.has("estudio")) return { titulo: "", panoramas: [] };
   const url = params.get("tour") ?? "tour.json";
   try {
     const r = await fetch(url);
@@ -1807,8 +1817,9 @@ function normalizar(t) {
     t.estilos = ids.length ? [{ id: "original" }, ...ids.map((id) => ({ id }))] : [];
   }
   if (!t.momentos?.length) {
-    const hay = t.panoramas.some((p) => (p.variantes ?? []).some((v) => v.momento && v.momento !== "dia"));
-    t.momentos = hay ? ["dia", "atardecer", "noche"] : [];
+    // Sin «momentos» explícitos solo se ofrecen los que tienen foto real; el Estudio activa la simulación escribiéndolos.
+    const reales = new Set(t.panoramas.flatMap((p) => (p.variantes ?? []).map((v) => v.momento)).filter((m) => m && m !== "dia"));
+    t.momentos = reales.size ? ["dia", ...["atardecer", "noche"].filter((m) => reales.has(m))] : [];
   }
   return t;
 }
@@ -1841,6 +1852,7 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   cache.clear(); luces.clear();
   int.actual = null; int.fuenteActual = null;
   U.mezcla.value = 0;
+  $("#vacio")?.remove();
   int.tour = normalizar(t);
   enlazar(int.tour);
   plano.invalidar();
@@ -1865,7 +1877,13 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   if (!int.nodos.size) {
     estado.planta = t.plantas[0].id;
     if (t.libre) await cambiarModo("libre");
-    else aviso(tr("aviso.error_carga", { x: texto(t.titulo) || "tour" }), 600000, { reintentar: () => location.reload() });
+    else if (EMBED && params.has("estudio")) {
+      const el = document.createElement("p");
+      el.id = "vacio";
+      el.textContent = tr("aviso.vista_vacia");
+      $("#app").append(el);
+    } else aviso(tr("aviso.error_carga", { x: texto(t.titulo) || "tour" }), 600000, { reintentar: () => location.reload() });
+    visor.emitir("tour", {});
     return;
   }
   const h = vistaPrevia ?? leerHash();
@@ -1944,7 +1962,7 @@ function bucle() {
   }
   medicion?.cuadro();
   // Interfaz que se oculta tras 3 s sin interacción (vuelve al mover el ratón o tocar).
-  const inactiva = int.yaInteractuo && performance.now() - int.ultimaInteraccion > 3500 && estado.modo !== "maqueta" && !estado.midiendo && !EMBED
+  const inactiva = !!int.yaInteractuo && performance.now() - int.ultimaInteraccion > 3500 && estado.modo !== "maqueta" && !estado.midiendo && !EMBED
     && !document.querySelector("#paneles [aria-expanded=true], #paneles .pn-abierto, #minimapa.grande")
     && !document.activeElement?.closest?.("#barra, #modos, #iconos, #galeria, #minimapa, #paneles, #guion-barra");
   if (inactiva !== document.body.classList.contains("ui-inactiva")) document.body.classList.toggle("ui-inactiva", inactiva);
@@ -1981,9 +1999,10 @@ async function iniciar() {
 
 iniciar().catch((e) => { console.error(e); $("#portada")?.remove(); if (!$("#error-carga")) aviso(`Error: ${e.message}`, 10000); });
 
-// Arrastrar y soltar un .spz/.ply/.splat/.sog/.glb para probarlo al instante.
-addEventListener("dragover", (e) => { if (!EMBED) e.preventDefault(); });
-addEventListener("drop", async (e) => {
+// Desarrollo (?dev): arrastrar y soltar un .spz/.ply/.splat/.sog/.glb para probarlo al instante.
+// En los recorridos publicados no se activa.
+if (params.has("dev")) addEventListener("dragover", (e) => { if (!EMBED) e.preventDefault(); });
+if (params.has("dev")) addEventListener("drop", async (e) => {
   if (EMBED || !renderer) return;
   e.preventDefault();
   const f = e.dataTransfer.files[0];
@@ -1992,7 +2011,7 @@ addEventListener("drop", async (e) => {
   const cfg = int.tour.libre ?? {};
   try {
     if (/\.(glb|gltf)$/i.test(f.name)) {
-      const gltf = await new GLTFLoader().parseAsync(bytes.buffer, "");
+      const gltf = await new (await cargadorGLTF())().parseAsync(bytes.buffer, "");
       escenaLibre.add(gltf.scene, new THREE.HemisphereLight(0xffffff, 0x444444, 2.5));
     } else {
       await cargarSplat({ fileBytes: bytes, fileName: f.name }, { rotacion: cfg.rotacion ?? [180, 0, 0] });

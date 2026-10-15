@@ -297,3 +297,5 @@ body.modo-libre #rotulo, body.modo-maqueta #rotulo { display: none; }
   opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 22; }
 .sonido:hover .volumen, .sonido:focus-within .volumen, .sonido.abierto .volumen { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
 .sonido .volumen input { width: 120px; accent-color: var(--acento); }
+/* Vista previa del Estudio sin fotos todavía */
+#vacio { position: absolute; inset: 0; margin: auto; height: fit-content; max-width: min(26rem, 80vw); text-align: center; color: var(--suave); font-size: 15px; line-height: 1.5; pointer-events: none; }

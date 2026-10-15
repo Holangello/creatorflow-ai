@@ -2,7 +2,6 @@
 // pines de las fotos 360. Usa el modelo real (demo/GLB) si existe o un esquema extruido
 // a partir de muros y estancias del plano (válido también para tours solo con fotos).
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { areaPoligono, centroide } from "./util.js";
 
 const ALTO_MURO = 2.5;
@@ -10,13 +9,20 @@ const COLORES = [0xe9dcc6, 0xd6e2d3, 0xd9dbe8, 0xeed9cf, 0xdfe7ea, 0xe8e2c9, 0xe
 
 export function crearMaqueta(ctx) {
   const camara = new THREE.PerspectiveCamera(45, 1, 0.1, 400);
-  const controles = new OrbitControls(camara, ctx.lienzo);
-  controles.enabled = false;
-  controles.enableDamping = true;
-  controles.maxPolarAngle = Math.PI * 0.45;
-  controles.minDistance = 3;
-  controles.maxDistance = 80;
-  controles.screenSpacePanning = false;
+  // Los controles de órbita se cargan la primera vez que se abre la maqueta (la carga inicial queda más ligera).
+  let controles = null;
+  async function prepararControles() {
+    if (controles) return;
+    const { OrbitControls } = await import("three/addons/controls/OrbitControls.js");
+    if (controles) return;
+    controles = new OrbitControls(camara, ctx.lienzo);
+    controles.enabled = false;
+    controles.enableDamping = true;
+    controles.maxPolarAngle = Math.PI * 0.45;
+    controles.minDistance = 3;
+    controles.maxDistance = 80;
+    controles.screenSpacePanning = false;
+  }
 
   const capa = document.createElement("div");
   capa.id = "maqueta-capa";
@@ -105,16 +111,15 @@ export function crearMaqueta(ctx) {
     const centro = caja.getCenter(new THREE.Vector3());
     const tam = caja.getSize(new THREE.Vector3());
     const r = Math.max(tam.x, tam.z, 6);
-    controles.target.copy(centro);
     camara.position.set(centro.x + r * 0.35, centro.y + r * 1.05, centro.z + r * 0.95);
     camara.lookAt(centro);
-    controles.update();
+    if (controles) { controles.target.copy(centro); controles.update(); }
   }
 
   const v = new THREE.Vector3();
   const ndc = new THREE.Vector2();
   function cuadro() {
-    controles.update();
+    controles?.update();
     for (const e of etiquetas) {
       v.copy(e.pos).project(camara);
       const ok = v.z < 1;
@@ -142,10 +147,11 @@ export function crearMaqueta(ctx) {
       return !!ctx.modeloLibre() || (t.plantas ?? []).some((p) => p.muros?.length) || (t.estancias ?? []).some((e) => e.poligono?.length > 2);
     },
     escena: () => escena,
+    prepararControles,
     activar(si) {
       if (si && !construida) construir();
       if (!si && hover) { hover.material.opacity = hover.userData.opacidadBase; hover = null; }
-      controles.enabled = si;
+      if (controles) controles.enabled = si;
       capa.hidden = !si;
       if (usaModelo) ctx.ocultarTecho(si);
       ctx.lienzo[si ? "addEventListener" : "removeEventListener"]("pointermove", alMover);

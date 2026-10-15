@@ -294,9 +294,11 @@ export function descargar(blob, nombreArchivo) {
 // ======================================================================= ZIP autohospedable
 
 const ARCHIVOS_VISOR = [
-  "index.html", "visor.js", "visor.css", "paneles.js", "paneles.css", "i18n.js", "demo.js", "exportar.js", "vendor/qr.js", "vendor/fflate.js",
+  "index.html", "visor.js", "visor.css", "paneles.js", "paneles.css", "i18n.js", "vendor/qr.js",
   "util.js", "plano.js", "guion.js", "medicion.js", "maqueta.js",
 ];
+// El recorrido publicado nunca usa la demo ni las herramientas de exportación: no viajan en el ZIP (≈ 193 kB).
+const NO_PUBLICAR = new Set(["demo.js", "exportar.js", "vendor/fflate.js", "vendor/fix-webm-duration.js"]);
 const SIN_COMPRIMIR = /\.(jpe?g|png|webp|avif|gif|mp4|webm|mov|sog|spz|ksplat|glb|zip|pdf|woff2?|mp3|m4a|aac|ogg|opus)$/i;
 
 function leeme(t, idioma) {
@@ -407,7 +409,7 @@ export async function exportarZIP(tour, archivos = new Map(), { incluirVisor = t
     const lista = new Set(ARCHIVOS_VISOR);
     try {
       const m = await (await fetch(new URL("dist/visor-autonomo.json", MODULO))).json();
-      for (const f of [...(m.modulos_locales ?? []), ...(m.hojas ?? [])]) if (!f.startsWith("..") && !f.startsWith("/")) lista.add(f);
+      for (const f of [...(m.modulos_locales ?? []), ...(m.hojas ?? [])]) if (!f.startsWith("..") && !f.startsWith("/") && !NO_PUBLICAR.has(f)) lista.add(f);
     } catch { /* sin build: solo la lista base */ }
     for (const f of lista) {
       try {
@@ -452,7 +454,9 @@ export async function exportarHTMLAutonomo(tour, archivos = new Map(), { calidad
     return r.text();
   };
   let js, css;
-  try { [js, css] = await Promise.all([traer("dist/visor-autonomo.js"), traer("dist/visor-autonomo.css")]); }
+  // Sin modo libre se usa el bundle ligero (sin Spark ni la demo): ≈ 4,8 MB menos por archivo.
+  const completo = (incluirLibre && tour?.libre) || tour?.demo || tour?.libre?.tipo === "demo";
+  try { [js, css] = await Promise.all([traer(completo ? "dist/visor-autonomo.js" : "dist/visor-autonomo-ligero.js").catch(() => traer("dist/visor-autonomo.js")), traer("dist/visor-autonomo.css")]); }
   catch (e) { throw new Error(`Falta el visor compilado (dist/visor-autonomo.js): ejecuta "npm install && npm run build" en tools/visor-inmobiliario (${e.message})`); }
   // Un build antiguo no sabe leer el tour incrustado y mostraría la demo: mejor un error claro.
   if (!js.includes("TOUR_EMBEBIDO")) throw new Error('El visor compilado (dist/) está desactualizado: ejecuta "npm run build" en tools/visor-inmobiliario y vuelve a exportar.');

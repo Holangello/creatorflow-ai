@@ -325,7 +325,12 @@ const inm = () => T.inmueble ?? {};
 const panoramas = () => T.panoramas ?? [];
 function nodoActual() { const id = est().nodo; return panoramas().find((p) => p.id === id) ?? null; }
 const nombreEstancia = () => R(nodoActual()?.nombre) || "";
-const enlaceVista = () => { try { return (tiene(V.enlaceVista) && V.enlaceVista()) || location.href; } catch { return location.href; } };
+// Enlace a la vista actual. Vacío si el recorrido no tiene dirección web (HTML autónomo abierto desde el disco sin
+// url_publica): nunca se comparte una ruta file://, que revelaría la carpeta del ordenador del visitante.
+const enlaceVista = () => {
+  try { if (tiene(V.enlaceVista)) return V.enlaceVista() || ""; } catch { return ""; }
+  return /^https?:$/.test(location.protocol) ? location.href : "";
+};
 const titulo = () => R(T.titulo) || R(inm().tipo ? tr(`tipo.${inm().tipo}`) : "") || document.title;
 
 function hayVariantesEstilo() { return panoramas().some((p) => (p.variantes ?? []).some((v) => v.estilo && v.estilo !== "original")); }
@@ -1526,6 +1531,7 @@ function lightbox() {
 function dlgCompartir() {
   const url = enlaceVista();
   const msg = tr("compartir.mensaje", { x: titulo() });
+  if (!url) return { titulo: tr("compartir.titulo"), icono: "compartir", cuerpo: [h("p", { class: "pn-suave", "data-k": "sh-sin-web" }, tr("compartir.sin_web"))] };
   const idInput = nuevoId("enl");
   const copiar = async (e) => {
     const btn = e.currentTarget;

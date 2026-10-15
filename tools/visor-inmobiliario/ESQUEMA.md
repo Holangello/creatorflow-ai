@@ -15,6 +15,10 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
 {
   "version": 2,
   "titulo": "Texto",
+  "url_publica": "https://www.ejemplo.com/tours/calle-mayor/",  // dirección donde se publica el recorrido. Base de los
+                                        // enlaces a una vista, del QR y de los mensajes. La escribe el Estudio al publicar.
+                                        // Sin ella, en el HTML autónomo abierto desde el disco no se comparten enlaces
+                                        // (nunca una ruta file://).
   "idioma": "es",                       // idioma por defecto
   "idiomas": ["es", "en"],              // idiomas ofrecidos en la interfaz
 

@@ -76,9 +76,19 @@ const plugin = {
   },
 };
 
+// Bundle ligero (HTML autónomo sin modo libre): Spark y la demo se sustituyen por módulos vacíos (≈ −4,8 MB).
+const pluginLigero = {
+  name: "visor-ligero",
+  setup(b) {
+    b.onResolve({ filter: /^@sparkjsdev\/spark$/ }, () => ({ path: "spark", namespace: "vacio" }));
+    b.onResolve({ filter: /(^|\/)demo\.js$/ }, () => ({ path: "demo", namespace: "vacio" }));
+    b.onLoad({ filter: /.*/, namespace: "vacio" }, () => ({ contents: "export {};", loader: "js" }));
+  },
+};
+
 mkdirSync(DIST, { recursive: true });
 const t0 = Date.now();
-const res = await esbuild.build({
+const opcionesJS = {
   absWorkingDir: RAIZ,
   entryPoints: { "visor-autonomo": "virtual:entrada" },
   bundle: true,
@@ -95,14 +105,20 @@ const res = await esbuild.build({
   logLevel: "warning",
   plugins: [plugin],
   define: { "process.env.NODE_ENV": '"production"' },
-});
+};
+const res = await esbuild.build(opcionesJS);
+const resLigero = await esbuild.build({ ...opcionesJS, metafile: false, plugins: [pluginLigero, plugin] });
 
-let js = res.outputFiles.find((f) => f.path.endsWith(".js")).text;
-// Al ir en línea dentro de <script>, "</script" cerraría la etiqueta: se escapa ("<\/" equivale a "</" en JS).
-js = js.replace(/<\/script/gi, "<\\/script");
-if (/<!--/.test(js)) avisar('El bundle contiene "<!--"; si el HTML autónomo no arranca, revisa esa cadena');
-const cabecera = `/* visor-autonomo.js · generado por build.mjs el ${new Date().toISOString()} · no editar a mano */\n`;
-writeFileSync(join(DIST, "visor-autonomo.js"), cabecera + js);
+function escribirBundle(r, nombre) {
+  let js = r.outputFiles.find((f) => f.path.endsWith(".js")).text;
+  // Al ir en línea dentro de <script>, "</script" cerraría la etiqueta: se escapa ("<\/" equivale a "</" en JS).
+  js = js.replace(/<\/script/gi, "<\\/script");
+  if (/<!--/.test(js)) avisar(`El bundle ${nombre} contiene "<!--"; si el HTML autónomo no arranca, revisa esa cadena`);
+  const cabecera = `/* ${nombre} · generado por build.mjs el ${new Date().toISOString()} · no editar a mano */\n`;
+  writeFileSync(join(DIST, nombre), cabecera + js);
+}
+escribirBundle(res, "visor-autonomo.js");
+escribirBundle(resLigero, "visor-autonomo-ligero.js");
 
 // ------------------------------------------------------------ CSS: visor.css + paneles.css (+ hojas de index.html)
 const existentes = hojas.filter((h) => existsSync(join(RAIZ, h)));
@@ -136,10 +152,11 @@ const manifiesto = {
   hojas: existentes,
   faltantes: [...faltantes],
   avisos,
-  bytes: { js: statSync(join(DIST, "visor-autonomo.js")).size, css: statSync(join(DIST, "visor-autonomo.css")).size },
+  bytes: { js: statSync(join(DIST, "visor-autonomo.js")).size, js_ligero: statSync(join(DIST, "visor-autonomo-ligero.js")).size, css: statSync(join(DIST, "visor-autonomo.css")).size },
 };
 writeFileSync(join(DIST, "visor-autonomo.json"), JSON.stringify(manifiesto, null, 2));
 console.log(`\n✔ dist/visor-autonomo.js   ${kb("visor-autonomo.js")}  (${Date.now() - t0} ms)`);
+console.log(`✔ dist/visor-autonomo-ligero.js  ${kb("visor-autonomo-ligero.js")}  (sin modo libre: lo usa el HTML autónomo)`);
 console.log(`✔ dist/visor-autonomo.css  ${kb("visor-autonomo.css")}`);
 console.log(`  módulos locales: ${locales.join(", ")}`);
 console.log(`  paquetes: ${paquetes.map((p) => `${p}@${manifiesto.paquetes[p]}`).join(", ")}`);

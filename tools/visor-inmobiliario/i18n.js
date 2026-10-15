@@ -52,7 +52,7 @@ export const diccionario = {
     "ayuda.plano": "M mostrar/ocultar mapa · R radar o plano · V cambiar modo · 1-9 estancias · H ayuda", "ayuda.tocar_suelo": "Toca el suelo para ir allí",
 
     "aviso.cargando": "Cargando…", "aviso.error_carga": "No se pudo cargar {x}",
-    "aviso.sin_tour": "No se encontró tour.json. Mostrando la demo.", "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D",
+    "aviso.sin_tour": "No se encontró tour.json. Mostrando la demo.", "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D", "aviso.vista_vacia": "La vista previa aparecerá aquí cuando añadas fotos 360.",
     "aviso.contexto_perdido": "Se perdió el contexto gráfico", "aviso.reintentar": "Reintentar",
     "aviso.clic_explorar": "Haz clic para explorar",
     "aviso.libre_tactil": "Pulgar izquierdo para caminar · arrastra a la derecha para mirar",
@@ -140,7 +140,7 @@ export const diccionario = {
     "hipoteca.cuota": "Cuota mensual", "hipoteca.financiado": "Importe financiado", "hipoteca.intereses": "Intereses totales",
     "hipoteca.gastos": "Gastos de compraventa aproximados (~10 %: ITP o IVA, notaría, registro y gestoría): {x}. Cálculo orientativo; no es una oferta vinculante.",
 
-    "compartir.titulo": "Compartir", "compartir.copiar": "Copiar enlace", "compartir.copiado": "Enlace copiado",
+    "compartir.titulo": "Compartir", "compartir.sin_web": "Este recorrido se ha abierto desde un archivo y no tiene dirección web. Para compartirlo, envía el archivo o pide a la agencia el enlace de su web.", "compartir.copiar": "Copiar enlace", "compartir.copiado": "Enlace copiado",
     "compartir.whatsapp": "WhatsApp", "compartir.email": "Email", "compartir.mas": "Más opciones",
     "compartir.qr": "Código QR", "compartir.qr_alt": "Código QR del enlace a esta vista", "compartir.descargar_qr": "Descargar QR",
     "compartir.enlace": "Enlace a esta vista", "compartir.mensaje": "Mira este inmueble: {x}",
@@ -234,7 +234,7 @@ export const diccionario = {
     "ayuda.plano": "M show/hide map · R radar or plan · V switch mode · 1-9 rooms · H help", "ayuda.tocar_suelo": "Tap the floor to go there",
 
     "aviso.cargando": "Loading…", "aviso.error_carga": "Could not load {x}",
-    "aviso.sin_tour": "tour.json not found. Showing the demo.", "aviso.sin_webgl": "Your device does not support the 3D tour",
+    "aviso.sin_tour": "tour.json not found. Showing the demo.", "aviso.sin_webgl": "Your device does not support the 3D tour", "aviso.vista_vacia": "The preview will appear here once you add 360 photos.",
     "aviso.contexto_perdido": "The graphics context was lost", "aviso.reintentar": "Retry",
     "aviso.clic_explorar": "Click to explore",
     "aviso.libre_tactil": "Left thumb to walk · drag on the right to look",
@@ -322,7 +322,7 @@ export const diccionario = {
     "hipoteca.cuota": "Monthly payment", "hipoteca.financiado": "Loan amount", "hipoteca.intereses": "Total interest",
     "hipoteca.gastos": "Approximate purchase costs (~10 %: transfer tax or VAT, notary, land registry and agency): {x}. Estimate only; not a binding offer.",
 
-    "compartir.titulo": "Share", "compartir.copiar": "Copy link", "compartir.copiado": "Link copied",
+    "compartir.titulo": "Share", "compartir.sin_web": "This tour was opened from a file and has no web address. To share it, send the file or ask the agency for the link on its website.", "compartir.copiar": "Copy link", "compartir.copiado": "Link copied",
     "compartir.whatsapp": "WhatsApp", "compartir.email": "Email", "compartir.mas": "More options",
     "compartir.qr": "QR code", "compartir.qr_alt": "QR code linking to this view", "compartir.descargar_qr": "Download QR",
     "compartir.enlace": "Link to this view", "compartir.mensaje": "Take a look at this property: {x}",
@@ -416,7 +416,7 @@ export const diccionario = {
     "ayuda.plano": "M afficher/masquer la carte · R radar ou plan · V changer de mode · 1-9 pièces · H aide", "ayuda.tocar_suelo": "Touchez le sol pour vous y rendre",
 
     "aviso.cargando": "Chargement…", "aviso.error_carga": "Impossible de charger {x}",
-    "aviso.sin_tour": "tour.json introuvable. Affichage de la démo.", "aviso.sin_webgl": "Votre appareil ne prend pas en charge la visite 3D",
+    "aviso.sin_tour": "tour.json introuvable. Affichage de la démo.", "aviso.sin_webgl": "Votre appareil ne prend pas en charge la visite 3D", "aviso.vista_vacia": "L’aperçu apparaîtra ici dès que vous ajouterez des photos 360.",
     "aviso.contexto_perdido": "Le contexte graphique a été perdu", "aviso.reintentar": "Réessayer",
     "aviso.clic_explorar": "Cliquez pour explorer",
     "aviso.libre_tactil": "Pouce gauche pour marcher · glissez à droite pour regarder",
@@ -504,7 +504,7 @@ export const diccionario = {
     "hipoteca.cuota": "Mensualité", "hipoteca.financiado": "Montant emprunté", "hipoteca.intereses": "Intérêts totaux",
     "hipoteca.gastos": "Frais d'acquisition approximatifs (~10 % : droits de mutation ou TVA, notaire, registre et gestion) : {x}. Calcul indicatif, sans valeur d'offre.",
 
-    "compartir.titulo": "Partager", "compartir.copiar": "Copier le lien", "compartir.copiado": "Lien copié",
+    "compartir.titulo": "Partager", "compartir.sin_web": "Cette visite a été ouverte depuis un fichier et n’a pas d’adresse web. Pour la partager, envoyez le fichier ou demandez le lien à l’agence.", "compartir.copiar": "Copier le lien", "compartir.copiado": "Lien copié",
     "compartir.whatsapp": "WhatsApp", "compartir.email": "E-mail", "compartir.mas": "Plus d'options",
     "compartir.qr": "Code QR", "compartir.qr_alt": "Code QR menant à cette vue", "compartir.descargar_qr": "Télécharger le QR",
     "compartir.enlace": "Lien vers cette vue", "compartir.mensaje": "Regardez ce bien : {x}",
@@ -598,7 +598,7 @@ export const diccionario = {
     "ayuda.plano": "M Karte ein/aus · R Radar oder Grundriss · V Modus wechseln · 1-9 Räume · H Hilfe", "ayuda.tocar_suelo": "Auf den Boden tippen, um dorthin zu gehen",
 
     "aviso.cargando": "Wird geladen…", "aviso.error_carga": "{x} konnte nicht geladen werden",
-    "aviso.sin_tour": "tour.json nicht gefunden. Die Demo wird angezeigt.", "aviso.sin_webgl": "Ihr Gerät unterstützt den 3D-Rundgang nicht",
+    "aviso.sin_tour": "tour.json nicht gefunden. Die Demo wird angezeigt.", "aviso.sin_webgl": "Ihr Gerät unterstützt den 3D-Rundgang nicht", "aviso.vista_vacia": "Die Vorschau erscheint hier, sobald Sie 360°-Fotos hinzufügen.",
     "aviso.contexto_perdido": "Der Grafikkontext ging verloren", "aviso.reintentar": "Erneut versuchen",
     "aviso.clic_explorar": "Zum Erkunden klicken",
     "aviso.libre_tactil": "Linker Daumen zum Gehen · rechts ziehen zum Umsehen",
@@ -686,7 +686,7 @@ export const diccionario = {
     "hipoteca.cuota": "Monatliche Rate", "hipoteca.financiado": "Darlehensbetrag", "hipoteca.intereses": "Zinsen gesamt",
     "hipoteca.gastos": "Ungefähre Kaufnebenkosten (~10 %: Grunderwerbsteuer oder MwSt., Notar, Grundbuch und Abwicklung): {x}. Unverbindliche Schätzung, kein Angebot.",
 
-    "compartir.titulo": "Teilen", "compartir.copiar": "Link kopieren", "compartir.copiado": "Link kopiert",
+    "compartir.titulo": "Teilen", "compartir.sin_web": "Dieser Rundgang wurde aus einer Datei geöffnet und hat keine Webadresse. Senden Sie die Datei oder fragen Sie die Agentur nach dem Link auf ihrer Website.", "compartir.copiar": "Link kopieren", "compartir.copiado": "Link kopiert",
     "compartir.whatsapp": "WhatsApp", "compartir.email": "E-Mail", "compartir.mas": "Weitere Optionen",
     "compartir.qr": "QR-Code", "compartir.qr_alt": "QR-Code mit dem Link zu dieser Ansicht", "compartir.descargar_qr": "QR herunterladen",
     "compartir.enlace": "Link zu dieser Ansicht", "compartir.mensaje": "Sieh dir diese Immobilie an: {x}",
