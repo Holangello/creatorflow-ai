@@ -240,6 +240,15 @@ que fuera «más realista, verdadero glass UI, sin color, como el propio iOS». 
 | `.c8-cargando` | — | giro | `role="progressbar"` + `aria-label` |
 | `.c8-icono` | `--dibujar` (se dibuja al aparecer; `pathLength="1"`) | — | `aria-hidden` si hay etiqueta |
 
+### Dibujo de los iconos
+
+Al estilo de SF Symbols, con dibujos propios:
+- rejilla de 24×24 y trazo de `--trazo-icono` (1,6), con las puntas y las juntas redondas;
+- esquinas redondeadas (radio 2–2,5) en todo rectángulo: tarjeta, documento, sobre, cámara, regla, copiar…;
+- el bocadillo de los mensajes de iOS para «Contactar».
+
+Nada de rectángulos con esquinas vivas ni de flechas de bloque: parecían de videojuego (petición del cliente, 15/10). La variante pulsada rellena las partes `.relleno`.
+
 ### Iconos animados (patrón)
 
 - **Sonido:** ondas quietas mientras suena (dos latidos al empezar a sonar y al pasar el ratón); tachado cuando está silenciado.

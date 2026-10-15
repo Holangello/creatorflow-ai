@@ -23,45 +23,47 @@ const MUESTRAS_ESTILO = {
 };
 
 // ------------------------------------------------------------------ iconos (SVG 24×24, trazo)
+// Al estilo de SF Symbols (dibujos propios): esquinas redondeadas (radio 2–2,5), trazo de --trazo-icono con las puntas y
+// las juntas redondas, y el bocadillo de los mensajes de iOS. Nada de rectángulos con esquinas vivas.
 const P = {
   cama: "M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 15h18M6 10V7.5a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1V10M12.5 10V7.5a1 1 0 0 1 1-1H17a1 1 0 0 1 1 1V10M3 18v2M21 18v2",
   bano: "M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4zM6 12V6a2 2 0 0 1 3.6-1.2M7 19l-1 2M17 19l1 2",
-  superficie: "M4 4h16v16H4zM4 9h3M4 14h3M9 4v3M14 4v3",
-  util: "M3.5 3.5h17v17h-17zM8 8h8v8H8z",
+  superficie: "M6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11A2.5 2.5 0 0 1 6.5 4zM4 9.5h3M4 14.5h3M9.5 4v3M14.5 4v3",
+  util: "M6 3.5h12A2.5 2.5 0 0 1 20.5 6v12a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 18V6A2.5 2.5 0 0 1 6 3.5zM9.5 8h5A1.5 1.5 0 0 1 16 9.5v5a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 8 14.5v-5A1.5 1.5 0 0 1 9.5 8z",
   parcela: "M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3zM9 4v13M15 7v13",
   planta: "M12 3l9 5-9 5-9-5zM3 13l9 5 9-5",
   energia: "M13 2.5L5 13.5h6l-1 8 8-11h-6z",
-  pincel: "M18.4 2.6a2 2 0 0 1 2.9 2.9L13 13.8 10.2 11zM9 14.5c-2 0-3.5 1.5-3.5 3.5 0 1-.8 2-2.5 2 1 1 2.5 1.5 4 1.5 2.5 0 4.5-2 4.5-4.5",
-  regla: "M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2",
-  play: "M8 5l11 7-11 7z",
+  pincel: "M11.6 10l6.6-6.6a1.77 1.77 0 0 1 2.5 2.5L14.1 12.5M11.6 10l2.5 2.5M11.6 10C9 10.5 7.5 12 7 14.5c-.4 2-1.2 3.6-2.5 5 1.4-1.3 3-2.1 5-2.5 2.5-.5 4-2 4.6-4.5",
+  regla: "M3.9 16.1 16.1 3.9a1.4 1.4 0 0 1 2 0l2 2a1.4 1.4 0 0 1 0 2L7.9 20.1a1.4 1.4 0 0 1-2 0l-2-2a1.4 1.4 0 0 1 0-2zM7.2 12.8l1.8 1.8M10.2 9.8l1.8 1.8M13.2 6.8l1.8 1.8",
+  play: "M8.5 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L10 4.74a1 1 0 0 0-1.5.86z",
   // compartir y ajustes: los mismos trazos que el menú «Más» del núcleo (ICONOS de visor.js), un solo dibujo por gesto
-  compartir: "M12 15V4M8 8l4-4 4 4M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12",
+  compartir: "M8.5 9.5h-1a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1M12 14.5v-11M8.5 7 12 3.5 15.5 7",
   globo: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z",
   ajustes: "M4 7h10M18 7h2M4 17h4M12 17h8M14 7a2 2 0 1 0 4 0 2 2 0 1 0-4 0M8 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0",
   whatsapp: "M3.5 20.5l1.3-4.3A8.5 8.5 0 1 1 8 19.4zM9 8.6c0 3.4 3 6.4 6.4 6.4l1-1.5-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2z",
-  chat: "M4 5h16v11H9l-5 4z",
+  chat: "M12 4c4.7 0 8.5 3.1 8.5 7s-3.8 7-8.5 7c-1 0-2-.15-2.9-.42L5 19.5l1.2-3.4C4.7 14.8 3.5 13 3.5 11c0-3.9 3.8-7 8.5-7z",
   cerrar: "M6 6l12 12M18 6L6 18",
   der: "M9 6l6 6-6 6", izq: "M15 6l-6 6 6 6", arriba: "M6 15l6-6 6 6",
-  copiar: "M9 9h11v11H9zM5 15H4V4h11v1",
+  copiar: "M10.5 9h8a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 9 18.5v-8A1.5 1.5 0 0 1 10.5 9zM6 15h-.5A1.5 1.5 0 0 1 4 13.5v-8A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5V6",
   descargar: "M12 4v12M7 11l5 5 5-5M5 20h14",
   sol: "M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
   atardecer: "M3 18h18M7 18a5 5 0 0 1 10 0M12 3v4M4.9 9.9l1.4 1.4M19.1 9.9l-1.4 1.4M2 14h2M20 14h2M6 21h12",
   luna: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
   pin: "M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
-  doc: "M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6",
-  tel: "M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z",
-  correo: "M3 5h18v14H3zM3 6l9 7 9-7",
-  calc: "M6 3h12v18H6zM9 7h6M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01",
+  doc: "M7.5 3h6.4L18 7.1v11.4a2.5 2.5 0 0 1-2.5 2.5h-8A2.5 2.5 0 0 1 5 18.5v-13A2.5 2.5 0 0 1 7.5 3zM13.5 3.1v3.4a1 1 0 0 0 1 1h3.4M8.5 12.5h7M8.5 16h5",
+  tel: "M6.6 3.5h2.2c.5 0 .9.33 1 .8l.8 3.4a1 1 0 0 1-.3 1L8.7 10.3a13 13 0 0 0 5 5l1.6-1.6a1 1 0 0 1 1-.3l3.4.8c.47.1.8.5.8 1v2.2a2 2 0 0 1-2.2 2A16.6 16.6 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z",
+  correo: "M5.5 5h13A2.5 2.5 0 0 1 21 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 16.5v-9A2.5 2.5 0 0 1 5.5 5zM3.5 7.5l8.5 6 8.5-6",
+  calc: "M7.5 3h9A2.5 2.5 0 0 1 19 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18.5v-13A2.5 2.5 0 0 1 7.5 3zM8.5 7h7M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01",
   info: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM12 11v5M12 8h.01",
   ok: "M5 12.5l4.5 4.5L19 7.5",
-  alerta: "M12 3l10 18H2zM12 10v4M12 17h.01",
-  comparar: "M12 3v18M4 6h5v12H4zM15 6h5v12h-5z",
-  externo: "M14 4h6v6M20 4l-9 9M18 14v6H4V6h6",
-  ficha: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
-  camara: "M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+  alerta: "M10.3 4.3a2 2 0 0 1 3.4 0l7.6 13.2a2 2 0 0 1-1.7 3H4.4a2 2 0 0 1-1.7-3zM12 9.5v4M12 17h.01",
+  comparar: "M12 3v18M6 6h3v12H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zM15 6h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3z",
+  externo: "M14 4h6v6M20 4l-8.5 8.5M18 13.5v4a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 4 17.5v-9A2.5 2.5 0 0 1 6.5 6h4",
+  ficha: "M7.5 3h9A2.5 2.5 0 0 1 19 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18.5v-13A2.5 2.5 0 0 1 7.5 3zM9 8h6M9 12h6M9 16h4",
+  camara: "M3.5 9a2 2 0 0 1 2-2h1.8l1.3-1.9a1.5 1.5 0 0 1 1.2-.6h4.4a1.5 1.5 0 0 1 1.2.6L16.7 7h1.8a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2zM15.5 13a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z",
   musica: "M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z",
   mas: "M4.5 12a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0M10.5 12a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0M16.5 12a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0",
-  pantalla: "M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5",
+  pantalla: "M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3",
   movil: "M9.5 2.5h5A2.5 2.5 0 0 1 17 5v14a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 7 19V5a2.5 2.5 0 0 1 2.5-2.5zM3 9a10 10 0 0 0 0 6M21 9a10 10 0 0 1 0 6",
 };
 const RELLENO = new Set(["play", "mas"]);
@@ -255,7 +257,8 @@ export function iniciarPaneles(visor) {
   mo.observe(document.body, { attributes: true, attributeFilter: ["class"] });
   limpiezas.push(() => mo.disconnect());
   if (typeof ResizeObserver === "function") {
-    const ro = new ResizeObserver(() => colocar());
+    // mientras se arrastra la hoja, su alto cambia a cada paso: recolocarla deshacía el arrastre (se coloca al soltar)
+    const ro = new ResizeObserver(() => { if (!arrastrandoHoja) colocar(); });
     const barra = barraNucleo();
     if (barra) ro.observe(barra);
     // la tira de estancias del núcleo puede crecer después (miniaturas que terminan de cargar): la barra de captura
@@ -602,7 +605,7 @@ function botonContactar() {
   const n = ui.capturas.length;
   // el bocadillo enseña los puntos de «escribiendo» al pasar el ratón (paneles.css)
   const bocadillo = ic("chat");
-  for (const cx of [8.5, 12, 15.5]) bocadillo.append(svgEl("circle", { class: "pn-escribe", cx, cy: 10.5, r: 1 }));
+  for (const cx of [8.5, 12, 15.5]) bocadillo.append(svgEl("circle", { class: "pn-escribe", cx, cy: 11, r: 1 }));
   return h("button", { type: "button", class: "c8-boton c8-boton--primario pn-t-contactar", "data-k": "contactar", "aria-haspopup": "dialog",
     "aria-expanded": String(ui.dialogo === "contacto"), "aria-label": n ? tr("contacto.con_fotos", { x: textoNumFotos(n) }) : null,
     onclick: (e) => alternarDialogo("contacto", e.currentTarget) },
@@ -744,8 +747,11 @@ function colocarHoja(animar) {
   if (barra) reserva = barra.offsetHeight + 10;
   document.documentElement.style.setProperty("--reserva-inferior", `${reserva}px`);
 }
+/** Arrastre de la hoja en curso: el ResizeObserver de los paneles no la recoloca hasta soltarla. */
+let arrastrandoHoja = false;
 function prepararArrastre(t) {
   let ini = null;
+  arrastrandoHoja = false; // tarjeta nueva (se rehízo): ningún arrastre a medias
   const zona = (e) => e.target.closest(".pn-t-cab") && !e.target.closest("button:not([data-k='ficha'])");
   t.addEventListener("pointerdown", (e) => {
     if (!zona(e) || e.button > 0) return;
@@ -755,13 +761,14 @@ function prepararArrastre(t) {
     if (!ini || e.pointerId !== ini.id) return;
     const dy = e.clientY - ini.y;
     if (!ini.movido && Math.abs(dy) < 6) return;
-    if (!ini.movido) { ini.movido = true; t.setPointerCapture(e.pointerId); t.classList.add("pn-sin-anim"); }
+    if (!ini.movido) { ini.movido = true; arrastrandoHoja = true; t.setPointerCapture(e.pointerId); t.classList.add("pn-sin-anim"); }
     t.style.setProperty("--pn-desp", `${Math.min(ini.total - alturaVisible("peek"), Math.max(0, ini.desp + dy))}px`);
   });
   const fin = (e) => {
     if (!ini || e.pointerId !== ini.id) return;
     const d = ini; ini = null;
     if (!d.movido) return; // un toque: lo gestiona el propio botón
+    arrastrandoHoja = false;
     e.preventDefault();
     const vel = (e.clientY - d.y) / Math.max(1, performance.now() - d.t); // px/ms, + hacia abajo
     const vis = d.total - (parseFloat(t.style.getPropertyValue("--pn-desp")) || 0) - vel * 180;
