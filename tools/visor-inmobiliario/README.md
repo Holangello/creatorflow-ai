@@ -112,7 +112,7 @@ npm run prueba:todo    # humo + contraste AA + pruebas de extremo a extremo
 |---|---|
 | `npm run prueba` | Prueba de humo: visor, Estudio y Guía cargan sin errores |
 | `npm run contraste` | Contraste AA de los pares de colores del tema, en claro y en oscuro |
-| `npm run prueba:e2e` | Unas 430 comprobaciones del Estudio, los paneles, la exportación y la seguridad |
+| `npm run prueba:e2e` | Unas 490 comprobaciones del Estudio, los paneles, la exportación y la seguridad |
 | `npm run medir` | Peso de la carga inicial, tiempo hasta que el visor está listo y cuánta pantalla tapa la interfaz (objetivo en el teléfono: ≤ 15 %) |
 | `node pruebas/capturas.mjs` | Matriz de capturas: páginas × claro/oscuro × S/M/L × tamaños de pantalla |
 

@@ -130,7 +130,8 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
       - Tras «las flechas e iconos siguen pareciendo de videojuego» (16:25): marcas del suelo de cristal esmerilado, como Look Around (Apple Maps) o Matterport. Pulsados de la barra con cápsula clara y símbolo relleno (SF Symbols). Radar con muros finos, enlaces lisos y punto de posición con sombra. Iconos de la tarjeta, los diálogos y «Más» redibujados al estilo SF Symbols: esquinas redondeadas y el bocadillo de iOS.
       - Tras «sigo viendo las ventanas muy blancas, quiero un real glass UI» (16:50): esmerilado de verdad. El fondo pierde contraste (`contrast(.62)`) y se aclara u oscurece. Con eso, los paneles bajan del 90 % al 36–62 % de opacidad y se ve la vivienda a través, con AA. Textos secundarios más firmes y acento propio para los enlaces sobre el vidrio. La prueba de contraste comprueba el esmerilado del navegador.
       - Documentado en `docs/diseno/sistema.md` («Vidrio adaptativo por pieza»). Refracción en los cantos descartada: solo Chrome, y no en el iPhone.
-  - [ ] **Cierre** según [fase4-cierre.md](../../docs/auditorias/fase4-cierre.md) (manda): sistema de diseño y exportación hechos por el orquestador (b5e8fe0 y siguiente); tres agentes en paralelo con §2.1 núcleo, §2.2 paneles y §2.3 Estudio y Guía (lanzados a las 12:50 UTC). Si un agente muere, relánzalo con su paquete y dile qué está hecho (mira `git diff`).
+      - Verificado al reanudar (15/10, 20:10 UTC): `npm run prueba:todo` en verde (humo, contraste AA con el esmerilado medido en Chromium, 489 e2e) y `npm run medir`: 6,4 % tapado en reposo en el teléfono y 3,3 % en el portátil.
+  - [x] **Cierre** según [fase4-cierre.md](../../docs/auditorias/fase4-cierre.md) (manda). Integrado, probado y enseñado al cliente en claro y oscuro, de día y de noche (rondas 1–3 del vidrio, arriba). Queda pendiente del cliente: aprobar el vidrio esmerilado y decidir la marca blanca. El sistema de diseño y la exportación los hizo el orquestador (b5e8fe0 y siguientes); el núcleo (§2.1), los paneles (§2.2) y el Estudio con la Guía (§2.3), tres agentes en paralelo.
     - Después: integrar (claves i18n del núcleo, contingencias), `npm run prueba:todo`, `npm run medir`, matriz de capturas, enseñar al cliente en claro y oscuro, de día y de noche.
     - Decisiones para enseñar al cliente (fase4-cierre.md §3): «Modo juego» sigue en la barra del escritorio; marca blanca a decidir; vidrio adaptativo por pieza (hecho en la ronda 2, sustituye a «por página»).
     - Hoja de ruta: demo con fotos reales (la red del entorno bloquea bancos de fotos CC0: pedir fotos de la Osmo del cliente), publicar con un clic, estadísticas, proveedor homologado de idealista y Fotocasa.
@@ -140,7 +141,7 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - Inter Variable en `vendor/fonts/inter` (OFL).
     - `tema-muestra.html`: muestra viva.
   - [x] `marca.color` → `--c-sobre-acento` (y `--acento-texto`) calculado por contraste en `visor.js` (commit 0b978dd).
-  - [ ] Plan de aplicación, después de conciliar la fase 3:
+  - [x] Plan de aplicación, después de conciliar la fase 3 (hecho en la «Aplicación» y el «Cierre» de arriba; se conserva como referencia):
     1. **Núcleo (yo).**
        - `index.html` carga `tema.js` (síncrono en `<head>`) y `tema.css`.
        - `visor.css` apunta las variables antiguas a los tokens (tabla de `docs/diseno/sistema.md`), pasa `px` → `rem` y usa `.c8-vidrio` y `c8-*` en el HUD.

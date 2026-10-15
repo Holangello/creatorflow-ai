@@ -23,7 +23,7 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | `node pruebas/capturas.mjs` | Matriz visual: páginas × claro/oscuro × S/M/L × de 360×640 a 3840×2160 y 3440×1440, con hoja de contactos |
 | `npm run contraste` | Contraste WCAG de los pares de tokens de `tema.css` en claro y oscuro: texto 4,5:1, foco e iconos 3:1, el vidrio sobre el peor fondo de la foto (blanco y negro puros) y seis colores de marca típicos (rojo, azul marino, verde, amarillo, negro y blanco). Entra en `npm run prueba:todo` |
 | `npm run medir` | Métricas para compactar, en el teléfono y el portátil: JS propio y de dependencias, CSS y fuentes hasta `visor.listo`; tiempo hasta `listo`; controles visibles y % de pantalla tapada, con la interfaz despierta y en reposo. Falla si en el teléfono la interfaz en reposo tapa más del 15 %. Los tiempos dependen de la máquina: se comparan en la misma. En este contenedor las fuentes dan 0 KB porque Inter ya está instalada en el sistema |
-| Auditorías por fase | QA, UX/UI, Maverick, esencialista, organización, visual y accesibilidad WCAG 2.1 AA (`docs/auditorias/`). Al cerrar la fase 4: `npm run medir` da 9,8 % de pantalla tapada en reposo en el teléfono y 3,3 % en el portátil |
+| Auditorías por fase | QA, UX/UI, Maverick, esencialista, organización, visual y accesibilidad WCAG 2.1 AA (`docs/auditorias/`). Al cerrar la fase 4: `npm run medir` da 9,8 % de pantalla tapada en reposo en el teléfono y 3,3 % en el portátil; con el vidrio neutro y las marcas del suelo de cristal, 6,4 % y 3,3 % |
 
 ## Planes de contingencia (si falla… → entonces…)
 
