@@ -16,6 +16,12 @@ El cliente no ha guardado elecciones en la página de decisiones, así que se ap
 
 ## 1. Contrato común (lo cumplen todos)
 
+0. **Apariencia «glass UI» siempre (lo pidió el cliente expresamente, 15/10).** Material base de toda la interfaz, en claro y en oscuro.
+   - **Visor:** todo lo que flota sobre la foto es `.c8-vidrio` (`--texto` si lleva texto, `--denso` en menús y diálogos): HUD, tarjeta, ficha, contacto, «Estilo y luz», Ajustes, avisos, rótulos y subtítulos. Nada opaco sobre la foto salvo con «Reducir transparencia».
+   - **Estudio y Guía:** barras y menús de vidrio sobre un fondo de ambiente, como macOS con Liquid Glass.
+   - Dentro de un vidrio, rellenos (`--c-capa-*`, `--c-campo`); nunca vidrio dentro de vidrio. Nunca alfas propias: `--vidrio`, `--vidrio-texto`, `--vidrio-denso`.
+   - **Vidrio adaptativo:** el visor mide la foto (`data-luz-max` y `data-luz-min` en `<html>`) y el vidrio se vuelve más transparente cuando el fondo lo permite, siempre con AA (`npm run contraste` prueba cada nivel en su peor fondo).
+   - En claro debe verse vidrio (blanco translúcido con desenfoque, canto especular y sombra suave), no tarjetas blancas planas.
 1. **Todo sale de `tema.css`**: color, radio, sombra, espaciado, tipografía y duración.
    - En CSS no quedan hex ni `rgba()` fijos, salvo: los valores de reserva dentro de `var(--x, reserva)`, los colores que son datos (letras de energía A–G, verde de WhatsApp, rojo de error) y los degradados de oscurecimiento sobre la foto.
    - `px` → `rem`, salvo bordes de 1 px, sombras finas, medidas de lienzo y `@media`.
@@ -45,7 +51,8 @@ El cliente no ha guardado elecciones en la página de decisiones, así que se ap
 | P2 | Iconos animados de la barra de vista (radar, juego, música, ayuda, pantalla completa, más) |
 | P2 | Revisión del HUD en claro sobre fotos claras y oscuras: el texto se lee siempre (AA) |
 | P3 | N-14: precio discreto en el modo juego |
-| P3 | Refracción «liquid glass» con `feDisplacementMap`, solo en Chromium de escritorio, solo en piezas grandes y nunca con transparencia reducida. Solo se queda si el recorrido sigue a ≥ 55 fps en 1920×1080; si no, se descarta y se documenta |
+| P1 | Vidrio adaptativo: medir el fotograma (percentiles 90 y 10 de la luminancia, cada ~1 s con la vista quieta y tras cada cambio) y poner `data-luz-max` y `data-luz-min` en `<html>`, con histéresis; si falla, peor caso |
+| P2 | Refracción «liquid glass» con `feDisplacementMap`, solo en Chromium de escritorio, solo en piezas grandes y nunca con transparencia reducida. Solo se queda si el recorrido sigue a ≥ 55 fps en 1920×1080; si no, se descarta y se documenta |
 
 ### 2.2 Paneles (`paneles.css`, `paneles.js`, `i18n.js`)
 

@@ -282,6 +282,27 @@ html[data-talla="l"] { --talla: 1.18; }
   .c8-vidrio::before { display: none; }
 }
 
+/* ------------------------------------------------------------------ Vidrio adaptativo («liquid glass»)
+   Las alfas de arriba son para el peor fondo posible (pared blanca en oscuro, zona negra en claro). Si la página mide la
+   foto que hay detrás (el visor lo hace con el fotograma), el vidrio se vuelve más transparente cuando el fondo lo
+   permite, sin bajar nunca de AA (pruebas/contraste.mjs comprueba cada nivel en su peor caso):
+     data-luz-max en <html>: luminancia de las zonas más claras de la foto (percentil 90): baja ≤ 0,10 · media ≤ 0,35
+     data-luz-min en <html>: luminancia de las zonas más oscuras (percentil 10): alta ≥ 0,45 · media ≥ 0,18
+   En oscuro manda luz-max (texto claro: lo difícil es una zona clara detrás); en claro, luz-min. Sin medir, peor caso.
+   «Reducir transparencia» siempre gana. */
+:root[data-tema="oscuro"][data-luz-max="media"]:not([data-transparencia="reducida"]) {
+  --vidrio: rgba(22, 24, 28, 0.44); --vidrio-texto: rgba(20, 22, 26, 0.64); --vidrio-denso: rgba(18, 20, 24, 0.8);
+}
+:root[data-tema="oscuro"][data-luz-max="baja"]:not([data-transparencia="reducida"]) {
+  --vidrio: rgba(22, 24, 28, 0.32); --vidrio-texto: rgba(20, 22, 26, 0.42); --vidrio-denso: rgba(18, 20, 24, 0.62);
+}
+:root[data-tema="claro"][data-luz-min="media"]:not([data-transparencia="reducida"]) {
+  --vidrio: rgba(255, 255, 255, 0.4); --vidrio-texto: rgba(255, 255, 255, 0.62); --vidrio-denso: rgba(255, 255, 255, 0.8);
+}
+:root[data-tema="claro"][data-luz-min="alta"]:not([data-transparencia="reducida"]) {
+  --vidrio: rgba(255, 255, 255, 0.3); --vidrio-texto: rgba(255, 255, 255, 0.44); --vidrio-denso: rgba(255, 255, 255, 0.62);
+}
+
 /* ------------------------------------------------------------------ Accesibilidad: transparencia y movimiento */
 :root[data-transparencia="reducida"] {
   --vidrio: var(--c-sup-2);

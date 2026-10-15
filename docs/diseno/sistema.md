@@ -152,6 +152,24 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
   - Sin soporte de `linear()`, los muelles pasan a curvas cúbicas.
 - **Capas:** `--z-hud` < `--z-panel` < `--z-menu` < `--z-dialogo` < `--z-aviso` < `--z-carga`.
 
+## Vidrio adaptativo («liquid glass»)
+
+La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el cliente.
+
+- Las alfas de `--vidrio`, `--vidrio-texto` y `--vidrio-denso` están calculadas para el peor fondo de la foto: una pared blanca en oscuro y una zona negra en claro.
+- Si la página mide la foto que hay detrás, el vidrio se vuelve más transparente sin bajar nunca de AA. El visor lo hace con el fotograma y lo indica en `<html>`:
+  - `data-luz-max`: luminancia de las zonas más claras (percentil 90). `baja` si es ≤ 0,10; `media` si es ≤ 0,35. Manda en el tema oscuro.
+  - `data-luz-min`: luminancia de las zonas más oscuras (percentil 10). `alta` si es ≥ 0,45; `media` si es ≥ 0,18. Manda en el tema claro.
+  - Sin atributos, se aplica el peor caso. «Reducir transparencia» siempre gana.
+
+| Nivel | Oscuro: `--vidrio` / `--vidrio-texto` / `--vidrio-denso` | Claro: `--vidrio` / `--vidrio-texto` / `--vidrio-denso` |
+|---|---|---|
+| Peor caso (sin medir) | 0,56 / 0,78 / 0,9 | 0,5 / 0,78 / 0,9 |
+| Media | 0,44 / 0,64 / 0,8 | 0,4 / 0,62 / 0,8 |
+| Más transparente (`luz-max=baja` / `luz-min=alta`) | 0,32 / 0,42 / 0,62 | 0,3 / 0,44 / 0,62 |
+
+`npm run contraste` comprueba cada nivel sobre el fondo límite de su intervalo.
+
 ## Componentes
 
 | Clase | Variantes y modificadores | Estados | Accesibilidad |

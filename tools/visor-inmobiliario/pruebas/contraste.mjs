@@ -29,6 +29,15 @@ const PARES = [
     ["--c-texto", "--vidrio-denso", TEXTO, foto],
   ]),
 ];
+/** Vidrio adaptativo: cada nivel se prueba sobre su peor fondo (el límite del nivel). */
+const NIVELES = {
+  oscuro: [["luzMax", "media", "#a0a0a0"], ["luzMax", "baja", "#595959"]],
+  claro: [["luzMin", "media", "#767676"], ["luzMin", "alta", "#b3b3b3"]],
+};
+const paresVidrio = (foto) => [
+  ["--c-texto", "--vidrio-texto", TEXTO, foto], ["--c-texto-2-vidrio", "--vidrio-texto", TEXTO, foto], ["--c-texto-3-vidrio", "--vidrio-texto", TEXTO, foto],
+  ["--c-acento-texto", "--vidrio-texto", TEXTO, foto], ["--c-texto", "--vidrio", NO_TEXTO, foto], ["--c-texto", "--vidrio-denso", TEXTO, foto],
+];
 const MARCAS = { champán: null, rojo: "#e30613", azul: "#004b93", verde: "#00a19a", amarillo: "#ffd400", negro: "#1d1d1f", blanco: "#f4f4f4" };
 const PARES_MARCA = [["--c-acento-texto", "--c-fondo", TEXTO], ["--c-acento-texto", "--c-sup-1", TEXTO], ["--c-foco", "--c-fondo", NO_TEXTO]];
 
@@ -39,12 +48,15 @@ try {
   const p = await abrir(await contexto(navegador, { ancho: 800, alto: 600 }), `${base}tema-muestra.html`);
   await p.waitForFunction(() => window.cre8Tema);
   for (const tema of ["oscuro", "claro"]) {
-    for (const [marca, color] of Object.entries(MARCAS)) {
-      const pares = color ? PARES_MARCA : PARES;
-      const r = await p.evaluate(({ tema, color, pares }) => {
+    const casos = [...Object.entries(MARCAS).map(([marca, color]) => ({ marca, color, pares: color ? PARES_MARCA : PARES })),
+      ...NIVELES[tema].map(([clave, valor, foto]) => ({ marca: `vidrio ${clave}=${valor}`, nivel: [clave, valor], pares: paresVidrio(foto) }))];
+    for (const { marca, color, nivel, pares } of casos) {
+      const r = await p.evaluate(({ tema, color, nivel, pares }) => {
         cre8Tema.fijar("tema", tema);
         document.documentElement.style.removeProperty("--c-acento");
+        delete document.documentElement.dataset.luzMax; delete document.documentElement.dataset.luzMin;
         if (color) document.documentElement.style.setProperty("--c-acento", color);
+        if (nivel) document.documentElement.dataset[nivel[0]] = nivel[1];
         const lienzo = document.createElement("canvas"); lienzo.width = lienzo.height = 1;
         const g = lienzo.getContext("2d", { willReadFrequently: true });
         /** Color CSS (con alfa, color-mix…) compuesto sobre `sobre` → [r, g, b]. */
@@ -57,13 +69,13 @@ try {
           const frente = pintar(resolver(fg), `rgb(${fondo})`);
           return { fg, bg: sobre ? `${bg} sobre ${sobre}` : bg, min, r: Math.round(ratio(frente, fondo) * 100) / 100 };
         });
-      }, { tema, color, pares });
+      }, { tema, color, nivel, pares });
       const malos = r.filter((x) => x.r < x.min);
       fallos += malos.length;
-      if (!color) {
+      if (!color && !nivel) {
         console.log(`\n${tema.toUpperCase()} · champán`);
         for (const x of r) console.log(`${x.r >= x.min ? "✓" : "✗"} ${x.r.toFixed(2).padStart(5)}:1 ≥ ${x.min}  ${x.fg} sobre ${x.bg}`);
-      } else console.log(`${malos.length ? "✗" : "✓"} ${tema} · marca ${marca} (${color}): ${r.map((x) => `${x.fg.replace("--c-", "")}/${x.bg.replace("--c-", "")} ${x.r.toFixed(2)}`).join(" · ")}`);
+      } else console.log(`${malos.length ? "✗" : "✓"} ${tema} · ${nivel ? marca : `marca ${marca} (${color})`}: ${r.map((x) => `${x.fg.replace("--c-", "")}/${x.bg.replace("--c-", "").replace(/ sobre .*/, "")} ${x.r.toFixed(2)}`).join(" · ")}`);
     }
   }
 } finally {
