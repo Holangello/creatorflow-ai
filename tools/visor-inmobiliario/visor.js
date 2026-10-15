@@ -1493,13 +1493,14 @@ document.addEventListener("cre8:tema", () => {
 });
 
 // Vidrio adaptativo (tema.css, «Vidrio adaptativo»): el vidrio se vuelve más transparente cuando la foto lo permite.
-// Tras cada cambio de estancia, estilo o momento, y como mucho una vez por segundo si la vista se movió y ya está quieta,
-// se mide la luminancia relativa de la vista en 32×18 píxeles: percentil 90 → data-luz-max (manda en oscuro: lo difícil
+// En el recorrido 360, tras cada cambio de estancia, estilo o momento, y como mucho una vez por segundo si la vista se
+// movió y ya está quieta, se mide la luminancia relativa de la vista en 32×18 píxeles: percentil 90 → data-luz-max (manda en oscuro: lo difícil
 // es una zona clara detrás del vidrio); percentil 10 → data-luz-min (manda en claro). Histéresis de ±0,03 para que no
 // parpadee. Con «Reducir transparencia» no se mide.
 // La escena no se copia del lienzo (drawImage del WebGL espera a la GPU y lee el fotograma entero: 180-560 ms en esta
 // máquina): se vuelve a pintar igual en 32×18 y se lee sin esperar (PBO + fence, readRenderTargetPixelsAsync). La foto
-// de la portada, que es una imagen, sí se copia a 32×18.
+// de la portada, que es una imagen, sí se copia a 32×18. En el paseo libre y la maqueta (modelos 3D, no la foto) no se
+// mide: medir estrenaría allí otros programas (≈1 s de bloqueo con WebGL por software) y vale el peor caso.
 // Contingencia: si la lectura falla, se quitan los atributos y queda el peor caso, que siempre cumple AA.
 const LINEAL = Float32Array.from({ length: 256 }, (_, i) => { const c = i / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
 const luz = { g: null, rt: null, px: new Uint8Array(32 * 18 * 4), leyendo: false, max: null, min: null, medida: null, ms: 0, n: 0,
@@ -1544,10 +1545,9 @@ function medirImagen(fuente) {
   }
   luz.ms = Math.round((performance.now() - t0) * 100) / 100;
 }
-/** La escena (recorrido, paseo libre o maqueta): se pinta igual en 32×18 y se lee sin esperar a la GPU. */
+/** La vista del recorrido: se pinta igual en 32×18 y se lee sin esperar a la GPU. */
 function medirEscena() {
-  // Con splats (Spark) no se repinta en otro tamaño: queda el peor caso.
-  if (estado.modo === "libre" && escenaLibre.children.some((o) => o.userData.esSplat)) return quitarLuz();
+  if (estado.modo !== "tour") return quitarLuz();
   const t0 = performance.now(), previo = renderer.getRenderTarget(), ancho = U.resolucion.value.x, alto = U.resolucion.value.y;
   try {
     luz.rt ??= new THREE.WebGLRenderTarget(32, 18);
@@ -1572,27 +1572,30 @@ function medirEscena() {
     .catch(() => quitarLuz())
     .finally(() => { luz.leyendo = false; });
 }
-/** Con la portada delante, compila ya los programas de la escena para la pantalla y para la medición de la luz
-    (también los de objetos fuera del encuadre, como las flechas del suelo): así el primer fotograma tras «Empezar
-    visita» no se para a compilar (aquí, con WebGL por software, eran ~0,6 s de bloqueo). */
+/** Con la portada delante, pinta una vez la escena entera (sin descartar lo que queda fuera del encuadre, como las flechas
+    del suelo) en la pantalla y en el lienzo de la medición de la luz: los programas se compilan y se estrenan ya, y el
+    primer fotograma tras «Empezar visita» no se para a compilar (aquí, con WebGL por software, eran ~0,6 s de bloqueo). */
 function precompilar() {
+  const fuera = [];
+  escena360.traverse((o) => { if (o.isMesh && o.frustumCulled) { fuera.push(o); o.frustumCulled = false; } });
   try {
-    renderer.compile(escena360, camara);
     luz.rt ??= new THREE.WebGLRenderTarget(32, 18);
     renderer.setRenderTarget(luz.rt);
-    renderer.compile(escena360, camara);
+    renderer.render(escena360, camara);
+    renderer.setRenderTarget(null);
+    renderer.render(escena360, camara);
   } catch { /* se compilarán al pintar */ } finally {
     renderer.setRenderTarget(null);
+    for (const o of fuera) o.frustumCulled = true;
   }
 }
 /** Tras pintar: mide si hay un cambio pendiente o si la vista se movió y lleva quieta un momento. */
 function quizaMedirLuz() {
-  if (luz.leyendo || int.transicion || int.captura || transparenciaReducida()) return;
-  const cam = estado.modo === "maqueta" ? maqueta.camara : camara;
-  const m = cam.matrixWorld.elements, v = luz.vista, ahora = performance.now();
-  let quieta = Math.abs(cam.fov - v[16]) < 1e-3;
+  if (estado.modo !== "tour" || luz.leyendo || int.transicion || int.captura || transparenciaReducida()) return;
+  const m = camara.matrixWorld.elements, v = luz.vista, ahora = performance.now();
+  let quieta = Math.abs(camara.fov - v[16]) < 1e-3;
   for (let i = 0; i < 16; i++) { if (Math.abs(m[i] - v[i]) > 1e-4) quieta = false; v[i] = m[i]; }
-  v[16] = cam.fov;
+  v[16] = camara.fov;
   if (!quieta) { luz.movida = true; luz.quietaDesde = ahora; }
   if (luz.pendiente || (luz.movida && ahora - luz.quietaDesde > 250 && ahora - luz.ultima > 1000)) {
     luz.pendiente = luz.movida = false;
@@ -2089,6 +2092,7 @@ async function cambiarModo(modo) {
   if (guion.activo && modo !== "tour") guion.parar();
   const anterior = estado.modo;
   estado.modo = modo;
+  if (modo === "tour") luz.pendiente = true; else quitarLuz(); // la luz se mide en la foto 360
   maqueta?.activar(modo === "maqueta");
   if (anterior === "maqueta" && pisoDemo) aplicarAmbienteLibre();
   document.body.classList.toggle("modo-libre", modo === "libre");
@@ -2765,10 +2769,10 @@ function bucle() {
     cabeceoTeclado(dt);
     moverLibre(dt);
     camara.updateMatrixWorld();
-    if (pintar) { renderizar(); quizaMedirLuz(); }
+    if (pintar) renderizar();
   } else {
     maqueta.cuadro();
-    if (pintar) { renderizar(); quizaMedirLuz(); }
+    if (pintar) renderizar();
   }
   medicion?.cuadro();
   // Interfaz que se oculta tras 3,5 s sin interacción (vuelve al mover el ratón o tocar). Quedan el radar y la tarjeta.
