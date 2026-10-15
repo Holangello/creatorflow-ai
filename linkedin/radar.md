@@ -46,6 +46,9 @@ verificable. Una línea, por la regla de anotación del 14-10. **Y hoy el radar 
 16 está cubierto con inventario desde el 08-10 y no hay hueco de actualidad por delante hasta el
 miércoles 21, que ya quedó sin red.
 
+**Segundo barrido del 15-10, 13:00 · sin candidata.** Mismos cinco dominios, mismo rechazo. Nada que
+decidir: el viernes 16 está cubierto con inventario y el primer hueco de actualidad es el miércoles 21.
+
 **Barrido anterior:** 13-10-2026, 06:00. **Sin candidata verificable, y el motivo es material, no de criterio.**
 Este era el barrido que ancla la fila del miércoles 14, así que el resultado importa más que otros días.
 
