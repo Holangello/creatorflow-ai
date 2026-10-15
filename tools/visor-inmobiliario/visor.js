@@ -1572,6 +1572,19 @@ function medirEscena() {
     .catch(() => quitarLuz())
     .finally(() => { luz.leyendo = false; });
 }
+/** Con la portada delante, compila ya los programas de la escena para la pantalla y para la medición de la luz
+    (también los de objetos fuera del encuadre, como las flechas del suelo): así el primer fotograma tras «Empezar
+    visita» no se para a compilar (aquí, con WebGL por software, eran ~0,6 s de bloqueo). */
+function precompilar() {
+  try {
+    renderer.compile(escena360, camara);
+    luz.rt ??= new THREE.WebGLRenderTarget(32, 18);
+    renderer.setRenderTarget(luz.rt);
+    renderer.compile(escena360, camara);
+  } catch { /* se compilarán al pintar */ } finally {
+    renderer.setRenderTarget(null);
+  }
+}
 /** Tras pintar: mide si hay un cambio pendiente o si la vista se movió y lleva quieta un momento. */
 function quizaMedirLuz() {
   if (luz.leyendo || int.transicion || int.captura || transparenciaReducida()) return;
@@ -2240,7 +2253,7 @@ function rellenarPortada() {
 function portadaLista() {
   if (!int.portada || !portada) return;
   if (int.tour?.portada === false) { empezar({ automatica: true }); return; }
-  if (renderer && int.actual) { renderizar(); fondoPortada(lienzo); }
+  if (renderer && int.actual) { precompilar(); renderizar(); fondoPortada(lienzo); }
   progresoPortada(1);
   rellenarPortada();
   portada.classList.add("lista");
