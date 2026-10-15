@@ -201,7 +201,7 @@ La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el
 
 - **Sonido:** ondas que laten; tachado cuando está silenciado.
 - **Pantalla completa:** las esquinas se separan al pasar el ratón.
-- **Apariencia (claro u oscuro de la interfaz):** un círculo mitad lleno. **Nunca sol ni luna**, que se confundirían con la luz de la vivienda (día, atardecer, noche).
+- **Apariencia (claro u oscuro de la interfaz):** un círculo que se llena ¼ en Claro, ½ en Automático y ¾ en Oscuro, con un muelle. **Nunca sol ni luna**, que se confundirían con la luz de la vivienda (día, atardecer, noche).
 - **Contacto:** puntos de «escribiendo».
 - **Radar:** barrido giratorio.
 - **Confirmaciones:** ✓ que se dibuja con `--dibujar`.

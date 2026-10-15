@@ -54,6 +54,14 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | No carga el generador de QR | El QR se oculta con un aviso; el enlace sigue funcionando |
 | El núcleo no ofrece `visor.mas` o `visor.ajustes` | Los paneles ponen su propio «Más» (accesible con teclado) y guardan los ajustes en local |
 | No carga `tema.css` | Los paneles usan sus valores de reserva y se leen bien |
+| No carga `tema.js` | Ajustes no ofrece Apariencia, Tamaño ni Transparencia; «Reducir movimiento» va al núcleo (`visor.ajustes`) y los paneles dejan de animarse |
+| La apariencia cambia en otra pestaña, por `?tema=` / `?talla=` o por el sistema | Ajustes lo refleja en vivo sin repintarse; la hoja y los diálogos se recolocan con la talla nueva |
+| Con la talla L la fila de la tarjeta no cabe | Los botones pasan juntos a una segunda fila; el precio y los datos nunca se cortan |
+| Un aviso coincide con un diálogo abierto | Sube encima de la hoja (móvil) o se coloca en la escena libre, a la izquierda del diálogo |
+| La tira de estancias cambia de tamaño | La barra de captura se vuelve a colocar encima |
+| No hay `:has()` | El QR sale sobre el relleno del panel (el SVG ya trae su fondo blanco) |
+| Una animación de icono no llega a correr | El reposo de cada icono es el dibujo entero (`tema.css` y paneles) |
+| Movimiento reducido | Nada se anima ni espera su turno |
 | Enlaces o HTML maliciosos en un tour | Solo se admiten `http(s)`, `mailto` y `tel`; los textos se muestran como texto |
 | Dos navegaciones a la vez | Fichas de petición: gana la última y nunca queda un estado mezclado |
 
