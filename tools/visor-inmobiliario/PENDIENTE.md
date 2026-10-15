@@ -62,7 +62,7 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - GPano: con `PoseHeadingDegrees`, la vista inicial se escribe como rumbo de brújula, igual que Google y Photo Sphere Viewer.
     - El evento `sonido` lleva `{activo, volumen}` y también se emite al cambiar el volumen.
   - Pendiente para la fase 4: el lienzo del plano y el editor de máscara del Estudio aún dibujan con colores fijos.
-- [ ] **Fase 3 · Esencialismo y organización** (ver «Encargos de la fase 3»).
+- [x] **Fase 3 · Esencialismo y organización** (ver «Encargos de la fase 3»). Cerrada: `npm run prueba:todo` en verde (humo + 341 comprobaciones e2e, 0 pendientes) y `npm run medir` dentro de objetivo (teléfono: 10,3 % tapado en reposo; contacto en 4 toques).
   - Auditorías A (esencialista) y B (organización) lanzadas en paralelo. Entregan `docs/auditorias/fase3-esencialista.md` y `docs/auditorias/fase3-organizacion.md`.
   - [x] Pruebas E2E en el repositorio: 321 comprobaciones, `npm run prueba:todo` (commit 1fed69a).
     - Los agentes de la fase 3 actualizan los SEL y lo marcado «pendiente de la interfaz nueva».
@@ -84,7 +84,7 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - Nunca se comparten enlaces `file://`.
     - `url_publica` documentada.
   - [x] Informe B recibido (`docs/auditorias/fase3-organizacion.md`). Plan conciliado, que **manda**: [docs/auditorias/fase3-plan.md](../../docs/auditorias/fase3-plan.md). Incluye las decisiones, la ronda 2 del cliente y el contrato núcleo↔paneles.
-  - [ ] **Aplicación en curso**: tres agentes en paralelo con los paquetes §4.1 (núcleo), §4.2 (paneles) y §4.3 (Estudio) del plan. La Guía (§4.4) la hace el orquestador.
+  - [x] **Aplicación**: tres agentes en paralelo con los paquetes §4.1 (núcleo), §4.2 (paneles) y §4.3 (Estudio) del plan. La Guía (§4.4) la hace el orquestador.
     - Si un agente muere, relánzalo con su paquete y dile qué está hecho (mira `git diff`).
     - [x] Núcleo §4.1 terminado e integrado (commit 504a65d): modo juego D+E, barra de vista y menú «Más», «Estancias y plano», radar arriba a la izquierda, portada, ayuda contextual, teclas R/M, música solo silencia y visita guiada con un solo control.
       - Integrado: las 50 claves i18n en `i18n.js`; tema.* y fuentes en el ZIP; tema.js en línea en el HTML autónomo; fuentes incrustadas una sola vez (CSS de 640 a 357 KB).

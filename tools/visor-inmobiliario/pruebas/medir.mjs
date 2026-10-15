@@ -59,6 +59,7 @@ try {
     await p.waitForTimeout(800);
     const despierta = await p.evaluate(MEDIR_INTERFAZ);
     await p.waitForFunction(() => document.body.classList.contains("ui-inactiva"), null, { timeout: 15000 }).catch(() => {});
+    await p.waitForTimeout(1000); // que terminen los fundidos de la interfaz (transiciones de opacidad)
     const reposo = await p.evaluate(MEDIR_INTERFAZ);
     resultado[nombre] = {
       "listo (s)": +(listo / 1000).toFixed(1),
