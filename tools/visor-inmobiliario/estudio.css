@@ -482,13 +482,14 @@ body.grabando #iframe-visor { position: relative; inset: auto; flex: none; trans
 .rejilla-auto { margin-top: var(--e-1); }
 .letras-ce { display: flex; gap: 0.1875rem; }
 /* Colores oficiales de la etiqueta energética (datos, --ce: el de cada letra). Sin elegir, la letra a contraste pleno sobre su
-   color atenuado (sin opacidad, que la hacía ilegible); la elegida, sobre el color oficial: texto oscuro y blanco en la G. */
+   color atenuado (sin opacidad, que la hacía ilegible); la elegida, sobre el color oficial con texto oscuro, salvo la G: texto
+   blanco sobre su rojo un 10 % más oscuro (con el oficial no llega a 4,5:1 ni en blanco ni en negro). */
 .letras-ce button { width: 1.875rem; height: 1.875rem; padding: 0; border: 1px solid transparent; border-radius: var(--r-1);
   background: color-mix(in srgb, var(--ce) 40%, var(--c-sup-2)); color: var(--c-texto);
   font: var(--peso-fuerte) var(--t-ui) / 1 var(--fuente); transition: border-color var(--d-1) var(--suave), transform var(--d-2) var(--muelle); }
 .letras-ce button:hover { border-color: var(--ce); }
 .letras-ce button[aria-pressed="true"] { background: var(--ce); color: #1d1d1f; transform: scale(1.08); outline: 1.5px solid var(--c-texto); outline-offset: 1.5px; }
-.letras-ce button[aria-pressed="true"][data-l="G"] { color: #fff; }
+.letras-ce button[aria-pressed="true"][data-l="G"] { background: color-mix(in srgb, var(--ce) 90%, #000); color: #fff; }
 .plegable-datos { margin-top: var(--e-3); }
 .chips { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-1); min-height: var(--alto-control); padding: var(--e-1);
   border: 1px solid var(--c-borde-2); border-radius: var(--r-2); background: var(--c-campo); }

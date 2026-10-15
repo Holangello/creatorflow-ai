@@ -38,7 +38,8 @@ python3 -m http.server 8765
    El proyecto se guarda en el navegador de ese ordenador. Para llevarlo a otro, usa Proyecto ▾ → Copia de seguridad.
 3. **Publicar**, por destino:
    - **Tu web.**
-     - Descarga el ZIP y súbelo a `/tours/<referencia>/` de tu hosting.
+     - Descarga el ZIP y súbelo a la dirección final que indica el Estudio (por defecto `https://tu-web/tours/<referencia>/`;
+       se puede cambiar si lo alojas en otro sitio). El enlace, el QR y el dossier la llevan dentro.
      - Copia el enlace o el código para incrustarlo (WordPress, Wix…).
      - Usa el código QR para carteles.
    - **Portales y redes.**

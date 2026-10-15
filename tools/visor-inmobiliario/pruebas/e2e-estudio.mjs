@@ -1053,13 +1053,16 @@ try {
     inf.ok(izq.nombre === "Plantas" && izq.roles === "tab,tab" && izq.paradas === 1 && izq.planta === "p0" && izq.foco === "Planta principal" && fin.planta !== "p0" && fin.foco === "Planta primera",
       "A15 · las plantas son pestañas (tablist «Plantas», una parada en el tabulador) y las flechas cambian de planta con el foco", { izq, fin });
 
-    // M6 · Dirección final del recorrido: por defecto la web + /tours/<referencia>/; si se escribe otra, manda en todo
+    // M6 · Dirección final del recorrido: por defecto la web + /tours/<referencia>/; si se escribe otra, manda en todo.
+    // Publicar se repinta en la tarea siguiente al cambio (con el foco ya en el control siguiente): se espera a verlo en pantalla.
     await ir(p, "publicar");
+    const porDefecto = `https://www.inmo-prueba.es/tours/${await p.evaluate(() => window.__estudio.tour._estudio.ref.toLowerCase())}/`;
+    const enPantalla = (fn, arg) => esperar(p, fn, arg, 10000).then(() => true, () => false);
     await p.fill(SEL.webPublicar, "https://www.inmo-prueba.es");
     await p.keyboard.press("Tab");
-    await esperar(p, () => window.__estudio.tour.marca?.web === "https://www.inmo-prueba.es");
-    const porDefecto = `https://www.inmo-prueba.es/tours/${await p.evaluate(() => window.__estudio.tour._estudio.ref.toLowerCase())}/`;
-    inf.ok(await p.inputValue(SEL.urlFinal) === porDefecto, "M6 · la dirección final es, por defecto, la web + /tours/<referencia>/", await p.inputValue(SEL.urlFinal));
+    const conWeb = await enPantalla((u) => document.querySelector(__SEL.urlFinal)?.value === u && document.activeElement?.id === "url-final", porDefecto);
+    inf.ok(conWeb, "M6 · con la web, la dirección final es la web + /tours/<referencia>/ (y el Tab llega a ella: el repintado no pierde el foco)",
+      await p.evaluate(() => [document.querySelector(__SEL.urlFinal)?.value, document.activeElement?.id]));
     await p.fill(SEL.urlFinal, "http://recorridos.inmo-prueba.es/piso-centro");
     await p.keyboard.press("Tab");
     const errFinal = await p.textContent(SEL.errorUrlFinal);
@@ -1068,7 +1071,8 @@ try {
     await p.fill(SEL.urlFinal, final);
     await p.keyboard.press("Tab");
     await esperar(p, (u) => window.__estudio.tour._estudio.urlFinal === u, final);
-    inf.ok(await p.evaluate(() => document.activeElement?.textContent) === "Descargar mi recorrido (ZIP)", "M6 · al salir del campo con Tab, Publicar se repinta sin perder el foco (sigue en «Descargar»)");
+    inf.ok(await enPantalla((u) => document.querySelector(__SEL.pasoSubir)?.textContent === u && document.activeElement?.textContent === "Descargar mi recorrido (ZIP)", final),
+      "M6 · se guarda en el proyecto y, al salir con Tab, el foco sigue en «Descargar»");
     const pub = await p.evaluate(() => ({ subir: document.querySelector(__SEL.pasoSubir)?.textContent, qr: document.querySelector(__SEL.qrPublicar)?.getAttribute("aria-label"),
       codigo: document.querySelector(__SEL.codigoIncrustar)?.textContent ?? "" }));
     inf.ok(pub.subir === final && pub.qr?.endsWith(final) && pub.codigo.includes(`src="${final}"`) && !pub.codigo.includes("embed") && pub.codigo.includes("clipboard-write; web-share"),
@@ -1080,8 +1084,8 @@ try {
       "M6 · el ZIP publicado lleva la dirección final en url_publica y en su LEEME.txt", tz.url_publica);
     await p.fill(SEL.urlFinal, "");
     await p.keyboard.press("Tab");
-    await esperar(p, () => !("urlFinal" in window.__estudio.tour._estudio));
-    inf.ok(await p.inputValue(SEL.urlFinal) === porDefecto, "M6 · vacía, vuelve a la de por defecto");
+    inf.ok(await enPantalla((u) => !("urlFinal" in window.__estudio.tour._estudio) && document.querySelector(__SEL.urlFinal)?.value === u, porDefecto),
+      "M6 · vacía, vuelve a la de por defecto");
 
     // M12 · El título automático usa la zona (la que enseña el visor, sin número) en vez de repetir habitaciones y m²
     const titulos = await p.evaluate(async () => {

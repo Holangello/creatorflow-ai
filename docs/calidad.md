@@ -99,7 +99,14 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | La lista de la Guía ya se usó o se descartó | No se vuelve a ofrecer |
 | La vista previa no responde en 12 s | Se ofrece «Recargar la vista previa» |
 | Llega una recarga mientras la vista previa cambia de estancia | Se espera a que el visor confirme la estancia |
-| La inmobiliaria no tiene web | No se escribe `url_publica` ni hay QR de ejemplo; «Descargar QR» queda desactivado |
+| La inmobiliaria no tiene web ni dirección final | No se escribe `url_publica` ni hay QR de ejemplo; «Descargar QR» queda desactivado |
+| La dirección final no es https o no termina en / | Se rechaza con un aviso y no se guarda; el enlace y el QR siguen con la anterior |
+| Se vacía la dirección final | Vuelve la de por defecto (web + /tours/<referencia>/) |
+| Se importa un tour.json ya publicado | Conserva su `url_publica`: los QR impresos siguen valiendo |
+| `exportar.js` no ha cargado al pintar Publicar | El código para incrustar sale de una copia local con los mismos permisos |
+| Cajón de la vista previa cerrado (pantalla estrecha) | Oculto para el tabulador y el lector; al grabar vídeo se muestra a pantalla completa |
+| Letra al doble o zoom del 200 % | La barra superior se recoge como en una pantalla estrecha; el aviso del móvil solo sale en táctil |
+| No hay `color-mix()` (letras del certificado) | Las letras sin elegir quedan sin tinte, con el texto a contraste pleno |
 | No carga `exportar.js` | La copia de seguridad sigue disponible |
 | No carga `tema.js` | El Estudio queda en el oscuro por defecto de `tema.css`; «Apariencia» lo avisa en vez de abrir el menú |
 | Un color del tema no se puede leer en un lienzo | Gris neutro de reserva; al cambiar de tema se vuelve a leer y se repinta |
