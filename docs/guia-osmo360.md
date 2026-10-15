@@ -35,7 +35,9 @@ consultar.
      - HDR con ventanas brillantes.
    - Balance de blancos fijo (4000–4500 K).
    - Compensación de exposición de 0 a +0,3 EV.
-   - GPS desactivado.
+   - Fecha, hora y ubicación de la cámara bien puestas: conectada a DJI Mimo con la ubicación del móvil activada. La barra del
+     sol del recorrido usa la fecha, la hora y el lugar de las fotos (el GPS, redondeado a ~1 km; cre8eight lo borra de las
+     fotos al importarlas).
 4. **Planificar los puntos:**
    - Centro de cada estancia, más un punto en cada puerta o paso.
    - Entre 2 y 4 m entre puntos.
