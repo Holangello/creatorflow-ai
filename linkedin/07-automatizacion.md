@@ -80,3 +80,48 @@ oficial: LinkedIn restringe cuentas por ello.
 - **Mensual:** el strategist rehace el calendario del mes siguiente con los aprendizajes vigentes.
 - **Cuando cambie el algoritmo:** Angello lo comparte, Maverick actualiza la sección 5 de
   `01-estrategia.md` con fecha.
+
+---
+
+## El último metro, resuelto en lo que se podía resolver · 15-10-2026
+
+**El cuello de este sistema no es producir: es que publicar dependa de hora y media diaria de Angello.**
+Queda escrito el 14-10 en `decisiones.md`. La única palanca que no depende de su disciplina diaria es una
+herramienta de programación, y aquí está lo que se ha preparado para que darla de alta cueste minutos y no
+una tarde.
+
+**Lo que se ha construido:** `tools/exportar_programador.py`. Lee `linkedin/banco-posts.json`, se queda con
+las piezas publicables y emite dos ficheros en `salida/`:
+
+- `programador-posts.csv` — una fila por pieza: fecha, hora, cuerpo, pilar, versión elegida, caracteres.
+- `programador-comentarios.md` — el primer comentario de cada pieza, en el mismo orden.
+
+**Son dos ficheros y no uno porque ninguna herramienta hace las dos cosas.** Comprobado el 15-10:
+
+| Herramienta | Importación CSV | Primer comentario en LinkedIn | Veredicto |
+| --- | --- | --- | --- |
+| **Buffer** | Sí, por canal, y documentada en su centro de ayuda. Límite de 10 filas por canal en el plan gratuito y 100 en los de pago; si el fichero pasa del límite, carga hasta el tope y **omite el resto sin avisar** | Sí, en planes de pago, **pero NO por CSV**: se añade en el compositor, pieza a pieza | **La opción con la que se ha diseñado el export.** La importación es fiable y el primer comentario es una sentada de media hora |
+| **Publer** | Contradictoria entre fuentes: una dice que no hay CSV, otra documenta hasta 500 posts por importación | Sí, incluidos posts de documento (carruseles) | Si su CSV admite el primer comentario, es mejor que Buffer. **Hay que comprobarlo en su documentación antes de pagar** |
+| **Taplio** | Sin fuente | Sin fuente | No se puede recomendar ni descartar |
+
+**Limitación declarada, y es importante:** ninguna de las tres webs se ha podido abrir desde esta sesión
+—la política de red las rechaza, como a los seis dominios del radar—, así que **esta tabla sale de prensa
+secundaria y no de la documentación de los fabricantes.** Por eso el CSV se emite con nombres de columna
+genéricos: al importar hay que mapearlos a los de la herramienta, es un minuto, y es preferible a inventar
+un esquema que luego falle a mitad de carga.
+
+**Dos cosas que el script hace y conviene no deshacer:**
+
+1. **Excluye las piezas cuya franja ya pasó**, con el motivo escrito. Programar en diciembre una pieza que
+   quizá salió en octubre la duplica. Si alguna no se publicó, se recupera con `--incluir-pendientes`.
+2. **Avisa de lo que no se puede cargar todavía:** una pieza que caduca antes de su turno, una que pasa el
+   techo de caracteres, y una que espera una palabra de Angello.
+
+**Y el aviso que evita el error más caro:** el CSV **sustituye** las filas del calendario a partir de su
+fecha de arranque, no las suma. A dos piezas por semana las fechas no coinciden con el calendario de cinco
+franjas. Cargar el CSV y seguir además el calendario publica dos veces la misma pieza.
+
+**Lo que sigue necesitando a Angello, y es lo único:** darse de alta, conectar su perfil y pagar. Ningún
+agente de este sistema puede hacerlo, y `07-automatizacion.md` ya explicaba arriba por qué la API de
+LinkedIn no es una vía: solo permite publicar en Páginas de empresa con app aprobada, nunca en perfil
+personal.
