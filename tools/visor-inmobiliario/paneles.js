@@ -65,16 +65,29 @@ const P = {
 };
 const RELLENO = new Set(["play", "mas"]);
 
+// Iconos animados (fase 4): pathLength="1" deja que el trazo se dibuje al aparecer (clase pn-dibujar, en paneles.css)
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs = {}) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  return e;
+}
 function ic(nombre, clase = "pn-ic") {
-  const ns = "http://www.w3.org/2000/svg";
-  const s = document.createElementNS(ns, "svg");
-  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); s.setAttribute("focusable", "false");
-  s.setAttribute("class", clase);
-  const p = document.createElementNS(ns, "path");
-  p.setAttribute("d", P[nombre] ?? P.info);
+  const s = svgEl("svg", { viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false", class: clase });
+  const p = svgEl("path", { d: P[nombre] ?? P.info });
   if (RELLENO.has(nombre)) { p.setAttribute("fill", "currentColor"); p.setAttribute("stroke", "none"); }
+  else p.setAttribute("pathLength", "1");
   s.append(p);
   return s;
+}
+// «Apariencia»: un círculo que se llena según lo elegido (vacío: claro · mitad: automático · lleno: oscuro). Nunca un
+// sol ni una luna, que son la luz de la vivienda (fase3-organizacion.md §7). El relleno se desliza con muelle (CSS).
+function icApariencia(valor) {
+  const id = nuevoId("ap-clip");
+  return svgEl("svg", { viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false", class: "pn-ic pn-ic-apariencia", "data-v": valor }).appendChild(svgEl("defs")).parentNode
+    .appendChild(svgEl("circle", { cx: 12, cy: 12, r: 8.25, pathLength: 1 })).parentNode
+    .appendChild(svgEl("g", { "clip-path": `url(#${id})` })).parentNode
+    .appendChild(svgEl("g")).parentNode;
 }
 // Iconos del menú «Más»: el núcleo los conoce por su nombre; el menú propio (sin visor.mas) usa estos
 const ICONO_MAS = { compartir: "compartir", idioma: "globo", ajustes: "ajustes", guiada: "play", medir: "regla", pantalla: "pantalla", giroscopio: "movil" };
