@@ -67,7 +67,8 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Teclado AZERTY | W A S D y Q E van por posición física; R, M, H y V por la letra. Los textos muestran las letras reales en Chromium; en Firefox y Safari dicen W A S D |
 | El vidrio adaptativo no puede medir la foto (lectura fallida, contexto gráfico perdido, foto sin CORS, sin WebGL) | Se quitan `--vidrio-a` y `data-vidrio-aspecto` de cada pieza: queda el vidrio del peor caso, que siempre cumple AA |
 | Se arrastra la hoja del teléfono y su alto cambia a cada paso | El ResizeObserver de los paneles no la recoloca hasta soltarla: antes deshacía el arrastre (fallaba según el ritmo de los eventos) |
-| Una foto muy cálida o muy saturada detrás del vidrio | El vidrio no toma su color: saturación del 80 %, tinte neutro y una alfa mínima por tema (`--vidrio-a-suelo*`) |
+| Una foto muy cálida o muy saturada detrás del vidrio | El vidrio no la exagera: saturación natural, contraste reducido por el esmerilado y tinte neutro |
+| Un navegador esmerilara en otro espacio de color (no sRGB) | `npm run contraste` mide en Chromium el gris que deja el `backdrop-filter` y lo compara con el cálculo (±2): si cambiara, la prueba falla antes de publicar |
 | «Reducir transparencia», paseo libre o maqueta | No se mide la luz (vidrio opaco o del peor caso) |
 | Un cambio de escena no avisa al pintado bajo demanda (`tocarEscena()`) | Se ve al mover la vista. La grabación, las transiciones, la visita guiada, la medición y el comparador fuerzan el pintado |
 | Falla la precompilación de shaders tras la portada | Se compilan al pintar, como antes (un tirón al empezar) |

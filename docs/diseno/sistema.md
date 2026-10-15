@@ -103,11 +103,13 @@ La talla multiplica la base: **S** 0,875, **M** 1, **L** 1,18. En pantallas tác
 | Token | Oscuro | Claro | Uso |
 |---|---|---|---|
 | `--vidrio-tinte` | `20 22 26` (grafito, un punto frío) | `255 255 255` | color del cristal (rgb sin alfa) |
-| `--vidrio-a-icono` · `--vidrio-a-texto` · `--vidrio-a-denso` | `.56` · `.78` · `.9` | `.5` · `.78` · `.9` | alfas del peor fondo: las usa la pieza que no se ha medido |
-| `--vidrio-a-suelo` · `--vidrio-a-suelo-icono` · `--vidrio-a-suelo-denso` | `.4` · `.34` · `.6` | `.46` · `.4` · `.62` | alfa mínima de una pieza medida: por debajo, el vidrio tomaría el color de la foto |
+| `--vidrio-a-icono` · `--vidrio-a-texto` · `--vidrio-a-denso` | `.46` · `.56` · `.6` | `.45` · `.6` · `.62` | alfas del peor fondo (blanco o negro, ya esmerilado): las usa la pieza que no se ha medido |
+| `--vidrio-a-suelo` · `--vidrio-a-suelo-icono` · `--vidrio-a-suelo-denso` | `.28` · `.22` · `.34` | `.3` · `.24` · `.36` | alfa mínima de una pieza medida: por debajo, el vidrio dejaría de leerse como vidrio |
 | `--vidrio` · `--vidrio-texto` · `--vidrio-denso` | — | — | el tinte con la alfa de la pieza (`--vidrio-a`, la medida) o la del peor caso: controles solo con icono, paneles con texto, menús y diálogos |
 | `--vidrio-ambiente` | `rgba(20,22,26,.4)` | `rgba(255,255,255,.42)` | paneles sobre el ambiente conocido (Estudio, Guía): el texto sigue ≥ 4,5:1 |
-| `--vidrio-desenfoque` · `--vidrio-saturacion` · `--vidrio-aclarado` | `24px` · `80%` · `.86` | — · — · `1.1` | material (`--vidrio-filtro`): desenfoque medio, sin el color de la foto, y su brillo siempre a favor del contraste |
+| `--vidrio-desenfoque` · `--vidrio-saturacion` · `--vidrio-contraste` | `24px` · `100%` · `.62` | — | esmerilado (`--vidrio-filtro`): desenfoca y baja el contraste de lo que hay detrás, como un cristal esmerilado de verdad |
+| `--vidrio-aclarado` | `.8` (`--vidrio-aclarado-oscuro`) | `1.16` (`--vidrio-aclarado-claro`) | brillo de lo de detrás, siempre a favor del texto |
+| `--c-acento-texto-vidrio` | acento con luminosidad OKLCH ≥ 0,9 | ≤ 0,34 | enlaces sobre el vidrio: dejan el vidrio transparente (sin color relativo, el color del texto) |
 | `--vidrio-reflejo-1/2` · `--vidrio-brillo` · `--vidrio-luz` | — | — | canto especular a dos lados (`--vidrio-canto`), volumen del cristal (`--vidrio-volumen`) y luz del puntero |
 | `--c-sobre-texto` | `#121418` | `#ffffff` | icono o texto sobre un relleno del color del texto (estado activo) |
 
@@ -195,10 +197,14 @@ La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el
 que fuera «más realista, verdadero glass UI, sin color, como el propio iOS». De ahí salen las reglas del material:
 
 - **Sin color.**
-  - Saturación del 80 % (iOS la sube; aquí una foto cálida volvía el vidrio marrón).
+  - Saturación natural, del 100 %. iOS la sube; aquí, al 190 %, una foto cálida volvía el vidrio marrón.
   - Tinte neutro: grafito un punto frío en oscuro y blanco en claro.
-  - Alfa mínima (`--vidrio-a-suelo*`) para que el cristal domine sobre el color de la foto.
   - Ningún relleno de acento sobre la foto, salvo la acción principal.
+- **Esmerilado de verdad** (tras «las ventanas siguen muy blancas»).
+  - Como un cristal esmerilado, el material desenfoca lo de detrás y además le baja el contraste (`contrast(.62)`). Luego lo aclara (×1,16, vidrio claro) u oscurece (×0,8, vidrio oscuro).
+  - Detrás de un vidrio claro, lo más negro queda en gris medio. Así el tinte puede ser muy transparente (paneles y diálogos al 36–62 % en vez del 90 %) y se ve la vivienda a través, con el texto en AA.
+  - Los textos secundario y terciario del vidrio están más cerca del principal, y los enlaces llevan su propio acento (`--c-acento-texto-vidrio`): ninguno obliga a hacer el vidrio más opaco.
+  - `contrast()` y `brightness()` se aplican en sRGB (especificación de Filter Effects). `npm run contraste` comprueba que Chromium pinta lo mismo que el cálculo.
 - **Realista.**
   - Desenfoque medio (24 px), que deja ver formas detrás.
   - Canto especular a dos lados (la luz entra arriba a la izquierda y se refleja abajo a la derecha).
@@ -207,14 +213,14 @@ que fuera «más realista, verdadero glass UI, sin color, como el propio iOS». 
 - **Por pieza.**
   - El visor mide la vista en 32×18 píxeles: tras cada cambio, cada 0,7 s mientras se mueve y al pararse.
   - Para cada pieza (HUD, rótulos, tarjeta, diálogos) toma los percentiles 10 y 90 de la luminancia que tiene detrás.
-  - `cre8Tema.vidrio` (tema.js) calcula la alfa mínima para que todo lo que se lee en ella cumpla AA, con un 10 % de holgura, entre su suelo y el peor caso. La guarda en `--vidrio-a`.
+  - `cre8Tema.vidrio` (tema.js) calcula la alfa mínima para que todo lo que se lee en ella cumpla AA, con un 10 % de holgura, entre su suelo y el peor caso. Calcula con el fondo ya esmerilado (`esmerilar`) y guarda la alfa en `--vidrio-a`.
   - Oscurecer es inmediato; aclarar, despacio y solo si compensa.
 - **Aspecto oscuro en el tema claro (como iOS 26).**
   - Una pieza pequeña sobre una zona oscura de la foto pasa a vidrio oscuro con texto claro (`data-vidrio-aspecto="oscuro"`, con histéresis) si así es claramente más transparente.
   - Menús, diálogos y la tarjeta grande del escritorio siguen el tema.
 - **Brillo de lo de detrás (`--vidrio-aclarado`).**
-  - En claro, ×1,1: más luz bajo el texto oscuro. En oscuro y en el aspecto oscuro, ×0,86.
-  - Siempre va a favor del contraste, así que la alfa calculada sin él sigue valiendo.
+  - En claro, ×1,16: más luz bajo el texto oscuro. En oscuro y en el aspecto oscuro, ×0,8.
+  - Entra en el cálculo, junto con el contraste.
 - **Sin medida** (otra página, paseo libre, maqueta, sin WebGL, un fallo): el peor caso de `--vidrio-a-*`, que siempre cumple.
 - **«Reducir transparencia»:** superficies opacas, sin `backdrop-filter`.
 

@@ -1696,22 +1696,28 @@ function aplicarAlfas() {
     const tinte = V.aRgb(`rgb(${cs.getPropertyValue("--vidrio-tinte").trim() || "20 22 26"})`);
     if (!tinte) continue;
     const techo = { texto: num("--vidrio-a-texto", 0.78), denso: num("--vidrio-a-denso", 0.9) };
-    const suelos = { texto: num("--vidrio-a-suelo", 0.4), icono: num("--vidrio-a-suelo-icono", 0.34), denso: num("--vidrio-a-suelo-denso", 0.6) };
+    const suelos = { texto: num("--vidrio-a-suelo", 0.28), icono: num("--vidrio-a-suelo-icono", 0.22), denso: num("--vidrio-a-suelo-denso", 0.34) };
+    // el esmerilado (backdrop-filter): con él, lo de detrás pierde contraste y el tinte puede ser más transparente
+    const filtro = { contraste: num("--vidrio-contraste", 1), aclarado: num("--vidrio-aclarado", 1) };
     const lista = V.exigencias(z.el);
     // colores a mitad de una transición (acaba de cambiar el aspecto o el tema): se calcula al terminar
     if (!lista) { clearTimeout(luz.reintento); luz.reintento = setTimeout(aplicarAlfas, 260); continue; }
     const conTexto = lista.some((x) => x.minimo > 3);
     // techo: el peor caso de tema.css (con iconos de acento, como un botón pulsado, el de texto: el de icono no basta)
     const [suelo, tope] = denso ? [suelos.denso, techo.denso] : [conTexto ? suelos.texto : suelos.icono, techo.texto];
-    const alfa = V.alfa(lista, tinte, z.p10, z.p90, suelo, tope);
+    const alfa = V.alfa(lista, tinte, z.p10, z.p90, suelo, tope, filtro);
     // Como iOS 26, en claro una pieza pequeña pasa a vidrio oscuro (texto claro) si así puede ser bastante más transparente:
     // el otro aspecto se estima con sus colores más exigentes (principal y secundario del vidrio). Menús, diálogos y la
     // tarjeta grande del escritorio siguen el tema.
     if (claro && !denso && !z.el.matches(".pn-disp-lateral .pn-tarjeta")) {
       const oscura = z.el.dataset.vidrioAspecto === "oscuro", secundario = lista.some((x) => V.razon(x.color, oscura ? [245, 245, 247] : [29, 29, 31]) > 1.06);
-      const otro = oscura ? { tinte: [255, 255, 255], c: [[29, 29, 31], [77, 77, 77]] } : { tinte: [20, 22, 26], c: [[245, 245, 247], [195, 198, 204]] };
+      // los colores más exigentes de cada aspecto: principal y secundario del vidrio (tema.css, --c-texto-2-vidrio)
+      const otro = oscura ? { tinte: [255, 255, 255], c: [[29, 29, 31], [47, 47, 52]], aclarado: num("--vidrio-aclarado-claro", 1.16) }
+        : { tinte: [20, 22, 26], c: [[245, 245, 247], [224, 226, 230]], aclarado: num("--vidrio-aclarado-oscuro", 0.8) };
       const sintetica = (conTexto ? [4.5] : [3]).flatMap((m) => (secundario ? otro.c : otro.c.slice(0, 1)).map((c) => ({ color: [...c, 1], minimo: m, capas: [] })));
-      const alfaOtro = V.alfa(sintetica, otro.tinte, z.p10, z.p90, suelo, oscura ? techo.texto : 0.78);
+      // techo del otro aspecto: el del vidrio claro, de la raíz (tema claro); el del oscuro, el de su regla en tema.css
+      const techoOtro = oscura ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--vidrio-a-texto")) || 0.6 : 0.56;
+      const alfaOtro = V.alfa(sintetica, otro.tinte, z.p10, z.p90, suelo, techoOtro, { contraste: filtro.contraste, aclarado: otro.aclarado });
       // cambia si el otro aspecto es claramente más transparente; si empatan, manda el fondo (oscuro detrás → vidrio
       // oscuro), para que las piezas vecinas sobre la misma zona no salgan de dos aspectos
       const cambia = alfaOtro + 0.06 < alfa || (oscura ? z.p90 > 0.24 && alfaOtro <= alfa + 0.02 : z.p90 < 0.16 && alfaOtro <= alfa + 0.001);

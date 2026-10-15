@@ -206,10 +206,17 @@
     if (analisis) analisis.set(pieza, { firma: firma, lista: lista });
     return lista;
   }
+  /** Lo que el cristal esmerilado hace con lo que tiene detrás (backdrop-filter de tema.css): contrast() y brightness(),
+      en sRGB, como los aplican los navegadores (pruebas/contraste.mjs lo comprueba). */
+  function esmerilar(c, filtro) {
+    var k = filtro && filtro.contraste > 0 ? filtro.contraste : 1, b = filtro && filtro.aclarado > 0 ? filtro.aclarado : 1;
+    return c.map(function (v) { return Math.max(0, Math.min(255, ((v / 255 - 0.5) * k + 0.5) * b * 255)); });
+  }
   /** Alfa mínima del tinte (entre suelo y techo) para que todo lo de `lista` se lea con un fondo de luminancia l10 (lo
-      más oscuro detrás de la pieza) y l90 (lo más claro). Si ni el techo (el peor caso de tema.css) basta, el techo. */
-  function alfaVidrio(lista, tinte, l10, l90, suelo, techo) {
-    var fondos = [gris(l10), gris(l90)];
+      más oscuro detrás de la pieza) y l90 (lo más claro), ya esmerilado (`filtro`: { contraste, aclarado }). Si ni el
+      techo (el peor caso de tema.css) basta, el techo. */
+  function alfaVidrio(lista, tinte, l10, l90, suelo, techo, filtro) {
+    var fondos = [esmerilar(gris(l10), filtro), esmerilar(gris(l90), filtro)];
     var cumple = function (a) {
       return lista.every(function (t) {
         return fondos.every(function (f) {
@@ -229,8 +236,8 @@
 
   window.cre8Tema = {
     OPCIONES: OPCIONES,
-    /** Vidrio adaptativo por pieza: exigencias(pieza) → lista; alfa(lista, tinte, l10, l90, suelo, techo) → alfa. */
-    vidrio: { exigencias: exigencias, alfa: alfaVidrio, aRgb: aRgb, razon: razon, HOLGURA: HOLGURA },
+    /** Vidrio adaptativo por pieza: exigencias(pieza) → lista; alfa(lista, tinte, l10, l90, suelo, techo, filtro) → alfa. */
+    vidrio: { exigencias: exigencias, alfa: alfaVidrio, esmerilar: esmerilar, aRgb: aRgb, razon: razon, HOLGURA: HOLGURA },
     get preferencias() { return preferencias(); },
     get efectivo() { return efectivo(); },
     /** Lo elige el visitante: se guarda y se aplica en todas las páginas abiertas. */

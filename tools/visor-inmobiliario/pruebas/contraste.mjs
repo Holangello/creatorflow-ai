@@ -6,8 +6,10 @@
 // colores de marca típicos, porque el visor pone el color de la inmobiliaria en --c-acento y de él salen los demás.
 // Vidrio adaptativo por pieza: con piezas de muestra (texto principal, secundario, terciario, enlace de acento, iconos,
 // segmentado) en los dos temas y en el aspecto oscuro del tema claro, la alfa que calcula cre8Tema.vidrio para cada fondo
-// (luminancia de 0 a 1, y fondos mezclados) se aplica a la pieza y se comprueba con el lienzo, sin la holgura del cálculo.
+// (luminancia de 0 a 1, y fondos mezclados), esmerilados como los deja el backdrop-filter, se aplica a la pieza y se
+// comprueba con el lienzo, sin la holgura del cálculo. Y se comprueba que el navegador esmerila como el cálculo.
 // Sale con código 1 si algún par no llega.
+import { inflateSync } from "node:zlib";
 import { servir, lanzar, contexto, abrir } from "./comun.mjs";
 
 const TEXTO = 4.5, NO_TEXTO = 3;
@@ -29,12 +31,13 @@ const PARES = [
   ["--c-borde-campo", "--c-campo", NO_TEXTO, "--c-sup-1"],
   // Paneles del Estudio y la Guía sobre el ambiente: en su punto más intenso (--prueba-ambiente) y sobre el fondo liso
   ...["--prueba-ambiente", "--c-fondo"].flatMap((sobre) => ["--c-texto", "--c-texto-2", "--c-texto-3", "--c-acento-texto"].map((t) => [t, "--vidrio-ambiente", TEXTO, sobre])),
-  // Vidrio sobre la foto: el peor caso es una pared blanca o una zona negra
-  ...["#ffffff", "#000000"].flatMap((foto) => [
+  // Vidrio sobre la foto: el peor caso es una pared blanca o una zona negra, esmeriladas por el backdrop-filter del vidrio
+  // (--prueba-blanco y --prueba-negro: se calculan con los tokens de cada tema, abajo)
+  ...["--prueba-blanco", "--prueba-negro"].flatMap((foto) => [
     ["--c-texto", "--vidrio-texto", TEXTO, foto],
     ["--c-texto-2-vidrio", "--vidrio-texto", TEXTO, foto],
     ["--c-texto-3-vidrio", "--vidrio-texto", TEXTO, foto],
-    ["--c-acento-texto", "--vidrio-texto", TEXTO, foto],
+    ["--c-acento-texto-vidrio", "--vidrio-texto", TEXTO, foto],
     ["--c-texto", "--vidrio", NO_TEXTO, foto],
     ["--c-texto", "--vidrio-denso", TEXTO, foto],
   ]),
@@ -44,6 +47,26 @@ const FONDOS = [0, 0.01, 0.03, 0.06, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.
   .concat([[0, 1], [0.02, 0.4], [0.05, 0.6], [0.1, 0.9], [0.3, 0.7], [0.5, 1]]);
 const MARCAS = { champán: null, rojo: "#e30613", azul: "#004b93", verde: "#00a19a", amarillo: "#ffd400", negro: "#1d1d1f", blanco: "#f4f4f4" };
 const PARES_MARCA = [["--c-acento-texto", "--c-fondo", TEXTO], ["--c-acento-texto", "--c-sup-1", TEXTO], ["--c-foco", "--c-fondo", NO_TEXTO]];
+
+/** Decodificador mínimo de PNG (8 bits, RGB o RGBA, sin entrelazar: las capturas de Chromium): rojo del píxel (x, y). */
+function png(b) {
+  let i = 8, w = 0, h = 0, tipo = 6; const datos = [];
+  while (i < b.length) {
+    const n = b.readUInt32BE(i), t = b.toString("ascii", i + 4, i + 8), c = b.subarray(i + 8, i + 8 + n);
+    if (t === "IHDR") { w = c.readUInt32BE(0); h = c.readUInt32BE(4); tipo = c[9]; } else if (t === "IDAT") datos.push(c);
+    i += 12 + n;
+  }
+  const bpp = tipo === 6 ? 4 : 3, st = w * bpp, raw = inflateSync(Buffer.concat(datos)), out = Buffer.alloc(st * h);
+  for (let y = 0; y < h; y++) {
+    const f = raw[y * (st + 1)], fila = raw.subarray(y * (st + 1) + 1, (y + 1) * (st + 1));
+    for (let x = 0; x < st; x++) {
+      const a = x >= bpp ? out[y * st + x - bpp] : 0, up = y ? out[(y - 1) * st + x] : 0, ul = y && x >= bpp ? out[(y - 1) * st + x - bpp] : 0;
+      const pa = Math.abs(up - ul), pb = Math.abs(a - ul), pc = Math.abs(a + up - 2 * ul);
+      out[y * st + x] = (fila[x] + [0, a, up, (a + up) >> 1, pa <= pb && pa <= pc ? a : pb <= pc ? up : ul][f]) & 255;
+    }
+  }
+  return { px: (x, y) => out[(y * w + x) * bpp] };
+}
 
 const { base, cerrar } = await servir();
 const navegador = await lanzar();
@@ -65,6 +88,9 @@ try {
         const resolver = (v) => { if (v.startsWith("#")) return v; const e = document.createElement("i"); e.style.color = `var(${v})`; document.body.append(e); const c = getComputedStyle(e).color; e.remove(); return c; };
         // El ambiente en su punto más intenso: su luz compuesta sobre el fondo
         document.documentElement.style.setProperty("--prueba-ambiente", `rgb(${pintar(resolver("--ambiente-luz"), resolver("--c-fondo"))})`);
+        // La foto más blanca y la más negra, como quedan detrás del vidrio esmerilado (tema.js, cre8Tema.vidrio.esmerilar)
+        const cs0 = getComputedStyle(document.documentElement), filtro = { contraste: parseFloat(cs0.getPropertyValue("--vidrio-contraste")), aclarado: parseFloat(cs0.getPropertyValue("--vidrio-aclarado")) };
+        for (const [n, v] of [["--prueba-blanco", 255], ["--prueba-negro", 0]]) document.documentElement.style.setProperty(n, `rgb(${cre8Tema.vidrio.esmerilar([v, v, v], filtro).map(Math.round)})`);
         const lum = ([r, gg, b]) => [r, gg, b].map((x) => { x /= 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }).reduce((s, x, i) => s + x * [0.2126, 0.7152, 0.0722][i], 0);
         const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
         return pares.map(([fg, bg, min, sobre]) => {
@@ -111,12 +137,14 @@ try {
           // como el visor: el techo es el peor caso del vidrio con texto (también para los iconos de acento)
           const conTexto = lista.some((x) => x.minimo > 3), techo = parseFloat(cs.getPropertyValue("--vidrio-a-texto"));
           const suelo = parseFloat(cs.getPropertyValue(conTexto ? "--vidrio-a-suelo" : "--vidrio-a-suelo-icono"));
+          const filtro = { contraste: parseFloat(cs.getPropertyValue("--vidrio-contraste")), aclarado: parseFloat(cs.getPropertyValue("--vidrio-aclarado")) };
           for (const [l10, l90] of FONDOS) {
-            const a = V.alfa(lista, tinte, l10, l90, suelo, techo);
+            const a = V.alfa(lista, tinte, l10, l90, suelo, techo, filtro);
             pieza.style.setProperty("--vidrio-a", String(a));
             const fondoCss = getComputedStyle(pieza).backgroundColor;
             for (const l of [l10, l90]) {
-              const fondo = pintar(fondoCss, gris(l));
+              const esm = V.esmerilar(gris(l).match(/\d+/g).map(Number), filtro).map(Math.round);
+              const fondo = pintar(fondoCss, `rgb(${esm})`);
               for (const x of lista) {
                 let bajo = fondo;
                 for (const c of x.capas) bajo = pintar(`rgba(${c[0]}, ${c[1]}, ${c[2]}, ${c[3]})`, `rgb(${bajo})`);
@@ -136,6 +164,27 @@ try {
       console.log(`${r.fallos.length ? "✗" : "✓"} ${tema}${aspecto ? ` (aspecto ${aspecto})` : ""}${marca ? ` · marca ${marca}` : ""} · vidrio por pieza en ${FONDOS.length} fondos: ${Object.entries(r.peor).map(([k, v]) => `${k} ≥ ${v.toFixed(2)}`).join(" · ")}`);
       for (const f of r.fallos.slice(0, 6)) console.log(`   ✗ ${f}`);
     }
+    // El esmerilado que se supone en el cálculo es el que pinta el navegador: grises lisos bajo una capa con el
+    // backdrop-filter del vidrio, medidos en una captura de pantalla (contrast() y brightness() en sRGB)
+    const muestra = await p.evaluate((tema) => {
+      cre8Tema.fijar("tema", tema);
+      const cs = getComputedStyle(document.documentElement);
+      const filtro = { contraste: parseFloat(cs.getPropertyValue("--vidrio-contraste")), aclarado: parseFloat(cs.getPropertyValue("--vidrio-aclarado")) };
+      const grises = [0, 60, 128, 200, 255];
+      const caja = document.createElement("div");
+      caja.id = "prueba-esmerilado";
+      caja.style.cssText = "position: fixed; left: 0; top: 0; z-index: 9999; display: flex";
+      caja.innerHTML = grises.map((g) => `<div style="position: relative; width: 120px; height: 120px; background: rgb(${g},${g},${g})"><i style="position: absolute; inset: 0; backdrop-filter: var(--vidrio-filtro); -webkit-backdrop-filter: var(--vidrio-filtro)"></i></div>`).join("");
+      document.body.append(caja);
+      return { grises, esperado: grises.map((g) => Math.round(cre8Tema.vidrio.esmerilar([g, g, g], filtro)[0])) };
+    }, tema);
+    await p.waitForTimeout(150);
+    const imagen = png(await p.screenshot({ clip: { x: 0, y: 0, width: 600, height: 120 } }));
+    await p.evaluate(() => document.getElementById("prueba-esmerilado")?.remove());
+    const medidos = muestra.grises.map((_, i) => imagen.px(i * 120 + 60, 60));
+    const malos = medidos.filter((m, i) => Math.abs(m - muestra.esperado[i]) > 2).length;
+    fallos += malos;
+    console.log(`${malos ? "✗" : "✓"} ${tema} · esmerilado del navegador como el del cálculo: ${muestra.grises.map((g, i) => `${g}→${medidos[i]} (${muestra.esperado[i]})`).join(" · ")}`);
   }
 } finally {
   await navegador.close();
