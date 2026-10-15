@@ -1152,7 +1152,7 @@ const plano = crearPlano($("#mapa"), {
     }
     return null;
   },
-  acento: () => getComputedStyle(document.documentElement).getPropertyValue("--acento").trim() || "#ffb547",
+  acento: () => getComputedStyle(document.documentElement).getPropertyValue("--acento").trim() || "#c8a24a",
   modoMapa: () => ($("#minimapa").classList.contains("grande") ? "plano" : int.radar),
   texto, formato: metros,
   alElegirNodo: (n) => {
@@ -1509,9 +1509,23 @@ function construirModos() {
   $("#modos").hidden = ms.length < 2;
 }
 
+// Texto legible sobre el color de marca: oscuro o blanco, el que más contraste dé (WCAG).
+function textoSobreColor(hex) {
+  const lin = hexALineal(hex);
+  if (!lin) return null;
+  const L = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+  return (L + 0.05) / 0.05 >= 1.05 / (L + 0.05) ? "#15110a" : "#ffffff";
+}
+
 function aplicarMarca() {
   const m = int.tour.marca ?? {};
-  if (m.color) document.documentElement.style.setProperty("--acento", m.color);
+  // Color de marca validado; se quita si el tour nuevo no trae (al cambiar de tour en el Estudio).
+  const raiz = document.documentElement.style;
+  const sobre = textoSobreColor(m.color);
+  if (sobre) {
+    for (const v of ["--acento", "--c-acento"]) raiz.setProperty(v, m.color);
+    for (const v of ["--acento-texto", "--c-sobre-acento"]) raiz.setProperty(v, sobre);
+  } else for (const v of ["--acento", "--c-acento", "--acento-texto", "--c-sobre-acento"]) raiz.removeProperty(v);
   const logo = $("#logo");
   if (m.logo) { logo.src = m.logo; logo.alt = texto(m.nombre); logo.hidden = false; } else logo.hidden = true;
   const titulo = texto(int.tour.titulo) || "Recorrido virtual";

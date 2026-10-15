@@ -56,16 +56,33 @@ export async function obtenerBlob(ruta, { archivos, base } = {}) {
 
 /** Copia "limpia" (JSON) del tour: quita referencias circulares y objetos de runtime (vecinos, texturas…). */
 function limpiarTour(tour) {
-  const vistos = new WeakSet();
-  return JSON.parse(JSON.stringify(tour, function (k, v) {
-    if (k === "vecinos" || k === "textura" || k.startsWith("_")) return undefined;
-    if (v && typeof v === "object") {
-      if (v.isTexture || v.isObject3D || v.isMaterial || (typeof HTMLElement !== "undefined" && v instanceof HTMLElement)) return undefined;
-      if (vistos.has(v)) return undefined;
-      vistos.add(v);
+  // Copia profunda con la semántica de JSON, pero descartando las piezas de three.js ANTES de serializarlas
+  // (JSON.stringify llamaría a Texture.toJSON, que intenta volcar las imágenes y agota la memoria con la demo).
+  // Solo se cortan los ciclos: un mismo objeto referenciado desde dos sitios se copia en ambos.
+  const ruta = new WeakSet();
+  const copiar = (v) => {
+    if (v === null || typeof v !== "object") {
+      if (typeof v === "number") return Number.isFinite(v) ? v : null;
+      return typeof v === "function" || typeof v === "symbol" || typeof v === "bigint" ? undefined : v;
     }
-    return v;
-  }));
+    if (v.isTexture || v.isObject3D || v.isMaterial || v.isWebGLRenderTarget || v.isBufferGeometry ||
+        (typeof HTMLElement !== "undefined" && v instanceof HTMLElement) || ruta.has(v)) return undefined;
+    if (typeof v.toJSON === "function" && !Array.isArray(v)) return copiar(v.toJSON());
+    ruta.add(v);
+    let r;
+    if (Array.isArray(v)) r = v.map((x) => copiar(x) ?? null);
+    else {
+      r = {};
+      for (const [k, x] of Object.entries(v)) {
+        if (k === "vecinos" || k === "textura" || k.startsWith("_")) continue;
+        const c = copiar(x);
+        if (c !== undefined) r[k] = c;
+      }
+    }
+    ruta.delete(v);
+    return r;
+  };
+  return copiar(tour) ?? {};
 }
 
 /**
@@ -175,11 +192,77 @@ function formatoPrecio(n, moneda = "EUR", idioma = "es") {
 }
 const num = (n, dec = 0, idioma = "es") => new Intl.NumberFormat(idioma === "es" ? "es-ES" : idioma, { minimumFractionDigits: dec, maximumFractionDigits: dec }).format(n);
 
+// Textos del plano y del dossier en los idiomas del visor (si falta uno, inglés).
+const ROTULOS = {
+  plano: { es: "Plano", en: "Floor plan", fr: "Plan", de: "Grundriss" },
+  sup_estancias: { es: "Superficie estancias", en: "Rooms area", fr: "Surface des pièces", de: "Fläche der Räume" },
+  foto360: { es: "Foto 360°", en: "360° photo", fr: "Photo 360°", de: "360°-Foto" },
+  aviso_plano: {
+    es: "Plano orientativo sin valor contractual. Medidas y superficies aproximadas.",
+    en: "Indicative plan, not contractual. Approximate dimensions and areas.",
+    fr: "Plan indicatif sans valeur contractuelle. Dimensions et surfaces approximatives.",
+    de: "Unverbindlicher Grundriss. Maße und Flächen sind ca.-Angaben.",
+  },
+  mes: { es: "mes", en: "month", fr: "mois", de: "Monat" },
+  ano: { es: "año", en: "year", fr: "an", de: "Jahr" },
+  si: { es: "Sí", en: "Yes", fr: "Oui", de: "Ja" },
+  no: { es: "No", en: "No", fr: "Non", de: "Nein" },
+  cee_tramite: { es: "Certificado energético en trámite", en: "Energy certificate in progress", fr: "Certificat énergétique en cours", de: "Energieausweis in Bearbeitung" },
+  consumo: { es: "Consumo", en: "Consumption", fr: "Consommation", de: "Verbrauch" },
+  emisiones: { es: "Emisiones", en: "Emissions", fr: "Émissions", de: "Emissionen" },
+  en_tramite: { es: "En trámite", en: "In progress", fr: "En cours", de: "In Bearbeitung" },
+  operacion: { es: "Operación", en: "Operation", fr: "Transaction", de: "Angebot" },
+  venta: { es: "Venta", en: "Sale", fr: "Vente", de: "Kauf" },
+  alquiler: { es: "Alquiler", en: "Rent", fr: "Location", de: "Miete" },
+  tipo: { es: "Tipo", en: "Type", fr: "Type", de: "Typ" },
+  sup_construida: { es: "Sup. construida", en: "Built area", fr: "Surface construite", de: "Bruttofläche" },
+  sup_util: { es: "Sup. útil", en: "Usable area", fr: "Surface habitable", de: "Wohnfläche" },
+  parcela: { es: "Parcela", en: "Plot", fr: "Terrain", de: "Grundstück" },
+  habitaciones: { es: "Habitaciones", en: "Bedrooms", fr: "Chambres", de: "Schlafzimmer" },
+  banos: { es: "Baños", en: "Bathrooms", fr: "Salles de bain", de: "Badezimmer" },
+  planta: { es: "Planta", en: "Floor", fr: "Étage", de: "Etage" },
+  ascensor: { es: "Ascensor", en: "Lift", fr: "Ascenseur", de: "Aufzug" },
+  orientacion: { es: "Orientación", en: "Orientation", fr: "Orientation", de: "Ausrichtung" },
+  ano_construccion: { es: "Año de construcción", en: "Year built", fr: "Année de construction", de: "Baujahr" },
+  estado: { es: "Estado", en: "Condition", fr: "État", de: "Zustand" },
+  calefaccion: { es: "Calefacción", en: "Heating", fr: "Chauffage", de: "Heizung" },
+  aire: { es: "Aire acondicionado", en: "Air conditioning", fr: "Climatisation", de: "Klimaanlage" },
+  garaje: { es: "Garaje", en: "Parking", fr: "Parking", de: "Stellplatz" },
+  trastero: { es: "Trastero", en: "Storage room", fr: "Cave", de: "Abstellraum" },
+  terraza: { es: "Terraza", en: "Terrace", fr: "Terrasse", de: "Terrasse" },
+  piscina: { es: "Piscina", en: "Pool", fr: "Piscine", de: "Pool" },
+  jardin: { es: "Jardín", en: "Garden", fr: "Jardin", de: "Garten" },
+  comunidad: { es: "Comunidad", en: "Community fees", fr: "Charges de copropriété", de: "Hausgeld" },
+  precio_m2: { es: "Precio/m²", en: "Price/m²", fr: "Prix/m²", de: "Preis/m²" },
+  aviso_ficha: {
+    es: "La información de esta ficha es orientativa y no tiene carácter contractual. Superficies y medidas aproximadas. Precio sin impuestos ni gastos de compraventa salvo indicación.",
+    en: "This information is indicative and not contractual. Approximate areas and dimensions. Price excludes taxes and purchase costs unless stated.",
+    fr: "Les informations de cette fiche sont indicatives et non contractuelles. Surfaces et dimensions approximatives. Prix hors taxes et frais d’acquisition sauf mention contraire.",
+    de: "Die Angaben in diesem Exposé sind unverbindlich. Flächen und Maße sind ca.-Angaben. Preis zzgl. Steuern und Erwerbsnebenkosten, sofern nicht anders angegeben.",
+  },
+  barra_pdf: {
+    es: "Para guardar en PDF: Imprimir → Destino «Guardar como PDF»",
+    en: "To save as PDF: Print → Destination “Save as PDF”",
+    fr: "Pour enregistrer en PDF : Imprimer → Destination « Enregistrer au format PDF »",
+    de: "Als PDF speichern: Drucken → Ziel „Als PDF speichern“",
+  },
+  imprimir: { es: "Imprimir / Guardar PDF", en: "Print / Save PDF", fr: "Imprimer / Enregistrer en PDF", de: "Drucken / Als PDF speichern" },
+  obra_nueva: { es: "obra nueva / proyecto", en: "new build / project", fr: "neuf / sur plan", de: "Neubau / Projekt" },
+  datos_principales: { es: "Datos principales", en: "Key facts", fr: "Informations clés", de: "Eckdaten" },
+  certificado: { es: "Certificado energético", en: "Energy certificate", fr: "Certificat énergétique", de: "Energieausweis" },
+  caracteristicas: { es: "Características", en: "Features", fr: "Caractéristiques", de: "Ausstattung" },
+  descripcion: { es: "Descripción", en: "Description", fr: "Description", de: "Beschreibung" },
+  estancias: { es: "Estancias", en: "Rooms", fr: "Pièces", de: "Räume" },
+  visita: { es: "Visita virtual 3D", en: "3D virtual tour", fr: "Visite virtuelle 3D", de: "Virtueller 3D-Rundgang" },
+  escanea: { es: "escanea el código QR", en: "scan the QR code", fr: "scannez le code QR", de: "QR-Code scannen" },
+};
+const rotulo = (idioma, clave) => ROTULOS[clave]?.[idioma] ?? ROTULOS[clave]?.en ?? clave;
+
 /** Precio con sufijo /mes en alquiler. */
 function precioTexto(t, idioma) {
   const i = t.inmueble ?? {};
   if (i.precio == null) return "";
-  return formatoPrecio(i.precio, i.moneda ?? "EUR", idioma) + (i.operacion === "alquiler" ? (idioma === "es" ? "/mes" : "/month") : "");
+  return formatoPrecio(i.precio, i.moneda ?? "EUR", idioma) + (i.operacion === "alquiler" ? `/${rotulo(idioma, "mes")}` : "");
 }
 
 /** Área (m²) de un polígono [[x,z],…] con la fórmula del lazo (shoelace). */
@@ -952,13 +1035,13 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
   const titulo = tx(t.titulo);
   if (!imgLogo && t.marca?.nombre) { g.font = F(700, 34 * u); g.fillStyle = acento; g.fillText(tx(t.marca.nombre).toUpperCase(), xc, 88 * u); g.fillStyle = "#1d1f24"; }
   g.font = F(700, 54 * u);
-  g.fillText(textoAjustado(g, titulo || "Plano", W - xc - margen - 500 * u), xc, imgLogo || !t.marca?.nombre ? 120 * u : 150 * u);
+  g.fillText(textoAjustado(g, titulo || rotulo(idioma, "plano"), W - xc - margen - 500 * u), xc, imgLogo || !t.marca?.nombre ? 120 * u : 150 * u);
   const sub = [plantas.length > 1 || planta.nombre ? tx(planta.nombre) : "", t.inmueble?.direccion && t.inmueble?.mostrar_direccion_exacta ? t.inmueble.direccion : ""].filter(Boolean).join(" · ");
   if (sub) { g.font = F(400, 34 * u); g.fillStyle = "#555b66"; g.fillText(textoAjustado(g, sub, W - xc - margen - 500 * u), xc, (imgLogo || !t.marca?.nombre ? 120 : 150) * u + 50 * u); }
   g.textAlign = "right"; g.fillStyle = "#555b66"; g.font = F(400, 30 * u);
   if (t.inmueble?.referencia) g.fillText(`Ref. ${t.inmueble.referencia}`, W - margen, 100 * u);
   const totalArea = estancias.reduce((a, e) => a + areaPoligono(e.poligono), 0);
-  if (totalArea) g.fillText(`${idioma === "es" ? "Superficie estancias" : "Rooms area"}: ${num(totalArea, 1, idioma)} m²`, W - margen, 145 * u);
+  if (totalArea) g.fillText(`${rotulo(idioma, "sup_estancias")}: ${num(totalArea, 1, idioma)} m²`, W - margen, 145 * u);
   g.textAlign = "left";
   g.fillStyle = acento; g.fillRect(margen, 215 * u, anchoUtil, 5 * u);
 
@@ -1113,7 +1196,7 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
     g.beginPath(); g.arc(lx, yPie + 8 * u, 13 * u, 0, Math.PI * 2); g.fillStyle = acento; g.fill();
     g.lineWidth = 3 * u; g.strokeStyle = "#fff"; g.stroke();
     g.fillStyle = "#374151"; g.font = F(400, 28 * u); g.textBaseline = "middle";
-    g.fillText(idioma === "es" ? "Foto 360°" : "360° photo", lx + 26 * u, yPie + 8 * u);
+    g.fillText(rotulo(idioma, "foto360"), lx + 26 * u, yPie + 8 * u);
   }
 
   if (t.norte != null && Number.isFinite(Number(t.norte))) {
@@ -1128,9 +1211,7 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
     g.restore();
   }
   g.textAlign = "left"; g.textBaseline = "alphabetic"; g.fillStyle = "#6b7280"; g.font = F(400, 24 * u);
-  const aviso = idioma === "es"
-    ? "Plano orientativo sin valor contractual. Medidas y superficies aproximadas."
-    : "Indicative plan, not contractual. Approximate dimensions and areas.";
+  const aviso = rotulo(idioma, "aviso_plano");
   g.fillText([aviso, t.marca?.nombre, tx(t.marca?.pie_legal)].filter(Boolean).join("  ·  ").slice(0, 220), margen, H - 50 * u);
   return aBlob(c, "image/png");
 }
@@ -1140,46 +1221,46 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
 const COLORES_CEE = { A: "#00a651", B: "#4cb848", C: "#bed630", D: "#fff200", E: "#fdb913", F: "#f37021", G: "#ed1c24" };
 
 function escalaEnergetica(cee, idioma) {
-  const es = idioma === "es";
-  if (!cee || (cee.en_tramite && !cee.consumo_letra)) return `<p class="cee-tramite">${es ? "Certificado energético en trámite" : "Energy certificate in progress"}</p>`;
+  const r = (k) => rotulo(idioma, k);
+  if (!cee || (cee.en_tramite && !cee.consumo_letra)) return `<p class="cee-tramite">${r("cee_tramite")}</p>`;
   const fila = (L, i) => {
     const marca = (letra, valor, u) => (letra === L ? `<span class="cee-flecha" style="--c:${COLORES_CEE[L]}">${L}${valor != null ? ` <small>${num(valor, 1, idioma)} ${u}</small>` : ""}</span>` : "");
     return `<div class="cee-fila"><span class="cee-barra" style="width:${34 + i * 9}%;background:${COLORES_CEE[L]}">${L}</span>
       <span class="cee-col">${marca(cee.consumo_letra, cee.consumo_valor, "kWh/m²·año")}</span>
       <span class="cee-col">${marca(cee.emisiones_letra, cee.emisiones_valor, "kg CO₂/m²·año")}</span></div>`;
   };
-  return `<div class="cee"><div class="cee-fila cee-cab"><span></span><span class="cee-col">${es ? "Consumo" : "Consumption"}</span><span class="cee-col">${es ? "Emisiones" : "Emissions"}</span></div>
-    ${"ABCDEFG".split("").map(fila).join("")}</div>${cee.en_tramite ? `<p class="cee-tramite">${es ? "En trámite" : "In progress"}</p>` : ""}`;
+  return `<div class="cee"><div class="cee-fila cee-cab"><span></span><span class="cee-col">${r("consumo")}</span><span class="cee-col">${r("emisiones")}</span></div>
+    ${"ABCDEFG".split("").map(fila).join("")}</div>${cee.en_tramite ? `<p class="cee-tramite">${r("en_tramite")}</p>` : ""}`;
 }
 
 function datosClave(t, idioma) {
   const i = t.inmueble ?? {};
-  const es = idioma === "es";
-  const si = (v) => (v === true ? (es ? "Sí" : "Yes") : v === false ? "No" : v);
+  const r = (k) => rotulo(idioma, k);
+  const si = (v) => (v === true ? r("si") : v === false ? r("no") : v);
   const m2 = (v) => (v ? `${num(v, 0, idioma)} m²` : null);
   const filas = [
-    [es ? "Operación" : "Operation", i.operacion && (es ? { venta: "Venta", alquiler: "Alquiler" }[i.operacion] ?? i.operacion : i.operacion)],
-    [es ? "Tipo" : "Type", i.tipo && i.tipo[0].toUpperCase() + i.tipo.slice(1)],
-    [es ? "Sup. construida" : "Built area", m2(i.superficie_construida)],
-    [es ? "Sup. útil" : "Usable area", m2(i.superficie_util)],
-    [es ? "Parcela" : "Plot", m2(i.superficie_parcela)],
-    [es ? "Habitaciones" : "Bedrooms", i.habitaciones],
-    [es ? "Baños" : "Bathrooms", i.banos],
-    [es ? "Planta" : "Floor", i.planta],
-    [es ? "Ascensor" : "Lift", si(i.ascensor)],
-    [es ? "Orientación" : "Orientation", i.orientacion],
-    [es ? "Año de construcción" : "Year built", i.ano_construccion],
-    [es ? "Estado" : "Condition", texto(i.estado, idioma)],
-    [es ? "Calefacción" : "Heating", texto(i.calefaccion, idioma)],
-    [es ? "Aire acondicionado" : "Air conditioning", si(i.aire_acondicionado)],
-    [es ? "Garaje" : "Parking", si(i.garaje)],
-    [es ? "Trastero" : "Storage room", si(i.trastero)],
-    [es ? "Terraza" : "Terrace", typeof i.terraza === "number" ? (i.terraza > 0 ? `${i.terraza} m²` : "No") : si(i.terraza)],
-    [es ? "Piscina" : "Pool", si(i.piscina)],
-    [es ? "Jardín" : "Garden", si(i.jardin)],
-    [es ? "Comunidad" : "Community fees", i.gastos_comunidad_mes != null && `${formatoPrecio(i.gastos_comunidad_mes, i.moneda, idioma)}/${es ? "mes" : "month"}`],
-    ["IBI", i.ibi_anual != null && `${formatoPrecio(i.ibi_anual, i.moneda, idioma)}/${es ? "año" : "year"}`],
-    [es ? "Precio/m²" : "Price/m²", i.precio && i.operacion !== "alquiler" && (i.superficie_construida || i.superficie_util) && formatoPrecio(Math.round(i.precio / (i.superficie_construida || i.superficie_util)), i.moneda, idioma) + "/m²"],
+    [r("operacion"), i.operacion && ({ venta: r("venta"), alquiler: r("alquiler") }[i.operacion] ?? i.operacion)],
+    [r("tipo"), i.tipo && i.tipo[0].toUpperCase() + i.tipo.slice(1)],
+    [r("sup_construida"), m2(i.superficie_construida)],
+    [r("sup_util"), m2(i.superficie_util)],
+    [r("parcela"), m2(i.superficie_parcela)],
+    [r("habitaciones"), i.habitaciones],
+    [r("banos"), i.banos],
+    [r("planta"), i.planta],
+    [r("ascensor"), si(i.ascensor)],
+    [r("orientacion"), i.orientacion],
+    [r("ano_construccion"), i.ano_construccion],
+    [r("estado"), texto(i.estado, idioma)],
+    [r("calefaccion"), texto(i.calefaccion, idioma)],
+    [r("aire"), si(i.aire_acondicionado)],
+    [r("garaje"), si(i.garaje)],
+    [r("trastero"), si(i.trastero)],
+    [r("terraza"), typeof i.terraza === "number" ? (i.terraza > 0 ? `${i.terraza} m²` : r("no")) : si(i.terraza)],
+    [r("piscina"), si(i.piscina)],
+    [r("jardin"), si(i.jardin)],
+    [r("comunidad"), i.gastos_comunidad_mes != null && `${formatoPrecio(i.gastos_comunidad_mes, i.moneda, idioma)}/${r("mes")}`],
+    ["IBI", i.ibi_anual != null && `${formatoPrecio(i.ibi_anual, i.moneda, idioma)}/${r("ano")}`],
+    [r("precio_m2"), i.precio && i.operacion !== "alquiler" && (i.superficie_construida || i.superficie_util) && formatoPrecio(Math.round(i.precio / (i.superficie_construida || i.superficie_util)), i.moneda, idioma) + "/m²"],
   ];
   return filas.filter(([, v]) => v != null && v !== false && v !== "").map(([k, v]) => `<div class="dato"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
 }
@@ -1201,7 +1282,7 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
   const t = limpiarTour(tour);
   idioma ??= t.idioma ?? "es";
   const tx = (v) => texto(v, idioma);
-  const es = idioma === "es";
+  const r = (k) => rotulo(idioma, k);
   const urlsTemporales = [];
   const urlDe = async (ruta) => {
     if (!ruta) return null;
@@ -1235,9 +1316,7 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
     const qr = enlace ? qrSVG(enlace, { margen: 2 }) : "";
     const direccion = i.direccion ? (i.mostrar_direccion_exacta ? i.direccion : i.direccion.split(",").slice(-1)[0].trim()) : "";
     const caracteristicas = (i.caracteristicas ?? []).map((c) => `<li>${esc(tx(c))}</li>`).join("");
-    const avisos = [tx(i.aviso_legal), es
-      ? "La información de esta ficha es orientativa y no tiene carácter contractual. Superficies y medidas aproximadas. Precio sin impuestos ni gastos de compraventa salvo indicación."
-      : "This information is indicative and not contractual. Approximate areas and dimensions. Price excludes taxes and purchase costs unless stated.", tx(t.marca?.pie_legal)].filter(Boolean);
+    const avisos = [tx(i.aviso_legal), r("aviso_ficha"), tx(t.marca?.pie_legal)].filter(Boolean);
 
     const html = `<!doctype html>
 <html lang="${esc(idioma)}"><head><meta charset="utf-8">
@@ -1288,27 +1367,27 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
   .legal p { margin: .6mm 0; }
 </style></head>
 <body>
-<div class="barra-imp no-imprimir">${es ? "Para guardar en PDF: Imprimir → Destino «Guardar como PDF»" : "To save as PDF: Print → Destination “Save as PDF”"} <button onclick="print()">${es ? "Imprimir / Guardar PDF" : "Print / Save PDF"}</button></div>
+<div class="barra-imp no-imprimir">${r("barra_pdf")} <button onclick="print()">${r("imprimir")}</button></div>
 <div class="hoja">
   <header>
     ${logoURL ? `<img src="${esc(logoURL)}" alt="${esc(t.marca?.nombre ?? "")}">` : `<span class="marca">${esc(t.marca?.nombre ?? "")}</span>`}
-    <div class="ref">${i.referencia ? `Ref. <strong>${esc(i.referencia)}</strong><br>` : ""}${esc(new Date().toLocaleDateString(es ? "es-ES" : idioma))}</div>
+    <div class="ref">${i.referencia ? `Ref. <strong>${esc(i.referencia)}</strong><br>` : ""}${esc(new Date().toLocaleDateString(idioma === "es" ? "es-ES" : idioma))}</div>
   </header>
   ${portadaURL ? `<img class="portada" src="${esc(portadaURL)}" alt="">` : ""}
   <h1>${esc(tx(t.titulo))}</h1>
   ${direccion ? `<p class="direccion">${esc(direccion)}</p>` : ""}
-  ${i.precio != null ? `<p class="precio">${esc(precioTexto(t, idioma))}${i.estado_obra === "proyecto" ? ` <small>· ${es ? "obra nueva / proyecto" : "new build / project"}</small>` : ""}</p>` : ""}
+  ${i.precio != null ? `<p class="precio">${esc(precioTexto(t, idioma))}${i.estado_obra === "proyecto" ? ` <small>· ${r("obra_nueva")}</small>` : ""}</p>` : ""}
   <div class="dos">
-    <section><h2>${es ? "Datos principales" : "Key facts"}</h2><dl>${datosClave(t, idioma)}</dl></section>
-    <section><h2>${es ? "Certificado energético" : "Energy certificate"}</h2>${escalaEnergetica(i.certificado_energetico, idioma)}</section>
+    <section><h2>${r("datos_principales")}</h2><dl>${datosClave(t, idioma)}</dl></section>
+    <section><h2>${r("certificado")}</h2>${escalaEnergetica(i.certificado_energetico, idioma)}</section>
   </div>
-  ${caracteristicas ? `<h2>${es ? "Características" : "Features"}</h2><ul class="caract">${caracteristicas}</ul>` : ""}
-  ${i.descripcion ? `<h2>${es ? "Descripción" : "Description"}</h2><div class="descripcion">${esc(tx(i.descripcion))}</div>` : ""}
-  ${planos.length ? `<div class="salto"></div><h2>${es ? "Plano" : "Floor plan"}</h2>${planos.map((p) => `${planos.length > 1 && p.nombre ? `<p class="plano-nombre">${esc(p.nombre)}</p>` : ""}<img class="plano" src="${esc(p.url)}" alt="${es ? "Plano" : "Floor plan"}">`).join("")}` : ""}
-  ${fotos.length ? `<h2>${es ? "Estancias" : "Rooms"}</h2><div class="fotos">${fotos.map((f) => `<figure><img src="${esc(f.url)}" alt=""><figcaption>${esc(f.nombre)}</figcaption></figure>`).join("")}</div>` : ""}
+  ${caracteristicas ? `<h2>${r("caracteristicas")}</h2><ul class="caract">${caracteristicas}</ul>` : ""}
+  ${i.descripcion ? `<h2>${r("descripcion")}</h2><div class="descripcion">${esc(tx(i.descripcion))}</div>` : ""}
+  ${planos.length ? `<div class="salto"></div><h2>${r("plano")}</h2>${planos.map((p) => `${planos.length > 1 && p.nombre ? `<p class="plano-nombre">${esc(p.nombre)}</p>` : ""}<img class="plano" src="${esc(p.url)}" alt="${r("plano")}">`).join("")}` : ""}
+  ${fotos.length ? `<h2>${r("estancias")}</h2><div class="fotos">${fotos.map((f) => `<figure><img src="${esc(f.url)}" alt=""><figcaption>${esc(f.nombre)}</figcaption></figure>`).join("")}</div>` : ""}
   <div class="contacto">
     <div>
-      <p><strong>${es ? "Visita virtual 3D" : "3D virtual tour"}</strong>${enlace ? (es ? " · escanea el código QR" : " · scan the QR code") : ""}</p>
+      <p><strong>${r("visita")}</strong>${enlace ? ` · ${r("escanea")}` : ""}</p>
       ${t.agente?.nombre ? `<p>${esc(tx(t.agente.nombre))}${t.marca?.nombre ? ` · ${esc(tx(t.marca.nombre))}` : ""}</p>` : t.marca?.nombre ? `<p>${esc(tx(t.marca.nombre))}</p>` : ""}
       ${t.agente?.telefono ? `<p>☎ ${esc(t.agente.telefono)}</p>` : ""}
       ${t.agente?.email ? `<p>✉ ${esc(t.agente.email)}</p>` : ""}
