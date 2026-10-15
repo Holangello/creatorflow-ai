@@ -357,7 +357,16 @@ planifica:** el sistema se declara en estado almacén y la única tarea viva es 
 producido: cadena completa, cero `[DATO]`, puerta de producción resuelta la víspera, texto servido en el
 chat y 627 caracteres que caben en un pantallazo. **Si falla el 15, el viernes 16 no prueba nada nuevo** —es
 inventario reasignado de septiembre— y solo compra un día de cortesía. Esperar al 16 sería dejar que la
-condición de parada la decida la pieza más débil de las dos. Está escrito en `decisiones.md`, en el apartado de los
+condición de parada la decida la pieza más débil de las dos.
+
+**CUMPLIDA EL JUEVES 15 AL CIERRE: cero publicaciones confirmadas.** No hay ninguna cifra en
+`05-metricas.md`, ningún «sí, salió» de Angello y la rutina de las 19:30 sigue en silencio con cuatro avisos
+sin respuesta. **Se escribe «confirmadas» y no «publicadas» a propósito:** este sistema solo sabe que algo
+salió si Angello lo dice, así que puede haber salido y no constar. **Una palabra suya revierte esta línea.**
+Mientras tanto se aplica lo que estaba escrito: las filas de la semana 7 no se ejecutan como plan de cinco
+franjas y la semana 8 no se planifica. **Lo que queda vivo es la cola de catorce piezas a dos por semana**
+que salió el 15-10 en `salida/programador-posts.csv`, que empieza justo el lunes 19 y no necesita escribir
+una línea más. Está escrito en `decisiones.md`, en el apartado de los
 dos escenarios.
 
 | Fecha | Día | Pilar | Tipo | Titular de trabajo | Notas | Formato | Intensidad | Estado |
