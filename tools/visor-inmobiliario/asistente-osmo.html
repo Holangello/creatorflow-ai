@@ -89,6 +89,7 @@
   <header class="cab">
     <div class="marca">cre8<span>eight</span></div>
     <small>Asistente · DJI Osmo 360</small>
+    <button class="btn peq" type="button" id="nuevo-inmueble">Nuevo inmueble</button>
   </header>
 
   <div class="progreso" aria-label="Progreso">
@@ -210,6 +211,7 @@
       <div class="estancias" id="control-tomas"></div>
       <div class="alerta"><span><b>Espejos y cristales:</b> colócate de forma que no te veas reflejado. En baños pequeños, dispara desde la puerta.</span></div>
       <div class="consejo"><span><b>Ventana quemada:</b> repite esa toma en modo HDR. <b>Imagen oscura:</b> enciende más luces antes que subir el ISO.</span></div>
+      <div class="consejo"><span><b>Vista de noche (opcional):</b> al anochecer, repite las estancias principales desde el mismo punto, a la misma altura y con la misma orientación, con todas las luces encendidas. En el Estudio, súbela como variante «Noche» y el visitante podrá pasar de día a noche.</span></div>
     </section>
 
     <!-- 5 ---------------------------------------------------------------->
@@ -250,10 +252,10 @@
       <p><a class="btn primario" href="estudio.html">Abrir el Estudio</a></p>
       <ol style="padding-left: 20px">
         <li><a href="estudio.html#fotos"><b>Fotos</b></a>: arrastra la carpeta. El Estudio detecta que son de la Osmo 360, las ordena por hora y les pone los nombres de tu lista (incluidas las tomas repetidas: "Cocina", "Cocina 2").</li>
-        <li><a href="estudio.html#plano"><b>Plano</b></a>: sube el plano (PDF, imagen o DXF del arquitecto), <b>calíbralo</b> con dos puntos y una distancia real, coloca cada foto donde pusiste la cámara y dibuja las estancias para ver los m². Las conexiones entre estancias se crean solas.</li>
+        <li><a href="estudio.html#plano"><b>Plano</b></a> (opcional): sube el plano (PDF, imagen o DXF del arquitecto), <b>calíbralo</b> con dos puntos y una distancia real, coloca cada foto donde pusiste la cámara y dibuja las estancias para ver los m². Sin plano también funciona: las fotos se conectan en el orden de la lista.</li>
         <li><a href="estudio.html#datos"><b>Datos</b></a>: precio, superficies, habitaciones, baños, <b>certificado energético</b> (obligatorio en anuncios), WhatsApp y política de privacidad.</li>
         <li><a href="estudio.html#revisar"><b>Revisar</b></a>: corrige lo que te marque (por ejemplo, fotos sin orientar).</li>
-        <li><a href="estudio.html#exportar"><b>Publicar</b></a>: "Publicar mi recorrido" y, si quieres, vídeo, fotos para portales, plano y dossier.</li>
+        <li><a href="estudio.html#exportar"><b>Publicar</b></a>: «Descargar mi recorrido (ZIP)» y, si quieres, en «Para portales y redes»: fotos 360, vídeo, plano y dossier.</li>
       </ol>
       <details><summary>Opcional: modo completo</summary><p>Añade renders y planos del arquitecto (Material), ajusta la dirección de cada foto y añade notas (Orientar), y crea estilos de decoración, versión de noche y colores de pared (Variantes).</p></details>
     </section>
@@ -279,7 +281,7 @@
       <h1>Publica y comparte</h1>
       <h2>En tu web (enlace para compartir)</h2>
       <ol style="padding-left: 20px">
-        <li>En el Estudio → <b>Exportar</b> → <b>ZIP para web</b>.</li>
+        <li>En el Estudio → <b>Publicar</b> → <b>Descargar mi recorrido (ZIP)</b>. Escribe antes la dirección de tu web para que el enlace y el QR salgan bien.</li>
         <li>Sube la carpeta a tu web en <code>/tours/REFERENCIA/</code> (o a la carpeta <code>tours</code> del repositorio si usas GitHub Pages).</li>
         <li>Comparte el enlace por WhatsApp, redes, QR en el escaparate o en el cartel del piso.</li>
       </ol>
@@ -287,10 +289,10 @@
       <table>
         <thead><tr><th>Qué subir</th><th>Desde el Estudio</th><th>Límite idealista</th></tr></thead>
         <tbody>
-          <tr><td>Vídeo de la visita guiada</td><td>Exportar → Vídeo MP4 (16:9 y 9:16)</td><td>Hasta 6 vídeos de 100 MB</td></tr>
-          <tr><td>Fotos (encuadres de las 360)</td><td>Exportar → Fotos para portales</td><td>Hasta 200 fotos de 8 MB</td></tr>
-          <tr><td>Plano con medidas</td><td>Exportar → Plano PNG</td><td>Como imagen</td></tr>
-          <tr><td>Tour 360</td><td>Fotos 360 con GPano → subir a un proveedor compatible (p. ej. Kuula) → pegar su enlace</td><td>Solo proveedores compatibles</td></tr>
+          <tr><td>Vídeo de la visita guiada</td><td>Publicar → Para portales y redes → Vídeo de la visita (16:9, 9:16 o 1:1; MP4, o WebM en Chrome)</td><td>Hasta 6 vídeos de 100 MB</td></tr>
+          <tr><td>Fotos 360</td><td>Publicar → Para portales y redes → Fotos 360 (con datos GPano, menos de 7,5 MB cada una)</td><td>Hasta 200 fotos de 8 MB</td></tr>
+          <tr><td>Plano con medidas</td><td>Publicar → Para portales y redes → Plano con medidas (si has subido el plano)</td><td>Como imagen</td></tr>
+          <tr><td>Tour 360</td><td>Las mismas fotos 360 → subirlas a un proveedor compatible (p. ej. Kuula) → pegar su enlace</td><td>Solo proveedores compatibles</td></tr>
         </tbody>
       </table>
       <div class="consejo"><span>idealista no permite enlazar tu propio recorrido en el anuncio: usa el vídeo y las fotos para atraer, y tu web con el recorrido completo (WhatsApp, estilos, paseo libre) como destino desde redes, QR y Google.</span></div>
@@ -410,11 +412,15 @@
       const c = document.createElement("div");
       c.className = "estancia";
       const n = est.tomas[nombre] ?? 0;
-      c.innerHTML = `<span></span><span class="tomas" aria-live="polite"></span><button class="btn peq primario" type="button">+ Toma</button>`;
+      c.innerHTML = `<span></span><span class="tomas" aria-live="polite"></span><button class="btn peq" type="button">−</button><button class="btn peq primario" type="button">+ Toma</button>`;
       c.querySelector("span").textContent = nombre;
       c.querySelector(".tomas").textContent = n ? `${n} ${n === 1 ? "toma" : "tomas"} ✓` : "pendiente";
-      c.querySelector("button").setAttribute("aria-label", `Añadir toma en ${nombre}`);
-      c.querySelector("button").onclick = () => { est.tomas[nombre] = (est.tomas[nombre] ?? 0) + 1; guardar(); pintarEstancias(); };
+      const [menos, mas] = c.querySelectorAll("button");
+      menos.hidden = !n;
+      menos.setAttribute("aria-label", `Quitar una toma en ${nombre}`);
+      menos.onclick = () => { est.tomas[nombre] = Math.max(0, (est.tomas[nombre] ?? 0) - 1); if (!est.tomas[nombre]) delete est.tomas[nombre]; guardar(); pintarEstancias(); };
+      mas.setAttribute("aria-label", `Añadir toma en ${nombre}`);
+      mas.onclick = () => { est.tomas[nombre] = (est.tomas[nombre] ?? 0) + 1; guardar(); pintarEstancias(); };
       control.append(c);
     });
     if (!est.estancias.length) control.innerHTML = `<p class="intro">Añade primero tus estancias en el paso 0.</p>`;
@@ -432,6 +438,14 @@
   document.getElementById("sugerir").onclick = () => {
     for (const s of SUGERIDAS) if (!est.estancias.includes(s)) est.estancias.push(s);
     guardar(); pintarEstancias();
+  };
+
+  document.getElementById("nuevo-inmueble").onclick = () => {
+    if (!confirm("¿Empezar un inmueble nuevo? Se borran las casillas marcadas, la lista de estancias y el control de tomas de este dispositivo.")) return;
+    est.paso = 0; est.marcas = {}; est.estancias = []; est.tomas = {}; est.vistos = [];
+    guardar();
+    document.querySelectorAll("ul.check input").forEach((x) => (x.checked = false));
+    pintarEstancias(); ir(0);
   };
 
   pintarEstancias();
