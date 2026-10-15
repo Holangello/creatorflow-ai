@@ -2,7 +2,7 @@
 // pines de las fotos 360. Usa el modelo real (demo/GLB) si existe o un esquema extruido
 // a partir de los muros del plano (con las estancias coloreadas encima).
 import * as THREE from "three";
-import { areaPoligono, centroide } from "./util.js";
+import { areaPoligono, puntoEtiqueta } from "./util.js";
 
 const ALTO_MURO = 2.5;
 const COLORES = [0xe9dcc6, 0xd6e2d3, 0xd9dbe8, 0xeed9cf, 0xdfe7ea, 0xe8e2c9, 0xe2d4e6];
@@ -80,7 +80,7 @@ export function crearMaqueta(ctx) {
       s.visible = true;
       superficies.push(s);
       escena.add(s);
-      const [cx, cz] = centroide(e.poligono);
+      const [cx, cz] = puntoEtiqueta(e.poligono);
       const el = document.createElement("div");
       el.className = "maq-estancia";
       el.innerHTML = `<b></b><span></span>`;

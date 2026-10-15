@@ -46,8 +46,13 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Un icono SVG con scripts en el menú «Más» | Se descarta |
 | Teclado AZERTY | W A S D y Q E van por posición física; R, M, H y V por la letra. Los textos muestran las letras reales en Chromium; en Firefox y Safari dicen W A S D |
 | No hay almacenamiento local (modo privado) | Se usan los valores por defecto |
-| No se pueden copiar imágenes al portapapeles (Firefox) | Las fotos se descargan y se indica adjuntarlas con el clip de WhatsApp |
-| Falla el webhook del CRM o lo bloquea CORS | Aviso honesto; WhatsApp sigue siendo el canal principal |
+| El portapapeles no copia imágenes (Firefox), lo rechaza o no responde en 5 s | «Copiar la foto otra vez» o «Descargar fotos», y se indica adjuntarlas con el clip de WhatsApp |
+| Falla el webhook del CRM o lo bloquea CORS | Aviso honesto con «Reintentar»; WhatsApp sigue siendo el canal principal |
+| La agencia no tiene WhatsApp | El contacto va por el CRM o por email |
+| El recorrido no tiene dirección web | El mensaje va sin enlace y sin líneas vacías; Compartir lo explica y no genera QR |
+| No carga el generador de QR | El QR se oculta con un aviso; el enlace sigue funcionando |
+| El núcleo no ofrece `visor.mas` o `visor.ajustes` | Los paneles ponen su propio «Más» (accesible con teclado) y guardan los ajustes en local |
+| No carga `tema.css` | Los paneles usan sus valores de reserva y se leen bien |
 | Enlaces o HTML maliciosos en un tour | Solo se admiten `http(s)`, `mailto` y `tel`; los textos se muestran como texto |
 | Dos navegaciones a la vez | Fichas de petición: gana la última y nunca queda un estado mezclado |
 
@@ -61,6 +66,14 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | La URL no es válida | Se rechaza al escribirla y al exportar; Revisar la señala |
 | Falta el visor compilado para el HTML autónomo | Error claro: «ejecuta npm run build» |
 | Hay documentos privados | Nunca salen en el ZIP para la web ni en el HTML autónomo, solo en la copia de seguridad |
+| No hay almacenamiento local para «Mi inmobiliaria» | El perfil se aplica solo a este proyecto y se avisa |
+| El perfil está incompleto | Nunca pisa los datos propios de un proyecto |
+| El enlace de la Guía viene mal formado | Se ignora lo raro sin romper nada |
+| La lista de la Guía ya se usó o se descartó | No se vuelve a ofrecer |
+| La vista previa no responde en 12 s | Se ofrece «Recargar la vista previa» |
+| Llega una recarga mientras la vista previa cambia de estancia | Se espera a que el visor confirme la estancia |
+| La inmobiliaria no tiene web | No se escribe `url_publica` ni hay QR de ejemplo; «Descargar QR» queda desactivado |
+| No carga `exportar.js` | La copia de seguridad sigue disponible |
 
 ### Exportación
 

@@ -146,7 +146,7 @@ html { --talla: 1; font-size: calc(clamp(0.875em, 0.75vmin + 0.5625em, 1.5em) * 
 html[data-talla="s"] { --talla: 0.875; }
 html[data-talla="l"] { --talla: 1.18; }
 @media (pointer: coarse) {
-  :root { --alto-control: max(2.75rem, var(--toque-minimo)); --alto-control-s: max(2.25rem, 36px); }
+  :root { --alto-control: max(2.75rem, var(--toque-minimo)); --alto-control-s: max(2.25rem, var(--toque-minimo)); }
 }
 
 /* ------------------------------------------------------------------ Tema oscuro (por defecto) */
@@ -451,6 +451,9 @@ html[data-talla="l"] { --talla: 1.18; }
   font-weight: var(--peso-semi);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 6px 18px color-mix(in srgb, var(--c-acento) 32%, transparent);
 }
+/* El hover genérico (0,2,0) no debe apagar el relleno de los botones de color */
+.c8-boton--primario:hover { --b-fondo: var(--c-acento); }
+.c8-boton--whatsapp:hover { --b-fondo: var(--c-whatsapp); }
 .c8-boton--primario:hover, .c8-boton--whatsapp:hover { filter: brightness(1.07) saturate(1.04); }
 .c8-boton--secundario { --b-fondo: var(--c-capa-hover); --b-borde: var(--c-borde); }
 .c8-boton--fantasma { --b-fondo: transparent; }
@@ -629,6 +632,14 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-deslizador:focus-visible { outline: none; }
 .c8-deslizador:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--c-foco); }
 .c8-deslizador:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--c-foco); }
+/* Táctil: zona de toque de 44 px o más sin cambiar el dibujo. Cada opción del segmentado alcanza también el relleno
+   y el borde del control (un ::before invisible) y el deslizador crece en alto (la pista y el tirador siguen igual).
+   Va después de sus reglas base para que no la pisen. */
+@media (pointer: coarse) {
+  .c8-segmentado > label { position: relative; }
+  .c8-segmentado > label::before { content: ""; position: absolute; inset: -4px 0; }
+  .c8-deslizador { height: var(--toque-minimo); }
+}
 
 /* ------------------------------------------------------------------ Campo de formulario */
 .c8-campo { display: grid; gap: var(--e-1); }

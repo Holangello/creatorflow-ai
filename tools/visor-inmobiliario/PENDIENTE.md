@@ -91,9 +91,16 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
       - Medido en el teléfono: la interfaz en reposo tapa el 10,3 % de la pantalla (objetivo ≤ 15 %).
       - Desviación para enseñar al cliente: la barra de la visita guiada va abajo, en el sitio de los modos; arriba no cabe junto al título y la barra de vista.
       - Pendiente para la fase 4: `#ficha`, la barra de medir, las etiquetas 3D, la cortinilla, los subtítulos y la carga siguen en oscuro fijo. N-14 (precio en el modo juego) no estaba en el paquete.
-    - [ ] Paneles §4.2 y Estudio §4.3: en curso.
-    - Al terminar: conectar `urlSegura` común en `visor.js` (lo deja el ingeniero de paneles en `util.js`), `npm run prueba:todo`, `npm run medir`, compactar, contingencias, commit y enseñar el resultado al cliente.
-    - Después, la fase 4.
+    - [x] Paneles §4.2: tarjeta del inmueble que nunca desaparece; contacto en 4 toques (antes 8 clics) con «Foto de la vista»; «Más» y Ajustes (volumen, modo juego, reducir movimiento); «Estilo y luz» según `estado_obra`; ficha en el orden de §5.4; i18n sin claves huérfanas (330 claves × es/en/fr/de); `urlSegura` común en `util.js`.
+    - [x] Estudio §4.3: barra de 4 pasos (Fotos · Plano opcional · Datos · Publicar) más «Más herramientas», sin modos; «Mi inmobiliaria» (`estudio-perfil.js`); Venta/Alquiler, título y referencia automáticos; Publicar por destino; enlace de la Guía; zonas automáticas; aviso en el móvil. Campos internos y migraciones en ESQUEMA §6.
+    - [x] Integración del orquestador:
+      - `visor.js` usa `urlSegura` de `util.js`; geometría y `slug` en un solo sitio (`util.js`), también para el Estudio y `exportar.js`. Las etiquetas del plano y de la maqueta caen dentro de las estancias en L o en U (`puntoEtiqueta`).
+      - `tema.css`: el hover ya no apaga los botones de color; en táctil, botones pequeños de 44 px y segmentado y deslizador con zona de toque de 44 px (fuera los parches de paneles y Estudio). Única excepción: «Ampliar» del radar, 36 px.
+      - `visor.css`: el color `--suave` pisaba la curva de `tema.css` y anulaba las transiciones; ahora es `--texto-suave`.
+      - La foto del contacto se llama como la vista («Salón»), no como la estancia del plano que la contiene («Salón-comedor»).
+      - `e2e-seguridad`: el HTML autónomo lleva 3 `<script>` (tema.js en línea).
+      - Contingencias de paneles y Estudio en `docs/calidad.md`; `pruebas/LEEME.md` al día; ronda 3 (J: barra de la visita guiada) en la página de decisiones.
+    - Pendiente para la fase 4: revisión completa de `estudio.css` (E18) y acento del Estudio en champán; textos del perfil (pie legal y privacidad) traducibles; borrar las traducciones de una zona al renombrarla; aviso al cerrar la pestaña mientras se importan fotos; N-14 (precio en el modo juego).
   - Pendientes que tenía la conciliación (ya repartidos en el plan):
     - Núcleo: N4 (radar oculto sin plano), N5 (modo juego, ronda 2 de decisiones), N7–N9 y N12.
     - Paneles: PA1–PA11.
@@ -121,10 +128,7 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
        - El lienzo del plano y el editor de máscara leen los colores de las variables CSS (`getComputedStyle`) y se repintan con `cre8:tema`.
        - Apariencia y Tamaño en el Estudio.
     4. **Asistente.** `asistente-osmo.html` con `tema.*`.
-    5. **Exportación.**
-       - `build.mjs` solo empaqueta scripts `type=module`: `tema.js` (clásico) debe ir en línea en el `<head>` del HTML autónomo (`exportarHTMLAutonomo`).
-       - `ARCHIVOS_VISOR` del ZIP debe incluir `tema.js`, `tema.css` y `vendor/fonts/inter/*`.
-       - Las fuentes del CSS ya se incrustan (cargador `dataurl` para `.woff2`).
+    5. ~~**Exportación.**~~ Hecho en la fase 3 (504a65d): tema.js en línea en el HTML autónomo, tema.* y fuentes en el ZIP, cada fuente incrustada una sola vez.
     6. **Pruebas.**
        - Matriz de capturas (claro/oscuro × S/M/L × resoluciones de 360×640 a 3840×2160 y 3440×1440).
        - Script de contraste.

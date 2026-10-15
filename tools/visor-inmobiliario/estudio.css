@@ -663,11 +663,6 @@ dialog.aviso-movil::backdrop { background: var(--c-fondo); }
 #vista-error { z-index: 2; }
 #vista-error div { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 
-/* Táctil: también los botones pequeños del sistema de diseño miden 44 px (WCAG 2.5.5) */
-@media (pointer: coarse) {
-  .c8-boton--s { min-height: var(--toque); }
-  .c8-boton--s.c8-boton--icono { width: var(--toque); }
-}
 /* Móvil (tras «Seguir aquí de todos modos»): la barra superior se queda con lo esencial */
 @media (max-width: 759px) {
   #barra-sup .marca-estudio, #btn-rehacer, #btn-guia { display: none; }

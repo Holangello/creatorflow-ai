@@ -173,6 +173,8 @@ visor.t(texto)  visor.tr(clave, vars)   // resuelve un Texto ({es,en} | cadena) 
 visor.lienzo                    // <canvas> WebGL (para grabar vídeo)
 visor.capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.88, marca = true } = {})
                                 // Promise<{ blob, nodo, estancia, enlace, vista }> captura de la vista actual (sin interfaz)
+                                //   estancia = { id, nombre } de la foto que se ve (el nombre del título) en el recorrido,
+                                //   o de la estancia del plano en el paseo libre
 visor.sonido                    // { activo, disponible, volumen, alternar(), fijarVolumen(v 0-1) }
 visor.pistaAudio(true|false)    // MediaStreamTrack de la música para grabar vídeo (independiente del silencio)
 visor.tiempoReal(true|false)  visor.renderizar()  visor.tamanoCaptura(w, h | null)  visor.sello()   // grabación de vídeo
@@ -283,3 +285,25 @@ Si existe `window.TOUR_EMBEBIDO` (objeto tour con imágenes en `data:`), el viso
 `exportarZIP(tour, archivos)` y `exportarHTMLAutonomo()` publican solo lo público (`soloPublico()`): sin `documentacion`
 con `publico: false`, sin la carpeta `estudio/` ni claves internas `_*`. La copia de seguridad del proyecto usa
 `exportarZIP(tour, archivos, { copiaSeguridad: true })`.
+
+## 6. Datos internos del Estudio (`_estudio`, nunca se publican)
+El Estudio guarda en `tour._estudio` lo que necesita para trabajar; `soloPublico()` lo quita al exportar.
+
+| Campo | Para qué |
+|---|---|
+| `meta` | Datos técnicos de cada foto (`panos/<id>.jpg` → ancho, alto, archivo, bytes, brújula…) |
+| `manuales` · `quitados` | Conexiones entre fotos añadidas o quitadas a mano (`"idA\|idB"`) |
+| `calibrado` | Plantas con la escala del plano calibrada |
+| `norteFijado` | El norte del plano se fijó a mano |
+| `musicaLicencia` | Casilla «Tengo licencia para usar esta música…»; «Antes de publicar» avisa si falta |
+| `ref` | Referencia automática (`C8-XXXXX`), solo en proyectos nuevos sin fotos |
+| `perfil` | `true`: el contacto viene de «Mi inmobiliaria»; `false`: el inmueble tiene contacto propio y el perfil no lo pisa |
+| `firmasPerfil` | Huellas del logo y de la foto del perfil ya copiados (`marca/logo.*`, `marca/agente.*`), para no reescribirlos |
+| `nocheSimulada` | «Ofrecer vista de noche simulada» sin foto real de noche |
+| `estiloTodo` | «Mostrar todo» en Estilo y luz (si no, solo lo que corresponde a `estado_obra`) |
+| `sinZonas` | «No usar zonas»: no se proponen `secciones` automáticas |
+| `nombresGuia` | Nombres de estancias de la lista que llegó de la Guía y aún no tienen foto |
+
+- **Zonas automáticas:** si no hay `secciones` ni `sinZonas`, el Estudio las propone y las publica cuando salen dos o más y hay una sola planta.
+- **Anclas:** `estudio.html#fotos`, `#plano`, `#datos`, `#publicar` (alias `#revisar` y `#exportar`), `#orientacion`, `#estilo` y `#extras`. Las antiguas `#orientar`, `#variantes` y `#material` siguen funcionando. La Guía abre `estudio.html#fotos&estancias=…&tomas=…`.
+- **Proyectos antiguos:** se borra `_estudio.modo` (ya no hay modos Rápido y Completo) y el paso guardado `revisar` o `exportar` pasa a `publicar`.

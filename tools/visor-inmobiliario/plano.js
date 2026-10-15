@@ -1,6 +1,6 @@
 // Radar y plano 2D: plantas, estancias con m², muros, enlaces, fotos y cono de visión.
 // modoMapa() "radar": centrado en el visitante y girando con su mirada (esquina); "plano": norte arriba («Estancias y plano»).
-import { areaPoligono, centroide, puntoEnPoligono } from "./util.js";
+import { areaPoligono, puntoEtiqueta, puntoEnPoligono } from "./util.js";
 
 /**
  * @param {HTMLCanvasElement} canvas
@@ -127,7 +127,7 @@ export function crearPlano(canvas, ctx) {
       for (const e of estancias) {
         // En el radar no se rotula la estancia donde está el visitante (ya figura en la tarjeta superior).
         if (pos0 && puntoEnPoligono([pos0.x, pos0.z], e.poligono)) continue;
-        const [cx, cz] = T.a(...centroide(e.poligono));
+        const [cx, cz] = T.a(...puntoEtiqueta(e.poligono));
         g.font = `600 ${grande ? 13 : 10}px system-ui, sans-serif`;
         g.fillStyle = "rgba(255,255,255,.85)";
         g.fillText(ctx.texto(e.nombre), cx, T.radar ? cz : cz - 7);

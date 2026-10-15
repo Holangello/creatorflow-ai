@@ -67,7 +67,11 @@ El tamaño de letra de la raíz crece con la pantalla y respeta el tamaño de le
 | 2560×1440 | 20 px |
 | 4K al 100 % | 24 px |
 
-La talla multiplica la base: **S** 0,875, **M** 1, **L** 1,18. En pantallas táctiles los controles nunca bajan de 44 px (WCAG 2.5.5), sea cual sea la talla.
+La talla multiplica la base: **S** 0,875, **M** 1, **L** 1,18. En pantallas táctiles los controles nunca bajan de 44 px (WCAG 2.5.5), sea cual sea la talla:
+- `--alto-control` y `--alto-control-s` valen 44 px como mínimo.
+- Cada opción del segmentado alcanza el relleno del control con un `::before` invisible, sin cambiar el dibujo.
+- El deslizador mide 44 px de alto, con la misma pista y el mismo tirador.
+- Única excepción: el botón «Ampliar» del radar se queda en 36 px para no tapar el radar, que también se toca para ir a una estancia.
 
 ### Color
 
@@ -192,7 +196,7 @@ La ruta más rápida es **apuntar las variables antiguas a los tokens nuevos** a
 | Actual | Nuevo |
 |---|---|
 | `visor.css` `--fondo` / `--panel` / `--panel-solido` | `--c-fondo` / `--vidrio-texto` / `--c-sup-1` |
-| `visor.css` `--borde` / `--texto` / `--suave` | `--vidrio-borde` / `--c-texto` / `--c-texto-2` |
+| `visor.css` `--borde` / `--texto` / `--texto-suave` | `--vidrio-borde` / `--c-texto` / `--c-texto-2` |
 | `visor.css` `--acento` / **`--acento-texto`** | `--c-acento` / **`--c-sobre-acento`** |
 | `visor.css` `--radio` / `--serif` | `--r-3` / `--fuente-editorial` |
 | `paneles.css` `--pn-vidrio` / `--pn-vidrio-2` / `--pn-hover` | `--vidrio-texto` / `--c-capa-hover` / `--c-capa-hover` |

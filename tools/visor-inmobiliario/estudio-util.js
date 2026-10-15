@@ -1,4 +1,5 @@
 // Utilidades del Estudio sin DOM (se usan también desde el Web Worker).
+import { areaPoligono, centroide, puntoEnPoligono, slug as slugComun } from "./util.js";
 
 /** Lee ancho y alto de un JPEG/PNG/WebP sin decodificarlo (solo cabeceras). */
 export async function dimensiones(blob) {
@@ -137,39 +138,17 @@ export function tipoMime(ruta) {
     pdf: "application/pdf", mp4: "video/mp4", webm: "video/webm", glb: "model/gltf-binary", html: "text/html", js: "text/javascript", css: "text/css" }[ext] ?? "application/octet-stream";
 }
 
-export function slug(texto) {
-  return String(texto ?? "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "pano";
-}
+export const slug = (texto) => slugComun(texto, "pano");
 
 /** Rumbo en grados (0 = arriba del plano, horario) de un vector (dx, dz). */
 export const rumboDe = (dx, dz) => Math.atan2(dx, -dz) * 180 / Math.PI;
 export const norm180 = (a) => ((((a + 180) % 360) + 360) % 360) - 180;
 export const norm360 = (a) => ((a % 360) + 360) % 360;
 
-/** Área (m²) de un polígono [[x,z],…] (fórmula del cordón de zapato). */
-export function area(pol) {
-  let s = 0;
-  for (let i = 0; i < pol.length; i++) { const [x1, z1] = pol[i], [x2, z2] = pol[(i + 1) % pol.length]; s += x1 * z2 - x2 * z1; }
-  return Math.abs(s) / 2;
-}
-export function centroide(pol) {
-  let a = 0, cx = 0, cz = 0;
-  for (let i = 0; i < pol.length; i++) {
-    const [x1, z1] = pol[i], [x2, z2] = pol[(i + 1) % pol.length];
-    const f = x1 * z2 - x2 * z1; a += f; cx += (x1 + x2) * f; cz += (z1 + z2) * f;
-  }
-  if (Math.abs(a) < 1e-9) return pol.reduce((s, [x, z]) => [s[0] + x / pol.length, s[1] + z / pol.length], [0, 0]);
-  return [cx / (3 * a), cz / (3 * a)];
-}
-export function dentro([x, z], pol) {
-  let c = false;
-  for (let i = 0, j = pol.length - 1; i < pol.length; j = i++) {
-    const [xi, zi] = pol[i], [xj, zj] = pol[j];
-    if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c;
-  }
-  return c;
-}
+/** Geometría del plano: las mismas funciones que usa el visor (util.js). */
+export { centroide };
+export const area = areaPoligono;
+export const dentro = puntoEnPoligono;
 export const redondear = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
 
 // ------------------------------------------------------------------ EXIF / XMP (solo lectura de cabeceras)

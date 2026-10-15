@@ -14,6 +14,7 @@
 //            prioridad sobre la red. Las rutas del tour también pueden ser URLs blob: o data:.
 // Sin dependencias de CDN en tiempo de ejecución: fflate y el generador de QR están en vendor/.
 import { qrSVG } from "./vendor/qr.js";
+import { areaPoligono, puntoEnPoligono, puntoEtiqueta } from "./util.js";
 
 const MODULO = import.meta.url;
 const MB = 1024 * 1024;
@@ -263,16 +264,6 @@ function precioTexto(t, idioma) {
   const i = t.inmueble ?? {};
   if (i.precio == null) return "";
   return formatoPrecio(i.precio, i.moneda ?? "EUR", idioma) + (i.operacion === "alquiler" ? `/${rotulo(idioma, "mes")}` : "");
-}
-
-/** Área (m²) de un polígono [[x,z],…] con la fórmula del lazo (shoelace). */
-export function areaPoligono(pol) {
-  let s = 0;
-  for (let i = 0; i < pol.length; i++) {
-    const [x1, z1] = pol[i], [x2, z2] = pol[(i + 1) % pol.length];
-    s += x1 * z2 - x2 * z1;
-  }
-  return Math.abs(s) / 2;
 }
 
 // ======================================================================= descargar
@@ -947,46 +938,6 @@ function plantaDe(t, plantaId) {
   };
 }
 
-function centroide(pol) {
-  let a = 0, cx = 0, cz = 0;
-  for (let i = 0; i < pol.length; i++) {
-    const [x1, z1] = pol[i], [x2, z2] = pol[(i + 1) % pol.length];
-    const f = x1 * z2 - x2 * z1;
-    a += f; cx += (x1 + x2) * f; cz += (z1 + z2) * f;
-  }
-  if (Math.abs(a) < 1e-9) return [pol.reduce((s, p) => s + p[0], 0) / pol.length, pol.reduce((s, p) => s + p[1], 0) / pol.length];
-  return [cx / (3 * a), cz / (3 * a)];
-}
-function dentro([x, z], pol) {
-  let d = false;
-  for (let i = 0, j = pol.length - 1; i < pol.length; j = i++) {
-    const [xi, zi] = pol[i], [xj, zj] = pol[j];
-    if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) d = !d;
-  }
-  return d;
-}
-/** Punto interior para la etiqueta: centroide si cae dentro; si no (forma en L/U), el mejor de una rejilla. */
-function puntoEtiqueta(pol) {
-  const c = centroide(pol);
-  if (dentro(c, pol)) return c;
-  const xs = pol.map((p) => p[0]), zs = pol.map((p) => p[1]);
-  const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
-  let mejor = c, md = -1;
-  for (let i = 1; i < 12; i++) for (let j = 1; j < 12; j++) {
-    const p = [x0 + ((x1 - x0) * i) / 12, z0 + ((z1 - z0) * j) / 12];
-    if (!dentro(p, pol)) continue;
-    let d = Infinity;
-    for (let k = 0; k < pol.length; k++) {
-      const [ax, az] = pol[k], [bx, bz] = pol[(k + 1) % pol.length];
-      const L2 = (bx - ax) ** 2 + (bz - az) ** 2 || 1;
-      const tt = Math.max(0, Math.min(1, ((p[0] - ax) * (bx - ax) + (p[1] - az) * (bz - az)) / L2));
-      d = Math.min(d, Math.hypot(p[0] - ax - tt * (bx - ax), p[1] - az - tt * (bz - az)));
-    }
-    if (d > md) { md = d; mejor = p; }
-  }
-  return mejor;
-}
-
 /**
  * Plano PNG de una planta para imprimir o subir a portales.
  * @param {object} tour
@@ -1161,7 +1112,7 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
       return d;
     };
     const puntuar = (q) => {
-      if (!dentro(q, pol)) return -Infinity;
+      if (!puntoEnPoligono(q, pol)) return -Infinity;
       const dFoto = fotos && puntos.length ? Math.min(...puntos.map((p) => Math.hypot(p.x - q[0], (p.z - q[1]) * 1.6))) : 9;
       return Math.min(distBorde(q) - (medidas ? 0.75 : 0.4), dFoto - 0.7, 0.4) - 0.05 * Math.hypot(q[0] - cx, q[1] - cz);
     };

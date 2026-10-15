@@ -2,7 +2,7 @@
 // Recorrido 360 (fotos equirectangulares) + modo libre (gaussian splat / GLB) + maqueta 3D,
 // con estilos, día/noche, pintura de paredes, medición, visita guiada y API pública.
 import * as THREE from "three";
-import { GRAD, angDif, rumbo, Emisor, almacen, hexALineal, areaPoligono, puntoEnPoligono, formatoMetros } from "./util.js";
+import { GRAD, angDif, rumbo, Emisor, almacen, hexALineal, areaPoligono, puntoEnPoligono, formatoMetros, urlSegura } from "./util.js";
 import { crearPlano } from "./plano.js";
 import { crearMedicion } from "./medicion.js";
 import { crearMaqueta } from "./maqueta.js";
@@ -1479,14 +1479,9 @@ function aviso(txt, ms = 4500, { reintentar } = {}) {
   clearTimeout(tAviso);
   tAviso = setTimeout(() => (el.hidden = true), ms);
 }
-const urlSegura = (u) => (typeof u === "string" && /^(https?:|mailto:|tel:|\.{0,2}\/|[\w-]+\.[\w]+)/i.test(u.trim()) && !/^\s*javascript:/i.test(u) ? u : null);
-/** Imágenes del tour (logo, miniaturas, notas): http(s), blob:, data:image o rutas relativas; nunca otro esquema. */
-function srcSegura(u) {
-  if (typeof u !== "string" || !u.trim()) return null;
-  const s = u.trim();
-  if (/^(https?:|blob:)/i.test(s) || /^data:image\//i.test(s)) return s;
-  return /^[a-z][a-z0-9+.-]*:/i.test(s) ? null : s;
-}
+/** Imágenes del tour (logo, miniaturas, notas): las reglas comunes de util.js (http(s), blob: del mismo origen, data:image
+    o rutas relativas; nunca otro esquema). Los enlaces usan urlSegura(u) a secas. */
+const srcSegura = (u) => urlSegura(u, { imagen: true });
 const escapar = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 function elem(etiqueta, clase, txt) {
   const e = document.createElement(etiqueta);
@@ -2240,7 +2235,9 @@ Object.assign(visor, {
     c.width = ancho; c.height = alto;
     const g = c.getContext("2d");
     g.drawImage(lienzo, 0, 0, ancho, alto);
-    const est = visor.estanciaActual();
+    // Nombre para el visitante: en el recorrido, el de la foto que ve (el mismo del título, aunque esté dentro de una
+    // estancia mayor del plano, p. ej. «Salón» dentro de «Salón-comedor»); en el paseo libre, la estancia del plano.
+    const est = estado.modo === "tour" && int.actual ? { id: int.actual.id, nombre: int.actual.nombre } : visor.estanciaActual();
     if (marca) {
       const h = Math.round(alto * 0.07);
       g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(0, alto - h, ancho, h);

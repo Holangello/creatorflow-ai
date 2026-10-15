@@ -296,9 +296,6 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-rgpd[open] summary::before { transform: rotate(45deg); }
 .pn-rgpd p { margin-top: var(--e-1, 0.25rem); padding: var(--e-2) var(--e-3); border-radius: var(--r-2, 0.625rem); background: var(--c-capa-hover, rgba(255, 255, 255, 0.06)); line-height: var(--lh-texto, 1.5); }
 .pn-enviar { min-height: max(3rem, var(--toque-minimo, 44px)); }
-/* PROVISIONAL hasta corregirlo en tema.css: «.c8-boton:hover» (0,2,0) pisa el fondo de primario y WhatsApp (0,1,0) y los vuelve grises */
-#paneles .c8-boton--primario:hover { --b-fondo: var(--c-acento, #cfad66); }
-#paneles .c8-boton--whatsapp:hover { --b-fondo: var(--c-whatsapp, #15803d); }
 .pn-directo { margin-top: calc(-1 * var(--e-2, 0.5rem)); }
 .pn-estado { display: grid; gap: var(--e-3, 0.75rem); padding: var(--e-4, 1rem); border-radius: var(--r-3, 0.875rem); }
 .pn-estado p { display: flex; gap: var(--e-2, 0.5rem); align-items: flex-start; }
@@ -526,8 +523,7 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 
 /* ---------------------------------------------------------------- pantallas táctiles: objetivos ≥ 44 px y campos de 16 px (sin zoom en iOS) */
 @media (pointer: coarse) {
-  #paneles .c8-boton--s, #paneles .c8-segmentado > label { min-height: var(--toque-minimo, 44px); }
-  #paneles .c8-deslizador { height: var(--toque-minimo, 44px); }
+  #paneles .c8-segmentado > label { min-height: var(--toque-minimo, 44px); } /* botones pequeños y deslizador: ya 44 px en tema.css */
   #paneles :is(input:not([type="checkbox"], [type="radio"], [type="range"]), select, textarea) { font-size: max(16px, 1rem); }
   .pn-quitar { width: 44px; height: 44px; top: 0; right: 0; }
   .pn-quitar::after { content: none; }
