@@ -722,7 +722,7 @@ había comprobado contra «sistema» y «alcance».
 en el cuerpo, la web va en el primer comentario · 3 hashtags · cero `[DATO]` · cero cifras sin autor, los
 únicos dígitos son los ordinales de la lista · ninguna frase por encima de 15 palabras, la más larga 12.
 
-### Viernes 11 de septiembre · 09:30 · Humano · Conversación
+### Viernes 23 de octubre · 09:30 · Humano · Conversación
 
 **Formato:** Texto + foto propia. **Intensidad:** confrontación pura. **Métrica que mide:** Comentarios que toman postura y reacciones de agencias y fundadores.
 
@@ -942,7 +942,7 @@ La pregunta útil no es "¿digo que no?". Es "¿tengo algo mejor que ofrecer en 
 
 **Pieza visual:** Foto propia · 4:5 · «Angello en set o en reunión». Sin posado, sin filtro, luz natural. Una foto real de trabajo, no un retrato corporativo.
 
-### Lunes 14 de septiembre · 09:30 · Autoridad · Atracción
+### Lunes 19 de octubre · 09:30 · Autoridad · Atracción
 
 **Formato:** Solo texto. **Intensidad:** confrontación pura. **Métrica que mide:** Clics a perfil y comentarios de directores de marketing en la primera hora.
 
@@ -1854,7 +1854,7 @@ Fuente, para que la lectura no sea la mía: «El impacto de la IA en la industri
 Leerlo entero cuesta menos que defender en una reunión una cifra que has visto en un titular. Lo digo por experiencia propia, no por prudencia.
 ```
 
-### Jueves 24 de septiembre · 12:30 · Oferta · Captación
+### Jueves 22 de octubre · 12:30 · Oferta · Captación
 
 **Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Mensajes privados con «sistema» en 7 días.
 
@@ -1999,7 +1999,7 @@ Escríbeme «sistema» por privado y te hago las tres preguntas.
 Las tres preguntas están en ese orden por un motivo. El volumen dice si necesitas un sistema o un proveedor. Quién decide dice si va a sobrevivir a la tercera semana. El plazo dice si el presupuesto existe o está por pedir. Contestarlas cuesta cinco minutos. Un trimestre mal encajado cuesta el trimestre entero. Cómo funciona por dentro: agenciamakers.com
 ```
 
-### Miércoles 30 de septiembre · 09:30 · Actualidad
+### Viernes 16 de octubre · 09:30 · Actualidad
 
 **Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios de decisor (el CTA pide abrir el último contrato firmado) y guardados.
 
@@ -2546,7 +2546,7 @@ Quiero dejar claro una cosa: esto no es una pieza contra Runway. Han construido 
 Mi pega no es con el producto. Es con la lectura que va a hacer la mitad del sector: comprar el motor antes de tener decidido el mensaje. Lo barato ya no es la producción. Lo caro sigue siendo elegir.
 ```
 
-### Martes 6 de octubre · 12:30 · Prueba · Conversación
+### Martes 20 de octubre · 12:30 · Prueba · Conversación
 
 **Formato:** Solo texto. **Intensidad:** método. **Métrica que mide:** Comentarios con un script propio confesado. El CTA pide un inventario incómodo.
 
@@ -4362,20 +4362,20 @@ No se duplican en ningún otro fichero.
 | Mar 8 sept | El 90% del contenido corporativo |  |  |  |  |  |  |  |
 | Mié 9 sept | Sora caduca en quince días |  |  |  |  |  |  |  |
 | Jue 10 sept | Lo que no nos interesa venderte |  |  |  |  |  |  |  |
-| Vie 11 sept | Rechacé un proyecto |  |  |  |  |  |  |  |
-| Lun 14 sept | El briefing de 40 páginas |  |  |  |  |  |  |  |
+| Vie 23 oct | Rechacé un proyecto |  |  |  |  |  |  |  |
+| Lun 19 oct | El briefing de 40 páginas |  |  |  |  |  |  |  |
 | Mar 15 sept | Tu agencia no te engaña |  |  |  |  |  |  |  |
 | Mié 16 sept | El plano se fabrica en el montaje |  |  |  |  |  |  |  |
 | Jue 17 sept | Lo hacemos dentro |  |  |  |  |  |  |  |
 | Mar 13 oct | Qué mido y qué ignoro |  |  |  |  |  |  |  |
 | Lun 21 sept | La IA no sustituye a tu equipo |  |  |  |  |  |  |  |
 | Vie 30 oct | Quién paga el estudio |  |  |  |  |  |  |  |
-| Jue 24 sept | Para quién no es |  |  |  |  |  |  |  |
-| Mié 30 sept | La cláusula que falta |  |  |  |  |  |  |  |
+| Jue 22 oct | Para quién no es |  |  |  |  |  |  |  |
+| Vie 16 oct | La cláusula que falta |  |  |  |  |  |  |  |
 | Jue 1 oct | Qué recibe un cliente cada mes |  |  |  |  |  |  |  |
 | Vie 2 oct | El último metro |  |  |  |  |  |  |  |
 | Lun 5 oct | El volumen dejó de ser el cuello de botella |  |  |  |  |  |  |  |
-| Mar 6 oct | El código a la vista |  |  |  |  |  |  |  |
+| Mar 20 oct | El código a la vista |  |  |  |  |  |  |  |
 | Mié 14 oct | La firma |  |  |  |  |  |  |  |
 | Jue 8 oct | Cierra el briefing |  |  |  |  |  |  |  |
 | Vie 9 oct | La señal y la factura |  |  |  |  |  |  |  |

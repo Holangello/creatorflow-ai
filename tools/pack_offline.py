@@ -40,13 +40,13 @@ COLA = {
     "jue15": "2026-10-15-lo-que-tiene-que-estar-de-tu-lado.md",
 }
 FECHA = {"d1": "Martes 8 de septiembre", "mie": "Miércoles 9 de septiembre", "jue": "Jueves 10 de septiembre",
-         "vie": "Viernes 11 de septiembre", "lun14": "Lunes 14 de septiembre", "caso": "Martes 15 de septiembre", "mie16": "Miércoles 16 de septiembre",
-         "jue17": "Jueves 17 de septiembre", "vie18": "Martes 13 de octubre", "lun21": "Lunes 21 de septiembre", "mie23": "Viernes 30 de octubre", "jue24": "Jueves 24 de septiembre",
-         "mie30": "Miércoles 30 de septiembre",
+         "vie": "Viernes 23 de octubre", "lun14": "Lunes 19 de octubre", "caso": "Martes 15 de septiembre", "mie16": "Miércoles 16 de septiembre",
+         "jue17": "Jueves 17 de septiembre", "vie18": "Martes 13 de octubre", "lun21": "Lunes 21 de septiembre", "mie23": "Viernes 30 de octubre", "jue24": "Jueves 22 de octubre",
+         "mie30": "Viernes 16 de octubre",
          "jue01": "Jueves 1 de octubre",
          "vie02": "Viernes 2 de octubre",
          "lun05": "Lunes 5 de octubre",
-         "mar06": "Martes 6 de octubre",
+         "mar06": "Martes 20 de octubre",
          "mie07": "Miércoles 14 de octubre",
          "jue08": "Jueves 8 de octubre",
          "vie09": "Viernes 9 de octubre",
@@ -323,7 +323,7 @@ def adapt_sections(kind):
         res[m.group(1)] = {"title": m.group(2).strip(), "html": md_to_html(m.group(3))[0]}
     return res
 adapts = adapt_sections("Adaptaciones"); guides = adapt_sections("Guía")
-DATE = {"d1": "2026-09-08", "mie": "2026-09-09", "jue": "2026-09-10", "vie": "2026-09-11", "lun14": "2026-09-14", "caso": "2026-09-15", "mie16": "2026-09-16", "jue17": "2026-09-17", "vie18": "2026-10-13", "lun21": "2026-09-21", "mie23": "2026-10-30", "jue24": "2026-09-24", "mie30": "2026-09-30", "jue01": "2026-10-01", "vie02": "2026-10-02", "lun05": "2026-10-05", "mar06": "2026-10-06", "mie07": "2026-10-14", "jue08": "2026-10-08", "vie09": "2026-10-09", "lun12": "2026-10-12", "jue15": "2026-10-15"}
+DATE = {"d1": "2026-09-08", "mie": "2026-09-09", "jue": "2026-09-10", "vie": "2026-10-23", "lun14": "2026-10-19", "caso": "2026-09-15", "mie16": "2026-09-16", "jue17": "2026-09-17", "vie18": "2026-10-13", "lun21": "2026-09-21", "mie23": "2026-10-30", "jue24": "2026-10-22", "mie30": "2026-10-16", "jue01": "2026-10-01", "vie02": "2026-10-02", "lun05": "2026-10-05", "mar06": "2026-10-20", "mie07": "2026-10-14", "jue08": "2026-10-08", "vie09": "2026-10-09", "lun12": "2026-10-12", "jue15": "2026-10-15"}
 faltan = [d["id"] for d in days
           if d["id"] not in DATE or d["id"] not in FECHA]
 if faltan:

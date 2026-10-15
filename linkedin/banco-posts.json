@@ -116,7 +116,7 @@
   },
   {
     "id": "vie",
-    "date": "Vie 11 sept",
+    "date": "Vie 23 oct",
     "short": "Rechacé un proyecto",
     "chosen": 0,
     "hora": "09:30",
@@ -163,7 +163,7 @@
   },
   {
     "id": "lun14",
-    "date": "Lun 14 sept",
+    "date": "Lun 19 oct",
     "short": "El briefing de 40 páginas",
     "chosen": 1,
     "hora": "09:30",
@@ -408,7 +408,7 @@
   },
   {
     "id": "jue24",
-    "date": "Jue 24 sept",
+    "date": "Jue 22 oct",
     "short": "Para quién no es",
     "chosen": 0,
     "hora": "12:30",
@@ -444,7 +444,7 @@
   },
   {
     "id": "mie30",
-    "date": "Mié 30 sept",
+    "date": "Vie 16 oct",
     "short": "La cláusula que falta",
     "chosen": 0,
     "hora": "09:30",
@@ -592,7 +592,7 @@
   },
   {
     "id": "mar06",
-    "date": "Mar 6 oct",
+    "date": "Mar 20 oct",
     "short": "El código a la vista",
     "chosen": 0,
     "hora": "12:30",
