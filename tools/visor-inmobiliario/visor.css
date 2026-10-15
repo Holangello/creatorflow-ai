@@ -468,6 +468,9 @@ body.embed #btn-pantalla { display: none; }
   #medir-barra { width: auto; left: calc(var(--hud) + var(--seg-izq)); right: calc(var(--hud) + var(--seg-der)); translate: none; }
 }
 @media (max-width: 540px) and (orientation: portrait) {
+  /* El sello legal (IA, render, luz simulada) y la carga, a la izquierda bajo la columna del título, la barra del sol y el
+     radar: arriba en el centro chocaba con la barra del sol. --arriba-sello lo pone visor.js (el pie de #esquina). */
+  #estado-vista { top: var(--arriba-sello, calc(var(--arriba) + 14rem)); inset-inline: auto; left: calc(var(--hud) + var(--seg-izq)); margin-inline: 0; align-items: flex-start; }
   /* Paseo libre: la tarjeta de los paneles queda como píldora abajo a la derecha sin reservar alto (--reserva-inferior: 0)
      y tapaba la mitad de los modos. Los modos y el aviso suben por encima de una píldora de un control de alto (si los
      paneles publican la reserva, manda la suya; hoy publican 0 en el paseo libre a propósito: la píldora es estrecha). */

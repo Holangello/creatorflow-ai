@@ -826,6 +826,18 @@ function avanzar(desvio = 0) {
   if (mejor) irA(mejor);
 }
 
+// En el teléfono en vertical el sello legal va bajo la columna de la esquina (título, barra del sol y radar), que cambia de
+// alto al mostrar u ocultar el radar o la barra: se sigue con un ResizeObserver.
+const MQ_SELLO = matchMedia("(max-width: 540px) and (orientation: portrait)");
+function colocarSello() {
+  const e = $("#estado-vista");
+  if (!e) return;
+  if (MQ_SELLO.matches) e.style.setProperty("--arriba-sello", `${Math.round($("#esquina").getBoundingClientRect().bottom + 8)}px`);
+  else e.style.removeProperty("--arriba-sello");
+}
+if (typeof ResizeObserver === "function") new ResizeObserver(colocarSello).observe($("#esquina"));
+MQ_SELLO.addEventListener?.("change", colocarSello);
+
 // ------------------------------------------------------------------ barra del sol
 // Petición del cliente (fase 4): «una barra arriba que no tape nada, con un punto que se mueva adelante y atrás del
 // amanecer al anochecer, con el movimiento correcto y exacto del sol según las fotos de la Osmo 360… amanecer, día
