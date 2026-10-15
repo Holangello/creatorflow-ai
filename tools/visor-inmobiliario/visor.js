@@ -1650,7 +1650,7 @@ function precompilar() {
 }
 // Una pieza de vidrio que aparece o se va en los paneles (un diálogo, un menú, la barra de captura) cambia las zonas: se
 // vuelve a medir sin esperar a que se mueva la vista (A23). Lo mismo al abrir el menú «Más» (abrirMas).
-new MutationObserver((cambios) => {
+if ($("#paneles")) new MutationObserver((cambios) => {
   const vidrio = (n) => n.nodeType === 1 && (n.matches(".c8-vidrio") || !!n.querySelector(".c8-vidrio"));
   if (cambios.some((c) => [...c.addedNodes, ...c.removedNodes].some(vidrio))) luz.pendiente = true;
 }).observe($("#paneles"), { childList: true, subtree: true });
