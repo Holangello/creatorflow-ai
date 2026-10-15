@@ -3,453 +3,531 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d0f12">
-<meta name="generator" content="cre8eight">
-<title>Asistente Osmo 360 · cre8eight</title>
-<meta name="description" content="Guía paso a paso para crear un recorrido 3D con la DJI Osmo 360: preparar la vivienda, configurar la cámara, disparar, importar en el Estudio y publicar.">
+<title>Guía Osmo 360 · cre8eight</title>
+<meta name="description" content="Guía paso a paso para crear un recorrido virtual inmobiliario con la DJI Osmo 360 y cre8eight.">
+<script src="tema.js"></script>
+<link rel="stylesheet" href="tema.css">
 <style>
-  :root {
-    --fondo: #0b0c0f; --vidrio: rgba(28, 31, 38, .62); --vidrio-2: rgba(255, 255, 255, .06); --borde: rgba(255, 255, 255, .12);
-    --texto: #f5f5f7; --suave: #a1a1aa; --acento: #c8a24a; --acento-texto: #17130a; --ok: #3fb67b; --aviso: #e0a33a;
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
-    --radio: 18px; --sup: env(safe-area-inset-top, 0px); --inf: env(safe-area-inset-bottom, 0px);
-    color-scheme: dark;
-  }
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; min-height: 100dvh; background: radial-gradient(1200px 700px at 80% -10%, #2a2416 0%, transparent 60%), radial-gradient(900px 600px at -10% 110%, #14202a 0%, transparent 55%), var(--fondo);
-    color: var(--texto); font: 16px/1.55 var(--sans); }
-  a { color: var(--acento); }
-  :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; border-radius: 6px; }
-  .contenedor { width: min(760px, 100%); margin: 0 auto; padding: calc(18px + var(--sup)) 18px calc(120px + var(--inf)); }
-  header.cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
-  .marca { font: 600 22px/1 var(--serif); letter-spacing: .01em; }
-  .marca span { color: var(--acento); }
-  .cab small { color: var(--suave); }
-  .progreso { position: sticky; top: 0; z-index: 5; padding: calc(10px + var(--sup)) 0 10px; margin: 0 -18px 16px; padding-left: 18px; padding-right: 18px;
-    background: linear-gradient(var(--fondo) 60%, transparent); }
-  .barra { height: 4px; border-radius: 4px; background: rgba(255,255,255,.1); overflow: hidden; }
-  .barra div { height: 100%; width: 0; background: var(--acento); transition: width .4s ease; }
-  .pasos { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-top: 10px; }
-  .pasos::-webkit-scrollbar { display: none; }
-  .pasos button { flex: 0 0 auto; min-height: 36px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--borde); background: var(--vidrio-2); color: var(--suave); font: 500 13px var(--sans); cursor: pointer; }
-  .pasos button[aria-current="step"] { background: var(--acento); color: var(--acento-texto); border-color: transparent; }
-  .pasos button.hecho:not([aria-current="step"]) { color: var(--texto); }
-  .pasos button.hecho::before { content: "✓ "; color: var(--ok); }
-  .tarjeta { background: var(--vidrio); border: 1px solid var(--borde); border-radius: var(--radio); padding: 22px; margin-bottom: 14px;
-    backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
-  h1 { font: 600 30px/1.15 var(--serif); margin: 0 0 6px; letter-spacing: -.005em; }
-  h2 { font: 600 19px/1.3 var(--sans); margin: 22px 0 10px; }
-  .num { color: var(--acento); font: 600 13px var(--sans); letter-spacing: .14em; text-transform: uppercase; }
-  .intro { color: var(--suave); margin: 0 0 6px; }
-  .tiempo { display: inline-block; margin-top: 6px; font-size: 13px; color: var(--suave); padding: 3px 10px; border: 1px solid var(--borde); border-radius: 999px; }
-  ul.check { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-  ul.check label { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--vidrio-2); border: 1px solid transparent; cursor: pointer; }
-  ul.check label:hover { border-color: var(--borde); }
-  ul.check input { appearance: none; flex: 0 0 22px; width: 22px; height: 22px; margin: 1px 0 0; border-radius: 7px; border: 1.5px solid rgba(255,255,255,.35); display: grid; place-items: center; cursor: pointer; }
-  ul.check input:checked { background: var(--acento); border-color: var(--acento); }
-  ul.check input:checked::after { content: ""; width: 6px; height: 11px; border: solid var(--acento-texto); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) translate(-1px, -1px); }
-  ul.check input:checked + span { color: var(--suave); }
-  ul.check span b { color: var(--texto); }
-  .consejo, .alerta { display: flex; gap: 12px; padding: 14px 16px; border-radius: 14px; margin: 12px 0; font-size: 15px; }
-  .consejo { background: rgba(200,162,74,.1); border: 1px solid rgba(200,162,74,.3); }
-  .alerta { background: rgba(224,90,58,.1); border: 1px solid rgba(224,90,58,.35); }
-  .consejo::before { content: "💡"; } .alerta::before { content: "⚠️"; }
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--borde); vertical-align: top; }
-  th { color: var(--suave); font-weight: 500; font-size: 13px; }
-  details { border-radius: 14px; background: var(--vidrio-2); padding: 12px 14px; margin: 8px 0; }
-  summary { cursor: pointer; font-weight: 600; min-height: 28px; }
-  .esquema { width: 100%; height: auto; display: block; margin: 8px 0; border-radius: 14px; background: rgba(0,0,0,.25); }
-  .estancias { display: grid; gap: 8px; }
-  .estancia { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--vidrio-2); }
-  .estancia .tomas { font-variant-numeric: tabular-nums; color: var(--suave); font-size: 14px; }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border-radius: 12px; border: 1px solid var(--borde);
-    background: var(--vidrio-2); color: var(--texto); font: 600 15px var(--sans); cursor: pointer; text-decoration: none; }
-  .btn.primario { background: var(--acento); color: var(--acento-texto); border-color: transparent; }
-  .btn.peq { min-height: 40px; padding: 6px 12px; font-size: 14px; }
-  .fila { display: flex; gap: 8px; flex-wrap: wrap; }
-  input[type=text] { flex: 1; min-width: 0; min-height: 44px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--borde); background: rgba(0,0,0,.25); color: var(--texto); font: 16px var(--sans); }
-  nav.pie { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; padding: 12px 18px calc(12px + var(--inf)); background: rgba(11,12,15,.72);
-    backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border-top: 1px solid var(--borde); }
-  nav.pie .dentro { width: min(760px, 100%); margin: 0 auto; display: flex; justify-content: space-between; gap: 10px; }
-  .chip { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.08); }
-  .rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
-  .rejilla .caja { padding: 14px; border-radius: 14px; background: var(--vidrio-2); }
-  .rejilla .caja b { display: block; margin-bottom: 4px; }
-  .rejilla .caja small { color: var(--suave); }
-  [hidden] { display: none !important; }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-  @media print { nav.pie, .progreso { display: none; } body { background: #fff; color: #000; } .tarjeta { box-shadow: none; border-color: #ccc; background: #fff; } section[hidden] { display: block !important; } }
+  /* Guía Osmo 360: pensada para el móvil durante la sesión de fotos. Todo el aspecto sale de tema.css. */
+  body { min-height: 100dvh; }
+  .marco { width: min(46rem, 100%); margin: 0 auto; padding: 0 max(var(--e-4), env(safe-area-inset-right, 0px)) calc(7rem + env(safe-area-inset-bottom, 0px)) max(var(--e-4), env(safe-area-inset-left, 0px)); }
+  .cabecera { position: sticky; top: 0; z-index: var(--z-panel); display: flex; align-items: center; gap: var(--e-2);
+    margin: 0 0 var(--e-5); padding: calc(var(--e-2) + env(safe-area-inset-top, 0px)) max(var(--e-4), calc(50vw - 23rem)) var(--e-2);
+    border-width: 0 0 1px; border-radius: 0; }
+  .marca { font: var(--peso-semi) var(--t-destacado) / 1 var(--fuente-titular); letter-spacing: -0.02em; margin-right: auto; display: flex; align-items: baseline; gap: var(--e-2); white-space: nowrap; }
+  .marca b { color: var(--c-acento-texto); font-weight: var(--peso-fuerte); }
+  .marca small { font: var(--peso-medio) var(--t-sec) / 1 var(--fuente); color: var(--c-texto-2); letter-spacing: 0; }
+  .paso-actual { display: grid; gap: var(--e-2); margin-bottom: var(--e-5); }
+  .selector-paso { justify-content: space-between; text-align: left; white-space: normal; padding: var(--e-3) var(--e-4); border-radius: var(--r-4); min-height: 3.25rem; }
+  .selector-paso span { display: grid; gap: 2px; }
+  .selector-paso small { color: var(--c-texto-2); font-weight: var(--peso-medio); font-size: var(--t-pie); letter-spacing: var(--track-mayus); text-transform: uppercase; }
+  .barra { height: 4px; border-radius: 4px; background: var(--c-pista); overflow: hidden; }
+  .barra i { display: block; height: 100%; width: 0; background: var(--c-acento); transition: width var(--d-3) var(--salida); }
+  .menu-pasos[open] { width: min(26rem, calc(100vw - 2rem)); }
+  .menu-pasos h3 { margin: var(--e-4) 0 var(--e-2); font: var(--peso-semi) var(--t-micro) / 1 var(--fuente); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-texto-2); }
+  .menu-pasos .c8-lista button { all: unset; display: flex; align-items: center; gap: var(--e-3); width: 100%; cursor: pointer; min-height: var(--alto-control); }
+  .menu-pasos .c8-lista button:focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; border-radius: var(--r-2); }
+  .menu-pasos .hecho::after { content: "✓"; margin-left: auto; color: var(--c-ok); font-weight: var(--peso-semi); }
+  .menu-pasos [aria-current="step"] { color: var(--c-acento-texto); font-weight: var(--peso-semi); }
+  section.paso { display: grid; gap: var(--e-4); }
+  section.paso[hidden] { display: none; }
+  .fase { font: var(--peso-semi) var(--t-micro) / 1 var(--fuente); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-acento-texto); }
+  h1 { margin: 0; font-size: var(--t-titulo-g); }
+  h2 { margin: var(--e-3) 0 0; font-size: var(--t-titulo); }
+  .intro { margin: 0; color: var(--c-texto-2); }
+  ol.ciclo, ul.reglas { margin: 0; padding-left: 1.25rem; display: grid; gap: var(--e-2); }
+  ul.check { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-2); }
+  ul.check label { display: flex; gap: var(--e-3); align-items: flex-start; padding: var(--e-3) var(--e-4); border-radius: var(--r-3); background: var(--c-capa-hover); cursor: pointer; }
+  ul.check input { appearance: none; flex: none; width: 1.375rem; height: 1.375rem; margin: 0.1rem 0 0; border-radius: 0.4rem; border: 1.5px solid var(--c-borde-2); display: grid; place-items: center; cursor: pointer; transition: background-color var(--d-1); }
+  ul.check input:checked { background: var(--c-acento); border-color: var(--c-acento); }
+  ul.check input:checked::after { content: ""; width: 0.35rem; height: 0.7rem; border: solid var(--c-sobre-acento); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) translate(-1px, -1px); }
+  ul.check input:focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; }
+  ul.check input:checked + span { color: var(--c-texto-2); }
+  .nota { display: flex; gap: var(--e-3); padding: var(--e-3) var(--e-4); border-radius: var(--r-3); font-size: var(--t-ui); line-height: var(--lh-texto); }
+  .nota.consejo { background: var(--c-acento-suave); }
+  .nota.alerta { background: var(--c-error-fondo); }
+  .nota .c8-icono { margin-top: 0.15rem; color: var(--c-acento-texto); }
+  .nota.alerta .c8-icono { color: var(--c-error); }
+  .tabla { overflow-x: auto; border-radius: var(--r-3); border: 1px solid var(--c-borde); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--t-ui); }
+  th, td { text-align: left; padding: var(--e-2) var(--e-3); border-bottom: 1px solid var(--c-separador); vertical-align: top; }
+  th { font-weight: var(--peso-semi); background: var(--c-capa-hover); }
+  tr:last-child td { border-bottom: 0; }
+  .fila { display: flex; flex-wrap: wrap; gap: var(--e-2); align-items: center; }
+  .fila .c8-entrada { flex: 1 1 12rem; }
+  .estancia { justify-content: space-between; }
+  .estancia .tomas { color: var(--c-texto-2); font-size: var(--t-sec); font-variant-numeric: tabular-nums; margin-left: auto; }
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--e-3); }
+  .caja { padding: var(--e-4); border-radius: var(--r-4); background: var(--c-capa-hover); display: grid; gap: var(--e-1); }
+  .caja small { color: var(--c-texto-2); }
+  .esquema { width: 100%; height: auto; border-radius: var(--r-4); background: var(--c-capa-hover); }
+  .esquema .muro { fill: none; stroke: var(--c-borde-2); stroke-width: 3; }
+  .esquema .paso-linea { stroke: var(--c-acento); stroke-dasharray: 4 4; stroke-width: 2; }
+  .esquema .centro { fill: var(--c-acento); }
+  .esquema .puerta { fill: var(--c-sup-1); stroke: var(--c-acento); stroke-width: 2; }
+  .esquema text { font: 12px var(--fuente); fill: var(--c-texto-2); }
+  details { border-radius: var(--r-3); background: var(--c-capa-hover); padding: var(--e-3) var(--e-4); }
+  details + details { margin-top: var(--e-2); }
+  summary { cursor: pointer; font-weight: var(--peso-semi); }
+  details p { margin: var(--e-2) 0 0; color: var(--c-texto-2); }
+  .estudio-pasos { margin: 0; padding-left: 1.25rem; display: grid; gap: var(--e-2); }
+  .pie { position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-panel); border-width: 1px 0 0; border-radius: 0;
+    padding: var(--e-3) max(var(--e-4), env(safe-area-inset-right, 0px)) calc(var(--e-3) + env(safe-area-inset-bottom, 0px)) max(var(--e-4), env(safe-area-inset-left, 0px)); }
+  .pie .dentro { width: min(46rem, 100%); margin: 0 auto; display: flex; justify-content: space-between; gap: var(--e-3); }
+  .pie .c8-boton { flex: 1; max-width: 14rem; }
+  .solo-grande { display: none; }
+  @media (min-width: 760px) { .solo-grande { display: inline-flex; } .solo-movil { display: none; } }
 </style>
 </head>
-<body>
-<div class="contenedor">
-  <header class="cab">
-    <div class="marca">cre8<span>eight</span></div>
-    <small>Asistente · DJI Osmo 360</small>
-    <button class="btn peq" type="button" id="nuevo-inmueble">Nuevo inmueble</button>
-  </header>
+<body class="c8-base">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bombilla" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2V17h5v-1c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-aviso" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.5h.01"/></symbol>
+    <symbol id="i-flecha" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-enviar" viewBox="0 0 24 24"><path d="M4 12 20 4l-4 16-4.5-6.5z"/><path d="M11.5 13.5 20 4"/></symbol>
+  </defs>
+</svg>
 
-  <div class="progreso" aria-label="Progreso">
-    <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div></div></div>
-    <div class="pasos" role="tablist" aria-label="Pasos"></div>
+<header class="cabecera c8-vidrio c8-vidrio--texto">
+  <span class="marca">cre<b>8</b>eight <small>Guía Osmo 360</small></span>
+  <a class="c8-boton c8-boton--fantasma c8-boton--s" href="#problemas" id="ir-problemas" aria-label="Problemas frecuentes">?</a>
+  <a class="c8-boton c8-boton--secundario c8-boton--s solo-grande" href="estudio.html#fotos" data-accion="estudio-cabecera">Abrir el Estudio</a>
+</header>
+
+<div class="marco">
+  <div class="paso-actual">
+    <button class="c8-boton c8-boton--secundario c8-boton--bloque selector-paso" type="button" id="abrir-pasos" aria-haspopup="dialog" aria-controls="menu-pasos">
+      <span><small id="fase-actual">Antes de ir</small><b id="titulo-actual">Paso 1 de 6 · Material y estancias</b></span>
+      <svg class="c8-icono" aria-hidden="true"><use href="#i-flecha"/></svg>
+    </button>
+    <div class="barra" role="progressbar" aria-label="Progreso de la guía" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
   </div>
 
   <main id="pasos">
 
-    <!-- 0 ---------------------------------------------------------------->
-    <section data-titulo="Empezar" class="tarjeta">
-      <div class="num">Paso 0 · Antes de salir</div>
-      <h1>Tu primer recorrido 3D con la Osmo 360</h1>
-      <p class="intro">Sigue los pasos en orden. Puedes marcar cada punto: el asistente recuerda tu progreso en este dispositivo. Tiempo total para un piso de 90 m²: <b>unos 60–75 minutos</b> desde que llegas hasta tener el recorrido listo.</p>
+    <!-- 1 ---------------------------------------------------------------->
+    <section class="paso" data-ancla="material" data-titulo="Material y estancias" data-fase="Antes de ir">
+      <span class="fase">Antes de ir</span>
+      <h1>Tu primer recorrido virtual con la Osmo 360</h1>
+      <p class="intro">Sigue los pasos en orden y marca lo que vayas haciendo: la guía recuerda tu progreso en este móvil. Para un piso de 90 m² cuenta con <b>unos 60–75 minutos</b> desde que llegas hasta tener el recorrido listo.</p>
       <h2>Lo que necesitas</h2>
       <ul class="check" data-lista="material">
-        <li><label><input type="checkbox"><span><b>DJI Osmo 360</b> (o Osmo 360 II) con la batería cargada al 100 % y una de repuesto.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Palo-trípode de 1,6 m</b> (Osmo 1.6 m Tripod Selfie Stick) o un trípode ligero con barra. El palo invisible de 1,2 m es para usar en mano, no para interiores.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Móvil con la app DJI Mimo</b> actualizada y emparejada con la cámara (la usarás como disparador remoto con vista previa).</span></label></li>
-        <li><label><input type="checkbox"><span><b>Paño de microfibra</b> para las lentes (una huella arruina una foto 360).</span></label></li>
-        <li><label><input type="checkbox"><span><b>Plano de la vivienda</b> (del arquitecto, del Catastro o un croquis con medidas). Sirve para colocar las fotos.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Espacio libre</b>: la cámara tiene unos 105 GB internos; cada foto de 120 MP ocupa ~25–40 MB.</span></label></li>
+        <li><label><input type="checkbox"><span><b>DJI Osmo 360</b> (o Osmo 360 II) con la batería al 100 % y una de repuesto.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Palo-trípode de 1,6 m</b> (Osmo 1.6 m Tripod Selfie Stick) o un trípode ligero. El palo invisible de 1,2 m es para usar en mano, no para interiores.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Móvil con DJI Mimo</b> actualizada y emparejada con la cámara: la usarás para disparar a distancia viendo la imagen.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Paño de microfibra</b> para las lentes: una huella arruina una foto 360.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Plano de la vivienda</b>, si lo tienes (del arquitecto, del Catastro o un croquis con medidas). Es opcional, pero con plano el recorrido tiene radar y medidas.</span></label></li>
       </ul>
+      <div class="nota consejo"><svg class="c8-icono" aria-hidden="true"><use href="#i-bombilla"/></svg><span>La cámara tiene unos 105 GB y cada foto de 120 MP ocupa 25–40 MB: hay sitio de sobra para varios pisos.</span></div>
       <h2>Lista de estancias</h2>
-      <p class="intro">Escribe las estancias en el orden en que vas a recorrer la vivienda. El Estudio usará esta lista para nombrar las fotos automáticamente.</p>
-      <div class="fila"><input type="text" id="nueva-estancia" placeholder="Ej.: Salón" aria-label="Nombre de la estancia"><button class="btn primario" id="anadir-estancia" type="button">Añadir</button></div>
-      <div class="fila" style="margin-top:8px"><button class="btn peq" type="button" id="sugerir">Sugerir para un piso típico</button></div>
-      <div class="estancias" id="lista-estancias" style="margin-top:12px"></div>
-    </section>
-
-    <!-- 1 ---------------------------------------------------------------->
-    <section data-titulo="Preparar la vivienda" class="tarjeta" hidden>
-      <div class="num">Paso 1 · 15–20 min</div>
-      <h1>Prepara la vivienda</h1>
-      <p class="intro">Una cámara 360 lo ve <b>todo, a la vez</b>. Lo que no quieras en el anuncio, quítalo ahora.</p>
-      <ul class="check" data-lista="vivienda">
-        <li><label><input type="checkbox"><span><b>Enciende todas las luces</b>, incluidas lámparas y luces de cocina. Si puedes, que todas sean del mismo tono (cálido 2700–3000 K).</span></label></li>
-        <li><label><input type="checkbox"><span><b>Sube todas las persianas</b> y abre cortinas. Si el sol entra directo, entorna un poco para evitar manchas quemadas.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Retira objetos personales</b>: fotos familiares, documentos, medicinas, ropa, imanes de la nevera, cepillos de dientes.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Despeja encimeras y mesas</b>; deja como mucho un detalle decorativo.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Cierra la tapa del váter</b>, alinea cojines, estira las camas y abre las puertas interiores (las puertas abiertas conectan visualmente las estancias).</span></label></li>
-        <li><label><input type="checkbox"><span><b>Apaga televisores y pantallas</b> o pon una imagen neutra. Esconde cables.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Pide el consentimiento por escrito</b> al propietario o inquilino para fotografiar y publicar.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Nadie en casa</b> durante las tomas (ni mascotas): en 360 no hay "detrás de la cámara".</span></label></li>
-      </ul>
-      <div class="consejo"><span>Haz una vuelta rápida con el móvil grabando: en 30 segundos verás lo que sobra antes de empezar.</span></div>
+      <p class="intro">Escríbelas en el orden en que vas a recorrer la vivienda. El Estudio las usará para nombrar las fotos solas.</p>
+      <div class="fila"><input class="c8-entrada" type="text" id="nueva-estancia" placeholder="Ej.: Salón" aria-label="Nombre de la estancia"><button class="c8-boton c8-boton--primario" id="anadir-estancia" type="button">Añadir</button></div>
+      <div class="fila"><button class="c8-boton c8-boton--secundario c8-boton--s" type="button" id="sugerir">Sugerir para un piso típico</button></div>
+      <ul class="c8-lista" id="lista-estancias"></ul>
+      <div class="fila">
+        <button class="c8-boton c8-boton--secundario" type="button" data-accion="enviar"><svg class="c8-icono" aria-hidden="true"><use href="#i-enviar"/></svg>Enviar mi lista al ordenador</button>
+      </div>
     </section>
 
     <!-- 2 ---------------------------------------------------------------->
-    <section data-titulo="Configurar la cámara" class="tarjeta" hidden>
-      <div class="num">Paso 2 · 3 min</div>
-      <h1>Configura la Osmo 360</h1>
-      <p class="intro">La foto panorámica de la Osmo 360 sale <b>ya unida (cosida) en un JPG de 120 MP, 15520 × 7760</b>, listo para cre8eight. No necesitas procesarla en el ordenador.</p>
-      <h2>¿Qué modo uso?</h2>
-      <table>
-        <thead><tr><th>Situación</th><th>Modo recomendado</th><th>Por qué</th></tr></thead>
-        <tbody>
-          <tr><td>Interior con luz pareja (ventanas sin sol directo)</td><td><span class="chip">Foto 360 · 120 MP</span></td><td>Máximo detalle para hacer zoom y para la web en escritorio.</td></tr>
-          <tr><td>Ventanas muy brillantes, contraluz, sol directo</td><td><span class="chip">HDR · 30 MP</span> (Osmo 360 II: HDR 120 MP)</td><td>Recupera el cielo y las sombras. 30 MP sigue siendo de sobra para móvil y tablet.</td></tr>
-          <tr><td>Terraza, jardín, fachada a mediodía</td><td><span class="chip">HDR</span></td><td>Mucho rango dinámico entre cielo y sombra.</td></tr>
-          <tr><td>Paseo libre 3D (opcional, premium)</td><td><span class="chip">Vídeo 360 · 8K 30 fps</span></td><td>Para entrenar un gaussian splat (paso 5).</td></tr>
-        </tbody>
-      </table>
-      <h2>Ajustes</h2>
-      <ul class="check" data-lista="ajustes">
-        <li><label><input type="checkbox"><span><b>Formato de foto: JPG</b> (en 120 MP es el único disponible).</span></label></li>
-        <li><label><input type="checkbox"><span><b>Exposición automática</b> con compensación a <b>0 o +0,3 EV</b> en interiores (las casas luminosas venden más). Si una ventana sale blanca, pasa a HDR.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Balance de blancos fijo</b> (por ejemplo 4000–4500 K) para que todas las estancias tengan el mismo tono. En automático cada foto saldría de un color.</span></label></li>
-        <li><label><input type="checkbox"><span><b>ISO automático con máximo 800</b> si la cámara lo permite (menos ruido en las zonas oscuras).</span></label></li>
-        <li><label><input type="checkbox"><span><b>Temporizador de 3–5 s</b> o disparo remoto desde DJI Mimo (vista previa en directo para comprobar el encuadre antes de disparar).</span></label></li>
-        <li><label><input type="checkbox"><span><b>Ubicación GPS desactivada</b> en la app (cre8eight borra igualmente los metadatos GPS al importar).</span></label></li>
-        <li><label><input type="checkbox"><span><b>Limpia las dos lentes</b> justo antes de empezar y cada pocas estancias.</span></label></li>
+    <section class="paso" data-ancla="preparar" data-titulo="Preparar la vivienda" data-fase="En la vivienda" hidden>
+      <span class="fase">En la vivienda · 15–20 min</span>
+      <h1>Prepara la vivienda</h1>
+      <p class="intro">Una cámara 360 lo ve <b>todo a la vez</b>. Lo que no quieras en el anuncio, quítalo ahora.</p>
+      <ul class="check" data-lista="vivienda">
+        <li><label><input type="checkbox"><span><b>Enciende todas las luces</b>, lámparas y luces de cocina incluidas. Mejor si todas son del mismo tono (cálido, 2700–3000 K).</span></label></li>
+        <li><label><input type="checkbox"><span><b>Sube las persianas</b> y abre las cortinas. Si el sol entra directo, entorna un poco para evitar manchas quemadas.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Retira lo personal y despeja</b>: fotos familiares, documentos, medicinas, ropa, imanes de la nevera; en encimeras y mesas, como mucho un detalle.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Cierra la tapa del váter</b>, alinea cojines, estira las camas y abre las puertas interiores (conectan visualmente las estancias).</span></label></li>
+        <li><label><input type="checkbox"><span><b>Apaga televisores y pantallas</b> y esconde cables.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Consentimiento por escrito</b> del propietario o inquilino para fotografiar y publicar.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Nadie en casa</b> durante las tomas, ni mascotas: en 360 no hay «detrás de la cámara».</span></label></li>
       </ul>
-      <div class="alerta"><span>Los nombres exactos de los menús cambian con cada actualización del firmware y de DJI Mimo. Si no encuentras un ajuste, busca la opción equivalente: lo importante es el criterio (luz pareja, tono fijo, sin movimiento).</span></div>
+      <div class="nota consejo"><svg class="c8-icono" aria-hidden="true"><use href="#i-bombilla"/></svg><span>Da una vuelta rápida grabando con el móvil: en 30 segundos verás lo que sobra.</span></div>
     </section>
 
     <!-- 3 ---------------------------------------------------------------->
-    <section data-titulo="Planificar los puntos" class="tarjeta" hidden>
-      <div class="num">Paso 3 · 5 min</div>
-      <h1>Decide dónde colocar la cámara</h1>
-      <p class="intro">Cada punto será un lugar desde el que el visitante podrá mirar a su alrededor. Los puntos bien colocados hacen que el recorrido se sienta como caminar.</p>
-      <svg class="esquema" viewBox="0 0 400 240" role="img" aria-label="Esquema: un punto en el centro de cada estancia y otro en cada puerta">
-        <rect x="20" y="20" width="230" height="140" fill="none" stroke="#ddd" stroke-width="3"/>
-        <rect x="250" y="20" width="130" height="90" fill="none" stroke="#ddd" stroke-width="3"/>
-        <rect x="250" y="110" width="130" height="110" fill="none" stroke="#ddd" stroke-width="3"/>
-        <rect x="20" y="160" width="230" height="60" fill="none" stroke="#ddd" stroke-width="3"/>
-        <g fill="#0b0c0f"><rect x="246" y="55" width="8" height="30"/><rect x="246" y="135" width="8" height="30"/><rect x="100" y="156" width="40" height="8"/></g>
-        <g stroke="#c8a24a" stroke-dasharray="4 4" stroke-width="2"><line x1="135" y1="90" x2="250" y2="70"/><line x1="250" y1="70" x2="315" y2="65"/><line x1="135" y1="90" x2="120" y2="160"/><line x1="120" y1="160" x2="120" y2="190"/><line x1="250" y1="150" x2="315" y2="165"/><line x1="135" y1="90" x2="250" y2="150"/></g>
-        <g fill="#c8a24a"><circle cx="135" cy="90" r="9"/><circle cx="315" cy="65" r="9"/><circle cx="315" cy="165" r="9"/><circle cx="120" cy="190" r="9"/></g>
-        <g fill="#fff"><circle cx="250" cy="70" r="6"/><circle cx="250" cy="150" r="6"/><circle cx="120" cy="160" r="6"/></g>
-        <g font-family="system-ui" font-size="12" fill="#bbb"><text x="30" y="40">Salón</text><text x="260" y="40">Cocina</text><text x="260" y="130">Dormitorio</text><text x="30" y="180">Pasillo</text></g>
-        <g font-family="system-ui" font-size="11" fill="#c8a24a"><text x="150" y="232">● centro de estancia   ○ puerta / paso</text></g>
-      </svg>
-      <ul class="check" data-lista="plan">
-        <li><label><input type="checkbox"><span><b>Un punto en el centro de cada estancia.</b> En estancias grandes (más de 25 m²), dos puntos separados unos 3 m.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Un punto en cada puerta o paso</b> entre estancias (o en el pasillo cada 2–3 m). Así el salto entre fotos es corto y natural.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Mantén al menos 0,75 m (mejor 1 m) a muebles y paredes.</b> Es la distancia que DJI recomienda para que la unión de las dos lentes sea limpia.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Distancia entre puntos: 2–4 m.</b> Más lejos y el visitante pierde la orientación; más cerca y el recorrido se hace lento.</span></label></li>
-        <li><label><input type="checkbox"><span><b>Exteriores:</b> terraza, jardín, vistas desde la ventana principal y, si aporta, portal y zonas comunes.</span></label></li>
+    <section class="paso" data-ancla="camara" data-titulo="Configurar la cámara" data-fase="En la vivienda" hidden>
+      <span class="fase">En la vivienda · 3 min</span>
+      <h1>Configura la Osmo 360</h1>
+      <p class="intro">La foto panorámica sale <b>ya unida en un JPG de 120 MP (15520 × 7760)</b>, lista para cre8eight. No hace falta procesarla en el ordenador.</p>
+      <div class="tabla"><table>
+        <thead><tr><th>Situación</th><th>Modo</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>Interior con luz pareja</td><td><span class="c8-etiqueta">Foto 360 · 120 MP</span></td><td>Máximo detalle para el zoom y el escritorio.</td></tr>
+          <tr><td>Ventanas muy brillantes, contraluz o sol directo</td><td><span class="c8-etiqueta">HDR · 30 MP</span><br><small class="c8-sec">Osmo 360 II: HDR 120 MP</small></td><td>Recupera el cielo y las sombras. 30 MP sobra para móvil y tablet.</td></tr>
+          <tr><td>Terraza, jardín o fachada a mediodía</td><td><span class="c8-etiqueta">HDR</span></td><td>Mucha diferencia de luz entre cielo y sombra.</td></tr>
+        </tbody>
+      </table></div>
+      <h2>Ajustes</h2>
+      <ul class="check" data-lista="ajustes">
+        <li><label><input type="checkbox"><span><b>Exposición automática</b> a 0 o +0,3 EV (las casas luminosas venden más) e <b>ISO máximo 800</b> si la cámara lo permite. Si una ventana sale blanca, pasa a HDR.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Balance de blancos fijo</b> (4000–4500 K) para que todas las estancias tengan el mismo tono.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Disparo a distancia</b> desde DJI Mimo (verás el encuadre) o temporizador de 3–5 s.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Limpia las dos lentes</b> ahora y cada pocas estancias.</span></label></li>
       </ul>
-      <div class="consejo"><span>Dibuja los puntos en el plano con un número. Luego, en el Estudio, solo tendrás que arrastrar cada foto a su número.</span></div>
+      <div class="nota alerta"><svg class="c8-icono" aria-hidden="true"><use href="#i-aviso"/></svg><span>Los nombres de los menús cambian con cada actualización de la cámara y de DJI Mimo. Si no encuentras un ajuste, busca el equivalente: lo importante es el criterio (luz pareja, tono fijo, sin movimiento). La ubicación GPS da igual: cre8eight la borra al importar.</span></div>
     </section>
 
     <!-- 4 ---------------------------------------------------------------->
-    <section data-titulo="Disparar" class="tarjeta" hidden>
-      <div class="num">Paso 4 · 20–30 min</div>
+    <section class="paso" data-ancla="fotos" data-titulo="Hacer las fotos" data-fase="En la vivienda" hidden>
+      <span class="fase">En la vivienda · 25–35 min</span>
       <h1>Haz las fotos 360</h1>
-      <p class="intro">Repite este ciclo en cada punto, en el orden de tu lista de estancias.</p>
-      <ol style="padding-left: 20px; margin: 0 0 8px">
-        <li><b>Altura: 1,50 m</b> desde el suelo hasta las lentes (la altura de los ojos). Usa siempre la misma: cre8eight la usa para medir distancias.</li>
-        <li><b>Cámara vertical y nivelada.</b> Comprueba la burbuja o la línea del horizonte en DJI Mimo.</li>
-        <li><b>Misma orientación en todas las tomas:</b> por ejemplo, el botón de disparo siempre mirando hacia la fachada o la ventana principal. Así el Estudio orienta las fotos casi solo.</li>
-        <li><b>Sal del encuadre:</b> escóndete en otra estancia o detrás de una puerta y dispara desde DJI Mimo.</li>
-        <li><b>Revisa la vista previa</b> (10 s): ¿salen personas, reflejos tuyos en espejos o la barra del trípode demasiado visible?</li>
-        <li>Marca la toma en la lista de abajo y pasa al siguiente punto.</li>
+      <h2>Dónde poner la cámara</h2>
+      <svg class="esquema" viewBox="0 0 400 240" role="img" aria-label="Esquema: un punto en el centro de cada estancia y otro en cada puerta">
+        <rect class="muro" x="20" y="20" width="230" height="140"/><rect class="muro" x="250" y="20" width="130" height="90"/>
+        <rect class="muro" x="250" y="110" width="130" height="110"/><rect class="muro" x="20" y="160" width="230" height="60"/>
+        <g><line class="paso-linea" x1="135" y1="90" x2="250" y2="70"/><line class="paso-linea" x1="250" y1="70" x2="315" y2="65"/><line class="paso-linea" x1="135" y1="90" x2="120" y2="160"/><line class="paso-linea" x1="120" y1="160" x2="120" y2="190"/><line class="paso-linea" x1="250" y1="150" x2="315" y2="165"/><line class="paso-linea" x1="135" y1="90" x2="250" y2="150"/></g>
+        <g><circle class="centro" cx="135" cy="90" r="9"/><circle class="centro" cx="315" cy="65" r="9"/><circle class="centro" cx="315" cy="165" r="9"/><circle class="centro" cx="120" cy="190" r="9"/></g>
+        <g><circle class="puerta" cx="250" cy="70" r="6"/><circle class="puerta" cx="250" cy="150" r="6"/><circle class="puerta" cx="120" cy="160" r="6"/></g>
+        <text x="30" y="40">Salón</text><text x="260" y="40">Cocina</text><text x="260" y="130">Dormitorio</text><text x="30" y="180">Pasillo</text>
+        <text x="150" y="234">● centro de estancia   ○ puerta o paso</text>
+      </svg>
+      <ul class="reglas">
+        <li><b>Un punto en el centro de cada estancia</b>; en las de más de 25 m², dos puntos separados unos 3 m.</li>
+        <li><b>Un punto en cada puerta o paso</b> (o en el pasillo cada 2–3 m): así el salto entre fotos es corto y natural.</li>
+        <li><b>A 0,75 m como mínimo (mejor 1 m) de muebles y paredes</b>: es la distancia que DJI recomienda para que la unión de las dos lentes salga limpia.</li>
+        <li><b>Entre 2 y 4 m entre puntos.</b> Más lejos, el visitante se pierde; más cerca, el recorrido se hace lento.</li>
+        <li><b>Exteriores</b>: terraza, jardín, vistas desde la ventana principal y, si aporta, portal y zonas comunes.</li>
+      </ul>
+      <h2>En cada punto</h2>
+      <ol class="ciclo">
+        <li><b>Altura: 1,50 m</b> del suelo a las lentes, siempre la misma (cre8eight la usa para medir distancias).</li>
+        <li><b>Cámara vertical y nivelada</b>: comprueba el horizonte en DJI Mimo.</li>
+        <li><b>Misma orientación en todas las tomas</b>, por ejemplo el botón mirando a la fachada. Así el Estudio orienta las fotos casi solo.</li>
+        <li><b>Sal del encuadre</b>: escóndete en otra estancia o tras una puerta y dispara desde DJI Mimo.</li>
+        <li><b>Revisa la toma</b> (10 s): horizonte recto, nadie en la foto, sin reflejos tuyos en espejos y sin la barra del trípode demasiado visible.</li>
+        <li><b>Márcala abajo</b> y pasa al siguiente punto.</li>
       </ol>
       <h2>Control de tomas</h2>
-      <p class="intro">Pulsa + cada vez que hagas una foto en una estancia.</p>
-      <div class="estancias" id="control-tomas"></div>
-      <div class="alerta"><span><b>Espejos y cristales:</b> colócate de forma que no te veas reflejado. En baños pequeños, dispara desde la puerta.</span></div>
-      <div class="consejo"><span><b>Ventana quemada:</b> repite esa toma en modo HDR. <b>Imagen oscura:</b> enciende más luces antes que subir el ISO.</span></div>
-      <div class="consejo"><span><b>Vista de noche (opcional):</b> al anochecer, repite las estancias principales desde el mismo punto, a la misma altura y con la misma orientación, con todas las luces encendidas. En el Estudio, súbela como variante «Noche» y el visitante podrá pasar de día a noche.</span></div>
+      <p class="intro">Pulsa «+ Toma» cada vez que hagas una foto en una estancia; «−» si te equivocas.</p>
+      <ul class="c8-lista" id="control-tomas"></ul>
+      <div class="nota alerta"><svg class="c8-icono" aria-hidden="true"><use href="#i-aviso"/></svg><span><b>Espejos y cristales:</b> colócate de forma que no te veas reflejado. En baños pequeños, dispara desde la puerta.</span></div>
+      <div class="nota consejo"><svg class="c8-icono" aria-hidden="true"><use href="#i-bombilla"/></svg><span><b>Ventana quemada:</b> repite en modo HDR. <b>Imagen oscura:</b> enciende más luces antes que subir el ISO.</span></div>
+      <div class="nota consejo"><svg class="c8-icono" aria-hidden="true"><use href="#i-bombilla"/></svg><span><b>Vista de noche (opcional):</b> al anochecer, repite las estancias principales desde el mismo punto, a la misma altura y con la misma orientación, con todas las luces encendidas. En el Estudio súbelas en «Estilo y luz» como «Noche» y el visitante podrá pasar del día a la noche.</span></div>
     </section>
 
     <!-- 5 ---------------------------------------------------------------->
-    <section data-titulo="Vídeo para paseo libre (opcional)" class="tarjeta" hidden>
-      <div class="num">Paso 5 · Opcional · 5–10 min</div>
-      <h1>Graba el vídeo para el paseo libre 3D</h1>
-      <p class="intro">Solo si quieres que el visitante pueda <b>caminar libremente como en un videojuego</b> (gaussian splat). Recomendado en viviendas premium, áticos con terraza y casas con jardín.</p>
-      <ul class="check" data-lista="video">
-        <li><label><input type="checkbox"><span>Modo <b>vídeo 360, 8K a 30 fps</b>, con la exposición y el balance de blancos fijos.</span></label></li>
-        <li><label><input type="checkbox"><span>Sujeta la cámara con el palo <b>por encima de la cabeza</b> (así sales lo menos posible).</span></label></li>
-        <li><label><input type="checkbox"><span>Camina <b>muy despacio</b> (medio metro por segundo), sin giros bruscos.</span></label></li>
-        <li><label><input type="checkbox"><span>Recorre cada estancia en <b>un bucle</b> (perímetro y centro) y pasa <b>varias veces por las puertas</b>.</span></label></li>
-        <li><label><input type="checkbox"><span>Duración orientativa: <b>2–4 minutos</b> para un piso de 90 m².</span></label></li>
-      </ul>
-      <div class="consejo"><span>El vídeo se guarda en formato <b>.OSV</b>. En el ordenador: <b>DJI Studio → importar el .OSV → añadir a la línea de tiempo → exportar MP4 equirectangular 8K</b>. Luego sigue la sección "Paseo libre" de la guía (extraer fotogramas y entrenar el splat con Postshot o Brush).</span></div>
+    <section class="paso" data-ancla="estudio" data-titulo="Pasar al Estudio" data-fase="En el ordenador" hidden>
+      <span class="fase">En el ordenador · 15–20 min</span>
+      <h1>Crea el recorrido en el Estudio</h1>
+      <div class="rejilla">
+        <div class="caja"><b>Fotos por cable USB-C</b><small>Conecta la cámara al ordenador y copia los .JPG de la carpeta DCIM. Es lo más rápido con 120 MP.</small></div>
+        <div class="caja"><b>Fotos con DJI Mimo</b><small>Descárgalas al móvil o al iPad y guárdalas en una carpeta. Exporta la foto 360 completa (2:1), no un encuadre plano.</small></div>
+      </div>
+      <p class="intro">Copia solo las fotos buenas a una carpeta con la referencia del inmueble. No las renombres: el Estudio las ordena por la hora de disparo y les pone los nombres de tu lista.</p>
+      <div class="fila">
+        <button class="c8-boton c8-boton--primario" type="button" data-accion="estudio">Abrir el Estudio</button>
+        <button class="c8-boton c8-boton--secundario" type="button" data-accion="enviar"><svg class="c8-icono" aria-hidden="true"><use href="#i-enviar"/></svg>Enviar mi lista al ordenador</button>
+      </div>
+      <p class="intro solo-movil">El Estudio necesita un ordenador o un iPad. Envíate el enlace: incluye tu lista de estancias.</p>
+      <h2>En el Estudio, 4 pasos</h2>
+      <ol class="estudio-pasos">
+        <li><a href="estudio.html#fotos"><b>Fotos</b></a>: arrastra la carpeta. El Estudio detecta la Osmo 360, ordena las fotos y les pone los nombres de tu lista («Cocina», «Cocina 2»).</li>
+        <li><a href="estudio.html#plano"><b>Plano</b></a> (opcional): sube el plano (PDF, imagen o DXF), calíbralo con dos puntos y una medida real y coloca cada foto donde pusiste la cámara. Sin plano también funciona: las fotos se conectan en el orden de la lista.</li>
+        <li><a href="estudio.html#datos"><b>Datos</b></a>: precio, superficies, habitaciones, baños y <b>certificado energético</b> (obligatorio en los anuncios). Tu marca, WhatsApp y privacidad se rellenan solos desde «Mi inmobiliaria».</li>
+        <li><a href="estudio.html#publicar"><b>Publicar</b></a>: arriba verás «Antes de publicar» con lo que falta, y después las descargas.</li>
+      </ol>
+      <details><summary>Más herramientas (opcionales)</summary><p><b>Orientación y notas</b> (que las flechas coincidan con las puertas), <b>Estilo y luz</b> (estilos de decoración en proyectos, colores de pared en viviendas construidas, versión de noche) y <b>Extras</b> (renders, modelo 3D, documentos, música y visita guiada).</p></details>
     </section>
 
     <!-- 6 ---------------------------------------------------------------->
-    <section data-titulo="Pasar las fotos" class="tarjeta" hidden>
-      <div class="num">Paso 6 · 5 min</div>
-      <h1>Pasa las fotos al ordenador o al iPad</h1>
-      <div class="rejilla">
-        <div class="caja"><b>Por cable USB-C</b><small>Conecta la cámara al ordenador y copia los archivos .JPG de la carpeta DCIM. Es lo más rápido para 120 MP.</small></div>
-        <div class="caja"><b>Con DJI Mimo</b><small>Descarga las fotos al móvil o tablet y compártelas o guárdalas en una carpeta. Asegúrate de exportar la foto 360 completa (2:1), no un encuadre plano.</small></div>
-      </div>
-      <ul class="check" data-lista="pasar" style="margin-top:12px">
-        <li><label><input type="checkbox"><span>Copia <b>solo las fotos buenas</b> (descarta las repetidas) a una carpeta con el nombre de la referencia del inmueble.</span></label></li>
-        <li><label><input type="checkbox"><span>No renombres ni edites las fotos todavía: el Estudio las ordena por la hora de disparo.</span></label></li>
-        <li><label><input type="checkbox"><span>(Opcional) Si quieres retocarlas, usa un editor que conserve el formato 2:1 sin recortar (por ejemplo, Lightroom).</span></label></li>
-      </ul>
-    </section>
-
-    <!-- 7 ---------------------------------------------------------------->
-    <section data-titulo="Crear en el Estudio" class="tarjeta" hidden>
-      <div class="num">Paso 7 · 15–20 min</div>
-      <h1>Crea el recorrido en cre8eight Estudio</h1>
-      <p class="intro">Abre el Estudio en el ordenador o en el iPad y elige <b>Modo rápido</b> (recomendado). Sigue el botón <b>Continuar</b> de cada paso: todo se guarda solo.</p>
-      <p><a class="btn primario" href="estudio.html">Abrir el Estudio</a></p>
-      <ol style="padding-left: 20px">
-        <li><a href="estudio.html#fotos"><b>Fotos</b></a>: arrastra la carpeta. El Estudio detecta que son de la Osmo 360, las ordena por hora y les pone los nombres de tu lista (incluidas las tomas repetidas: "Cocina", "Cocina 2").</li>
-        <li><a href="estudio.html#plano"><b>Plano</b></a> (opcional): sube el plano (PDF, imagen o DXF del arquitecto), <b>calíbralo</b> con dos puntos y una distancia real, coloca cada foto donde pusiste la cámara y dibuja las estancias para ver los m². Sin plano también funciona: las fotos se conectan en el orden de la lista.</li>
-        <li><a href="estudio.html#datos"><b>Datos</b></a>: precio, superficies, habitaciones, baños, <b>certificado energético</b> (obligatorio en anuncios), WhatsApp y política de privacidad.</li>
-        <li><a href="estudio.html#revisar"><b>Revisar</b></a>: corrige lo que te marque (por ejemplo, fotos sin orientar).</li>
-        <li><a href="estudio.html#exportar"><b>Publicar</b></a>: «Descargar mi recorrido (ZIP)» y, si quieres, en «Para portales y redes»: fotos 360, vídeo, plano y dossier.</li>
-      </ol>
-      <details><summary>Opcional: modo completo</summary><p>Añade renders y planos del arquitecto (Material), ajusta la dirección de cada foto y añade notas (Orientar), y crea estilos de decoración, versión de noche y colores de pared (Variantes).</p></details>
-    </section>
-
-    <!-- 8 ---------------------------------------------------------------->
-    <section data-titulo="Revisar la calidad" class="tarjeta" hidden>
-      <div class="num">Paso 8 · 5 min</div>
-      <h1>Revisa antes de publicar</h1>
-      <ul class="check" data-lista="calidad">
-        <li><label><input type="checkbox"><span>El horizonte está recto en todas las fotos (si una sale torcida, repítela o corrígela).</span></label></li>
-        <li><label><input type="checkbox"><span>No hay personas, reflejos ni objetos personales.</span></label></li>
-        <li><label><input type="checkbox"><span>Las flechas del suelo apuntan a las puertas reales.</span></label></li>
-        <li><label><input type="checkbox"><span>El radar y el plano muestran tu posición correcta en cada estancia.</span></label></li>
-        <li><label><input type="checkbox"><span>Has probado en el <b>móvil</b>: carga rápida, se ve nítido y el botón de WhatsApp funciona.</span></label></li>
-        <li><label><input type="checkbox"><span>Los estilos y renders llevan el aviso "Recreación virtual" (sale solo en cre8eight).</span></label></li>
-        <li><label><input type="checkbox"><span>El certificado energético y el precio son correctos.</span></label></li>
-      </ul>
-    </section>
-
-    <!-- 9 ---------------------------------------------------------------->
-    <section data-titulo="Publicar" class="tarjeta" hidden>
-      <div class="num">Paso 9 · 10 min</div>
+    <section class="paso" data-ancla="publicar" data-titulo="Publicar" data-fase="En el ordenador" hidden>
+      <span class="fase">En el ordenador · 10 min</span>
       <h1>Publica y comparte</h1>
-      <h2>En tu web (enlace para compartir)</h2>
-      <ol style="padding-left: 20px">
-        <li>En el Estudio → <b>Publicar</b> → <b>Descargar mi recorrido (ZIP)</b>. Escribe antes la dirección de tu web para que el enlace y el QR salgan bien.</li>
-        <li>Sube la carpeta a tu web en <code>/tours/REFERENCIA/</code> (o a la carpeta <code>tours</code> del repositorio si usas GitHub Pages).</li>
-        <li>Comparte el enlace por WhatsApp, redes, QR en el escaparate o en el cartel del piso.</li>
+      <h2>1 · En tu web</h2>
+      <ol class="ciclo">
+        <li>En el Estudio, <b>Publicar → Tu web → Descargar mi recorrido (ZIP)</b>. La dirección de tu web sale de «Mi inmobiliaria», así el enlace y el QR quedan bien.</li>
+        <li>Sube la carpeta a tu web, por ejemplo en <code>/tours/REFERENCIA/</code>.</li>
+        <li>Comparte el enlace por WhatsApp y redes, y pon el QR en el escaparate o en el cartel.</li>
       </ol>
-      <h2>En idealista y otros portales</h2>
-      <table>
-        <thead><tr><th>Qué subir</th><th>Desde el Estudio</th><th>Límite idealista</th></tr></thead>
+      <h2>2 · En idealista y otros portales</h2>
+      <div class="tabla"><table>
+        <thead><tr><th>Qué subir</th><th>Desde el Estudio</th><th>Límite en idealista</th></tr></thead>
         <tbody>
-          <tr><td>Vídeo de la visita guiada</td><td>Publicar → Para portales y redes → Vídeo de la visita (16:9, 9:16 o 1:1; MP4, o WebM en Chrome)</td><td>Hasta 6 vídeos de 100 MB</td></tr>
-          <tr><td>Fotos 360</td><td>Publicar → Para portales y redes → Fotos 360 (con datos GPano, menos de 7,5 MB cada una)</td><td>Hasta 200 fotos de 8 MB</td></tr>
-          <tr><td>Plano con medidas</td><td>Publicar → Para portales y redes → Plano con medidas (si has subido el plano)</td><td>Como imagen</td></tr>
-          <tr><td>Tour 360</td><td>Las mismas fotos 360 → subirlas a un proveedor compatible (p. ej. Kuula) → pegar su enlace</td><td>Solo proveedores compatibles</td></tr>
+          <tr><td>Vídeo de la visita</td><td>Portales y redes → Vídeo de la visita (16:9, 9:16 o 1:1; MP4, o WebM en Chrome)</td><td>6 vídeos de 100 MB</td></tr>
+          <tr><td>Fotos 360</td><td>Portales y redes → Fotos 360 (con datos GPano, menos de 7,5 MB cada una)</td><td>200 fotos de 8 MB</td></tr>
+          <tr><td>Plano con medidas</td><td>Portales y redes → Plano con medidas (si subiste el plano)</td><td>Como imagen</td></tr>
+          <tr><td>Recorrido 360</td><td>Las mismas fotos 360 en un proveedor compatible (p. ej. Kuula) y pegar su enlace</td><td>Solo proveedores compatibles</td></tr>
         </tbody>
-      </table>
-      <div class="consejo"><span>idealista no permite enlazar tu propio recorrido en el anuncio: usa el vídeo y las fotos para atraer, y tu web con el recorrido completo (WhatsApp, estilos, paseo libre) como destino desde redes, QR y Google.</span></div>
-      <p><a class="btn" href="index.html?demo">Ver el recorrido de demostración</a></p>
+      </table></div>
+      <div class="nota consejo"><svg class="c8-icono" aria-hidden="true"><use href="#i-bombilla"/></svg><span>idealista no deja enlazar tu propio recorrido en el anuncio: usa el vídeo y las fotos para atraer, y tu web con el recorrido completo (WhatsApp con foto, estilos, paseo libre) como destino desde redes, el QR y Google.</span></div>
+      <h2>3 · Para tus clientes</h2>
+      <p class="intro">En <b>Para tus clientes</b>: el <b>dossier en PDF</b> para imprimir o enviar, el <b>recorrido en un solo archivo</b> (se abre sin internet con doble clic) y el <b>QR</b>.</p>
+      <div class="fila">
+        <a class="c8-boton c8-boton--secundario" href="index.html?demo">Ver el recorrido de demostración</a>
+        <button class="c8-boton c8-boton--fantasma" type="button" data-accion="nuevo">Empezar otro inmueble</button>
+      </div>
     </section>
 
-    <!-- Consejos ----------------------------------------------------------->
-    <section data-titulo="Problemas y soluciones" class="tarjeta" hidden>
-      <div class="num">Ayuda</div>
+    <!-- Apéndices --------------------------------------------------------->
+    <section class="paso" data-ancla="paseo-libre" data-titulo="Paseo libre (vídeo, opcional)" data-fase="Apéndices" data-apendice hidden>
+      <span class="fase">Apéndice · opcional · 5–10 min</span>
+      <h1>Vídeo para el paseo libre 3D</h1>
+      <p class="intro">Solo si quieres que el visitante pueda <b>caminar libremente, como en un videojuego</b>. Recomendado en viviendas premium, áticos con terraza y casas con jardín. Necesita trabajo en el ordenador (DJI Studio y un programa de «gaussian splatting»).</p>
+      <ul class="check" data-lista="video">
+        <li><label><input type="checkbox"><span>Modo <b>vídeo 360, 8K a 30 fps</b>, con exposición y balance de blancos fijos.</span></label></li>
+        <li><label><input type="checkbox"><span>La cámara con el palo <b>por encima de la cabeza</b>, para salir lo menos posible.</span></label></li>
+        <li><label><input type="checkbox"><span>Camina <b>muy despacio</b> (medio metro por segundo) y sin giros bruscos.</span></label></li>
+        <li><label><input type="checkbox"><span>Recorre cada estancia <b>en bucle</b> (perímetro y centro) y pasa <b>varias veces por las puertas</b>.</span></label></li>
+        <li><label><input type="checkbox"><span>Unos <b>2–4 minutos</b> para un piso de 90 m².</span></label></li>
+      </ul>
+      <div class="nota consejo"><svg class="c8-icono" aria-hidden="true"><use href="#i-bombilla"/></svg><span>El vídeo se guarda como <b>.OSV</b>. En el ordenador: DJI Studio → importar el .OSV → exportar MP4 equirectangular 8K. Después, extrae fotogramas, entrena el modelo (Postshot o Brush) y súbelo en el Estudio, en <b>Extras → Modelo 3D</b>.</span></div>
+    </section>
+
+    <section class="paso" data-ancla="problemas" data-titulo="Problemas frecuentes" data-fase="Apéndices" data-apendice hidden>
+      <span class="fase">Apéndice · ayuda</span>
       <h1>Problemas frecuentes</h1>
-      <details><summary>Se ve una línea o costura en la foto</summary><p>Estabas a menos de 0,75 m de un mueble o pared. Aleja la cámara y repite la toma.</p></details>
-      <details><summary>Las ventanas salen blancas</summary><p>Usa el modo HDR o dispara cuando el sol no entre directo. También ayuda encender todas las luces interiores para equilibrar.</p></details>
-      <details><summary>Cada estancia tiene un color distinto</summary><p>El balance de blancos estaba en automático. Fíjalo (4000–4500 K) y repite, o corrige el tono en Lightroom aplicando el mismo ajuste a todas.</p></details>
-      <details><summary>El horizonte sale inclinado</summary><p>La cámara no estaba vertical. Usa el nivel de DJI Mimo o un trípode con burbuja. Las fotos muy torcidas, repítelas.</p></details>
-      <details><summary>Salgo yo en la foto</summary><p>Dispara desde DJI Mimo escondido en otra estancia o con temporizador. En pasillos, colócate detrás de una puerta.</p></details>
-      <details><summary>La foto se ve borrosa en el móvil</summary><p>Es normal que el móvil use una versión de 4096 px para no agotar la memoria. En escritorio se usa la de 8192 px. Para más nitidez, acércate más a lo importante (más puntos, más cerca).</p></details>
-      <details><summary>El Estudio va lento con 120 MP</summary><p>Importa las fotos de una tanda de 5–10. En iPad, si va justo, usa el modo HDR de 30 MP: sigue siendo excelente para la web.</p></details>
-      <details><summary>Tengo un archivo .OSV</summary><p>Es vídeo 360. Ábrelo en DJI Studio y expórtalo como MP4 equirectangular 8K para el paseo libre.</p></details>
+      <div>
+        <details><summary>Se ve una línea o costura en la foto</summary><p>Estabas a menos de 0,75 m de un mueble o pared. Aleja la cámara y repite la toma.</p></details>
+        <details><summary>Las ventanas salen blancas</summary><p>Usa el modo HDR o dispara cuando el sol no entre directo. Encender todas las luces interiores también equilibra.</p></details>
+        <details><summary>Cada estancia tiene un color distinto</summary><p>El balance de blancos estaba en automático. Fíjalo (4000–4500 K) y repite, o aplica el mismo ajuste de tono a todas en Lightroom.</p></details>
+        <details><summary>El horizonte sale inclinado</summary><p>La cámara no estaba vertical. Usa el nivel de DJI Mimo o un trípode con burbuja; repite las fotos muy torcidas.</p></details>
+        <details><summary>Salgo yo en la foto</summary><p>Dispara desde DJI Mimo escondido en otra estancia, o con temporizador. En pasillos, ponte detrás de una puerta.</p></details>
+        <details><summary>La foto se ve borrosa en el móvil</summary><p>El móvil usa una versión de 4096 px para no agotar la memoria; el escritorio, la de 8192 px. Para más nitidez, más puntos y más cerca de lo importante.</p></details>
+        <details><summary>El Estudio va lento con 120 MP</summary><p>Importa las fotos en tandas de 5–10. En iPad, si va justo, usa el modo HDR de 30 MP: sigue siendo excelente para la web.</p></details>
+        <details><summary>Tengo un archivo .OSV</summary><p>Es vídeo 360: ábrelo en DJI Studio y expórtalo como MP4 equirectangular 8K para el paseo libre (apéndice anterior).</p></details>
+        <details><summary>La lista de estancias no llega al Estudio</summary><p>Si haces las fotos con el móvil y usas el Estudio en el ordenador, pulsa «Enviar mi lista al ordenador» y abre ese enlace en el ordenador.</p></details>
+      </div>
     </section>
   </main>
 </div>
 
-<nav class="pie" aria-label="Navegación entre pasos">
+<nav class="pie c8-vidrio c8-vidrio--texto" aria-label="Navegación entre pasos">
   <div class="dentro">
-    <button class="btn" type="button" id="anterior">← Anterior</button>
-    <button class="btn primario" type="button" id="siguiente">Siguiente →</button>
+    <button class="c8-boton c8-boton--secundario" type="button" id="anterior">← Anterior</button>
+    <button class="c8-boton c8-boton--primario" type="button" id="siguiente">Siguiente →</button>
   </div>
 </nav>
 
+<dialog class="c8-dialogo c8-vidrio c8-vidrio--denso menu-pasos" id="menu-pasos" aria-labelledby="menu-pasos-titulo">
+  <div class="fila" style="justify-content: space-between">
+    <h2 class="c8-panel-titulo" id="menu-pasos-titulo" style="margin: 0">Pasos</h2>
+    <button class="c8-boton c8-boton--fantasma c8-boton--s" type="button" data-cerrar aria-label="Cerrar">✕</button>
+  </div>
+  <div id="lista-pasos"></div>
+  <div class="fila" style="margin-top: var(--e-5)"><button class="c8-boton c8-boton--peligro c8-boton--s" type="button" data-accion="nuevo">Nuevo inmueble</button></div>
+</dialog>
+
+<dialog class="c8-dialogo c8-vidrio c8-vidrio--denso" id="dlg-enviar" aria-labelledby="dlg-enviar-titulo">
+  <h2 class="c8-panel-titulo" id="dlg-enviar-titulo" style="margin: 0 0 var(--e-2)">Enviar al ordenador</h2>
+  <p class="intro">Abre este enlace en el ordenador o en el iPad: el Estudio usará tu lista de estancias para nombrar las fotos.</p>
+  <div class="c8-campo" style="margin: var(--e-4) 0"><label for="enlace-estudio">Enlace</label><input id="enlace-estudio" readonly></div>
+  <div class="fila">
+    <button class="c8-boton c8-boton--primario" type="button" id="copiar-enlace">Copiar enlace</button>
+    <a class="c8-boton c8-boton--whatsapp" id="enlace-wa" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="c8-boton c8-boton--secundario" id="enlace-mail">Email</a>
+    <button class="c8-boton c8-boton--fantasma" type="button" data-cerrar>Cerrar</button>
+  </div>
+  <p class="c8-sec" id="aviso-enviar" hidden></p>
+</dialog>
+
+<div class="c8-aviso c8-vidrio c8-vidrio--texto" id="aviso" role="status" hidden style="position: fixed; left: 50%; translate: -50% 0; bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); z-index: var(--z-aviso)"></div>
+
 <script>
 (() => {
+  // Estado guardado en este dispositivo (validado: un dato corrupto no rompe la guía).
   const CLAVE = "cre8eight:asistente";
   const leer = () => { try { return JSON.parse(localStorage.getItem(CLAVE)) ?? {}; } catch { return {}; } };
-  const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(est)); } catch {} };
-  // Datos guardados validados: un localStorage corrupto no debe romper el asistente.
+  const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(est)); } catch { /* modo privado: la guía funciona sin recordar */ } };
   const crudo = leer();
   const obj = (v) => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
   const est = {
-    paso: Number.isInteger(crudo.paso) ? crudo.paso : 0,
+    version: 2,
+    // La guía antigua tenía 11 secciones: su número de paso no sirve aquí, así que se empieza por el primero.
+    paso: crudo.version === 2 && Number.isInteger(crudo.paso) ? crudo.paso : 0,
     marcas: obj(crudo.marcas),
-    estancias: Array.isArray(crudo.estancias) ? crudo.estancias.filter((x) => typeof x === "string" && x.trim()) : [],
-    tomas: obj(crudo.tomas),
-    vistos: Array.isArray(crudo.vistos) ? crudo.vistos.filter(Number.isInteger) : [],
+    estancias: Array.isArray(crudo.estancias) ? crudo.estancias.filter((x) => typeof x === "string" && x.trim()).slice(0, 60) : [],
+    tomas: Object.fromEntries(Object.entries(obj(crudo.tomas)).filter(([k, v]) => typeof k === "string" && Number.isInteger(v) && v > 0)),
+    vistos: crudo.version === 2 && Array.isArray(crudo.vistos) ? crudo.vistos.filter(Number.isInteger) : [],
   };
-
-  const secciones = [...document.querySelectorAll("#pasos > section")];
-  const pasos = document.querySelector(".pasos");
-
-  // Navegación por pasos
-  secciones.forEach((s, i) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.setAttribute("role", "tab");
-    b.textContent = s.dataset.titulo;
-    b.onclick = () => ir(i);
-    pasos.append(b);
-  });
-  function ir(i) {
-    est.paso = Math.max(0, Math.min(secciones.length - 1, i));
-    if (!est.vistos.includes(est.paso)) est.vistos.push(est.paso);
-    secciones.forEach((s, j) => (s.hidden = j !== est.paso));
-    [...pasos.children].forEach((b, j) => {
-      b.toggleAttribute("aria-current", j === est.paso);
-      if (j === est.paso) b.setAttribute("aria-current", "step");
-      b.classList.toggle("hecho", completo(j));
-      if (j === est.paso) b.scrollIntoView({ inline: "center", block: "nearest" });
-    });
-    document.getElementById("anterior").disabled = est.paso === 0;
-    const sig = document.getElementById("siguiente");
-    sig.textContent = est.paso === secciones.length - 1 ? "Volver al inicio" : "Siguiente →";
-    progreso();
-    guardar();
-    scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  const $ = (s, r = document) => r.querySelector(s);
+  const secciones = [...document.querySelectorAll("#pasos > section.paso")];
+  const principales = secciones.filter((s) => !s.hasAttribute("data-apendice"));
+  const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let temporizadorAviso = 0;
+  function aviso(texto) {
+    const a = $("#aviso");
+    a.textContent = texto; a.hidden = false;
+    clearTimeout(temporizadorAviso);
+    temporizadorAviso = setTimeout(() => (a.hidden = true), 2600);
   }
-  document.getElementById("anterior").onclick = () => ir(est.paso - 1);
-  document.getElementById("siguiente").onclick = () => ir(est.paso === secciones.length - 1 ? 0 : est.paso + 1);
 
-  // Listas de comprobación
-  for (const ul of document.querySelectorAll("ul.check")) {
-    const id = ul.dataset.lista;
-    ul.querySelectorAll("input").forEach((inp, i) => {
-      inp.checked = !!est.marcas[`${id}:${i}`];
-      inp.onchange = () => { est.marcas[`${id}:${i}`] = inp.checked; progreso(); guardar(); refrescarPasos(); };
-    });
-  }
+  // ---------------------------------------------------------------- navegación por pasos
   function completo(i) {
     const ins = secciones[i].querySelectorAll("ul.check input");
     if (!ins.length) return est.vistos.includes(i) && i !== est.paso;
     return [...ins].every((x) => x.checked);
   }
-  function refrescarPasos() { [...pasos.children].forEach((b, j) => b.classList.toggle("hecho", completo(j))); }
+  function pintarMenu() {
+    const lista = $("#lista-pasos");
+    lista.replaceChildren();
+    let fase = null, ul = null;
+    secciones.forEach((s, i) => {
+      if (s.dataset.fase !== fase) {
+        fase = s.dataset.fase;
+        const h = document.createElement("h3"); h.textContent = fase; lista.append(h);
+        ul = document.createElement("ul"); ul.className = "c8-lista"; lista.append(ul);
+      }
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.type = "button";
+      const n = principales.indexOf(s);
+      b.textContent = n >= 0 ? `${n + 1} · ${s.dataset.titulo}` : s.dataset.titulo;
+      if (i === est.paso) b.setAttribute("aria-current", "step");
+      b.classList.toggle("hecho", completo(i));
+      b.onclick = () => { $("#menu-pasos").close(); ir(i); };
+      li.append(b); ul.append(li);
+    });
+  }
   function progreso() {
     const todos = document.querySelectorAll("ul.check input");
     const hechos = [...todos].filter((x) => x.checked).length;
-    const pct = Math.round(((hechos / todos.length) * 0.7 + (est.vistos.length / secciones.length) * 0.3) * 100);
-    document.querySelector(".barra div").style.width = `${pct}%`;
-    document.querySelector(".barra").setAttribute("aria-valuenow", String(pct));
+    const vistosPrincipales = est.vistos.filter((i) => principales.includes(secciones[i])).length;
+    const pct = Math.round(((todos.length ? hechos / todos.length : 0) * 0.6 + (vistosPrincipales / principales.length) * 0.4) * 100);
+    $(".barra i").style.width = `${pct}%`;
+    $(".barra").setAttribute("aria-valuenow", String(pct));
+  }
+  function ir(i, { desplazar = true } = {}) {
+    est.paso = Math.max(0, Math.min(secciones.length - 1, i));
+    if (!est.vistos.includes(est.paso)) est.vistos.push(est.paso);
+    const s = secciones[est.paso];
+    secciones.forEach((x, j) => (x.hidden = j !== est.paso));
+    const n = principales.indexOf(s);
+    $("#fase-actual").textContent = s.dataset.fase;
+    $("#titulo-actual").textContent = n >= 0 ? `Paso ${n + 1} de ${principales.length} · ${s.dataset.titulo}` : s.dataset.titulo;
+    $("#anterior").disabled = est.paso === 0;
+    const ultimo = n === principales.length - 1 || n < 0;
+    $("#siguiente").textContent = ultimo ? "Volver al inicio" : "Siguiente →";
+    if (location.hash.slice(1) !== s.dataset.ancla) history.replaceState(null, "", `#${s.dataset.ancla}`);
+    progreso(); guardar();
+    if (desplazar) scrollTo({ top: 0, behavior: reducido() ? "auto" : "smooth" });
+  }
+  $("#anterior").onclick = () => ir(est.paso - 1);
+  $("#siguiente").onclick = () => {
+    const n = principales.indexOf(secciones[est.paso]);
+    ir(n < 0 || n === principales.length - 1 ? 0 : secciones.indexOf(principales[n + 1]));
+  };
+  $("#abrir-pasos").onclick = () => { pintarMenu(); $("#menu-pasos").showModal(); };
+  document.querySelectorAll("dialog [data-cerrar]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
+  // Anclas (#camara, #fotos, #problemas…) para enlazar a un paso desde el Estudio
+  // (las secciones no tienen id: así el navegador no salta a ellas al cargar y la cabecera del paso queda a la vista)
+  const pasoDesdeHash = () => secciones.findIndex((s) => s.dataset.ancla === location.hash.slice(1));
+  addEventListener("hashchange", () => { const i = pasoDesdeHash(); if (i >= 0 && i !== est.paso) ir(i); });
+
+  // ---------------------------------------------------------------- listas de comprobación
+  for (const ul of document.querySelectorAll("ul.check")) {
+    const id = ul.dataset.lista;
+    ul.querySelectorAll("input").forEach((inp, i) => {
+      inp.checked = !!est.marcas[`${id}:${i}`];
+      inp.onchange = () => { est.marcas[`${id}:${i}`] = inp.checked; progreso(); guardar(); };
+    });
   }
 
-  // Estancias y control de tomas
+  // ---------------------------------------------------------------- estancias y control de tomas
   const SUGERIDAS = ["Entrada", "Salón", "Cocina", "Pasillo", "Dormitorio principal", "Dormitorio 2", "Baño", "Terraza"];
+  function boton(texto, clase, etiqueta, accion) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = `c8-boton c8-boton--s ${clase}`; b.textContent = texto;
+    if (etiqueta) b.setAttribute("aria-label", etiqueta);
+    b.onclick = accion;
+    return b;
+  }
   function pintarEstancias() {
-    const lista = document.getElementById("lista-estancias");
-    const control = document.getElementById("control-tomas");
+    const lista = $("#lista-estancias"), control = $("#control-tomas");
     lista.replaceChildren(); control.replaceChildren();
     est.estancias.forEach((nombre, i) => {
-      const fila = document.createElement("div");
-      fila.className = "estancia";
-      fila.innerHTML = `<span></span><button class="btn peq" type="button" aria-label="Subir">↑</button><button class="btn peq" type="button" aria-label="Quitar">✕</button>`;
-      fila.querySelector("span").textContent = `${i + 1}. ${nombre}`;
-      const [subir, quitar] = fila.querySelectorAll("button");
+      const fila = document.createElement("li"); fila.className = "estancia";
+      const t = document.createElement("span"); t.className = "c8-fila-texto"; t.textContent = `${i + 1}. ${nombre}`;
+      const subir = boton("↑", "c8-boton--fantasma c8-boton--icono", `Subir ${nombre}`, () => { [est.estancias[i - 1], est.estancias[i]] = [est.estancias[i], est.estancias[i - 1]]; guardar(); pintarEstancias(); });
       subir.disabled = i === 0;
-      subir.onclick = () => { [est.estancias[i - 1], est.estancias[i]] = [est.estancias[i], est.estancias[i - 1]]; guardar(); pintarEstancias(); };
-      quitar.onclick = () => { est.estancias.splice(i, 1); guardar(); pintarEstancias(); };
-      lista.append(fila);
+      const quitar = boton("✕", "c8-boton--fantasma c8-boton--icono", `Quitar ${nombre}`, () => { est.estancias.splice(i, 1); guardar(); pintarEstancias(); });
+      fila.append(t, subir, quitar); lista.append(fila);
 
-      const c = document.createElement("div");
-      c.className = "estancia";
       const n = est.tomas[nombre] ?? 0;
-      c.innerHTML = `<span></span><span class="tomas" aria-live="polite"></span><button class="btn peq" type="button">−</button><button class="btn peq primario" type="button">+ Toma</button>`;
-      c.querySelector("span").textContent = nombre;
-      c.querySelector(".tomas").textContent = n ? `${n} ${n === 1 ? "toma" : "tomas"} ✓` : "pendiente";
-      const [menos, mas] = c.querySelectorAll("button");
+      const c = document.createElement("li"); c.className = "estancia";
+      const tn = document.createElement("span"); tn.className = "c8-fila-texto"; tn.textContent = nombre;
+      const cuenta = document.createElement("span"); cuenta.className = "tomas"; cuenta.setAttribute("aria-live", "polite");
+      cuenta.textContent = n ? `${n} ${n === 1 ? "toma" : "tomas"} ✓` : "pendiente";
+      const menos = boton("−", "c8-boton--secundario c8-boton--icono", `Quitar una toma en ${nombre}`, () => { const v = (est.tomas[nombre] ?? 0) - 1; if (v > 0) est.tomas[nombre] = v; else delete est.tomas[nombre]; guardar(); pintarEstancias(); });
       menos.hidden = !n;
-      menos.setAttribute("aria-label", `Quitar una toma en ${nombre}`);
-      menos.onclick = () => { est.tomas[nombre] = Math.max(0, (est.tomas[nombre] ?? 0) - 1); if (!est.tomas[nombre]) delete est.tomas[nombre]; guardar(); pintarEstancias(); };
-      mas.setAttribute("aria-label", `Añadir toma en ${nombre}`);
-      mas.onclick = () => { est.tomas[nombre] = (est.tomas[nombre] ?? 0) + 1; guardar(); pintarEstancias(); };
-      control.append(c);
+      const mas = boton("+ Toma", "c8-boton--primario", `Añadir toma en ${nombre}`, () => { est.tomas[nombre] = (est.tomas[nombre] ?? 0) + 1; guardar(); pintarEstancias(); });
+      c.append(tn, cuenta, menos, mas); control.append(c);
     });
-    if (!est.estancias.length) control.innerHTML = `<p class="intro">Añade primero tus estancias en el paso 0.</p>`;
+    if (!est.estancias.length) {
+      const li = document.createElement("li"); li.className = "c8-sec";
+      li.textContent = "Añade primero tus estancias en el paso 1.";
+      control.append(li);
+    }
+    document.querySelectorAll("[data-accion='enviar']").forEach((b) => (b.disabled = !est.estancias.length));
   }
-  const entrada = document.getElementById("nueva-estancia");
+  const entrada = $("#nueva-estancia");
   const anadir = () => {
     const v = entrada.value.trim();
     if (!v) return;
-    est.estancias.push(v);
-    entrada.value = "";
+    if (est.estancias.length >= 60) return aviso("Como mucho 60 estancias.");
+    est.estancias.push(v); entrada.value = "";
     guardar(); pintarEstancias(); entrada.focus();
   };
-  document.getElementById("anadir-estancia").onclick = anadir;
+  $("#anadir-estancia").onclick = anadir;
   entrada.addEventListener("keydown", (e) => { if (e.key === "Enter") anadir(); });
-  document.getElementById("sugerir").onclick = () => {
-    for (const s of SUGERIDAS) if (!est.estancias.includes(s)) est.estancias.push(s);
-    guardar(); pintarEstancias();
-  };
+  $("#sugerir").onclick = () => { for (const s of SUGERIDAS) if (!est.estancias.includes(s)) est.estancias.push(s); guardar(); pintarEstancias(); };
 
-  document.getElementById("nuevo-inmueble").onclick = () => {
-    if (!confirm("¿Empezar un inmueble nuevo? Se borran las casillas marcadas, la lista de estancias y el control de tomas de este dispositivo.")) return;
-    est.paso = 0; est.marcas = {}; est.estancias = []; est.tomas = {}; est.vistos = [];
+  // ---------------------------------------------------------------- de la guía al Estudio
+  // Formato que lee el Estudio: estudio.html#fotos&estancias=<n1>,<n2>…&tomas=<n1>:<k1>,…
+  // (cada nombre con encodeURIComponent; las comas separan).
+  function enlaceEstudio() {
+    const url = new URL("estudio.html", location.href);
+    const partes = ["fotos"];
+    if (est.estancias.length) partes.push("estancias=" + est.estancias.map(encodeURIComponent).join(","));
+    const tomas = Object.entries(est.tomas).filter(([k]) => est.estancias.includes(k));
+    if (tomas.length) partes.push("tomas=" + tomas.map(([k, v]) => `${encodeURIComponent(k)}:${v}`).join(","));
+    url.hash = partes.join("&");
+    return url.href;
+  }
+  const pantallaGrande = () => matchMedia("(min-width: 760px)").matches;
+  async function enviar() {
+    const enlace = enlaceEstudio();
+    const texto = "Lista de estancias para el Estudio de cre8eight";
+    // En el móvil, el menú de compartir del sistema (WhatsApp, correo, AirDrop…) si existe.
+    if (!pantallaGrande() && navigator.share) {
+      try { await navigator.share({ title: texto, url: enlace }); return; } catch (e) { if (e?.name === "AbortError") return; }
+    }
+    $("#enlace-estudio").value = enlace;
+    $("#enlace-wa").href = `https://wa.me/?text=${encodeURIComponent(`${texto}: ${enlace}`)}`;
+    $("#enlace-mail").href = `mailto:?subject=${encodeURIComponent(texto)}&body=${encodeURIComponent(enlace)}`;
+    const avisoLocal = $("#aviso-enviar");
+    avisoLocal.hidden = /^https?:$/.test(location.protocol);
+    avisoLocal.textContent = "Esta guía se ha abierto desde un archivo: el enlace solo funciona en este ordenador. Ábrela desde la web para enviarla.";
+    $("#dlg-enviar").showModal();
+  }
+  $("#copiar-enlace").onclick = async () => {
+    const campo = $("#enlace-estudio");
+    try { await navigator.clipboard.writeText(campo.value); aviso("Enlace copiado"); }
+    catch { campo.select(); try { document.execCommand("copy"); aviso("Enlace copiado"); } catch { aviso("Selecciona el enlace y cópialo"); } }
+  };
+  function abrirEstudio(e) { e?.preventDefault?.(); if (pantallaGrande()) location.href = enlaceEstudio(); else enviar(); }
+  document.querySelectorAll("[data-accion='enviar']").forEach((b) => (b.onclick = enviar));
+  document.querySelectorAll("[data-accion='estudio'], [data-accion='estudio-cabecera']").forEach((b) => {
+    b.onclick = abrirEstudio;
+    if (b.dataset.accion === "estudio" && !pantallaGrande()) b.textContent = "Ábrelo en tu ordenador";
+  });
+
+  // ---------------------------------------------------------------- nuevo inmueble
+  document.querySelectorAll("[data-accion='nuevo']").forEach((b) => (b.onclick = () => {
+    if (!confirm("¿Empezar un inmueble nuevo? Se borran en este dispositivo las casillas, la lista de estancias y el control de tomas.")) return;
+    Object.assign(est, { paso: 0, marcas: {}, estancias: [], tomas: {}, vistos: [] });
     guardar();
     document.querySelectorAll("ul.check input").forEach((x) => (x.checked = false));
+    if ($("#menu-pasos").open) $("#menu-pasos").close();
     pintarEstancias(); ir(0);
-  };
+    aviso("Listo para el siguiente inmueble");
+  }));
 
   pintarEstancias();
-  ir(est.paso ?? 0);
+  const desdeHash = pasoDesdeHash();
+  ir(desdeHash >= 0 ? desdeHash : est.paso ?? 0, { desplazar: false });
 })();
 </script>
 </body>

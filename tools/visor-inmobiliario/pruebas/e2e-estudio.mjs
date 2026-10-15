@@ -170,8 +170,25 @@ try {
     const muro = (await T(p)).plantas[0].muros[0];
     inf.ok([7.04, 0.54, 12.4, 0.54].every((v, i) => Math.abs(muro[i] - v) < 0.05), `dibujar un muro recto desde una esquina (${muro.join(", ")})`);
     await p.keyboard.press("v");
+    // La vista previa recibe el plano editado (recarga diferida tras cada cambio).
+    await esperar(p, () => { const t = document.querySelector("#iframe-visor").contentWindow.visor?.tour;
+      return t?.plantas?.[0]?.muros?.length === 1 && JSON.stringify(t.estancias ?? []).includes("Salón comedor"); }, null, 20000);
+    inf.ok(true, "la vista previa recibe el plano editado (muro y estancia renombrada)");
+
+    // ---- carrera conocida: elegir estancia en la vista previa mientras esta se recarga
+    {
+      const desde = await p.evaluate(() => window.__estudio.nodo);
+      const destino = desde === "pasillo" ? "cocina" : "pasillo";
+      await p.evaluate((d) => { const s = document.querySelector("#vista-nodo"); s.value = d; s.dispatchEvent(new Event("change"));
+        setTimeout(() => window.__estudio.vistaPrevia.enviar(), 250); }, destino); // = la recarga diferida tras editar un dato
+      await p.waitForTimeout(3500); // se comprueba que la elección NO se deshace después
+      const fin = await p.evaluate(() => ({ app: window.__estudio.nodo, visor: document.querySelector("#iframe-visor").contentWindow.visor?.estado?.nodo }));
+      inf.pendiente(fin.app === destino && fin.visor === destino, `elegir «${destino}» en la vista previa mientras se recarga no deshace la elección`,
+        `vuelve a «${fin.app}» (visor en «${fin.visor}»): visor.js cargarEnVisor(…, {mantenerVista:true}) restaura int.actual (la estancia anterior, porque la transición aún no ha terminado) y estudio.js adopta el nodo de «visor:vista»`);
+    }
 
     // ---- dirección y notas
+    await esperar(p, () => window.__estudio.vista?.nodo === window.__estudio.nodo, null, 20000);
     await p.selectOption("#vista-nodo", "salon");
     await ir(p, "4", "orientar");
     await esperar(p, () => window.__estudio.vista?.nodo === "salon", null, 60000);

@@ -304,6 +304,9 @@ html[data-talla="l"] { --talla: 1.18; }
   scroll-behavior: auto !important;
 }
 
+/* El atributo hidden siempre oculta, aunque un componente declare su propio display (p. ej. .c8-aviso). */
+:where([hidden]) { display: none !important; }
+
 /* ------------------------------------------------------------------ Base (opcional: <body class="c8-base">) */
 .c8-base {
   margin: 0;

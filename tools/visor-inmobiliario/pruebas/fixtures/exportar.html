@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pruebas · API de exportación</title>
+<!-- Banco de pruebas de exportar.js (e2e-exportar.mjs y e2e-seguridad.mjs): carga el módulo ACTUAL y la demo, y genera
+     panoramas sintéticos con canvas. three se resuelve como en index.html (las pruebas redirigen jsdelivr a node_modules). -->
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.min.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+    }
+  }
+</script>
+</head>
+<body>
+<script type="module">
+import * as X from "../../exportar.js";
+import { DEMO_TOUR } from "../../demo.js";
+window.X = X;
+window.DEMO_TOUR = DEMO_TOUR;
+/** Panorama equirectangular 2:1 sintético (pared/suelo, rejilla cada 10° y rótulo) como Blob. */
+window.panoSintetico = async (rotulo, ancho = 2048, tipo = "image/jpeg") => {
+  const c = document.createElement("canvas"); c.width = ancho; c.height = ancho / 2;
+  const g = c.getContext("2d");
+  g.fillStyle = "#e6dccb"; g.fillRect(0, 0, c.width, c.height * 0.58);
+  g.fillStyle = "#8a6a48"; g.fillRect(0, c.height * 0.58, c.width, c.height * 0.42);
+  g.strokeStyle = "rgba(0,0,0,.25)"; g.lineWidth = 2;
+  for (let i = 0; i <= 36; i++) { g.beginPath(); g.moveTo((i * ancho) / 36, 0); g.lineTo((i * ancho) / 36, c.height); g.stroke(); }
+  g.fillStyle = "#222"; g.font = `bold ${ancho / 24}px sans-serif`; g.textAlign = "center";
+  for (let k = 0; k < 4; k++) g.fillText(rotulo, ((k + 0.5) * ancho) / 4, c.height / 2);
+  return new Promise((ok) => c.toBlob(ok, tipo, 0.9));
+};
+window.logoSVG = () => new Blob([`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="100" viewBox="0 0 300 100"><rect width="300" height="100" rx="14" fill="#1d1f24"/><circle cx="50" cy="50" r="30" fill="#c8a24a"/><text x="95" y="62" font-family="Arial" font-weight="700" font-size="34" fill="#fff">CASA·SOL</text></svg>`], { type: "image/svg+xml" });
+/** Blob → base64 (para devolver binarios a Node). */
+window.b64 = async (blob) => { const b = new Uint8Array(await blob.arrayBuffer()); let s = ""; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
+/**
+ * Tour sintético a partir de la demo (sin el indicador demo ni el modo libre): panoramas JPEG generados, logo SVG, una nota
+ * con imagen data:, una versión móvil como blob:, un documento inexistente y material privado. → { t, archivos }
+ */
+window.tourSintetico = async () => {
+  const t = structuredClone(DEMO_TOUR);
+  delete t.demo; delete t.libre;
+  t.marca.logo = "marca/logo.svg";
+  const archivos = new Map([["marca/logo.svg", logoSVG()]]);
+  for (const [i, pn] of t.panoramas.entries()) {
+    pn.imagen = `panos/${pn.id}.jpg`; pn.miniatura = `panos/mini/${pn.id}.jpg`;
+    archivos.set(pn.imagen, await panoSintetico(pn.id.toUpperCase(), 1024));
+    archivos.set(pn.miniatura, await panoSintetico(pn.id.toUpperCase(), 256));
+    if (i === 0) pn.imagen_movil = URL.createObjectURL(await panoSintetico("MÓVIL", 512));
+  }
+  t.panoramas[1].puntos = [{ yaw: 10, pitch: 0, titulo: "Detalle", imagen: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" }];
+  t.inmueble.documentos = [{ nombre: "Memoria", url: "docs/no-existe.pdf" }];
+  t.documentacion = [{ nombre: "Nota simple", archivo: "docs/nota-simple.pdf", tipo: "nota", publico: false }];
+  archivos.set("docs/nota-simple.pdf", new Blob(["%PDF-1.4 privado"], { type: "application/pdf" }));
+  archivos.set("estudio/proyecto.json", new Blob(["{}"], { type: "application/json" }));
+  t._estudio = { interno: true };
+  return { t, archivos };
+};
+window.listo = true;
+</script>
+</body>
+</html>

@@ -54,6 +54,8 @@ export function crearInforme(titulo) {
     },
     /** Ejecuta un bloque; cierra después los contextos que se registren en `cerrarAlFinal` (aunque falle). */
     async bloque(nombre, fn) {
+      const solo = process.env.E2E_SOLO?.toLowerCase();
+      if (solo && !nombre.toLowerCase().includes(solo)) return; // E2E_SOLO="texto": solo los bloques cuyo nombre lo contiene
       console.log(`\n· ${nombre}`);
       const t = Date.now();
       try { await fn(); } catch (e) { inf.ok(false, `${nombre}: se interrumpió`, String(e?.message ?? e).split("\n")[0]); }

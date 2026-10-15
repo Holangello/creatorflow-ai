@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pruebas · paneles con visor simulado</title>
+<!-- Banco de pruebas de paneles.js (e2e-paneles.mjs): un visor SIMULADO que cumple la API de ESQUEMA.md §2, sin WebGL,
+     para probar contacto, WhatsApp, fotos, galería, música, teclado… en milisegundos. Parámetros de la URL:
+     ?modo=whatsapp|webhook|ambos  ?formato=json  ?op=alquiler  ?tramite  ?sonido=no  ?lang=fr  ?color=#hex
+     Expone window.__registro (eventos y llamadas al visor) y window.__cambiarTour(tour) (simula «visor:cargar»). -->
+<link rel="stylesheet" href="../../visor.css">
+<link rel="stylesheet" href="../../paneles.css">
+<style>
+  /* Escena simulada y maqueta aproximada de las zonas del núcleo */
+  #escena { position: fixed; inset: 0; background:
+    linear-gradient(180deg, #d9d2c5 0%, #cfc6b6 48%, #8a7458 48.2%, #6f5a42 100%); }
+  #escena::before { content: ""; position: absolute; left: 18%; top: 14%; width: 26%; height: 30%; background: linear-gradient(#bfe0ff, #e8f4ff); border: 10px solid #f4f1ea; }
+  .nucleo { position: fixed; background: rgba(16,19,24,.78); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; color: #ddd; font: 13px system-ui; display: grid; place-items: center; z-index: 10; }
+  #n-barra { top: 10px; left: 10px; width: 430px; height: 56px; }
+  #n-iconos { top: 10px; right: 10px; width: 152px; height: 44px; }
+  #n-mapa { bottom: calc(var(--reserva-inferior, 0px) + 10px); left: 10px; width: 220px; height: 170px; }
+  @media (max-width: 720px) {
+    #n-barra { left: 10px; right: 10px; width: auto; height: 52px; }
+    #n-iconos { top: 72px; width: 44px; height: 152px; }
+    #n-mapa { width: 130px; height: 100px; bottom: calc(var(--reserva-inferior, 0px) + 90px); }
+  }
+</style>
+</head>
+<body>
+<div id="escena"></div>
+<div class="nucleo" id="n-barra">núcleo: título + modos</div>
+<div class="nucleo" id="n-iconos">iconos</div>
+<div class="nucleo" id="n-mapa">minimapa</div>
+<div id="paneles"></div>
+<script type="module">
+const q = new URLSearchParams(location.search);
+function svg(a, b, t) {
+  const s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="g" x2="0" y2="1"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${a}"/></linearGradient></defs><rect width="1200" height="800" fill="url(#g)"/><text x="60" y="740" font-family="Georgia" font-size="64" fill="#fff">${t}</text></svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+}
+const tour = {
+  version: 2, titulo: { es: "Ático con terraza en Chamberí", en: "Penthouse with terrace in Chamberí" },
+  idioma: "es", idiomas: ["es", "en", "fr", "de"],
+  marca: { nombre: "Maison Prime Real Estate", color: q.get("color") ?? "#c8a24a", web: "https://example.com", pie_legal: "Agente inscrito en el Registro de Agentes Inmobiliarios nº 1234" },
+  agente: { nombre: "Ana Pérez", telefono: "+34 600 111 222", email: "ana@example.com" },
+  contacto: { modo: q.get("modo") ?? "webhook", webhook_formato: q.get("formato") ?? undefined, whatsapp: "34600111222", webhook: "https://hook.example.com/contacto", url_privacidad: "https://example.com/privacidad" },
+  inmueble: {
+    referencia: "REF-1234", operacion: q.get("op") ?? "venta", tipo: "atico", estado_obra: "construido",
+    precio: q.get("op") === "alquiler" ? 2400 : 349000, moneda: "EUR", gastos_comunidad_mes: 85, ibi_anual: 420,
+    superficie_construida: 112, superficie_util: 96, habitaciones: 3, banos: 2, planta: "3ª", ascensor: true,
+    orientacion: "Sur", ano_construccion: 1998, estado: "Reformado", calefaccion: "Aerotermia", aire_acondicionado: true,
+    garaje: true, trastero: false, terraza: 18, piscina: false, jardin: false,
+    certificado_energetico: { consumo_letra: "C", consumo_valor: 95.3, emisiones_letra: "B", emisiones_valor: 20.1, en_tramite: q.has("tramite") },
+    caracteristicas: ["Suelos de roble", "Carpintería con rotura de puente térmico", "Cocina equipada", "Armarios empotrados", "Domótica", "Portero físico"],
+    descripcion: { es: "Luminoso ático completamente reformado en 2022 con materiales de primera calidad. Salón-comedor de 35 m² con salida a una terraza de 18 m² orientada al sur y vistas despejadas.\n\nCocina abierta equipada con electrodomésticos de alta gama, tres dormitorios (el principal en suite) y dos baños completos. Plaza de garaje incluida en el precio. A un paso del metro y de todos los servicios del barrio.", en: "Bright penthouse fully renovated in 2022 with premium materials. 35 m² living-dining room opening onto an 18 m² south-facing terrace with open views.\n\nOpen kitchen with high-end appliances, three bedrooms (master en suite) and two full bathrooms. Parking space included." },
+    direccion: "Calle Mayor 12, Madrid", mostrar_direccion_exacta: false, ubicacion: { lat: 40.4168, lng: -3.7038 },
+    documentos: [{ nombre: "Memoria de calidades", url: "docs/memoria.pdf" }, { nombre: "Plano acotado", url: "docs/plano.pdf" }],
+  },
+  plantas: [{ id: "p0", nombre: "Principal" }],
+  estancias: [
+    { id: "salon", nombre: "Salón", planta: "p0", poligono: [[0,0],[7,0],[7,5],[0,5]] },
+    { id: "cocina", nombre: "Cocina", planta: "p0", poligono: [[7,0],[11,0],[11,3.5],[7,3.5]] },
+    { id: "dormitorio", nombre: "Dormitorio principal", planta: "p0", poligono: [[0,5],[4.2,5],[4.2,8.2],[0,8.2]] },
+    { id: "bano", nombre: "Baño", planta: "p0", poligono: [[4.2,5],[6.4,5],[6.4,7.4],[4.2,7.4]] },
+  ],
+  momentos: ["dia", "atardecer", "noche"],
+  audio: { musica: { archivo: "audio/musica.mp3", volumen: 0.4, titulo: "Brisa de tarde", autor: "Laura Gómez", licencia: "CC BY 4.0" } },
+  secciones: [
+    { id: "dia", nombre: "Zona de día", estancias: ["salon", "cocina"] },
+    { id: "noche", nombre: "Zona de noche", estancias: ["dormitorio", "bano"] },
+  ],
+  galeria: [
+    { imagen: svg("#6f5a42", "#d9d2c5", "Salón · noche"), titulo: "Salón al anochecer", estancia: "salon", tipo: "render", autor: "Estudio Arq. Norte" },
+    { imagen: svg("#2f6f9f", "#f7f4ee", "Terraza"), titulo: "Terraza", estancia: "salon", tipo: "render", autor: "Estudio Arq. Norte" },
+    { imagen: svg("#8a6d3b", "#efe6d2", "Cocina"), titulo: "Cocina abierta", estancia: "cocina", tipo: "foto" },
+    { imagen: svg("#1e1e1e", "#ece8e1", "Plano"), titulo: "Plano acotado", tipo: "plano" },
+  ],
+  documentacion: [
+    { nombre: "Certificado energético (PDF)", archivo: "docs/cee.pdf", tipo: "otro", publico: true },
+    { nombre: "Modelo del arquitecto", archivo: "docs/modelo.ifc", tipo: "modelo", publico: false },
+  ],
+  personalizacion: {
+    paredes: [{ nombre: "Blanco roto", color: "#efe9df" }, { nombre: "Gris perla", color: "#d4d2cc" }, { nombre: "Verde salvia", color: "#a9b5a0" }, { nombre: "Arena", color: "#d8c3a5" }],
+    suelos: [{ nombre: "Roble natural", color: "#b08a5e" }, { nombre: "Nogal", color: "#6b4a33" }, { nombre: "Gris cemento", color: "#8d8c88" }],
+  },
+  panoramas: [
+    { id: "salon", nombre: { es: "Salón", en: "Living room" }, x: 3, z: 2.5, imagen: "x.jpg", mascara: "m.png",
+      variantes: ["nordico", "mediterraneo", "industrial", "contemporaneo_minimalista", "clasico"].map((e) => ({ estilo: e, imagen: "x.jpg" })) },
+    { id: "cocina", nombre: { es: "Cocina", en: "Kitchen" }, x: 9, z: 2, imagen: "x.jpg", variantes: [{ estilo: "nordico", imagen: "x.jpg" }] },
+  ],
+};
+// Visor simulado que cumple la API de ESQUEMA.md
+const oyentes = {};
+const registro = [];
+const visor = window.visor = {
+  tour,
+  estado: { modo: "tour", nodo: "salon", estilo: "original", momento: "dia", momentoSimulado: false, pintura: { paredes: null, suelos: null }, pinturaDisponible: true, comparar: false, midiendo: false, guionActivo: false, idioma: "es" },
+  on(ev, fn) { (oyentes[ev] ??= new Set()).add(fn); }, off(ev, fn) { oyentes[ev]?.delete(fn); },
+  emitir(ev, d) { registro.push([ev, d]); oyentes[ev]?.forEach((f) => f(d)); window.dispatchEvent(new CustomEvent("visor:" + ev, { detail: d })); },
+  ir(id) { this.estado.nodo = id; this.estado.pinturaDisponible = !!tour.panoramas.find((p) => p.id === id)?.mascara; this.emitir("nodo", { id }); return Promise.resolve(); },
+  fijarEstilo(id) { this.estado.estilo = id; this.emitir("estilo", { id }); },
+  fijarMomento(id) { this.estado.momento = id; this.estado.momentoSimulado = id !== "dia"; this.emitir("momento", { id }); },
+  fijarPintura(p) { this.estado.pintura = { ...p }; this.emitir("pintura", p); },
+  comparar(b) { this.estado.comparar = b; registro.push(["comparar", b]); },
+  medir(b) { this.estado.midiendo = b; registro.push(["medir", b]); },
+  guion: { iniciar() { visor.estado.guionActivo = true; visor.emitir("guion:inicio"); }, parar() { visor.estado.guionActivo = false; visor.emitir("guion:fin"); } },
+  estanciaActual() { const p = tour.panoramas.find((x) => x.id === this.estado.nodo); return p ? { id: p.id, nombre: p.nombre } : null; },
+  async capturar({ ancho = 1600 } = {}) {
+    const c = document.createElement("canvas"); c.width = ancho; c.height = Math.round(ancho * 9 / 16);
+    const g = c.getContext("2d"); const gr = g.createLinearGradient(0, 0, 0, c.height);
+    gr.addColorStop(0, "#d9d2c5"); gr.addColorStop(.5, "#cfc6b6"); gr.addColorStop(.51, "#8a7458"); gr.addColorStop(1, "#6f5a42");
+    g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height); g.fillStyle = "#222"; g.font = "64px Georgia"; g.fillText("Vista " + this.estado.nodo + " #" + (++this._n), 60, 120);
+    const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.85));
+    return { blob, nodo: this.estado.nodo, estancia: this.estanciaActual(), enlace: location.origin + "/?v=" + this.estado.nodo + "," + this._n * 30 + ",0,75", vista: {} };
+  },
+  _n: 0,
+  sonido: { activo: true, disponible: q.get("sonido") !== "no", volumen: 0.4,
+    alternar() { this.activo = !this.activo; visor.emitir("sonido", { activo: this.activo, volumen: this.volumen }); },
+    fijarVolumen(v) { this.volumen = v; if (v > 0 && !this.activo) this.alternar(); else visor.emitir("sonido", { activo: this.activo, volumen: v }); } },
+  enlaceVista() { return location.origin + "/?v=salon,110,0,75#salon"; },
+  idioma(c) { this.estado.idioma = c; registro.push(["idioma", c]); },
+  ajustes(o) { registro.push(["ajustes", o]); },
+};
+window.__registro = registro;
+// Simula «visor:cargar» del Estudio: el núcleo sustituye visor.tour y emite "tour"
+window.__cambiarTour = (nuevo) => { visor.tour = nuevo; visor.estado.nodo = nuevo.panoramas?.[0]?.id ?? null; visor.emitir("tour", {}); };
+const m = await import("../../paneles.js");
+window.__paneles = m.iniciarPaneles(visor);
+</script>
+</body>
+</html>

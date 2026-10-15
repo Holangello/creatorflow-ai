@@ -52,7 +52,9 @@ try {
   ok(e.errores.length === 0, `estudio: sin errores ${e.errores.slice(0, 3).join(" | ")}`);
   const a = await pagina("asistente-osmo.html", { ancho: 390, alto: 844, movil: true });
   await a.waitForTimeout(800);
-  ok(await a.evaluate(() => document.querySelectorAll("#pasos > section").length >= 10), "asistente: pasos presentes");
+  ok(await a.evaluate(() => document.querySelectorAll("#pasos > section.paso").length === 8), "guía: 6 pasos y 2 apéndices");
+  const enlace = await a.evaluate(() => { document.querySelector("#sugerir").click(); document.querySelector("[data-ancla='estudio'] [data-accion='enviar']").click(); return document.querySelector("#enlace-estudio")?.value ?? ""; });
+  ok(/estudio\.html#fotos&estancias=Entrada,Sal%C3%B3n,/.test(enlace), `guía: enlace al Estudio con la lista (${enlace.split("#")[1]?.slice(0, 50)}…)`);
   ok(a.errores.length === 0, `asistente: sin errores ${a.errores.slice(0, 2).join(" | ")}`);
   const t = await pagina("tema-muestra.html", { ancho: 390, alto: 844, movil: true });
   await t.waitForTimeout(500);

@@ -1,0 +1,461 @@
+{
+  "version": 2,
+  "titulo": "Ático <img src=x onerror=\"window.__xss=(window.__xss||0)+1;alert(1)\">",
+  "idioma": "es",
+  "idiomas": [
+    "es",
+    "en",
+    "fr",
+    "de"
+  ],
+  "marca": {
+    "nombre": "Inmo <img src=x onerror=\"window.__xss=(window.__xss||0)+1;alert(1)\">",
+    "color": "#c8a24a",
+    "web": "javascript:window.__xssweb=1;alert(document.domain)"
+  },
+  "agente": {
+    "nombre": "Ana Pérez",
+    "telefono": "+34 600 111 222",
+    "email": "ana@ejemplo.com"
+  },
+  "contacto": {
+    "modo": "ambos",
+    "whatsapp": "34600111222",
+    "webhook": "https://hook.ejemplo.test/abc",
+    "url_privacidad": "javascript:window.__xsspriv=1;alert('priv')"
+  },
+  "inmueble": {
+    "operacion": "venta",
+    "tipo": "piso",
+    "estado_obra": "construido",
+    "moneda": "EUR",
+    "certificado_energetico": {
+      "consumo_letra": "C",
+      "emisiones_letra": "D",
+      "consumo_valor": 95.3
+    },
+    "referencia": "REF/../../x <b>1</b>",
+    "precio": 349000,
+    "superficie_construida": 112,
+    "habitaciones": 3,
+    "banos": 2,
+    "descripcion": "Descripción <img src=x onerror=\"window.__xss=(window.__xss||0)+1;alert(1)\">\nSegunda línea",
+    "direccion": "Calle Mayor 12, Madrid",
+    "aviso_legal": {
+      "es": "Imágenes no contractuales. Los renders y los estilos de decoración (generados con inteligencia artificial) son orientativos; el mobiliario y la decoración no están incluidos.",
+      "en": "Images are for illustrative purposes only. Renders and decoration styles (AI-generated) are indicative; furniture and decoration are not included."
+    },
+    "documentos": [
+      {
+        "nombre": "memoria",
+        "url": "docs/memoria.pdf"
+      }
+    ]
+  },
+  "altura_camara": 1.5,
+  "radio_enlace_auto": 4.5,
+  "norte": 0,
+  "plantas": [
+    {
+      "id": "p0",
+      "nombre": {
+        "es": "Planta principal",
+        "en": "Main floor"
+      },
+      "plano": {
+        "imagen": "plantas/p0.png",
+        "ancho_m": 10,
+        "alto_m": 8.8,
+        "origen": [
+          0,
+          0
+        ]
+      },
+      "muros": [
+        [
+          0,
+          8,
+          10,
+          8
+        ],
+        [
+          10,
+          8,
+          10,
+          0
+        ],
+        [
+          10,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          8
+        ],
+        [
+          6,
+          8,
+          6,
+          0
+        ],
+        [
+          0,
+          4,
+          6,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "p1",
+      "nombre": "Planta <img src=x onerror=\"window.__xss=(window.__xss||0)+1;alert(1)\">",
+      "plano": {
+        "imagen": "plantas/p1.png",
+        "ancho_m": 12,
+        "alto_m": 8.48,
+        "origen": [
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "estancias": [
+    {
+      "id": "cocina",
+      "nombre": "Cocina",
+      "planta": "p0",
+      "poligono": [
+        [
+          0,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1",
+      "nombre": "Salón <img src=x onerror=\"window.__xss=(window.__xss||0)+1;alert(1)\">",
+      "planta": "p0",
+      "poligono": [
+        [
+          0,
+          4
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          0,
+          8
+        ]
+      ]
+    }
+  ],
+  "estilos": [
+    {
+      "id": "original",
+      "nombre": {
+        "es": "Original",
+        "en": "Original"
+      }
+    },
+    {
+      "id": "nordico",
+      "nombre": {
+        "es": "Nórdico",
+        "en": "Nordic"
+      }
+    }
+  ],
+  "momentos": [
+    "dia",
+    "atardecer",
+    "noche"
+  ],
+  "personalizacion": {
+    "paredes": [
+      {
+        "nombre": {
+          "es": "Blanco roto",
+          "en": "Off-white"
+        },
+        "color": "#f2eee6"
+      },
+      {
+        "nombre": {
+          "es": "Gris perla",
+          "en": "Pearl grey"
+        },
+        "color": "#d9d8d3"
+      },
+      {
+        "nombre": {
+          "es": "Beige arena",
+          "en": "Sand beige"
+        },
+        "color": "#d8c9ae"
+      },
+      {
+        "nombre": {
+          "es": "Greige",
+          "en": "Greige"
+        },
+        "color": "#bdb5a6"
+      },
+      {
+        "nombre": {
+          "es": "Verde salvia",
+          "en": "Sage green"
+        },
+        "color": "#a8b5a0"
+      },
+      {
+        "nombre": {
+          "es": "Azul niebla",
+          "en": "Mist blue"
+        },
+        "color": "#a9b8c2"
+      },
+      {
+        "nombre": {
+          "es": "Terracota suave",
+          "en": "Soft terracotta"
+        },
+        "color": "#c98b6b"
+      },
+      {
+        "nombre": {
+          "es": "Antracita",
+          "en": "Anthracite"
+        },
+        "color": "#3e4247"
+      }
+    ],
+    "suelos": [
+      {
+        "nombre": {
+          "es": "Roble natural",
+          "en": "Natural oak"
+        },
+        "color": "#b48a5e"
+      },
+      {
+        "nombre": {
+          "es": "Roble claro",
+          "en": "Light oak"
+        },
+        "color": "#d2b48c"
+      },
+      {
+        "nombre": {
+          "es": "Nogal",
+          "en": "Walnut"
+        },
+        "color": "#6b4a32"
+      },
+      {
+        "nombre": {
+          "es": "Gris cemento",
+          "en": "Cement grey"
+        },
+        "color": "#9a9a96"
+      },
+      {
+        "nombre": {
+          "es": "Blanco nórdico",
+          "en": "Nordic white"
+        },
+        "color": "#e6e0d4"
+      }
+    ]
+  },
+  "panoramas": [
+    {
+      "id": "cocina",
+      "nombre": "Cocina",
+      "planta": "p0",
+      "imagen": "panos/cocina.jpg",
+      "imagen_movil": "panos/cocina.jpg",
+      "miniatura": "panos/mini/cocina.jpg",
+      "yaw": 0,
+      "x": 2,
+      "z": 2,
+      "enlaces": [
+        "salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1"
+      ]
+    },
+    {
+      "id": "dormitorio-hdr",
+      "nombre": "Dormitorio HDR",
+      "planta": "p0",
+      "imagen": "panos/dormitorio-hdr.jpg",
+      "imagen_movil": "panos/movil/dormitorio-hdr.jpg",
+      "miniatura": "panos/mini/dormitorio-hdr.jpg",
+      "yaw": 0,
+      "x": 8,
+      "z": 2,
+      "enlaces": [
+        "bano"
+      ]
+    },
+    {
+      "id": "salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1",
+      "nombre": "Salón <img src=x onerror=\"window.__xss=(window.__xss||0)+1;alert(1)\">",
+      "planta": "p0",
+      "imagen": "panos/salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1.jpg",
+      "imagen_movil": "panos/movil/salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1.jpg",
+      "miniatura": "panos/mini/salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1.jpg",
+      "yaw": 30,
+      "variantes": [
+        {
+          "imagen": "panos/variantes/salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1-nordico-dia.jpg",
+          "imagen_movil": "panos/variantes/movil/salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1-nordico-dia.jpg",
+          "estilo": "nordico",
+          "momento": "dia"
+        },
+        {
+          "imagen": "panos/variantes/salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1-base-noche.jpg",
+          "imagen_movil": "panos/variantes/movil/salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1-base-noche.jpg",
+          "momento": "noche"
+        }
+      ],
+      "x": 2,
+      "z": 6,
+      "puntos": [
+        {
+          "yaw": -38.6,
+          "pitch": 4.1,
+          "titulo": "Ventanal <script>alert(2)</script>"
+        }
+      ],
+      "mascara": "panos/mascaras/salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1.png",
+      "enlaces": [
+        "cocina",
+        "bano"
+      ]
+    },
+    {
+      "id": "bano",
+      "nombre": "Baño",
+      "planta": "p0",
+      "imagen": "panos/bano.jpg",
+      "imagen_movil": "panos/bano.jpg",
+      "miniatura": "panos/mini/bano.jpg",
+      "yaw": 0,
+      "x": 8,
+      "z": 6,
+      "enlaces": [
+        "dormitorio-hdr",
+        "salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1"
+      ]
+    }
+  ],
+  "inicio": "cocina",
+  "documentacion": [
+    {
+      "nombre": "planta_mm",
+      "archivo": "docs/planta-mm.dxf",
+      "tipo": "plano",
+      "publico": false
+    },
+    {
+      "nombre": "plano_arquitecto (pág. 2)",
+      "archivo": "docs/plano-arquitecto.pdf",
+      "tipo": "plano",
+      "publico": false
+    },
+    {
+      "nombre": "modelo.glb",
+      "archivo": "modelo/modelo.glb",
+      "tipo": "modelo",
+      "publico": false
+    },
+    {
+      "nombre": "memoria",
+      "archivo": "docs/memoria.pdf",
+      "tipo": "otro",
+      "publico": true
+    },
+    {
+      "nombre": "nota_simple_PRIVADA",
+      "archivo": "docs/nota-simple-privada.pdf",
+      "tipo": "nota",
+      "publico": false
+    }
+  ],
+  "galeria": [
+    {
+      "imagen": "renders/render-fijo.jpg",
+      "titulo": "Render fijo",
+      "tipo": "render"
+    }
+  ],
+  "libre": {
+    "tipo": "glb",
+    "url": "modelo/modelo.glb",
+    "rotacion": [
+      0,
+      0,
+      0
+    ],
+    "posicion": [
+      0,
+      0,
+      0
+    ],
+    "escala": 1
+  },
+  "secciones": [
+    {
+      "id": "dia",
+      "nombre": {
+        "es": "Zona de día",
+        "en": "Living area"
+      },
+      "estancias": [
+        "cocina",
+        "salon-img-src-x-onerror-window-xss-window-xss-0-1-alert-1"
+      ]
+    },
+    {
+      "id": "noche",
+      "nombre": {
+        "es": "Zona de noche",
+        "en": "Sleeping area"
+      },
+      "estancias": [
+        "dormitorio-hdr",
+        "bano"
+      ]
+    },
+    {
+      "id": "exterior",
+      "nombre": {
+        "es": "Exterior y zonas comunes",
+        "en": "Outdoor & common areas"
+      },
+      "estancias": []
+    }
+  ]
+}
