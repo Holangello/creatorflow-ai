@@ -11,17 +11,32 @@ export const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const NM = join(RAIZ, "node_modules");
 const TIPOS = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json",
   ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".wasm": "application/wasm", ".woff2": "font/woff2",
-  ".mp3": "audio/mpeg", ".wav": "audio/wav", ".pdf": "application/pdf" };
+  ".mp3": "audio/mpeg", ".wav": "audio/wav", ".pdf": "application/pdf", ".glb": "model/gltf-binary", ".zip": "application/zip" };
 
-/** Sirve la carpeta del visor en un puerto libre. Devuelve { base, cerrar }. */
-export async function servir() {
+/**
+ * Sirve la carpeta del visor en un puerto libre. Devuelve { base, cerrar }.
+ * opciones.fixture: carpeta que tiene prioridad sobre la raíz (p. ej. el tour.json de un tour de prueba servido
+ *   junto al código ACTUAL del visor). opciones.generar(ruta): contenido para rutas que no existen en disco
+ *   → { cuerpo, tipo } | null (imágenes, PDF… generados al vuelo para no guardar binarios en el repositorio).
+ */
+export async function servir({ fixture, generar } = {}) {
+  const raices = fixture ? [fixture, RAIZ] : [RAIZ];
   const servidor = createServer(async (req, res) => {
     try {
       const ruta = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^([/\\])+/, "");
-      let f = join(RAIZ, ruta || "index.html");
-      if ((await stat(f)).isDirectory()) f = join(f, "index.html");
-      res.writeHead(200, { "content-type": TIPOS[extname(f)] ?? "application/octet-stream" });
-      res.end(await readFile(f));
+      for (const raiz of raices) {
+        let f = join(raiz, ruta || "index.html");
+        if (!f.startsWith(raiz)) continue; // nada fuera de la carpeta servida
+        try {
+          if ((await stat(f)).isDirectory()) f = join(f, "index.html");
+          const cuerpo = await readFile(f);
+          res.writeHead(200, { "content-type": TIPOS[extname(f)] ?? "application/octet-stream" });
+          return res.end(cuerpo);
+        } catch { /* no está en esta raíz */ }
+      }
+      const g = await generar?.(ruta);
+      if (g) { res.writeHead(200, { "content-type": g.tipo }); return res.end(g.cuerpo); }
+      res.writeHead(404); res.end("no encontrado");
     } catch { res.writeHead(404); res.end("no encontrado"); }
   });
   await new Promise((ok) => servidor.listen(0, ok));
