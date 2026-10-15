@@ -108,6 +108,10 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - Asistente: A1–A6.
     - Utilidades comunes: `urlSegura` está en dos sitios con reglas distintas.
 - [ ] **Fase 4 · Diseño premium «minimal liquid glass»** con tema claro/oscuro y tallas S/M/L (ver «Encargo de la fase 4»).
+  - **Plan que manda:** [docs/auditorias/fase4-plan.md](../../docs/auditorias/fase4-plan.md). Decisiones A–J: las recomendadas (el cliente no ha guardado elecciones): champán, tema automático, sin remates, vidrio equilibrado.
+  - [ ] **Aplicación en curso** (iniciada el 15/10 a las 04:58 UTC): tres agentes en paralelo con los paquetes §2.1 (núcleo), §2.2 (paneles) y §2.3 (Estudio). El orquestador hace §2.4 (tema-muestra, dossier, Guía, `pruebas/contraste.mjs`, matriz de capturas).
+    - Si un agente muere, relánzalo con su paquete de `fase4-plan.md` y dile qué está hecho (mira `git diff`).
+    - Al terminar: auditorías visual/UI, de accesibilidad y Maverick en paralelo; después compactar, medir, probar, contingencias y enseñar al cliente.
   - [x] Base del sistema, adelantada mientras terminaba la fase 2. Documentado en `docs/diseno/sistema.md`, con la tabla de migración de variables.
     - `tema.css`: tokens, vidrio, componentes `c8-*`, claro y oscuro con contraste AA calculado, tallas fluidas S/M/L, muelles.
     - `tema.js`: preferencias compartidas, `?tema=` y `?talla=` en la URL, transparencia y movimiento reducidos.
