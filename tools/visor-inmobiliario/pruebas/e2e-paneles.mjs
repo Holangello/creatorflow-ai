@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Pruebas de extremo a extremo de los paneles del visor (paneles.js): tarjeta del inmueble, ficha, contacto con fotos y
-// WhatsApp, galería, compartir, «Estilo y luz», «Más», Ajustes, música, idiomas, teclado y objetivos táctiles.
+// WhatsApp, galería, compartir, «Estilo», «Más», Ajustes, música, idiomas, teclado y objetivos táctiles.
 //   cd tools/visor-inmobiliario && node pruebas/e2e-paneles.mjs
 // La mayoría usa un visor SIMULADO (pruebas/fixtures/paneles.html, API de ESQUEMA.md sin WebGL: rápido y determinista);
 // los dos últimos bloques usan el núcleo REAL (index.html?demo): interfaz inactiva, pantalla completa y barra de captura.
@@ -8,7 +8,7 @@
 // pantalla); los selectores están agrupados en SEL para adaptarlos cuando cambie el diseño. Sale con código 1 si algo falla.
 // Fase 3 (fase3-plan.md §3.3 y §4.2): la tarjeta del inmueble sustituye a la pestaña, la hoja de vista previa y el dock;
 // «Contactar» adjunta sola la vista actual (PA1) y «Enviar por WhatsApp» copia la foto y abre el chat en el mismo gesto;
-// Compartir, Idioma y Ajustes van en «Más»; «Estilo y luz» depende de estado_obra (PA3).
+// Compartir, Idioma y Ajustes van en «Más»; «Estilo» depende de estado_obra (PA3).
 // Fase 4 (fase4-plan.md §1.4 y §2.2): Apariencia, Tamaño y Reducir transparencia en Ajustes con las preferencias comunes de
 // tema.js (cre8eight:*, compartidas con el Estudio y la Guía); el movimiento tiene una sola fuente de verdad; contraste del
 // vidrio en claro y oscuro; sin desplazamiento horizontal; iconos que se dibujan y nada animado con movimiento reducido.
@@ -54,7 +54,7 @@ const SD = JSON.parse(JSON.stringify(SEL)); // SEL sin las funciones, para pasar
 const PIEZAS = {
   contacto: { "«Contactar» de la tarjeta": SEL.contacto },
   ficha: { "resumen de la tarjeta (abre la ficha)": SEL.ficha },
-  herramientas: { "«Estilo y luz»": SEL.personalizar, "«Más»": SEL.mas },
+  herramientas: { "«Estilo»": SEL.personalizar, "«Más»": SEL.mas },
 };
 const piezas = (...nombres) => Object.assign({}, ...nombres.map((n) => PIEZAS[n]));
 const inf = crearInforme("e2e · Paneles del visor");
@@ -228,8 +228,8 @@ try {
         inf.ok(!peq.length, `${n}: objetivos táctiles ≥ 44 px en la ficha`, peq.join(", "));
         await p.keyboard.press("Escape");
         await estable(p);
-        // «Estilo y luz» está en la tarjeta; Compartir y Ajustes, en «Más» (fase 3)
-        for (const [k, abrirla] of [["«Estilo y luz»", () => pulsar(p, SEL.personalizar)], ["«Más»", () => pulsar(p, SEL.mas)],
+        // «Estilo» está en la tarjeta; Compartir y Ajustes, en «Más» (fase 3)
+        for (const [k, abrirla] of [["«Estilo»", () => pulsar(p, SEL.personalizar)], ["«Más»", () => pulsar(p, SEL.mas)],
           ["Compartir", () => elegirMas(p, "pn-compartir")], ["Ajustes", () => elegirMas(p, "pn-ajustes")]]) {
           await abrirla();
           if (k !== "«Más»") await p.waitForSelector(SEL.dialogo);
@@ -244,18 +244,20 @@ try {
     });
   }
 
-  // ================================================================== 2 · Estilo y luz, compartir y envío
+  // ================================================================== 2 · Estilo, compartir y envío
   for (const [n, opciones] of [["escritorio", {}], ["móvil", { ancho: 390, alto: 844, tactil: true }]]) {
-    await inf.bloque(`Estilo y luz, compartir y consulta completa (${n})`, async () => {
+    await inf.bloque(`Estilo, compartir y consulta completa (${n})`, async () => {
       const { p, red } = await simulado(opciones);
-      if (!(await inf.requiere(p, piezas("contacto", "herramientas"), "Estilo y luz, compartir y contacto"))) return;
+      if (!(await inf.requiere(p, piezas("contacto", "herramientas"), "Estilo, compartir y contacto"))) return;
       await pulsar(p, SEL.personalizar);
       await p.waitForSelector(SEL.dialogo);
-      // vivienda construida (el visor simulado): Colores y Luz, sin estilos IA (PA3; los estilos se prueban en el bloque 2 b)
-      inf.ok(!(await p.$(SEL.estilo("nordico"))), "en una vivienda construida «Estilo y luz» no ofrece estilos IA");
-      await p.click(SEL.momento("noche")); await p.click(SEL.pared("#a9b5a0"));
+      // vivienda construida (el visor simulado): Colores, sin estilos IA (PA3; los estilos se prueban en el bloque 2 b)
+      inf.ok(!(await p.$(SEL.estilo("nordico"))), "en una vivienda construida «Estilo» no ofrece estilos IA");
+      // la luz tiene un solo control, la barra del sol del núcleo (petición del cliente, 15/10): el panel no la repite
+      inf.ok(!(await p.$("[data-k^='momento-']")), "«Estilo» ya no lleva la luz: la lleva la barra del sol (un solo control)");
+      await p.click(SEL.pared("#a9b5a0"));
       const est = await p.evaluate(() => ({ ...window.visor.estado }));
-      inf.ok(est.momento === "noche" && est.pintura.paredes === "#a9b5a0", "«Estilo y luz» aplica la luz y el color de paredes en el visor", est);
+      inf.ok(est.pintura.paredes === "#a9b5a0", "«Estilo» aplica el color de paredes en el visor", est);
       await p.click(SEL.comparar);
       inf.ok(await p.evaluate(() => window.visor.estado.comparar === true), "«Antes y después» activa la vista comparada");
       await p.keyboard.press("Escape");
@@ -283,15 +285,15 @@ try {
     });
   }
 
-  // ================================================================== 2 b · Estilo y luz en un proyecto
-  await inf.bloque("Estilo y luz en un proyecto: estilos IA (y colores si el tour los trae)", async () => {
+  // ================================================================== 2 b · Estilo en un proyecto
+  await inf.bloque("Estilo en un proyecto: estilos IA (y colores si el tour los trae)", async () => {
     const { p } = await simulado({ query: "?obra=proyecto" });
-    if (!(await inf.requiere(p, { "«Estilo y luz»": SEL.personalizar }, "Estilo y luz en un proyecto"))) return;
+    if (!(await inf.requiere(p, { "«Estilo»": SEL.personalizar }, "Estilo en un proyecto"))) return;
     await pulsar(p, SEL.personalizar);
     await p.waitForSelector(SEL.dialogo);
-    await p.click(SEL.estilo("nordico")); await p.click(SEL.momento("noche"));
+    await p.click(SEL.estilo("nordico"));
     const est = await p.evaluate(() => ({ ...window.visor.estado }));
-    inf.ok(est.estilo === "nordico" && est.momento === "noche", "en un proyecto, «Estilo y luz» aplica el estilo (recreación con IA) y la luz en el visor", est);
+    inf.ok(est.estilo === "nordico", "en un proyecto, «Estilo» aplica el estilo (recreación con IA) en el visor", est);
     inf.ok(!!(await p.$(SEL.pared("#a9b5a0"))), "si el proyecto trae también colores, se ven los dos (PA3)");
   });
 
@@ -372,7 +374,7 @@ try {
   // ================================================================== 6 · francés, trámite y hoja táctil
   await inf.bloque("Francés, certificado en trámite y hoja táctil", async () => {
     const { p, ctx } = await simulado({ ancho: 390, alto: 844, tactil: true, query: "?lang=fr&tramite" });
-    if (!(await inf.requiere(p, { "«Estilo y luz»": SEL.personalizar, "hoja del móvil": SEL.peek }, "hoja táctil y «Estilo y luz» en francés"))) return;
+    if (!(await inf.requiere(p, { "«Estilo»": SEL.personalizar, "hoja del móvil": SEL.peek }, "hoja táctil y «Estilo» en francés"))) return;
     await p.evaluate(() => window.visor.ir("cocina"));
     await pulsar(p, SEL.personalizar);
     inf.ok((await p.textContent(SEL.dialogo)).includes("Non disponible dans cette pièce"), "en una estancia sin máscara se avisa (en francés) de que no se puede pintar");
@@ -753,8 +755,8 @@ try {
 
   // ================================================================== 12 f · tarjeta en reposo, espaciado de texto y «Deshacer»
   await inf.bloque("Tarjeta: en reposo se recoge solo a la vista (A11), con el espaciado aumentado no corta nombres (A12) y «Deshacer» espera (A17)", async () => {
-    for (const [n, opciones, nombres] of [["1280×800", {}, ["Foto de la vista", "Estilo y luz", "Visita guiada", "Medir"]],
-      ["390×844", { ancho: 390, alto: 844, tactil: true }, ["Foto de la vista", "Estilo y luz"]]]) {
+    for (const [n, opciones, nombres] of [["1280×800", {}, ["Foto de la vista", "Estilo", "Visita guiada", "Medir"]],
+      ["390×844", { ancho: 390, alto: 844, tactil: true }, ["Foto de la vista", "Estilo"]]]) {
       const { p } = await simulado(opciones);
       if (!(await inf.requiere(p, piezas("contacto", "herramientas"), `${n}: tarjeta en reposo`))) return;
       if (n === "1280×800") {
@@ -1102,7 +1104,7 @@ try {
   // Petición del cliente: «una barra arriba con un punto que se mueva del amanecer al anochecer, con el movimiento exacto
   // del sol según las fotos de la Osmo 360… amanecer, día soleado, atardecer y noche». La demo dice que sus «fotos» son
   // del 15-10-2026 a las 18:20 en Madrid (DEMO_TOUR.sol): las horas de abajo salen de sol.js para ese día.
-  await inf.bloque("Núcleo real: barra del sol (teclado, iconos, arrastre, «Reproducir el día», «Estilo y luz» y API)", async () => {
+  await inf.bloque("Núcleo real: barra del sol (teclado, iconos, arrastre, «Reproducir el día», un solo control de luz y API)", async () => {
     const ctx = await contexto(navegador, { ancho: 1280, alto: 800 });
     inf.cerrarAlFinal.push(ctx);
     const p = await abrir(ctx, `${base}index.html?demo`);
@@ -1152,17 +1154,17 @@ try {
     await conAviso(() => p.mouse.up());
     const k5 = await sol();
     inf.ok(k5.ms < k4.ms && k5.hora !== "20:34" && (await p.evaluate(() => window.__sol.at(-1)?.hora)) === k5.hora, "arrastrar el punto a la izquierda lleva el sol hacia atrás y avisa al soltar", { antes: k4.hora, despues: k5.hora });
-    // «Estilo y luz»: las cuatro paradas, sincronizadas con la barra
-    if (await inf.requiere(p, { "«Estilo y luz»": SEL.personalizar }, "«Estilo y luz» con la barra del sol")) {
+    // Un solo control de luz: «Estilo» (decoración y colores) ya no repite los momentos; visor.fijarMomento lleva la barra
+    if (await inf.requiere(p, { "«Estilo»": SEL.personalizar }, "«Estilo» con la barra del sol")) {
       await p.click(SEL.personalizar);
-      await esperar(p, (s) => document.querySelector(s), SEL.momento("amanecer"), 5000).catch(() => {});
-      const opciones = await p.evaluate(() => [...document.querySelectorAll("[data-k^='momento-']")].map((e) => e.dataset.k.slice(8)));
-      inf.ok(opciones.join() === "amanecer,dia,atardecer,noche", "«Estilo y luz» ofrece las mismas cuatro paradas", opciones);
-      await conAviso(() => p.click(SEL.momento("amanecer")), "08:45");
-      const k6 = await sol();
-      inf.ok(k6.hora === "08:45" && k6.momento === "amanecer" && /Amanecer/.test(k6.texto), "elegir «Amanecer» en el panel lleva la barra a las 08:45", k6.hora);
+      await p.waitForSelector(SEL.dialogo);
+      const opciones = await p.evaluate(() => document.querySelectorAll("[data-k^='momento-']").length);
+      inf.ok(opciones === 0, "la luz tiene un solo control, la barra del sol: «Estilo» ya no repite los momentos", opciones);
       await p.keyboard.press("Escape");
     }
+    await conAviso(() => p.evaluate(() => { window.visor.fijarMomento("amanecer"); }), "08:45");
+    const k6 = await sol();
+    inf.ok(k6.hora === "08:45" && k6.momento === "amanecer" && /Amanecer/.test(k6.texto), "visor.fijarMomento(«amanecer») lleva la barra a las 08:45", k6.hora);
     // «Reproducir el día»: el sol avanza solo; el mismo botón lo para
     await p.click("#sol .reproducir");
     const r1 = await p.evaluate(() => ({ pulsado: document.querySelector("#sol .reproducir").getAttribute("aria-pressed"), nombre: document.querySelector("#sol .reproducir").getAttribute("aria-label"), ms: window.visor.sol.ms }));
@@ -1220,23 +1222,31 @@ try {
       const g = c.getContext("2d");
       g.drawImage(l, l.width * 0.4, l.height * 0.45, l.width * 0.2, l.height * 0.2, 0, 0, 64, 64);
       const d = g.getImageData(0, 0, 64, 64).data;
-      let s = 0;
-      for (let i = 0; i < d.length; i += 4) s += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
-      return s / (d.length / 4);
+      let s = 0, r = 0, b = 0;
+      for (let i = 0; i < d.length; i += 4) { s += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]; r += d[i]; b += d[i + 2]; }
+      return { L: s / (d.length / 4), calidez: r / Math.max(1, b) }; // luminancia media y calidez (R/B)
     });
     const sello = () => p.evaluate(() => { const s = document.querySelector("#sello-ia"); return s.hidden ? "" : s.textContent; });
     const s0 = await p.evaluate(() => window.visor.sol);
-    const l10 = await luz(), sello10 = await sello();
+    const m10 = await luz(), l10 = m10.L, sello10 = await sello();
     await p.evaluate(() => window.visor.fijarSol("17:00")); await p.waitForTimeout(400);
-    const l17 = await luz(), sello17 = await sello();
+    const l17 = (await luz()).L, sello17 = await sello();
     await p.evaluate(() => window.visor.fijarSol("noche")); await p.waitForTimeout(400);
-    const lNoche = await luz();
+    const mNoche = await luz(), lNoche = mNoche.L;
     await p.evaluate(() => window.visor.fijarSol("10:00")); await p.waitForTimeout(400);
-    const lVuelta = await luz();
+    const lVuelta = (await luz()).L;
     inf.ok(s0?.hora === "10:00" && s0?.foto === "10:00" && !sello10, "un recorrido con tour.sol empieza a la hora de sus fotos, sin sello de luz simulada", { sol: s0?.hora, sello10 });
     inf.ok(l17 > l10 * 1.12, "a las 17:00 el sol entra por la ventana del oeste y aclara el suelo de delante (la ventana se reconoce en la foto)", { l10: l10.toFixed(1), l17: l17.toFixed(1) });
-    inf.ok(lNoche < l10 * 0.6 && Math.abs(lVuelta - l10) < 1.5, "de noche la estancia se oscurece; de vuelta a las 10:00, la foto queda como era", { lNoche: lNoche.toFixed(1), lVuelta: lVuelta.toFixed(1) });
+    // de noche, como una foto de crepúsculo: con las luces de casa, el interior más tenue y más cálido (las ventanas, azul noche)
+    inf.ok(lNoche < l10 * 0.85 && mNoche.calidez > m10.calidez * 1.15 && Math.abs(lVuelta - l10) < 1.5,
+      "de noche la estancia se ve con las luces de casa: más tenue y más cálida; de vuelta a las 10:00, la foto queda como era",
+      { l10: l10.toFixed(1), lNoche: lNoche.toFixed(1), calidez: [m10.calidez.toFixed(2), mNoche.calidez.toFixed(2)], lVuelta: lVuelta.toFixed(1) });
     inf.ok(/simulada/i.test(sello17), "lejos de la hora de las fotos, el sello avisa de que la luz es simulada", sello17);
+    // La maqueta de un recorrido de fotos: cada estancia con su foto 360 proyectada en el suelo y las paredes
+    await p.evaluate(() => window.visor.modo("maqueta"));
+    const fotosMaqueta = await esperar(p, () => { const f = window.visor._debug.maquetaFotos; return f?.estancias > 0 && f.cargadas === f.estancias; }, null, 30000)
+      .then(() => p.evaluate(() => window.visor._debug.maquetaFotos), () => p.evaluate(() => window.visor._debug.maquetaFotos));
+    inf.ok(fotosMaqueta?.estancias === 1 && fotosMaqueta.cargadas === 1, "la maqueta lleva la foto 360 de la estancia en su suelo y sus paredes (no un bloque de color)", fotosMaqueta);
     const err = erroresDe(p);
     inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
   });

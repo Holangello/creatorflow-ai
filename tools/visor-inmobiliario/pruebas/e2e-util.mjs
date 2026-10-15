@@ -305,6 +305,7 @@ export async function mediosEstudio(navegador) {
     "salon-nordico.jpg": pano("NÓRDICO", "#f6f4f0", "#dcc7a3"),
     "salon-noche.jpg": pano("NOCHE", "#3a3f55", "#2a2018"),
     "salon-industrial.jpg": pano("INDUSTRIAL", "#8f8a83", "#4b3a2d"),
+    "salon-all-white.jpg": pano("ALL WHITE", "#fbfaf8", "#e7e2d8"),
     "normal.jpg": { tipo: "foto", ancho: 1600, alto: 1200, rotulo: "FOTO 4:3" },
     "render-salon.jpg": { tipo: "foto", ancho: 1920, alto: 1080, rotulo: "RENDER SALÓN", color: "#c9b48a" },
     "plano.png": { tipo: "plano", ancho: 1200, alto: 860 },

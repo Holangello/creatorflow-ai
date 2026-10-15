@@ -174,7 +174,7 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
 | Contacto con nombre, teléfono y pregunta enviados al WhatsApp de la empresa | ✅ wa.me, más webhook a CRM opcional |
 | Botón de foto de la vista actual, varias capturas adjuntas al mensaje | ✅ mejorado en fase 2 (P10, P12) |
 | Selector de la estancia o sección de la pregunta; vivienda organizada por secciones y estancias | ✅ |
-| Al menos 5 estilos de diseño generados con IA, solo en terrenos o proyectos (`estado_obra: proyecto`) | ✅ original + 5; sello «Recreación virtual · IA» |
+| Al menos 5 estilos de diseño generados con IA, solo en terrenos o proyectos (`estado_obra: proyecto`) | ✅ original + 6 (15/10: también «Purista · all white»); sello «Recreación virtual · IA» |
 | Viviendas ya construidas: cambiar color de paredes y suelo, pequeños detalles | ✅ máscaras por foto (editor en el Estudio) |
 | Ambiente de día y de noche, con las luces encendidas de noche | ✅ día, atardecer y noche (foto real o simulada) |
 | Barra del sol arriba (15/10): un punto que se mueve del amanecer a la noche con el sol exacto de las fotos de la Osmo 360; cuatro iconos (amanecer, día soleado, atardecer, noche); la luz que entra en cada estancia en la vista previa y en la maqueta 3D | ✅ `sol.js` (NOAA), barra bajo el título, demo con sol y sombras, fotos con la luz que entra por las ventanas, maqueta y paseo libre con sombras; el Estudio lee fecha, hora y GPS del EXIF. Falta probarlo con fotos reales de la Osmo del cliente |

@@ -83,7 +83,8 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
     { "id": "salon", "nombre": "Texto", "planta": "p0", "poligono": [[0,0],[6,0],[6,5],[0,5]], "altura_techo": 2.6 }
   ],
 
-  "estilos": [                          // selector de estilos (proyectos): 'original' = imagen base
+  "estilos": [                          // selector de estilos (proyectos): 'original' = imagen base. Los de IA del Estudio: nordico,
+                                        // mediterraneo, industrial, contemporaneo_minimalista, purista (all white) y clasico
     { "id": "original", "nombre": "Texto" },
     { "id": "nordico", "nombre": "Texto" }
   ],

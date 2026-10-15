@@ -329,10 +329,10 @@ try {
     await ir(p, "variantes");
     await p.click(SEL.mostrarTodo);
     await esperar(p, () => window.__estudio.tour._estudio.estiloTodo === true);
-    await subir(p, SEL.subirEstilos, de("salon-nordico.jpg", "salon-noche.jpg", "salon-industrial.jpg"));
-    await esperar(p, () => (window.__estudio.tour.panoramas.find((q) => q.id === "salon").variantes?.length ?? 0) === 3 && !document.querySelector(__SEL.cargando), null, 60000);
+    await subir(p, SEL.subirEstilos, de("salon-nordico.jpg", "salon-noche.jpg", "salon-industrial.jpg", "salon-all-white.jpg"));
+    await esperar(p, () => (window.__estudio.tour.panoramas.find((q) => q.id === "salon").variantes?.length ?? 0) === 4 && !document.querySelector(__SEL.cargando), null, 60000);
     const vs = (await T(p)).panoramas.find((q) => q.id === "salon").variantes.map((v) => `${v.estilo ?? "-"}/${v.momento}/${v.origen}`).join(", ");
-    inf.ok(vs === "nordico/dia/ia, -/noche/foto, industrial/dia/ia", "estilo, momento y origen de cada variante se deducen del nombre del archivo", vs);
+    inf.ok(vs === "nordico/dia/ia, -/noche/foto, industrial/dia/ia, purista/dia/ia", "estilo, momento y origen de cada variante se deducen del nombre del archivo (también «all white» → Purista)", vs);
 
     // ---- barra del sol: las fotos de prueba no traen EXIF; el agente indica cuándo se hicieron y el visor muestra la barra
     await p.waitForSelector("#sol-fecha");
@@ -400,9 +400,9 @@ try {
     const salon = tj.panoramas.find((x) => x.id === "salon");
     inf.ok(tj.version === 2 && !("_estudio" in tj) && tj.panoramas.length === 5 && tj.panoramas.every((x) => x.enlaces?.length > 0),
       "tour.json: versión 2, sin datos internos del Estudio y todas las fotos con enlaces");
-    inf.ok(tx(salon.puntos?.[0]?.titulo) === "Ventanal al sur" && salon.variantes?.length === 3 && salon.mascara === "panos/mascaras/salon.png" && Number.isFinite(salon.yaw),
-      "tour.json: la foto del salón lleva su nota, sus 3 variantes, su máscara y su giro");
-    inf.ok(tj.estilos?.map((e) => e.id).join() === "original,nordico,industrial" && tx(tj.estancias?.[0]?.nombre) === "Salón comedor" && tj.plantas[0].muros?.length === 1,
+    inf.ok(tx(salon.puntos?.[0]?.titulo) === "Ventanal al sur" && salon.variantes?.length === 4 && salon.mascara === "panos/mascaras/salon.png" && Number.isFinite(salon.yaw),
+      "tour.json: la foto del salón lleva su nota, sus 4 variantes, su máscara y su giro");
+    inf.ok(tj.estilos?.map((e) => e.id).join() === "original,nordico,industrial,purista" && tx(tj.estancias?.[0]?.nombre) === "Salón comedor" && tj.plantas[0].muros?.length === 1,
       "tour.json: solo los estilos con imágenes, la estancia y el muro dibujados");
     const zonas = (tj.secciones ?? []).map((z) => `${tx(z.nombre)}: ${z.estancias.join("+")}`).join(" · ");
     inf.ok(/no contractuales/.test(tx(tj.inmueble?.aviso_legal)) && (tj.secciones?.length ?? 0) >= 2 && !("secciones" in (await T(p))),
@@ -656,7 +656,7 @@ try {
 
     copia = await descargar(p, async () => { await p.click(SEL.proyecto); await p.click(SEL.copiaSeguridad); });
     const zc = leerZip(copia.datos), pj = jsonDe(zc["estudio/proyecto.json"]);
-    inf.ok(["docs/nota-simple-privada.pdf", "estudio/proyecto.json", "tour.json", "LEEME.txt"].every((r) => r in zc) && !("modo" in pj.tour._estudio) && pj.tour._estudio.musicaLicencia === true && pj.tour.estilos.length === 6,
+    inf.ok(["docs/nota-simple-privada.pdf", "estudio/proyecto.json", "tour.json", "LEEME.txt"].every((r) => r in zc) && !("modo" in pj.tour._estudio) && pj.tour._estudio.musicaLicencia === true && pj.tour.estilos.length === 7,
       "copia de seguridad («Proyecto ▾»): incluye lo privado y el proyecto de trabajo completo (licencia de la música, estilos y ajustes)");
     const err = erroresDe(p, IGNORAR);
     inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
@@ -670,7 +670,7 @@ try {
     await subir(p, SEL.restaurar, [archivo(copia.nombre, copia.datos)]);
     await esperar(p, () => window.__estudio.tour.panoramas.length === 4 && window.__estudio.guardado === "ok", null, 60000);
     const r = await p.evaluate(() => ({ t: window.__estudio.tour, n: window.__estudio.archivos.size }));
-    inf.ok(!("modo" in r.t._estudio) && r.t.estilos.length === 6 && r.t.contacto.whatsapp === "34 600 111 222" && r.t.documentacion.length === 2 && r.t._estudio.musicaLicencia === true && r.n === 11,
+    inf.ok(!("modo" in r.t._estudio) && r.t.estilos.length === 7 && r.t.contacto.whatsapp === "34 600 111 222" && r.t.documentacion.length === 2 && r.t._estudio.musicaLicencia === true && r.n === 11,
       `la copia se restaura íntegra: estilos, contacto, 2 documentos, música con licencia y ${r.n} archivos`);
   });
 

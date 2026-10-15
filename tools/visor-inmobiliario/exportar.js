@@ -313,7 +313,7 @@ export function descargar(blob, nombreArchivo) {
 
 const ARCHIVOS_VISOR = [
   "index.html", "visor.js", "visor.css", "paneles.js", "paneles.css", "i18n.js", "vendor/qr.js",
-  "util.js", "plano.js", "guion.js", "medicion.js", "maqueta.js",
+  "util.js", "plano.js", "guion.js", "medicion.js", "maqueta.js", "sol.js", "luz-fotos.js", // el visor los importa siempre
   // Sistema de diseño: sin él, el visor publicado sale sin estilos en la interfaz nueva.
   "tema.js", "tema.css", "vendor/fonts/inter/inter-latin-opsz-normal.woff2", "vendor/fonts/inter/inter-latin-ext-opsz-normal.woff2", "vendor/fonts/inter/OFL.txt",
 ];

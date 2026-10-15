@@ -7,6 +7,7 @@ export const ESTILOS_IA = [
   { id: "mediterraneo", nombre: { es: "Mediterráneo", en: "Mediterranean" } },
   { id: "industrial", nombre: { es: "Industrial", en: "Industrial" } },
   { id: "contemporaneo_minimalista", nombre: { es: "Contemporáneo minimalista", en: "Contemporary minimalist" } },
+  { id: "purista", nombre: { es: "Purista (all white)", en: "Purist (all white)" } },
   { id: "clasico", nombre: { es: "Clásico", en: "Classic" } },
 ];
 export const MOMENTOS = [

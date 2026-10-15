@@ -15,6 +15,7 @@ const actual = () => pano(app.nodo) ?? app.tour.panoramas[0];
 
 const PISTAS_ESTILO = [
   ["nordico", /n[oó]rdic|nordic|scandi/i], ["mediterraneo", /mediterr/i], ["industrial", /industr/i],
+  ["purista", /purist|all[-_ ]?white|todo[-_ ]?blanco/i], // antes que «minimal»: «purista-minimal» es purista
   ["contemporaneo_minimalista", /contempor|minimal/i], ["clasico", /cl[aá]sic|classic/i],
 ];
 const PISTAS_MOMENTO = [["noche", /noche|night/i], ["atardecer", /atardecer|sunset|dusk|golden/i], ["dia", /d[ií]a|day/i]];
@@ -284,7 +285,7 @@ function pintar() {
   const estilos = verEstilos ? h("div", { class: `tarjeta ${VIDRIO}`, "data-campo": "estilos" },
     h("div", { class: "fila cab-tarjeta" },
       h("div", { class: "estirar" }, h("h2", { class: "sub", text: `Estilos de decoración (IA) · ${nombreDe(p)}` }),
-        h("div", { class: "texto-sec", text: "Genera fuera (con IA) los estilos Nórdico, Mediterráneo, Industrial, Contemporáneo minimalista y Clásico con el mismo encuadre y súbelos aquí. El estilo se deduce del nombre del archivo (salon-nordico.jpg)." })),
+        h("div", { class: "texto-sec", text: "Genera fuera (con IA) los estilos Nórdico, Mediterráneo, Industrial, Contemporáneo minimalista, Purista (all white) y Clásico con el mismo encuadre y súbelos aquí. El estilo se deduce del nombre del archivo (salon-nordico.jpg, salon-all-white.jpg)." })),
       h("button", { type: "button", class: "c8-boton c8-boton--primario", onclick: async () => subirVariantes(p.id, await elegirImgs()) }, icono("subir", 16), "Subir estilos")),
     lista(esEstilo, { conEstilo: true, conMascara: verColores }) ?? h("p", { class: "texto-sec", text: "Sin estilos en esta estancia." })) : null;
   // Zonas de color (construidas)

@@ -513,7 +513,6 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-no-aqui .pn-estilo-nombre { color: var(--c-texto-3, #8b9099); }
 .pn-segmentado > label span { display: inline-flex; align-items: center; gap: var(--e-1, 0.25rem); }
 /* «Luz» en otros idiomas o tallas («Coucher de soleil»): el nombre pasa a dos líneas antes que montarse en el vecino (V5) */
-.pn-dialogo-estilo .pn-segmentado > label { white-space: normal; text-align: center; line-height: var(--lh-ajustado, 1.15); overflow-wrap: anywhere; hyphens: auto; }
 .pn-pintura { display: grid; gap: var(--e-2, 0.5rem); }
 .pn-muestras { display: flex; flex-wrap: wrap; gap: var(--e-2, 0.5rem); }
 .pn-muestra { width: 2.75rem; height: 2.75rem; min-width: var(--toque-minimo, 44px); min-height: var(--toque-minimo, 44px); border-radius: 50%; padding: 0;

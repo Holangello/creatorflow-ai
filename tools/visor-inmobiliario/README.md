@@ -67,11 +67,12 @@ python3 -m http.server 8765
   atardecer y noche, y ▶ para ver pasar el día) con la posición exacta del sol el día y en el lugar de las fotos (EXIF de
   la Osmo 360). En la demo y en la maqueta el sol entra por las ventanas con sus sombras; en las fotos, a su hora se ven tal
   cual y al moverla la luz se simula (con sello).
-- **Estilo y luz:**
-  - 5 estilos con IA, solo en viviendas en proyecto (obra nueva o terreno);
+- **Estilo:**
+  - 6 estilos con IA, solo en viviendas en proyecto (obra nueva o terreno): nórdico, mediterráneo, industrial,
+    contemporáneo, purista (all white) y clásico;
   - color de paredes y suelo en viviendas construidas;
-  - día, atardecer y noche;
   - antes y después.
+  La luz (amanecer, día, atardecer y noche) va en la barra del sol: un solo control.
 - **Más.** Visita guiada, medir, compartir con QR, música con volumen, idiomas (es, en, fr, de) y Ajustes.
 - **Apariencia.** Automático, claro u oscuro; tamaño S, M o L; reducir transparencia; reducir movimiento. Se comparte
   entre el visor, el Estudio y la Guía.

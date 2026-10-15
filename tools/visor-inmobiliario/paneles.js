@@ -10,8 +10,7 @@ import { urlSegura, almacen, areaPoligono, slug } from "./util.js";
 const R = resolverTexto;
 const CLAVE_CONTACTO = "visor:contacto";
 const MAX_FOTOS = 6;
-const ESTILOS_POR_DEFECTO = ["original", "nordico", "mediterraneo", "industrial", "contemporaneo_minimalista", "clasico"];
-const MOMENTOS = ["amanecer", "dia", "atardecer", "noche"]; // amanecer: parada de la barra del sol del núcleo
+const ESTILOS_POR_DEFECTO = ["original", "nordico", "mediterraneo", "industrial", "contemporaneo_minimalista", "purista", "clasico"];
 // Escala oficial del certificado energético (los tokens --ce-* de tema.css; aquí el respaldo)
 const ENERGIA = { A: "#00a651", B: "#4cb848", C: "#bfd730", D: "#e8d900", E: "#fdb913", F: "#f37021", G: "#ed1c24" };
 const ENERGIA_OSCURO = new Set(["C", "D", "E"]);
@@ -20,6 +19,7 @@ const MUESTRAS_ESTILO = {
   original: ["#d9d4cc", "#8c8478", "#3a3631"], nordico: ["#f2efe9", "#d8c3a5", "#9aa5a0"],
   mediterraneo: ["#f7f4ee", "#2f6f9f", "#c96a3d"], industrial: ["#5b5b5b", "#2b2b2b", "#a2523a"],
   contemporaneo_minimalista: ["#ece8e1", "#b9ab97", "#1e1e1e"], clasico: ["#efe6d2", "#8a6d3b", "#4a2f27"],
+  purista: ["#ffffff", "#f3f1ec", "#dedad2"], // all white: blancos y un gris piedra
 };
 
 // ------------------------------------------------------------------ iconos (SVG 24×24, trazo)
@@ -46,11 +46,6 @@ const P = {
   der: "M9 6l6 6-6 6", izq: "M15 6l-6 6 6 6", arriba: "M6 15l6-6 6 6",
   copiar: "M10.5 9h8a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 9 18.5v-8A1.5 1.5 0 0 1 10.5 9zM6 15h-.5A1.5 1.5 0 0 1 4 13.5v-8A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5V6",
   descargar: "M12 4v12M7 11l5 5 5-5M5 20h14",
-  sol: "M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
-  // amanecer y atardecer: los mismos que los iconos de la barra del sol (index.html): medio sol en el horizonte y flecha
-  amanecer: "M2.5 18h19M7.5 18a4.5 4.5 0 0 1 9 0M6.4 14.75 5.1 14M17.6 14.75l1.3-.75M12 10V4M9.5 6.5 12 4l2.5 2.5",
-  atardecer: "M2.5 18h19M7.5 18a4.5 4.5 0 0 1 9 0M6.4 14.75 5.1 14M17.6 14.75l1.3-.75M12 4v6M9.5 7.5 12 10l2.5-2.5",
-  luna: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
   pin: "M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   doc: "M7.5 3h6.4L18 7.1v11.4a2.5 2.5 0 0 1-2.5 2.5h-8A2.5 2.5 0 0 1 5 18.5v-13A2.5 2.5 0 0 1 7.5 3zM13.5 3.1v3.4a1 1 0 0 0 1 1h3.4M8.5 12.5h7M8.5 16h5",
   tel: "M6.6 3.5h2.2c.5 0 .9.33 1 .8l.8 3.4a1 1 0 0 1-.3 1L8.7 10.3a13 13 0 0 0 5 5l1.6-1.6a1 1 0 0 1 1-.3l3.4.8c.47.1.8.5.8 1v2.2a2 2 0 0 1-2.2 2A16.6 16.6 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z",
@@ -216,7 +211,7 @@ export function iniciarPaneles(visor) {
   if (tiene(api?.alCambiar)) limpiezas.push(api.alCambiar(alCambiarTema));
 
   const on = (ev, fn) => { if (tiene(V.on)) { V.on(ev, fn); limpiezas.push(() => V.off?.(ev, fn)); } };
-  for (const ev of ["nodo", "estilo", "momento", "sol", "pintura", "comparar"]) on(ev, () => refrescar(ev)); // sol: barra del sol (luz simulada)
+  for (const ev of ["nodo", "estilo", "momento", "pintura", "comparar"]) on(ev, () => refrescar(ev));
   on("modo", () => renderizar());
   on("idioma", (d) => { const c = typeof d === "string" ? d : d?.idioma ?? d?.cod; if (c && c !== idiomaActual()) fijarIdioma(c); });
   on("guion:inicio", () => { ui.guiada = true; refrescar(); });
@@ -404,19 +399,10 @@ function estiloDisponible(id = est().estilo) {
   const n = nodoActual(); if (!n) return true;
   return (n.variantes ?? []).some((v) => v.estilo === id);
 }
-// Solo los momentos que existen: los del tour (el núcleo ya los normaliza) o los que tienen foto
-function listaMomentos() {
-  let m = T.momentos?.length ? T.momentos : null;
-  if (!m) {
-    const reales = new Set(panoramas().flatMap((p) => (p.variantes ?? []).map((v) => v.momento)).filter((x) => x && x !== "dia"));
-    m = reales.size ? ["dia", ...MOMENTOS.filter((x) => reales.has(x))] : [];
-  }
-  m = m.filter((x) => MOMENTOS.includes(x));
-  return m.length > 1 && tiene(V.fijarMomento) ? m : [];
-}
 const hayPintura = () => tiene(V.fijarPintura) && panoramas().some((p) => p.mascara || (p.variantes ?? []).some((v) => v.mascara))
   && [...(T.personalizacion?.paredes ?? []), ...(T.personalizacion?.suelos ?? [])].some((m) => colorValido(m?.color));
-const hayEstiloLuz = () => listaEstilos().length > 0 || hayPintura() || listaMomentos().length > 0;
+// La luz no va aquí: la lleva la barra del sol del núcleo (un solo control, el más directo: petición del cliente, 15/10)
+const hayEstiloLuz = () => listaEstilos().length > 0 || hayPintura();
 // Visita guiada con 3 estancias o más (o un guion de 2 paradas), como en la portada y en «Estancias y plano» del núcleo
 const hayGuiada = () => tiene(V.guion?.iniciar) && ((Array.isArray(T.guion) ? T.guion.length : 0) >= 2 || panoramas().length >= 3);
 // En la tablet en vertical el núcleo la pone al principio de su tira de estancias: entonces no se repite en «Más»
@@ -1927,17 +1913,6 @@ function dlgEstilo() {
       h("button", { type: "button", class: "pn-enlace-btn", "data-k": "pintura-reset", disabled: !dispo || (!pint.paredes && !pint.suelos),
         onclick: () => { try { V.fijarPintura({ paredes: null, suelos: null }); } catch (er) { console.warn(er); } } }, tr("pintura.restablecer"))));
   }
-  const momentos = listaMomentos();
-  if (momentos.length) {
-    const actual = e.momento ?? "dia", nombreGrupo = nuevoId("luz");
-    const iconos = { amanecer: "amanecer", dia: "sol", atardecer: "atardecer", noche: "luna" };
-    partes.push(h("fieldset", { class: "pn-grupo" },
-      h("legend", {}, tr("momento.titulo"), h("span", { class: "pn-suave", "data-k": "luz-simulada", hidden: e.momentoSimulado !== true }, ` ${tr("momento.simulado")}`)),
-      h("div", { class: "c8-segmentado pn-segmentado", role: "radiogroup", "aria-label": tr("momento.titulo") }, momentos.map((m) =>
-        h("label", { "data-k": `momento-${m}` },
-          h("input", { type: "radio", name: nombreGrupo, value: m, checked: actual === m, onchange: () => { try { V.fijarMomento(m); } catch (er) { console.warn(er); } } }),
-          h("span", {}, ic(iconos[m] ?? "sol", "pn-ic pn-ic-s"), tr(`momento.${m}`)))))));
-  }
   if (tiene(V.comparar) && partes.length) {
     partes.push(interruptor("comparar", tr("comparar.titulo"), tr("comparar.nota"), e.comparar,
       (si) => { try { V.comparar(si); } catch (er) { console.warn(er); } if (V.estado) V.estado.comparar = si; }, "pn-grupo"));
@@ -1952,16 +1927,13 @@ function interruptor(k, texto, nota, marcado, alCambiar, clase = "") {
     h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", "data-k": k, checked: !!marcado, "aria-labelledby": id,
       "aria-describedby": nota ? `${id}-nota` : null, onchange: (e) => alCambiar(e.target.checked) }));
 }
-// Al cambiar estilo, luz, color o comparación, solo cambian las marcas (sin repintar: no salta el control segmentado)
+// Al cambiar estilo, color o comparación, solo cambian las marcas (sin repintar el diálogo)
 function pintarEstilo() {
   const d = raiz?.querySelector(".pn-dialogo-estilo"); if (!d) return;
   const e = est(), actual = e.estilo ?? "original", disp = estiloDisponible(actual);
   for (const b of d.querySelectorAll("[data-k^='estilo-']")) if (b.classList.contains("pn-estilo")) b.setAttribute("aria-pressed", String(b.dataset.k === `estilo-${actual}`));
   const av = d.querySelector("[data-k='estilo-aviso']"); if (av) av.hidden = disp;
   const ia = d.querySelector("[data-k='estilo-ia']"); if (ia) ia.hidden = !(actual !== "original" && disp);
-  for (const r of d.querySelectorAll(".pn-segmentado input")) r.checked = r.value === (e.momento ?? "dia");
-  // con la barra del sol, también de día: la luz se simula en cuanto el sol no está a la hora de las fotos
-  const sim = d.querySelector("[data-k='luz-simulada']"); if (sim) sim.hidden = e.momentoSimulado !== true;
   for (const b of d.querySelectorAll(".pn-muestra")) {
     const k = b.dataset.k.split("-")[0];
     b.setAttribute("aria-pressed", String((e.pintura?.[k] ?? "").toLowerCase() === b.dataset.color));
@@ -2012,7 +1984,7 @@ function dlgAjustes() {
 }
 
 // «Apariencia: Automático · Claro · Oscuro» y «Tamaño: S · M · L» (preferencias comunes de tema.js). El icono es un
-// círculo que se llena según lo elegido; nunca un sol ni una luna (son la luz de la vivienda, en «Estilo y luz»).
+// círculo que se llena según lo elegido; nunca un sol ni una luna (son la luz de la vivienda, en la barra del sol).
 function grupoApariencia() {
   if (!temaApi()) return null;
   const pref = { ...PREF_DEF, ...(temaLeer("preferencias") ?? {}) }, idAp = nuevoId("ap"), idTa = nuevoId("ta");

@@ -286,8 +286,9 @@ al anochecer… el movimiento exacto del sol según las fotos de la Osmo 360… 
   `aria-valuetext` «19:12, Atardecer, sol a 5° sobre el horizonte, hacia el oeste» (y «luz real de la foto» a su hora);
   ← → 15 min (Mayús, una hora), RePág/AvPág la parada siguiente o anterior, Inicio/Fin los extremos. Las flechas no
   navegan ni RePág mueve la cámara mientras la barra tiene el foco.
-- **Coherencia:** el sol y la luna solo se usan para la luz de la vivienda (por eso el icono de Apariencia no los usa), y
-  las paradas de la barra son las mismas que «Luz» en «Estilo y luz».
+- **Un solo control de luz** (petición del cliente, 15/10: «quédate solo con el mejor»): la barra. El panel «Estilo» ya no
+  repite los momentos; lleva la decoración (estilos IA, también «Purista · all white») y los colores.
+- **Coherencia:** el sol y la luna solo se usan para la luz de la vivienda (por eso el icono de Apariencia no los usa).
 
 ### Hacer y evitar
 

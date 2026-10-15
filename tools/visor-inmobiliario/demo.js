@@ -40,6 +40,7 @@ const ESTILOS = {
   mediterraneo: { pared: "#f8efe0", madera: "#c27a52", ceramica: "#d9c7a6", sofa: "#e9dcc4", madera_mueble: "#8b5e3c", tv: "#f3ead9", textil: "#2f5f8a", alfombra: "#c9b48a", metal: "#a77d4c", plantas: true },
   industrial: { pared: "#8f8a83", madera: "#4b3a2d", ceramica: "#5a5753", sofa: "#6b3f24", madera_mueble: "#5c4630", tv: "#1d1d1d", textil: "#4d4a46", alfombra: "#3b3632", metal: "#1f1f1f" },
   contemporaneo_minimalista: { pared: "#ececec", madera: "#b9b7b2", ceramica: "#c9c7c3", sofa: "#3a3d42", madera_mueble: "#f4f4f4", tv: "#ffffff", textil: "#9ea3a8", alfombra: "#d8d8d8", metal: "#cfcfcf" },
+  purista: { pared: "#fbfaf8", madera: "#e7e2d8", ceramica: "#f1f0ed", sofa: "#f3f1ec", madera_mueble: "#f7f6f3", tv: "#fafafa", textil: "#eeebe5", alfombra: "#f4f2ee", metal: "#e3e2df" },
   clasico: { pared: "#e8dac2", madera: "#6e4a2f", ceramica: "#e3dccd", sofa: "#5a2e2e", madera_mueble: "#4a2f1d", tv: "#3b2a1c", textil: "#b08d57", alfombra: "#7a3b2e", metal: "#b08d57", plantas: true },
 };
 

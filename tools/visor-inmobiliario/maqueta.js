@@ -1,11 +1,13 @@
 // Vista "maqueta" (dollhouse): la vivienda vista desde arriba en 3D, con estancias, m² y
 // pines de las fotos 360. Usa el modelo real (demo/GLB) si existe o un esquema extruido
-// a partir de los muros del plano (con las estancias coloreadas encima).
+// a partir de los muros del plano. Cada estancia con foto 360 lleva su propia foto proyectada desde el punto donde se hizo
+// sobre su suelo y sus paredes (como el dollhouse de Matterport, con una sola foto por estancia); sin foto, su color.
 // La vivienda flota sobre el fondo del tema (--c-sup-2: claro en claro, oscuro en oscuro); se repinta con "cre8:tema".
 // Barra del sol: fijarSol() mueve el sol con su posición exacta (sol.js) y los muros echan sombra sobre las estancias; con
 // el modelo de la demo la luz la pone el propio modelo (demo.js).
 import * as THREE from "three";
-import { areaPoligono, puntoEtiqueta } from "./util.js";
+import { areaPoligono, puntoEtiqueta, puntoEnPoligono } from "./util.js";
+import { GLSL_LUZ_FOTOS } from "./luz-fotos.js";
 
 const ALTO_MURO = 2.5;
 const COLORES = [0xe9dcc6, 0xd6e2d3, 0xd9dbe8, 0xeed9cf, 0xdfe7ea, 0xe8e2c9, 0xe2d4e6];
@@ -13,6 +15,43 @@ const COLORES = [0xe9dcc6, 0xd6e2d3, 0xd9dbe8, 0xeed9cf, 0xdfe7ea, 0xe8e2c9, 0xe
 function colorFondo() {
   const v = getComputedStyle(document.documentElement).getPropertyValue("--c-sup-2").trim();
   return new THREE.Color(/^#[0-9a-f]{3,6}$/i.test(v) ? v : "#1a1d22");
+}
+
+/** Material de una estancia con su foto 360: cada punto del suelo o de la pared toma el color de la foto en la dirección
+    en que se ve desde la cámara (centro), con la luz de la barra del sol (sol de ahora entrando por las ventanas y tono del
+    momento) igual que en el recorrido. Sin foto todavía (cargando), el color de la estancia. */
+function materialFoto(uSol, sim, base) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      ...uSol, sim, foto: { value: null }, hayFoto: { value: 0 }, base: { value: new THREE.Color(base) }, resalte: { value: 0 },
+      centro: { value: new THREE.Vector3() }, yaw: { value: 0 }, nMuros: { value: 0 }, altos: { value: new THREE.Vector2(1.5, 2.6) },
+      muros: { value: Array.from({ length: 16 }, () => new THREE.Vector4()) },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vPos; varying vec3 vNormal;
+      void main() {
+        vec4 w = modelMatrix * vec4(position, 1.0);
+        vPos = w.xyz; vNormal = normalize(mat3(modelMatrix) * normal);
+        gl_Position = projectionMatrix * viewMatrix * w;
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D foto; uniform float hayFoto, yaw, nMuros, resalte; uniform vec3 base, centro; uniform vec2 altos, sim;
+      uniform vec4 muros[16];
+      varying vec3 vPos; varying vec3 vNormal;
+      ${GLSL_LUZ_FOTOS}
+      void main() {
+        vec3 c;
+        if (hayFoto > 0.5) {
+          vec3 P = vPos - centro, d = normalize(P);
+          c = texture2D(foto, uvDe(d, yaw)).rgb;
+          if (nMuros > 0.0) c = relucirEn(c, P, normalize(vNormal), muros, nMuros, altos, foto, yaw);
+          c = simular(c, smoothstep(0.25, 0.6, d.y), sim);
+        } else c = base * (1.0 - 0.5 * sim.y);
+        gl_FragColor = vec4(mix(c, vec3(1.0), resalte), 1.0);
+        #include <colorspace_fragment>
+      }`,
+    side: THREE.DoubleSide,
+  });
 }
 
 export function crearMaqueta(ctx) {
@@ -50,6 +89,7 @@ export function crearMaqueta(ctx) {
   // movida: el visitante ya ha girado o acercado la maqueta (desde entonces no se vuelve a encuadrar al girar la pantalla)
   let escena = null, usaModelo = false, construida = false, activa = false, movida = false, fondoPrevio;
   let luzSol = null; // { e: estado del sol (sol.js), luz, hemi, sombra, caja } en el esquema
+  const fotos = { estancias: 0, cargadas: 0 }; // maqueta con fotos: estancias con foto y fotos ya en la GPU
   const etiquetas = [];
   const superficies = [];
   const rayo = new THREE.Raycaster();
@@ -99,12 +139,13 @@ export function crearMaqueta(ctx) {
         luzSol = { luz: sol, hemi, sombra, centro: c, radio: Math.max(tam.x, tam.z) / 2 + 1, e: luzSol?.e ?? null };
       }
     }
-    // Superficies de estancias (relleno de color en el esquema; capa de resalte en el modelo)
+    // Superficies de estancias: en el esquema, la foto 360 de la estancia (o su color); en el modelo, capa de resalte
     (t.estancias ?? []).forEach((e, i) => {
       if (!(e.poligono?.length > 2)) return;
       const forma = new THREE.Shape(e.poligono.map(([x, z]) => new THREE.Vector2(x, -z)));
       const geo = new THREE.ShapeGeometry(forma).rotateX(-Math.PI / 2);
-      const mat = new THREE.MeshBasicMaterial({
+      const nodo = !usaModelo && ctx.texturaMaqueta ? nodoDe(e) : null;
+      const mat = nodo ? materialFoto(ctx.uniformsSol, ctx.simSol, COLORES[i % COLORES.length]) : new THREE.MeshBasicMaterial({
         color: usaModelo ? 0xffffff : COLORES[i % COLORES.length],
         transparent: true, opacity: usaModelo ? 0 : 0.95, depthWrite: !usaModelo, side: THREE.DoubleSide,
       });
@@ -114,6 +155,7 @@ export function crearMaqueta(ctx) {
       s.visible = true;
       superficies.push(s);
       escena.add(s);
+      if (nodo) conFoto(e, nodo, mat);
       const [cx, cz] = puntoEtiqueta(e.poligono);
       const el = document.createElement("div");
       el.className = "maq-estancia c8-vidrio c8-vidrio--texto";
@@ -136,6 +178,52 @@ export function crearMaqueta(ctx) {
     }
     if (!usaModelo) aplicarSol();
     encuadrar();
+  }
+
+  /** La foto 360 de una estancia: la de la cámara que cae dentro (la más cercana a su centro si hay varias). */
+  function nodoDe(e) {
+    const dentro = ctx.nodos().filter((n) => n.planta === e.planta && puntoEnPoligono([n.x, n.z], e.poligono));
+    const [cx, cz] = puntoEtiqueta(e.poligono);
+    return dentro.sort((a, b) => Math.hypot(a.x - cx, a.z - cz) - Math.hypot(b.x - cx, b.z - cz))[0] ?? null;
+  }
+  /** Estancia con foto: la cámara, sus muros (para el sol que entra por las ventanas) y paredes interiores con la foto,
+      un poco por dentro de los muros blancos (que dan el grosor y el canto). Las paredes miran hacia dentro: las del lado
+      del visitante no se pintan y se ve el interior. */
+  function conFoto(e, n, mat) {
+    // con fotos, el sol se ve en ellas (entra por las ventanas): la sombra de los muros sin techo confundiría
+    if (luzSol?.sombra) luzSol.sombra.visible = false;
+    const t = ctx.tour(), y0 = elev(e.planta), h = n.altura_camara ?? t.altura_camara ?? 1.5, techo = e.altura_techo ?? 2.6;
+    const u = mat.uniforms;
+    u.centro.value.set(n.x, y0 + h, n.z);
+    u.yaw.value = ((n.yaw ?? 0) * Math.PI) / 180;
+    u.altos.value.set(h, techo);
+    const P = e.poligono;
+    let k = 0;
+    for (let i = 0; i < P.length && k < 16; i++) { const a = P[i], b = P[(i + 1) % P.length]; u.muros.value[k++].set(a[0] - n.x, a[1] - n.z, b[0] - n.x, b[1] - n.z); }
+    u.nMuros.value = k;
+    const pos = [], nor = [], alto = ALTO_MURO - 0.02, dentro = 0.065;
+    for (let i = 0; i < P.length; i++) {
+      const [ax, az] = P[i], [bx, bz] = P[(i + 1) % P.length], largo = Math.hypot(bx - ax, bz - az);
+      if (largo < 0.05) continue;
+      let nx = -(bz - az) / largo, nz = (bx - ax) / largo;
+      if (!puntoEnPoligono([(ax + bx) / 2 + nx * 0.1, (az + bz) / 2 + nz * 0.1], P)) { nx = -nx; nz = -nz; }
+      const A = [ax + nx * dentro, az + nz * dentro], B = [bx + nx * dentro, bz + nz * dentro];
+      const v = [[A[0], y0, A[1]], [B[0], y0, B[1]], [B[0], y0 + alto, B[1]], [A[0], y0 + alto, A[1]]];
+      // cara hacia dentro: la normal del triángulo (0, 1, 2) es (−Δz, 0, Δx); si no mira hacia dentro, al revés
+      const haciaDentro = -(B[1] - A[1]) * nx + (B[0] - A[0]) * nz > 0;
+      const tri = haciaDentro ? [0, 1, 2, 0, 2, 3] : [0, 2, 1, 0, 3, 2];
+      for (const j of tri) { pos.push(...v[j]); nor.push(nx, 0, nz); }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
+    const paredes = new THREE.Mesh(geo, mat.clone());
+    paredes.material.uniforms = mat.uniforms; // los mismos valores (foto, cámara, sol) que el suelo
+    paredes.material.side = THREE.FrontSide;
+    paredes.userData.paredesFoto = true;
+    escena.add(paredes);
+    fotos.estancias++;
+    ctx.texturaMaqueta(n).then((tex) => { if (!tex) return; u.foto.value = tex; u.hayFoto.value = 1; fotos.cargadas++; ctx.tocar?.(); }).catch(() => {});
   }
 
   /** La casa entera a la vista con cualquier proporción de pantalla (V4): desde arriba y en diagonal, a la distancia a la
@@ -181,6 +269,7 @@ export function crearMaqueta(ctx) {
     s.hemi.intensity = 2.2 * Math.min(1, Math.max(0.4, L.ambiente / 1.4));
     s.sombra.material.opacity = 0.32 * Math.min(1, L.fuerza / 2);
     for (const x of superficies) {
+      if (!x.material.color) continue;
       x.userData.colorBase ??= x.material.color.clone();
       x.material.color.copy(x.userData.colorBase).multiplyScalar(1 - 0.5 * L.noche);
     }
@@ -205,9 +294,15 @@ export function crearMaqueta(ctx) {
     rayo.setFromCamera(ndc, camara);
     const h = rayo.intersectObjects(superficies, false)[0]?.object ?? null;
     if (h === hover) return;
-    if (hover) hover.material.opacity = hover.userData.opacidadBase;
-    if (h) h.material.opacity = usaModelo ? 0.25 : 0.6;
+    if (hover) resaltar(hover, false);
+    if (h) resaltar(h, true);
     hover = h;
+  }
+
+  /** Resalte al pasar el ratón: en la foto, un velo claro; en el color o el modelo, la opacidad. */
+  function resaltar(s, si) {
+    if (s.material.uniforms?.resalte) s.material.uniforms.resalte.value = si ? 0.14 : 0;
+    else s.material.opacity = si ? (usaModelo ? 0.25 : 0.6) : s.userData.opacidadBase;
   }
 
   document.addEventListener("cre8:tema", () => { if (activa && escena) escena.background = colorFondo(); });
@@ -220,13 +315,15 @@ export function crearMaqueta(ctx) {
       return !!ctx.modeloLibre() || (t.plantas ?? []).some((p) => p.muros?.length);
     },
     escena: () => escena,
+    /** Maqueta con fotos: { estancias, cargadas } (pruebas y depuración). */
+    fotos: () => ({ ...fotos }),
     prepararControles,
     /** Barra del sol: el estado del sol (sol.js → estadoSol) o null. */
     fijarSol(e) { luzSol = { ...(luzSol ?? {}), e }; if (construida && !usaModelo) aplicarSol(); },
     acercar,
     activar(si) {
       if (si && !construida) construir();
-      if (!si && hover) { hover.material.opacity = hover.userData.opacidadBase; hover = null; }
+      if (!si && hover) { resaltar(hover, false); hover = null; }
       if (controles) controles.enabled = si;
       capa.hidden = !si;
       if (usaModelo) ctx.ocultarTecho(si);
@@ -243,9 +340,10 @@ export function crearMaqueta(ctx) {
       if (activa && usaModelo && escena) escena.background = fondoPrevio ?? null;
       activa = false;
       hover = null;
-      superficies.forEach((s) => { s.parent?.remove(s); s.geometry.dispose(); s.material.dispose(); });
+      superficies.forEach((s) => { s.parent?.remove(s); s.geometry.dispose(); s.material.uniforms?.foto?.value?.dispose(); s.material.dispose(); });
       if (escena && !usaModelo) escena.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose?.(); } });
       superficies.length = 0;
+      fotos.estancias = fotos.cargadas = 0;
       if (luzSol) luzSol = { e: luzSol.e };
       etiquetas.forEach((e) => e.el.remove());
       etiquetas.length = 0;

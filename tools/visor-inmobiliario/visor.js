@@ -8,6 +8,7 @@ import { crearMedicion } from "./medicion.js";
 import { crearMaqueta } from "./maqueta.js";
 import { crearGuion } from "./guion.js";
 import { lugarSol, recorridoSol, estadoSol, horaLocal } from "./sol.js";
+import { GLSL_LUZ_FOTOS } from "./luz-fotos.js";
 
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
@@ -41,12 +42,12 @@ const FALLBACK = {
   "ayuda.radar_raton": "[R] o el botón Radar muestran u ocultan el radar", "ayuda.radar_tactil": "El botón Radar lo muestra u oculta",
   "ayuda.plano_raton": "[M] o el título de arriba abren «{x}»", "ayuda.plano_tactil": "El título de arriba abre «{x}»",
   "ayuda.foto": "«{x}» añade lo que ves a tu consulta", "ayuda.contactar": "«{x}» envía tu pregunta, con las fotos, a la agencia",
-  "ayuda.estilo": "«{x}» cambia la decoración, los colores o la luz (día, atardecer, noche)", "ayuda.antes_despues": "«{x}» compara con la foto original",
+  "ayuda.estilo": "«{x}» cambia la decoración o los colores", "ayuda.antes_despues": "«{x}» compara con la foto original",
   "ayuda.sol": "Barra del sol, bajo el título: arrastra el punto para mover el sol del amanecer a la noche o toca un icono para ir a ese momento; ▶ reproduce el día entero",
   "ayuda.sol_teclas": "Con la barra del sol seleccionada: [←] [→] mueven 15 minutos ([Mayús] una hora) · [RePág] [AvPág] saltan al momento siguiente o al anterior",
   "ayuda.teclas": "[R] radar · [M] «{x}» · [H] ayuda · [Esc] cerrar", "ayuda.tecla_modo": "[V] cambiar de modo",
   // nombres de piezas de los paneles que cita la ayuda (por si i18n.js no carga)
-  "contacto.hacer_foto": "Foto de la vista", "contacto.corto": "Contactar", "personalizar.titulo": "Estilo y luz", "comparar.titulo": "Antes y después",
+  "contacto.hacer_foto": "Foto de la vista", "contacto.corto": "Contactar", "personalizar.titulo": "Estilo", "comparar.titulo": "Antes y después",
   "sol.titulo": "Luz del sol", "sol.reproducir": "Reproducir el día", "sol.pausar": "Pausar el día", "sol.bajo": "sol bajo el horizonte",
   "sol.alto": "sol a {grados}° sobre el horizonte, hacia el {rumbo}", "sol.foto": "luz real de la foto",
   "sol.rosa": "norte,nordeste,este,sudeste,sur,suroeste,oeste,noroeste",
@@ -179,7 +180,7 @@ if (renderer) {
   renderer.shadowMap.type = THREE.PCFShadowMap;
 }
 visor.lienzo = lienzo;
-Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, maqueta: maqueta?.camara.position.toArray().map((x) => +x.toFixed(2)), programas: renderer?.info.programs?.map((x) => String(x.cacheKey)) ?? [],
+Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, maqueta: maqueta?.camara.position.toArray().map((x) => +x.toFixed(2)), maquetaFotos: maqueta?.fotos(), programas: renderer?.info.programs?.map((x) => String(x.cacheKey)) ?? [],
   luz: { ...luz.medida, ms: luz.ms, n: luz.n,
     detalle: luz.zonas?.map((z) => [z.el ? z.el.id || z.el.className.split(" ")[0] : "vista", +z.p10.toFixed(3), +z.p90.toFixed(3), alfasVidrio.get(z.el)?.a1 ?? null]) } }) });
 
@@ -212,69 +213,10 @@ const matPano = new THREE.ShaderMaterial({
     uniform sampler2D texA, texB, texC, mascA, mascB;
     uniform float yawA, yawB, yawC, mezcla, hayMascA, hayMascB, activaPared, activaSuelo, corte, nMurosA, nMurosB;
     uniform vec2 luzA, luzB, simA, simB, resolucion, altosA, altosB;
-    uniform vec3 pinturaPared, pinturaSuelo, solDir, solFotoDir, solKA, solKF;
+    uniform vec3 pinturaPared, pinturaSuelo;
     uniform vec4 murosA[16], murosB[16];
     varying vec3 vDir;
-    const float PI = 3.141592653589793;
-    const vec3 LUM = vec3(0.2126, 0.7152, 0.0722);
-    vec2 uvDe(vec3 d, float yaw) {
-      float h = atan(d.x, -d.z) - yaw;
-      return vec2(fract(0.5 + h / (2.0 * PI)), 0.5 + asin(clamp(d.y, -1.0, 1.0)) / PI);
-    }
-    // Rayo horizontal o + r·t contra el muro a→b (relativos a la cámara): t, o -1 si no lo corta.
-    float cortaMuro(vec2 o, vec2 r, vec4 m) {
-      vec2 e = m.zw - m.xy, a = m.xy - o;
-      float den = r.x * e.y - r.y * e.x;
-      if (abs(den) < 1e-6) return -1.0;
-      float t = (a.x * e.y - a.y * e.x) / den, u = (a.x * r.y - a.y * r.x) / den;
-      return u >= 0.0 && u <= 1.0 ? t : -1.0;
-    }
-    // ¿Le da el sol (dirección s) al punto P de la estancia, con normal n? Sale de la estancia hacia el sol y mira en la
-    // foto qué hay donde cruza el muro: si es una ventana (lo más claro de la foto), entra el sol. 0-1.
-    float leDa(vec3 P, vec3 n, vec3 s, vec4 muros[16], float nMuros, vec2 altos, sampler2D tex, float yaw) {
-      float cosn = dot(n, s);
-      if (cosn <= 0.0 || s.y <= 0.0) return 0.0;
-      float tW = 1e5;
-      for (int i = 0; i < 16; i++) {
-        if (float(i) >= nMuros) break;
-        float t = cortaMuro(P.xz, s.xz, muros[i]);
-        if (t > 0.02 && t < tW) tW = t;
-      }
-      if (tW > 9e4) return 0.0;
-      vec3 W = P + s * tW;
-      float y = W.y + altos.x; // altura del cruce sobre el suelo
-      if (y < 0.05 || y > altos.y - 0.05) return 0.0; // por debajo del suelo o tapado por el techo
-      float Lw = dot(texture2D(tex, uvDe(normalize(W), yaw)).rgb, LUM);
-      return smoothstep(0.7, 0.92, Lw) * cosn;
-    }
-    // La luz del sol de la barra sobre una foto: el punto que se ve (suelo, techo o muro de la estancia) recibe el sol de
-    // ahora si este entra por una ventana, y pierde el de la hora de la foto (que la foto ya traía). A la hora de la foto
-    // la imagen queda igual; lo que la foto tenía quemado (blanco) se quita a medias, para no dejar una mancha oscura.
-    vec3 relucir(vec3 c, vec3 d, vec4 muros[16], float nMuros, vec2 altos, sampler2D tex, float yaw) {
-      float t = 1e5; vec3 n = vec3(0.0);
-      if (d.y < -1e-3) { t = altos.x / -d.y; n = vec3(0.0, 1.0, 0.0); }
-      if (d.y > 1e-3) { t = (altos.y - altos.x) / d.y; n = vec3(0.0, -1.0, 0.0); }
-      for (int i = 0; i < 16; i++) {
-        if (float(i) >= nMuros) break;
-        float tm = cortaMuro(vec2(0.0), d.xz, muros[i]);
-        if (tm > 1e-3 && tm < t) {
-          t = tm;
-          vec2 e = muros[i].zw - muros[i].xy;
-          n = normalize(vec3(-e.y, 0.0, e.x));
-          if (dot(n.xz, d.xz) > 0.0) n = -n;
-        }
-      }
-      if (t > 9e4) return c;
-      vec3 P = d * t;
-      float ahora = solKA.r > 0.0 ? leDa(P, n, solDir, muros, nMuros, altos, tex, yaw) : 0.0;
-      float antes = solKF.r > 0.0 ? leDa(P, n, solFotoDir, muros, nMuros, altos, tex, yaw) : 0.0;
-      float quemado = smoothstep(0.9, 1.0, dot(c, LUM));
-      vec3 r = (vec3(1.0) + solKA * ahora) / (vec3(1.0) + solKF * antes * (1.0 - 0.5 * quemado));
-      vec3 c2 = c * r;
-      // hombro de las altas luces solo donde el sol suma: la mancha se satura con suavidad y lo demás queda como en la foto
-      vec3 hombro = max(0.85 + 0.15 * (1.0 - exp(-(c2 - 0.85) / 0.15)), c);
-      return mix(c2, hombro, step(0.85, c2) * step(1.0001, r));
-    }
+    ${GLSL_LUZ_FOTOS}
     vec3 procesar(vec3 c, vec2 uv, sampler2D masc, float hayMasc, vec2 luz, vec2 sim, vec3 d, vec4 muros[16], float nMuros, vec2 altos, sampler2D tex, float yaw) {
       float L = dot(c, LUM);
       if (hayMasc > 0.5 && activaPared + activaSuelo > 0.0) {
@@ -283,15 +225,12 @@ const matPano = new THREE.ShaderMaterial({
         if (activaSuelo > 0.5) c = mix(c, pinturaSuelo * (L / max(luz.y, 0.03)), m.g);
         L = dot(c, LUM);
       }
-      if (nMuros > 0.0) c = relucir(c, d, muros, nMuros, altos, tex, yaw);
-      if (sim.x > 0.0) c = mix(c, c * vec3(1.06, 0.80, 0.60) * 0.78, sim.x);
-      if (sim.y > 0.0) {
-        // De noche, lo claro del techo son lámparas (cálidas) y lo claro a media altura, ventanas (cielo de noche)
-        float alto = smoothstep(0.25, 0.6, d.y);
-        vec3 brillo = smoothstep(0.6, 1.0, L) * mix(vec3(0.05, 0.08, 0.16), vec3(1.0, 0.72, 0.42) * 0.85, alto);
-        c = mix(c, c * vec3(0.13, 0.14, 0.22) + brillo, sim.y);
+      if (nMuros > 0.0) {
+        vec3 n;
+        float t = superficie(d, muros, nMuros, altos, n);
+        if (t < 9e4) c = relucirEn(c, d * t, n, muros, nMuros, altos, tex, yaw);
       }
-      return c;
+      return simular(c, smoothstep(0.25, 0.6, d.y), sim);
     }
     void main() {
       vec3 d = normalize(vDir);
@@ -1033,6 +972,7 @@ function aplicarLuzSol(final) {
   // demo: el panorama se vuelve a renderizar con el sol nuevo (rápido mientras se arrastra; bueno al soltar)
   if (int.actual?.renderSol && int.fuenteActual?.sol) pedirRenderSol(final);
   if (pisoDemo && estado.modo !== "tour") aplicarAmbienteLibre();
+  simMaqueta.value.copy(simDe({})); // la maqueta usa las fotos de día de cada estancia
   maqueta?.fijarSol?.(sol.e);
   pedirSombras();
 }
@@ -1432,8 +1372,24 @@ const medicion = renderer && crearMedicion({
   desactivar: () => visor.medir(false),
 });
 
+/** Foto de una estancia para la maqueta: a 2048 px de ancho (basta vista desde lejos y gasta poca memoria de la GPU). */
+function texturaMaqueta(n) {
+  if (n.textura) return Promise.resolve(n.textura);
+  return (n._texMaqueta ??= new Promise((ok, mal) => cargadorTex.load(urlNodo(n), (t) => {
+    const c = document.createElement("canvas");
+    c.width = 2048; c.height = 1024;
+    c.getContext("2d").drawImage(t.image, 0, 0, c.width, c.height);
+    t.dispose();
+    ok(ajustarTextura(new THREE.CanvasTexture(c)));
+  }, undefined, mal)));
+}
+const simMaqueta = { value: new THREE.Vector2() }; // tono del momento (barra del sol) sobre las fotos de la maqueta
+
 const maqueta = renderer && crearMaqueta({
   lienzo, contenedor, tr, texto, superficie: m2Corto,
+  // maqueta con fotos: las de cada estancia, con la misma luz del sol que el recorrido (los mismos uniformes)
+  texturaMaqueta, simSol: simMaqueta, tocar: () => tocarEscena(),
+  uniformsSol: { solDir: U.solDir, solFotoDir: U.solFotoDir, solKA: U.solKA, solKF: U.solKF },
   tour: () => int.tour,
   nodos: () => [...int.nodos.values()],
   escenaLibre,
@@ -2387,7 +2343,7 @@ teclaCierra($("#estancias-plano"), "m");
 teclaCierra($("#ayuda"), "h");
 
 // ---- «Ayuda y controles»: solo lo que se puede usar aquí (modos disponibles, ratón o táctil); [tecla] → <kbd>
-const hayEstiloYLuz = () => { const t = int.tour ?? {}; return (t.estilos?.length ?? 0) > 1 || (t.momentos?.length ?? 0) > 1 || !!(t.personalizacion?.paredes?.length || t.personalizacion?.suelos?.length); };
+const hayEstilo = () => { const t = int.tour ?? {}; return (t.estilos?.length ?? 0) > 1 || !!(t.personalizacion?.paredes?.length || t.personalizacion?.suelos?.length); };
 function alternarAyuda(si) {
   const a = $("#ayuda");
   if (si === undefined) si = !abierto(a);
@@ -2423,10 +2379,10 @@ function renderAyuda() {
   if (!EMBED && $("#paneles [data-k='contactar']")) { // sin canal de contacto, los paneles no ofrecen «Contactar»
     secciones.push(["ayuda.sec_foto", [["ayuda.foto", x("contacto.hacer_foto")], ["ayuda.contactar", x("contacto.corto")]]]);
   }
-  if (hayEstiloYLuz()) {
-    secciones.push(["ayuda.sec_estilo", [["ayuda.estilo", x("personalizar.titulo")], ["ayuda.antes_despues", x("comparar.titulo")],
-      ...(sol.activo ? ["ayuda.sol", ...(r ? ["ayuda.sol_teclas"] : [])] : [])]]);
-  }
+  // «Estilo y luz»: el panel «Estilo» (decoración y colores) y la barra del sol (la luz)
+  const deEstilo = hayEstilo() ? [["ayuda.estilo", x("personalizar.titulo")], ["ayuda.antes_despues", x("comparar.titulo")]] : [];
+  const deLuz = sol.activo ? ["ayuda.sol", ...(r ? ["ayuda.sol_teclas"] : [])] : [];
+  if (deEstilo.length || deLuz.length) secciones.push(["ayuda.sec_estilo", [...deEstilo, ...deLuz]]);
   if (r && atajos) secciones.push(["ayuda.sec_teclas", [["ayuda.teclas", que], ...(ms.length > 1 ? ["ayuda.tecla_modo"] : [])]]);
   const li = (k) => { const [c, v] = Array.isArray(k) ? k : [k]; return `<li>${escapar(tr(c, v)).replace(/\[([^\]]+)\]/g, "<kbd>$1</kbd>")}</li>`; };
   a.querySelector(".secciones").innerHTML = secciones.map(([s, ls]) => `<section><h3>${escapar(tr(s))}</h3><ul>${ls.map(li).join("")}</ul></section>`).join("");
