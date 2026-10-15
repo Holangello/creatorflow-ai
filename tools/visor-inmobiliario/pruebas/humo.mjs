@@ -1,51 +1,16 @@
 #!/usr/bin/env node
 // Prueba de humo de cre8eight: visor (demo), Estudio y Asistente en Chromium sin cabeza.
 //   cd tools/visor-inmobiliario && npm install && npm run prueba
-// Sirve la carpeta con un servidor propio y redirige cdn.jsdelivr.net a node_modules (funciona sin red).
+// Servidor propio y cdn.jsdelivr.net redirigido a node_modules (pruebas/comun.mjs): funciona sin red.
+// Matriz de capturas claro/oscuro × S/M/L × pantallas: node pruebas/capturas.mjs
 // Sale con código 1 si algo falla.
-import { createServer } from "node:http";
-import { readFile, stat } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { extname, join, normalize, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { servir, lanzar, contexto, abrir } from "./comun.mjs";
 
-const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
-const NM = join(RAIZ, "node_modules");
-const TIPOS = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json",
-  ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".wasm": "application/wasm", ".woff2": "font/woff2" };
-
-const servidor = createServer(async (req, res) => {
-  try {
-    const ruta = normalize(decodeURIComponent(new URL(req.url, "http://x").pathname)).replace(/^([/\\])+/, "");
-    let f = join(RAIZ, ruta || "index.html");
-    if ((await stat(f)).isDirectory()) f = join(f, "index.html");
-    res.writeHead(200, { "content-type": TIPOS[extname(f)] ?? "application/octet-stream" });
-    res.end(await readFile(f));
-  } catch { res.writeHead(404); res.end("no encontrado"); }
-});
-await new Promise((ok) => servidor.listen(0, ok));
-const BASE = `http://localhost:${servidor.address().port}/`;
-
-const navegador = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--autoplay-policy=no-user-gesture-required"] });
+const { base: BASE, cerrar } = await servir();
+const navegador = await lanzar();
 const fallos = [];
 const ok = (cond, msg) => { console.log(`${cond ? "✓" : "✗"} ${msg}`); if (!cond) fallos.push(msg); };
-
-async function pagina(url, { ancho = 1280, alto = 800, movil = false } = {}) {
-  const ctx = await navegador.newContext({ viewport: { width: ancho, height: alto }, isMobile: movil, hasTouch: movil });
-  const p = await ctx.newPage();
-  p.errores = [];
-  p.on("pageerror", (e) => p.errores.push(e.message));
-  p.on("console", (m) => { if (m.type() === "error" && !/favicon|404/.test(m.text())) p.errores.push(m.text()); });
-  await p.route(/cdn\.jsdelivr\.net\/npm\/(.+?)@[\d.]+\/(.*)/, async (r) => {
-    const [, paquete, resto] = r.request().url().match(/cdn\.jsdelivr\.net\/npm\/(.+?)@[\d.]+\/(.*)/);
-    const f = join(NM, paquete, resto);
-    if (!existsSync(f)) return r.fulfill({ status: 404 });
-    r.fulfill({ body: await readFile(f), contentType: "text/javascript" });
-  });
-  await p.goto(BASE + url);
-  return p;
-}
+const pagina = async (url, { ancho = 1280, alto = 800, movil = false } = {}) => abrir(await contexto(navegador, { ancho, alto, movil }), BASE + url);
 
 try {
   // ---------------------------------------------------------------- visor
@@ -100,7 +65,7 @@ try {
   ok(false, `excepción: ${err.message}`);
 } finally {
   await navegador.close();
-  servidor.close();
+  cerrar();
 }
 console.log(fallos.length ? `\n${fallos.length} fallo(s).` : "\nTodo correcto.");
 process.exit(fallos.length ? 1 : 0);
