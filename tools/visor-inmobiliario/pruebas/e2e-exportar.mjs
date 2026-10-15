@@ -52,7 +52,9 @@ async function paginaExportar() {
 /** Abre «Compartir»: el botón de los paneles o, desde la fase 3, su elemento del menú «Más» del núcleo. */
 async function abrirCompartir(f) {
   if (await f.$(SEL.compartir)) return f.click(SEL.compartir);
-  await f.click(SEL.mas);
+  // «Más» está en la barra de vista, que se oculta tras 3,5 s sin tocar nada (body.ui-inactiva). Con la máquina cargada
+  // pueden pasar más de 3,5 s entre mover el ratón y el clic de Playwright: se despierta y se pulsa en el mismo paso.
+  await f.evaluate((s) => { dispatchEvent(new PointerEvent("pointermove")); document.querySelector(s).click(); }, SEL.mas);
   await f.click(SEL.compartirMas);
 }
 /** Abre un HTML autónomo desde el disco (file://). Toda petición http(s) se registra y se aborta (salvo wa.me). */
