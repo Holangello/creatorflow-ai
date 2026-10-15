@@ -64,7 +64,9 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
   - Pendiente para la fase 4: el lienzo del plano y el editor de máscara del Estudio aún dibujan con colores fijos.
 - [ ] **Fase 3 · Esencialismo y organización** (ver «Encargos de la fase 3»).
   - Auditorías A (esencialista) y B (organización) lanzadas en paralelo. Entregan `docs/auditorias/fase3-esencialista.md` y `docs/auditorias/fase3-organizacion.md`.
-  - Pruebas E2E llevadas al repositorio por un agente de QA: `pruebas/e2e-*.mjs`, `npm run prueba:e2e` y `npm run prueba:todo`.
+  - [x] Pruebas E2E en el repositorio: 321 comprobaciones, `npm run prueba:todo` (commit 1fed69a).
+    - Los agentes de la fase 3 actualizan los SEL y lo marcado «pendiente de la interfaz nueva».
+    - Fallos reales detectados: WhatsApp con líneas vacías y QR del HTML autónomo (paneles); carrera en la vista previa y herramientas del plano a 34 px en iPad (ya corregidos en el árbol).
   - [x] Contingencias:
     - Música que no carga → el botón desaparece.
     - Tema: sin `backdrop-filter`, `color-mix`, máscaras ni `:has()`.

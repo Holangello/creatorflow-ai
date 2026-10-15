@@ -19,7 +19,7 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Comando | Qué cubre |
 |---|---|
 | `npm run prueba` | Humo: el visor carga la demo; navegación, estilo, noche, modo libre, maqueta, música y captura; móvil, Estudio, Asistente y el tema (claro + talla L) |
-| `npm run prueba:e2e` · `npm run prueba:todo` | Extremo a extremo (en preparación): Estudio (rápido, completo, copia de seguridad y restaurar, iPad, «Colocar»), paneles (contacto con fotos, WhatsApp, música, teclado, táctil), exportación, seguridad (tour hostil sin `javascript:` ni código inyectado) |
+| `npm run prueba:e2e` · `npm run prueba:todo` | Extremo a extremo, 321 comprobaciones en unos 6 min: Estudio (92), paneles (150), exportación (45: ZIP, HTML autónomo sin red, GPano, plano, dossier, vídeo) y seguridad (34: tour hostil, escapes, sin `file://`). Se elige con `node pruebas/e2e.mjs estudio seguridad`; el detalle está en `pruebas/LEEME.md`. Lo que depende de una interfaz en obras sale como «pendiente» en vez de fallar |
 | `node pruebas/capturas.mjs` | Matriz visual: páginas × claro/oscuro × S/M/L × de 360×640 a 3840×2160 y 3440×1440, con hoja de contactos |
 | Auditorías por fase | QA, UX/UI, Maverick, esencialista y organización (`docs/auditorias/`) |
 
