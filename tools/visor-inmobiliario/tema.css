@@ -41,7 +41,6 @@
   /* Familias: SF Pro en Apple; Inter (autoalojada) en el resto */
   --fuente: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter Variable", Inter, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --fuente-titular: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Variable", Inter, "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --fuente-editorial: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --fuente-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
   --peso-normal: 400;
   --peso-medio: 510;
@@ -49,9 +48,11 @@
   --peso-fuerte: 680;
 
   /* Escala tipográfica (rem: escala con la pantalla y la talla) */
-  --t-micro: 0.6875rem;     /* 11 · etiquetas en mayúsculas */
-  --t-pie: 0.75rem;         /* 12 · pies, sellos */
-  --t-sec: 0.8125rem;       /* 13 · texto secundario */
+  /* Los tres pequeños con suelo: en el teléfono la raíz baja a 14 px (12,25 con S) y no se lee por debajo de 11 px.
+     Manda el rem si es mayor, así que la letra grande del navegador se sigue respetando. */
+  --t-micro: max(0.6875rem, 11px);  /* 11 · etiquetas en mayúsculas */
+  --t-pie: max(0.75rem, 11px);      /* 12 · pies, sellos */
+  --t-sec: max(0.8125rem, 12px);    /* 13 · texto secundario */
   --t-ui: 0.875rem;         /* 14 · botones, controles */
   --t-cuerpo: 1rem;         /* 16 · texto */
   --t-destacado: 1.125rem;  /* 18 */
@@ -195,6 +196,8 @@ html[data-talla="l"] { --talla: 1.18; }
   /* Vidrio: alfa mínima calculada para el peor fondo (pared blanca) */
   --vidrio: rgba(22, 24, 28, 0.56);         /* controles solo icono: ≥ 3:1 */
   --vidrio-texto: rgba(20, 22, 26, 0.78);   /* paneles con texto: ≥ 4,5:1 (AA) incluso el secundario */
+  --vidrio-ambiente: rgba(20, 22, 26, 0.55);/* sobre el ambiente conocido (Estudio, Guía): toma su color, texto ≥ 7:1 */
+  --c-borde-campo: rgba(255, 255, 255, 0.42);/* borde de campos y casillas: ≥ 3:1 (WCAG 1.4.11) */
   --c-texto-2-vidrio: #c3c7cd;              /* 5,3:1 en el peor caso (vidrio sobre blanco) */
   --c-texto-3-vidrio: #b8bcc3;              /* 4,7:1 */
   --vidrio-denso: rgba(18, 20, 24, 0.9);    /* menús y diálogos */
@@ -249,6 +252,8 @@ html[data-talla="l"] { --talla: 1.18; }
 
   --vidrio: rgba(255, 255, 255, 0.5);       /* ≥ 3:1 sobre negro */
   --vidrio-texto: rgba(255, 255, 255, 0.78);/* ≥ 4,5:1 sobre negro, también el secundario */
+  --vidrio-ambiente: rgba(255, 255, 255, 0.55);
+  --c-borde-campo: rgba(0, 0, 0, 0.45);
   --c-texto-2-vidrio: #4a4a51;              /* 5,2:1 en el peor caso (vidrio sobre negro) */
   --c-texto-3-vidrio: #505057;
   --vidrio-denso: rgba(255, 255, 255, 0.9);
@@ -317,10 +322,30 @@ html[data-talla="l"] { --talla: 1.18; }
   --vidrio: rgba(255, 255, 255, 0.3); --vidrio-texto: rgba(255, 255, 255, 0.44); --vidrio-denso: rgba(255, 255, 255, 0.62);
 }
 
+/* ------------------------------------------------------------------ Ambiente
+   Luces suaves hechas con los tokens, para que el vidrio se note donde no hay foto detrás (Estudio, Guía, pantallas de
+   error). En claro, más presencia. Sobre él, los paneles usan --vidrio-ambiente. */
+:root {
+  --ambiente-acento: 24%;
+  --ambiente-info: 16%;
+  --ambiente:
+    radial-gradient(70rem 46rem at 0% 0%, color-mix(in srgb, var(--c-acento) var(--ambiente-acento), transparent), transparent 70%),
+    radial-gradient(60rem 50rem at 100% 8%, color-mix(in srgb, var(--c-info) var(--ambiente-info), transparent), transparent 65%),
+    radial-gradient(64rem 42rem at 48% 115%, color-mix(in srgb, var(--c-acento) 14%, transparent), transparent 70%);
+}
+:root[data-tema="claro"] { --ambiente-acento: 34%; --ambiente-info: 24%; }
+/* Marca «c8» (Estudio y Guía) */
+.logo-e { display: grid; place-items: center; flex: none; width: 1.875rem; height: 1.875rem; border-radius: var(--r-2);
+  background: conic-gradient(from 200deg, var(--c-acento), color-mix(in oklab, var(--c-acento) 55%, var(--c-acento-texto)), var(--c-acento));
+  box-shadow: inset 0 1px 0 var(--vidrio-reflejo-1), var(--sombra-1);
+  color: var(--c-sobre-acento); font: var(--peso-fuerte) var(--t-sec) / 1 var(--fuente-titular); letter-spacing: var(--track-titular); }
+.logo-e.grande { width: 3rem; height: 3rem; border-radius: var(--r-3); font-size: var(--t-destacado); }
+
 /* ------------------------------------------------------------------ Accesibilidad: transparencia y movimiento */
 :root[data-transparencia="reducida"] {
   --vidrio: var(--c-sup-2);
   --vidrio-texto: var(--c-sup-1);
+  --vidrio-ambiente: var(--c-sup-1);
   --vidrio-denso: var(--c-sup-1);
   --vidrio-desenfoque: 0px;
   --vidrio-saturacion: 100%;
@@ -378,7 +403,6 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-num { font-variant-numeric: tabular-nums; }
 .c8-mayus { font-size: var(--t-micro); font-weight: var(--peso-semi); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-texto-2); }
 .c8-sec { color: var(--c-texto-2); font-size: var(--t-sec); }
-.c8-editorial { font-family: var(--fuente-editorial); letter-spacing: 0; }
 .c8-visualmente-oculto {
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
   clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
@@ -516,6 +540,9 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-boton--l { min-height: max(2.875rem, var(--alto-control)); padding: 0 var(--e-5); font-size: var(--t-cuerpo); }
 .c8-boton--bloque { display: flex; width: 100%; }
 .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
+/* Un botón que también es vidrio (p. ej. «Ampliar» del radar) conserva el material: --b-fondo no lo pisa (A3) */
+.c8-boton.c8-vidrio { --b-fondo: var(--vidrio); }
+.c8-boton.c8-vidrio:hover { --b-fondo: var(--vidrio-texto); }
 /* Cargando: <button aria-busy="true"> */
 .c8-boton[aria-busy="true"] { color: transparent; pointer-events: none; }
 .c8-boton[aria-busy="true"]::after {
@@ -540,11 +567,11 @@ html[data-talla="l"] { --talla: 1.18; }
   border-radius: var(--r-pastilla);
 }
 .c8-pastilla > .c8-separador { width: 1px; align-self: stretch; margin: var(--e-2) var(--e-1); background: var(--c-borde-2); }
-.c8-pastilla--vertical { flex-direction: column; }
-.c8-pastilla--vertical > .c8-separador { width: auto; height: 1px; align-self: stretch; margin: var(--e-1) var(--e-2); }
 .c8-pastilla .c8-boton { --b-fondo: transparent; }
 .c8-pastilla .c8-boton:hover { --b-fondo: var(--c-capa-hover); }
 .c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
+/* En claro el champán apenas se separa del vidrio: el estado pulsado lleva además un aro (WCAG 1.4.11) */
+:root[data-tema="claro"] .c8-pastilla .c8-boton[aria-pressed="true"] { box-shadow: inset 0 0 0 1.5px var(--c-acento-texto); }
 
 /* ------------------------------------------------------------------ Control segmentado (radios), hasta 6 opciones
    <div class="c8-segmentado" role="radiogroup"><label><input type="radio" name="x"><span>Día</span></label>…</div> */
@@ -587,7 +614,9 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-segmentado:not(:has(input:checked))::after { opacity: 0; }
 /* Sobre la imagen: el segmentado puede ser de vidrio (el material manda sobre el relleno) */
 .c8-segmentado.c8-vidrio { background: var(--vidrio-texto); border-color: var(--vidrio-borde); }
-.c8-segmentado.c8-vidrio::after { box-shadow: inset 0 1px 0 var(--vidrio-brillo), var(--sombra-1); }
+/* La opción elegida se distingue también por su aro, no solo por el relleno (WCAG 1.4.11) */
+.c8-segmentado::after { box-shadow: inset 0 0 0 1px var(--c-acento-texto), var(--sombra-1); }
+.c8-segmentado.c8-vidrio::after { box-shadow: inset 0 0 0 1px var(--c-acento-texto), inset 0 1px 0 var(--vidrio-brillo), var(--sombra-1); }
 .c8-segmentado.c8-vidrio > label { color: var(--c-texto-2); text-shadow: var(--sombra-texto); }
 .c8-segmentado.c8-vidrio > label:has(input:checked) { color: var(--c-texto); }
 .c8-segmentado > label {
@@ -702,7 +731,7 @@ html[data-talla="l"] { --talla: 1.18; }
   width: 100%;
   min-height: var(--alto-control);
   padding: var(--e-2) var(--e-3);
-  border: 1px solid var(--c-borde);
+  border: 1px solid var(--c-borde-campo);
   border-radius: var(--r-3);
   background: var(--c-campo);
   color: var(--c-texto);
@@ -711,7 +740,7 @@ html[data-talla="l"] { --talla: 1.18; }
 }
 .c8-campo textarea { min-height: 5.5rem; resize: vertical; }
 .c8-campo ::placeholder, .c8-entrada::placeholder { color: var(--c-texto-3); opacity: 1; }
-.c8-campo :is(input, select, textarea):hover, .c8-entrada:hover { border-color: var(--c-borde-2); }
+.c8-campo :is(input, select, textarea):hover, .c8-entrada:hover { border-color: var(--c-texto-3); }
 .c8-campo :is(input, select, textarea):focus-visible, .c8-entrada:focus-visible {
   outline: none;
   border-color: var(--c-foco);
@@ -757,7 +786,6 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-etiqueta--acento { background: var(--c-acento-suave); border-color: color-mix(in srgb, var(--c-acento) 40%, transparent); color: var(--c-acento-texto); }
 
 /* ------------------------------------------------------------------ Tarjeta y panel */
-.c8-tarjeta { box-sizing: border-box; border-radius: var(--r-5); padding: var(--e-5); }
 .c8-panel-titulo { margin: 0; font: var(--peso-semi) var(--t-titulo) / var(--lh-ajustado) var(--fuente-titular); letter-spacing: var(--track-titular); }
 
 /* ------------------------------------------------------------------ Aviso flotante (toast) */
@@ -793,6 +821,12 @@ html[data-talla="l"] { --talla: 1.18; }
   backdrop-filter: blur(6px);
 }
 :root[data-transparencia="reducida"] .c8-dialogo::backdrop { -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* Reducir transparencia de verdad: sin backdrop-filter (con blur(0) el navegador seguía leyendo el fondo en cada
+   fotograma · M4). will-change conserva el bloque contenedor de los hijos fixed que daba el filtro. */
+:root[data-transparencia="reducida"] .c8-vidrio { -webkit-backdrop-filter: none; backdrop-filter: none; will-change: backdrop-filter; }
+@media (forced-colors: active) {
+  .c8-boton[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+}
 
 /* ------------------------------------------------------------------ Indicador de actividad */
 .c8-cargando {
@@ -805,5 +839,3 @@ html[data-talla="l"] { --talla: 1.18; }
   animation: c8-girar 0.8s linear infinite;
 }
 
-/* ------------------------------------------------------------------ Entrada escalonada de listas: style="--orden: 3" */
-.c8-entrar { animation: c8-aparecer var(--d-4) var(--muelle) both; animation-delay: calc(var(--orden, 0) * 40ms); }

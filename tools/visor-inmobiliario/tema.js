@@ -23,6 +23,7 @@
   var consulta = function (q) { try { return window.matchMedia(q); } catch (e) { return { matches: false }; } };
   var mOscuro = consulta("(prefers-color-scheme: dark)");
   var mTransparencia = consulta("(prefers-reduced-transparency: reduce)");
+  var mContraste = consulta("(prefers-contrast: more)"); // «Más contraste» también quita la transparencia, como en macOS
   var mMovimiento = consulta("(prefers-reduced-motion: reduce)");
 
   var valido = function (clave, v) { return OPCIONES[clave].indexOf(v) >= 0 ? v : null; };
@@ -48,7 +49,7 @@
     return {
       tema: p.tema === "auto" ? (mOscuro.matches ? "oscuro" : "claro") : p.tema,
       talla: p.talla,
-      transparencia: p.transparencia === "auto" ? (mTransparencia.matches ? "reducida" : "normal") : p.transparencia,
+      transparencia: p.transparencia === "auto" ? (mTransparencia.matches || mContraste.matches ? "reducida" : "normal") : p.transparencia,
       movimiento: p.movimiento === "auto" ? (mMovimiento.matches ? "reducido" : "normal") : p.movimiento,
     };
   }
@@ -71,7 +72,7 @@
     if (m && m.addEventListener) m.addEventListener("change", aplicar);
     else if (m && m.addListener) m.addListener(aplicar);
   }
-  escuchar(mOscuro); escuchar(mTransparencia); escuchar(mMovimiento);
+  escuchar(mOscuro); escuchar(mTransparencia); escuchar(mContraste); escuchar(mMovimiento);
   window.addEventListener("storage", function (ev) {
     if (ev.key && ev.key.indexOf("cre8eight:") === 0) { cargarUsuario(); aplicar(); }
   });
