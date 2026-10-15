@@ -10,6 +10,20 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
   ```
 - **Tarea programada:** «cre8eight: continuar trabajo pendiente» (`trig_01JefEhn3G2D3urL2CP7Uux4`, cron `35 */2 * * *` UTC) reactiva la sesión cada 2 horas para seguir con lo pendiente. Cuando todo esté terminado, se borra con `delete_trigger` y se avisa al usuario.
 - **Idioma:** el usuario escribe en español; responde en español.
+- **Reglas permanentes del cliente.** Detalle en [docs/calidad.md](../../docs/calidad.md).
+  1. Al terminar cada apartado o fase: **compactar** y dejar solo lo esencial, para un software ligero.
+  2. Que esté **probado**, sin descuidar nunca la calidad.
+  3. Que tenga **planes de contingencia** para cualquier fallo, documentados en la tabla de `docs/calidad.md`.
+  4. **Enseñarle las opciones y decisiones de diseño** a medida que se tomen.
+- **Página de decisiones de diseño:** https://claude.ai/artifact/LfohhX4VRP6Gwa2zy96PUc
+  - Publicada desde `scratchpad/decisiones/decisiones-diseno.html`. Si el scratchpad se ha perdido, léela con `Artifact read` y republica por `url`.
+  - Las elecciones del cliente están en su base de datos: `ArtifactData get` de la colección `elecciones`, documento `actual`, con los campos `A`–`D` y `nota`. Léelas antes de aplicar la fase 4.
+  - Ronda 1 (opciones):
+    - **A.** Color principal: 1 Champán (recomendado) · 2 Grafito · 3 Azul medianoche.
+    - **B.** Aspecto para el visitante: 1 Automático (recomendado) · 2 Siempre oscuro · 3 Siempre claro.
+    - **C.** Letra de precio y títulos: 1 Sin remates (recomendado) · 2 Editorial con remates.
+    - **D.** Vidrio: 1 Equilibrado (recomendado) · 2 Más transparente.
+  - Siguiente ronda: la distribución de los controles y el «modo juego» (captura del ratón), tras la auditoría de organización.
 
 ## Cómo retomar (5 minutos)
 
@@ -49,6 +63,12 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - El evento `sonido` lleva `{activo, volumen}` y también se emite al cambiar el volumen.
   - Pendiente para la fase 4: el lienzo del plano y el editor de máscara del Estudio aún dibujan con colores fijos.
 - [ ] **Fase 3 · Esencialismo y organización** (ver «Encargos de la fase 3»).
+  - Auditorías A (esencialista) y B (organización) lanzadas en paralelo. Entregan `docs/auditorias/fase3-esencialista.md` y `docs/auditorias/fase3-organizacion.md`.
+  - Pruebas E2E llevadas al repositorio por un agente de QA: `pruebas/e2e-*.mjs`, `npm run prueba:e2e` y `npm run prueba:todo`.
+  - [x] Contingencias:
+    - Música que no carga → el botón desaparece.
+    - Tema: sin `backdrop-filter`, `color-mix`, máscaras ni `:has()`.
+    - `docs/calidad.md`.
 - [ ] **Fase 4 · Diseño premium «minimal liquid glass»** con tema claro/oscuro y tallas S/M/L (ver «Encargo de la fase 4»).
   - [x] Base del sistema, adelantada mientras terminaba la fase 2. Documentado en `docs/diseno/sistema.md`, con la tabla de migración de variables.
     - `tema.css`: tokens, vidrio, componentes `c8-*`, claro y oscuro con contraste AA calculado, tallas fluidas S/M/L, muelles.

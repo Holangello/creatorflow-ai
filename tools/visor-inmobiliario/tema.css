@@ -174,8 +174,8 @@ html[data-talla="l"] { --talla: 1.18; }
 
   --c-acento: #cfad66;            /* champán: relleno de botones principales */
   --c-sobre-acento: #15110a;      /* 8,8:1 */
-  --c-acento-texto: color-mix(in oklab, var(--c-acento) 86%, white);  /* enlaces y etiquetas sobre oscuro */
-  --c-acento-suave: color-mix(in srgb, var(--c-acento) 16%, transparent);
+  --c-acento-texto: #d9b872;      /* enlaces y etiquetas sobre oscuro (10:1) */
+  --c-acento-suave: rgba(207, 173, 102, 0.16);
   --c-foco: var(--c-acento);
 
   --c-ok: #4cc38a;
@@ -225,9 +225,9 @@ html[data-talla="l"] { --talla: 1.18; }
 
   --c-acento: #c9a55a;
   --c-sobre-acento: #1a1408;      /* 7,9:1 */
-  --c-acento-texto: color-mix(in oklab, var(--c-acento) 62%, black);   /* ≈ 5,5:1 sobre blanco */
-  --c-acento-suave: color-mix(in srgb, var(--c-acento) 18%, transparent);
-  --c-foco: color-mix(in oklab, var(--c-acento) 70%, black);
+  --c-acento-texto: #87661e;      /* 5,3:1 sobre blanco */
+  --c-acento-suave: rgba(201, 165, 90, 0.18);
+  --c-foco: #87661e;
 
   --c-ok: #1d7f4e;
   --c-aviso: #8a5a00;
@@ -251,6 +251,30 @@ html[data-talla="l"] { --talla: 1.18; }
   --sombra-2: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(15, 20, 30, 0.08), 0 16px 44px rgba(15, 20, 30, 0.16);
   --sombra-3: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(15, 20, 30, 0.1), 0 30px 80px rgba(15, 20, 30, 0.24);
   --sombra-texto: none;
+}
+
+/* Con color-mix() los tonos derivados siguen al color de marca del tour (que el visor pone en --c-acento);
+   sin él (navegadores antiguos) se quedan los valores fijos de arriba, pensados para el champán. */
+@supports (color: color-mix(in srgb, red, blue)) {
+  :root, :root[data-tema="oscuro"] {
+    --c-acento-texto: color-mix(in oklab, var(--c-acento) 86%, white);
+    --c-acento-suave: color-mix(in srgb, var(--c-acento) 16%, transparent);
+  }
+  :root[data-tema="claro"] {
+    --c-acento-texto: color-mix(in oklab, var(--c-acento) 62%, black);
+    --c-acento-suave: color-mix(in srgb, var(--c-acento) 18%, transparent);
+    --c-foco: color-mix(in oklab, var(--c-acento) 70%, black);
+  }
+}
+
+/* ------------------------------------------------------------------ Planes de contingencia del material
+   Sin backdrop-filter (navegadores antiguos o desactivado), el vidrio pasa a ser casi opaco para que se lea igual.
+   Sin máscaras compuestas, el canto especular se quita (si no, cubriría todo el panel). */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .c8-vidrio, .c8-vidrio.c8-vidrio--texto, .c8-vidrio.c8-vidrio--denso { background: var(--vidrio-denso); }
+}
+@supports not ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+  .c8-vidrio::before { display: none; }
 }
 
 /* ------------------------------------------------------------------ Accesibilidad: transparencia y movimiento */
@@ -426,14 +450,13 @@ html[data-talla="l"] { --talla: 1.18; }
   font-weight: var(--peso-semi);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 6px 18px color-mix(in srgb, var(--c-acento) 32%, transparent);
 }
-.c8-boton--primario:hover { --b-fondo: color-mix(in oklab, var(--c-acento) 90%, white); }
+.c8-boton--primario:hover, .c8-boton--whatsapp:hover { filter: brightness(1.07) saturate(1.04); }
 .c8-boton--secundario { --b-fondo: var(--c-capa-hover); --b-borde: var(--c-borde); }
 .c8-boton--fantasma { --b-fondo: transparent; }
 .c8-boton--fantasma:hover { --b-fondo: var(--c-capa-hover); }
 .c8-boton--peligro { --b-fondo: transparent; --b-texto: var(--c-error); --b-borde: color-mix(in srgb, var(--c-error) 45%, transparent); }
 .c8-boton--peligro:hover { --b-fondo: var(--c-error-fondo); }
 .c8-boton--whatsapp { --b-fondo: var(--c-whatsapp); --b-texto: #fff; font-weight: var(--peso-semi); }
-.c8-boton--whatsapp:hover { --b-fondo: color-mix(in oklab, var(--c-whatsapp) 88%, white); }
 .c8-boton--icono { padding: 0; width: var(--alto-control); }
 .c8-boton--icono .c8-icono { width: var(--icono); height: var(--icono); }
 .c8-boton--s { min-height: var(--alto-control-s); min-width: var(--alto-control-s); padding: 0 var(--e-3); font-size: var(--t-sec); }
@@ -526,7 +549,7 @@ html[data-talla="l"] { --talla: 1.18; }
   transition: color var(--d-2) var(--suave);
   white-space: nowrap;
 }
-.c8-segmentado > label:has(input:checked) { color: var(--c-texto); font-weight: var(--peso-semi); }
+.c8-segmentado > label:has(input:checked), .c8-segmentado > label.c8-elegido { color: var(--c-texto); font-weight: var(--peso-semi); }
 .c8-segmentado > label:has(input:focus-visible) { outline: 2px solid var(--c-foco); outline-offset: -2px; }
 .c8-segmentado input { position: absolute; opacity: 0; pointer-events: none; }
 

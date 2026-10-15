@@ -1244,6 +1244,16 @@ function configurarSonido() {
     el.preload = "auto";
     el.loop = m.bucle !== false;
     el.crossOrigin = "anonymous";
+    // Contingencia: si la música no se puede cargar (archivo ausente, formato no admitido), el botón desaparece
+    // en vez de quedarse sin hacer nada; el resto del recorrido sigue igual.
+    el.addEventListener("error", () => {
+      if (sonido.el !== el) return;
+      console.warn("[sonido] no se pudo cargar la música:", m.archivo);
+      try { sonido.fuente?.disconnect(); } catch {}
+      sonido.el = null; sonido.src = null; sonido.fuente = null; sonido.iniciado = false;   // src null: se reintenta si el tour se vuelve a cargar
+      cajaSonido.hidden = true;
+      visor.emitir("sonido", { activo: sonido.activo, volumen: volumenObjetivo(true), disponible: false });
+    });
     el.src = m.archivo;
     sonido.el = el; sonido.src = m.archivo; sonido.fuente = null;
     sonido.iniciado = false;

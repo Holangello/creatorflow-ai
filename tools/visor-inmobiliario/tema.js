@@ -7,7 +7,7 @@
      cre8eight:movimiento     auto | normal | reducido
    Prioridad: ?tema= / ?talla= en la URL (p. ej. al incrustar en la web de la agencia) > lo que eligió el visitante
    > lo que propone el tour (cre8Tema.porDefecto) > automático.
-   API: window.cre8Tema = { preferencias, efectivo, fijar(clave, valor), porDefecto({…}), alCambiar(fn) → quitar, deslizador(el), OPCIONES }
+   API: window.cre8Tema = { preferencias, efectivo, fijar(clave, valor), porDefecto({…}), alCambiar(fn) → quitar, deslizador(el), segmentados(raíz), OPCIONES }
    y el evento "cre8:tema" en document. */
 (function () {
   "use strict";
@@ -103,6 +103,26 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { rellenarTodos(); });
   else rellenarTodos();
 
+  // Contingencia: sin :has() (navegadores antiguos) el control segmentado no sabría qué opción está elegida.
+  // Ahí lo marca este código (clase .c8-elegido y --i/--n en línea). Con :has() no hace nada: lo resuelve el CSS,
+  // también cuando una opción cambia por código.
+  var conHas = false;
+  try { conHas = CSS.supports("selector(:has(*))"); } catch (e) { conHas = false; }
+  function marcarSegmentado(grupo) {
+    if (conHas || !grupo) return;
+    var etiquetas = Array.prototype.filter.call(grupo.children, function (n) { return n.tagName === "LABEL"; });
+    var elegido = 0;
+    etiquetas.forEach(function (l, i) { var r = l.querySelector("input"); var si = !!(r && r.checked); l.classList.toggle("c8-elegido", si); if (si) elegido = i; });
+    grupo.style.setProperty("--n", String(etiquetas.length || 1));
+    grupo.style.setProperty("--i", String(elegido));
+  }
+  function marcarTodos(raizDom) { if (!conHas) (raizDom || document).querySelectorAll(".c8-segmentado").forEach(marcarSegmentado); }
+  if (!conHas) {
+    document.addEventListener("change", function (ev) { var g = ev.target && ev.target.closest && ev.target.closest(".c8-segmentado"); if (g) marcarSegmentado(g); }, true);
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { marcarTodos(); });
+    else marcarTodos();
+  }
+
   window.cre8Tema = {
     OPCIONES: OPCIONES,
     get preferencias() { return preferencias(); },
@@ -122,6 +142,8 @@
     },
     /** Rellena la pista de un deslizador (o de todos los de un contenedor) tras cambiar su valor por código. */
     deslizador: function (el) { if (el && el.classList && el.classList.contains("c8-deslizador")) rellenar(el); else rellenarTodos(el); },
+    /** Tras pintar controles segmentados por código (solo hace algo en navegadores sin :has()). */
+    segmentados: function (raizDom) { marcarTodos(raizDom); },
     alCambiar: function (fn) {
       oyentes.push(fn);
       return function () { var i = oyentes.indexOf(fn); if (i >= 0) oyentes.splice(i, 1); };

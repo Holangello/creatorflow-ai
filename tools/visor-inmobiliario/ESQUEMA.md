@@ -181,8 +181,8 @@ el clic avanza hacia la flecha o la estancia que hay bajo la mira.
 Eventos (`visor.on`), también emitidos como `CustomEvent("visor:<evento>")` en `window` y enviados a
 `window.dataLayer` si existe (analítica):
 `listo`, `tour` (tras cada carga, también `visor:cargar`), `nodo` ({id}), `modo`, `estilo`, `momento`, `pintura`, `medida` ({metros, tipo}), `contacto` ({canal}),
-`guion:inicio`, `guion:paso` ({paso, nodo, texto}), `guion:pausa`, `guion:fin`, `idioma`, `sonido` ({activo, volumen}; al silenciar/activar
-y al cambiar el volumen).
+`guion:inicio`, `guion:paso` ({paso, nodo, texto}), `guion:pausa`, `guion:fin`, `idioma`, `sonido` ({activo, volumen}; al silenciar/activar,
+al cambiar el volumen y con `disponible: false` si la música no se puede cargar).
 
 ## 3. Mensajes `postMessage` (Estudio ↔ visor en `<iframe src="index.html?embed">`)
 
