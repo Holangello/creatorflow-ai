@@ -631,11 +631,15 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-pastilla > .c8-separador { width: 1px; align-self: stretch; margin: var(--e-2) var(--e-1); background: var(--c-borde-2); }
 .c8-pastilla .c8-boton { --b-fondo: transparent; }
 .c8-pastilla .c8-boton:hover { --b-fondo: var(--c-capa-hover); }
-/* Pulsado sin color, como los interruptores del Centro de control de iOS: relleno del color del texto e icono en negativo.
-   Contrasta con el vidrio tanto como su texto (≥ 4,5:1 por construcción; WCAG 1.4.11, A7). El acento queda para la
+/* Pulsado sin color, como en las barras de iOS: una cápsula de vidrio algo más clara… El estado lo dice sobre todo el
+   símbolo, que contrasta con el vidrio como su texto (≥ 3:1 por construcción; WCAG 1.4.11, A7). El acento queda para la
    acción principal («Contactar», «Empezar visita»). */
-.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-texto); --b-texto: var(--c-sobre-texto); }
-.c8-pastilla .c8-boton[aria-pressed="true"]:hover { --b-fondo: color-mix(in srgb, var(--c-texto) 88%, transparent); }
+.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-capa-activa); --b-texto: var(--c-texto); }
+.c8-pastilla .c8-boton[aria-pressed="true"]:hover { --b-fondo: var(--c-capa-activa); }
+/* …y el símbolo pasa a su variante rellena, como los «.fill» de SF Symbols: las partes marcadas con .relleno */
+.c8-icono .relleno { fill: none; stroke: none; transition: fill var(--d-2) var(--suave); }
+.c8-pastilla .c8-boton[aria-pressed="true"] .c8-icono .relleno { fill: currentColor; }
+.c8-icono .relleno.c8-trazo { stroke: currentColor; }
 
 /* ------------------------------------------------------------------ Control segmentado (radios), hasta 6 opciones
    <div class="c8-segmentado" role="radiogroup"><label><input type="radio" name="x"><span>Día</span></label>…</div> */

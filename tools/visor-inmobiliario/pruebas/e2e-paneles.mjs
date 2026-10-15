@@ -957,7 +957,10 @@ try {
         modos: [...document.querySelectorAll("#modos label > span")].every((s) => s.getAttribute("aria-hidden") === "true"),
         avisos: document.querySelector("#avisos")?.getAttribute("role") === "status" && ["pista", "aviso", "aviso-juego"].every((id) => document.getElementById(id).parentElement.id === "avisos"),
         ampliar: Math.round(document.querySelector("#btn-ampliar").getBoundingClientRect().width),
-        material: cs("#barra-vista").backgroundColor === cs("#lugar").backgroundColor,
+        // con el vidrio por pieza, la alfa de cada una sale de lo que tiene detrás: se compara el material (filtro, filo y
+        // tinte), no el color resultante
+        material: ["backdropFilter", "borderTopColor"].every((k) => cs("#barra-vista")[k] === cs("#lugar")[k])
+          && cs("#barra-vista").getPropertyValue("--vidrio-tinte") === cs("#lugar").getPropertyValue("--vidrio-tinte"),
         cortinilla: +cs("#cortinilla").zIndex < +cs("#barra-vista").zIndex,
         estancia: document.querySelector("#estancia").textContent,
       };

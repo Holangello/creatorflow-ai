@@ -174,7 +174,8 @@ export function crearPlano(canvas, ctx) {
     }
 
     if (p.muros?.length) {
-      g.strokeStyle = css(C.texto, 0.9); g.lineWidth = Math.max(2, T.esc * 0.12); g.lineCap = "square";
+      // muros finos con las juntas redondas, como los planos de Apple Maps
+      g.strokeStyle = css(C.texto, 0.85); g.lineWidth = Math.max(1.5, T.esc * 0.085); g.lineCap = "round"; g.lineJoin = "round";
       g.beginPath();
       for (const m of p.muros) { const [ax, az] = T.a(m[0], m[1]), [bx, bz] = T.a(m[2], m[3]); g.moveTo(ax, az); g.lineTo(bx, bz); }
       g.stroke();
@@ -182,14 +183,14 @@ export function crearPlano(canvas, ctx) {
 
     // Enlaces entre las fotos, bajo los rótulos: el halo del rótulo tapa la línea que lo cruza (V14)
     const nodos = ctx.nodos().filter((n) => n.planta === p.id);
-    g.strokeStyle = css(C.texto, 0.45); g.lineWidth = 1.5; g.setLineDash([3, 3]);
+    g.strokeStyle = css(C.texto, 0.32); g.lineWidth = 1.25; g.lineCap = "round";
     g.beginPath();
     for (const n of nodos) for (const v of n.vecinos) {
       if (v.planta !== p.id || v.id < n.id) continue;
       const [ax, az] = T.a(n.x, n.z), [bx, bz] = T.a(v.x, v.z);
       g.moveTo(ax, az); g.lineTo(bx, bz);
     }
-    g.stroke(); g.setLineDash([]);
+    g.stroke();
 
     // Etiquetas de estancias cuando hay espacio: nombre y m² en el plano; en el radar solo el nombre, y solo si es grande.
     const rotulos = T.radar ? Math.min(W, H) >= 130 : grande || T.esc > 22;
@@ -262,8 +263,11 @@ export function crearPlano(canvas, ctx) {
       grd.addColorStop(0, css(C.texto, 0.42)); grd.addColorStop(1, css(C.texto, 0));
       g.fillStyle = grd;
       g.beginPath(); g.moveTo(x, z); g.arc(x, z, rad, dirPantalla - Math.PI / 2 - media, dirPantalla - Math.PI / 2 + media); g.closePath(); g.fill();
-      g.fillStyle = css(C.texto); g.strokeStyle = css(C.sobreTexto); g.lineWidth = 2.5;
-      g.beginPath(); g.arc(x, z, 7 * u, 0, Math.PI * 2); g.fill(); g.stroke();
+      // posición: un punto con su contorno y una sombra suave, como la de Mapas
+      g.save(); g.shadowColor = "rgba(0, 0, 0, 0.35)"; g.shadowBlur = 4 * u; g.shadowOffsetY = 1 * u;
+      g.fillStyle = css(C.sobreTexto); g.beginPath(); g.arc(x, z, 7.5 * u, 0, Math.PI * 2); g.fill();
+      g.restore();
+      g.fillStyle = css(C.texto); g.beginPath(); g.arc(x, z, 5 * u, 0, Math.PI * 2); g.fill();
     }
     if (T.radar) {
       g.restore();

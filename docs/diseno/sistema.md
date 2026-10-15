@@ -118,9 +118,17 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
 **Campos y casillas.** Borde `--c-borde-campo` (≥ 3:1 por dentro y por fuera, WCAG 1.4.11): `rgba(255,255,255,.42)` en oscuro y `rgba(0,0,0,.45)` en claro.
 
 **Estado pulsado y opción elegida.** Sobre el vidrio, sin color:
-- el botón pulsado de una pastilla (radar, música) se rellena del color del texto con el icono en negativo (`--c-sobre-texto`), como los interruptores del Centro de control. Contrasta con el vidrio lo mismo que su texto (≥ 4,5:1 por construcción, 1.4.11);
+- el botón pulsado de una pastilla (radar, música) es una cápsula de vidrio algo más clara (`--c-capa-activa`) y su símbolo pasa a la variante rellena, como los «.fill» de SF Symbols: las partes con `.relleno` se rellenan, y con `.relleno.c8-trazo` conservan además el trazo. El estado lo dice el símbolo, que contrasta con el vidrio como su texto (1.4.11);
 - la opción elegida de un segmentado sobre la foto es una cápsula de vidrio más clara (`--c-segmento`) con un canto del color del texto al 72 % (≥ 3:1);
-- el rótulo de una flecha señalada y el punto «i» al pasar, en negativo; el aro de la flecha se ilumina (más blanco).
+- el rótulo de una flecha señalada y el punto «i» al pasar, en negativo; el disco de la flecha se ilumina (más blanco).
+
+**Marcas del suelo.** Como los puntos de Look Around (Apple Maps) o de Matterport, no como las flechas de un videojuego:
+- un disco de cristal esmerilado apoyado en el suelo, más blanco hacia el canto, como una lente;
+- un filo de luz más vivo delante y detrás que en los lados, y un segundo filo tenue (la cara de abajo) que le da grosor;
+- un brillo especular en el canto del fondo y un chevrón fino como el de SF Symbols;
+- una sombra de contacto suave.
+
+Los filos, el chevrón y la sombra miden lo mismo en px CSS en cualquier pantalla y a cualquier distancia (`uPx`, sombreador con distancias con signo). Con «Reducir transparencia», disco blanco opaco con chevrón oscuro y contorno nítido.
 
 Fuera del vidrio (Estudio, diálogos), el pulsado sigue siendo de acento con su aro. En colores forzados (Windows), el pulsado usa `Highlight`.
 

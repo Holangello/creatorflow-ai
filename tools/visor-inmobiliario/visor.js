@@ -438,16 +438,18 @@ function asignar(slot, s) {
 }
 
 // ------------------------------------------------------------------ puntos de salto (auto hotspots)
-// Flecha del suelo de vidrio (fase 4, segunda ronda: «quiero ver las transparencias»). Un aro de cristal que deja ver el
-// suelo (cuerpo al 30 %), con dos cantos de luz finos, una flecha casi opaca y una sombra suave alrededor que la despega
-// de cualquier suelo. Todo en un sombreador con distancias con signo sobre un cuadrado: los cantos y la sombra miden lo
-// mismo en píxeles a cualquier distancia, con antialias, y sin geometría de más. Contraste: el canto (blanco) frente a la
-// sombra que lo rodea ≥ 3:1 también sobre un suelo blanco puro; sobre lo oscuro, el blanco. Las opacidades cambian con el
-// estado de la interfaz (opacidadFlechas) y el tamaño con la distancia y la pantalla (escalarFlecha). Sin color, como el
-// resto del vidrio: al señalarla, el aro se ilumina (más blanco) en vez de teñirse del acento.
-const LADO_FLECHA = 1; // el cuadrado (m) cubre el aro (0,355 m de radio) y su sombra a cualquier distancia
-const OPACIDAD_FLECHAS = { cuerpo: 0.3, canto: 0.95, flecha: 0.92, sombra: 0.46, reposo: 0.5 };
-const RESALTE_FLECHAS = { cuerpo: 0.82, canto: 1, flecha: 1, sombra: 0.56 };
+// Marca del suelo (fase 4, ronda 3: «las flechas parecen de videojuego; quiero que se vea realista y profesional, a nivel
+// de iOS»). Como los puntos de Look Around (Apple Maps) o de Matterport: un disco de cristal esmerilado apoyado en el suelo,
+// más blanco hacia el canto (como una lente), con un filo de luz, un brillo especular en el canto del fondo, un chevrón
+// fino que señala la estancia y una sombra de contacto suave que lo asienta. Todo en un sombreador con distancias con signo
+// sobre un cuadrado: filos y sombras miden lo mismo en píxeles a cualquier distancia, con antialias y sin geometría de más.
+// Contraste (1.4.11): el filo blanco frente a la sombra que lo rodea ≥ 3:1 también sobre un suelo blanco puro (1,5 px de
+// sombra plena junto al filo, que luego se apaga); sobre lo oscuro, el blanco. Las opacidades cambian con el estado de la
+// interfaz (opacidadFlechas) y el tamaño con la distancia y la pantalla (escalarFlecha). Sin color, como el resto del
+// vidrio: al señalarla, el disco se ilumina (más blanco) en vez de teñirse del acento.
+const LADO_FLECHA = 1; // el cuadrado (m) cubre el disco (0,24 m de radio) y su sombra a cualquier distancia
+const OPACIDAD_FLECHAS = { cuerpo: 0.24, canto: 0.92, flecha: 0.95, sombra: 0.44, reposo: 0.5 };
+const RESALTE_FLECHAS = { cuerpo: 0.56, canto: 1, flecha: 1, sombra: 0.5 };
 const geoVidrioFlecha = new THREE.PlaneGeometry(LADO_FLECHA, LADO_FLECHA).rotateX(-Math.PI / 2);
 const geoDisco = new THREE.CircleGeometry(0.6, 32).rotateX(-Math.PI / 2);
 const SOMBREADOR_FLECHA = {
@@ -455,48 +457,65 @@ const SOMBREADOR_FLECHA = {
     varying vec2 vP;
     void main() { vP = (uv - 0.5) * ${LADO_FLECHA.toFixed(1)}; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
   fragmentShader: /* glsl */ `
-    uniform float uCuerpo, uCanto, uFlecha, uSombra, uOpaco;
+    uniform float uCuerpo, uCanto, uFlecha, uSombra, uOpaco, uPx;
     uniform vec3 uColor;
     varying vec2 vP;
-    // flecha de la forma original al 72 % (distancia con signo a un polígono, de Íñigo Quílez)
-    float sdFlecha(vec2 p) {
-      vec2 v[7] = vec2[7](vec2(0.0, -0.144), vec2(0.1152, 0.0432), vec2(0.0432, 0.0432), vec2(0.0432, 0.144),
-        vec2(-0.0432, 0.144), vec2(-0.0432, 0.0432), vec2(-0.1152, 0.0432));
-      float d = dot(p - v[0], p - v[0]), s = 1.0;
-      for (int i = 0, j = 6; i < 7; j = i, i++) {
-        vec2 e = v[j] - v[i], w = p - v[i];
-        vec2 b = w - e * clamp(dot(w, e) / dot(e, e), 0.0, 1.0);
-        d = min(d, dot(b, b));
-        bvec3 c = bvec3(p.y >= v[i].y, p.y < v[j].y, e.x * w.y > e.y * w.x);
-        if (all(c) || all(not(c))) s *= -1.0;
-      }
-      return s * sqrt(d);
+    const float R = 0.24; // radio del disco (m); la estancia queda hacia -y
+    // distancia con signo d (m) → px CSS en pantalla (uPx: píxeles del dispositivo por px CSS)
+    float aPx(float d) { return d / max(length(vec2(dFdx(d), dFdy(d))), 1e-6) / uPx; }
+    float sdSegmento(vec2 p, vec2 a, vec2 b) { vec2 pa = p - a, ba = b - a; return length(pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0)); }
+    // distancia en px CSS a un trazo a-b con las puntas redondas. La escala sale de la distancia con signo a su recta, que es
+    // lineal: con la del propio trazo (sin signo, con un pico en el centro) las derivadas se anulan en el eje y lo cortan
+    float trazo(vec2 p, vec2 a, vec2 b) {
+      vec2 ba = b - a, n = normalize(vec2(-ba.y, ba.x));
+      float l = dot(p - a, n);
+      return sdSegmento(p, a, b) / max(length(vec2(dFdx(l), dFdy(l))), 1e-6) / uPx;
     }
     vec4 sobre(vec4 a, vec4 b) {
       float al = a.a + b.a * (1.0 - a.a);
       return vec4(al > 0.0 ? (a.rgb * a.a + b.rgb * b.a * (1.0 - a.a)) / al : vec3(0.0), al);
     }
     void main() {
-      float dA = abs(length(vP) - 0.3275) - 0.0275; // aro de 0,30 a 0,355 m
-      float dF = sdFlecha(vP);
-      float d = min(dA, dF);
-      float px = max(length(vec2(dFdx(d), dFdy(d))), 1e-6); // metros por píxel
-      float enA = clamp(0.5 - dA / px, 0.0, 1.0), enF = clamp(0.5 - dF / px, 0.0, 1.0), fuera = 1.0 - clamp(0.5 - d / px, 0.0, 1.0);
-      float canto = enA * (1.0 - smoothstep(0.9, 2.1, -dA / px));            // ~1,3 px de luz dentro de cada borde del aro
-      float sombra = fuera * (1.0 - smoothstep(1.5, 5.5, d / px));          // meseta de 1,5 px y se apaga en 4 px
-      sombra = mix(sombra, fuera * (1.0 - smoothstep(2.0, 2.6, d / px)), uOpaco); // «Reducir transparencia»: contorno de 2 px
+      float r = length(vP);
+      float dD = r - R;                                                     // disco: negativo dentro (m)
+      float eD = aPx(dD), aa = 0.5 / uPx;                                   // en px CSS; antialias de un píxel del dispositivo
+      float dentro = clamp(0.5 - eD * uPx, 0.0, 1.0), fuera = 1.0 - dentro;
+      // chevrón fino como el de SF Symbols (trazo de 2,4 px con las puntas redondas), algo adelantado
+      vec2 q = vP - vec2(0.0, -0.01);
+      float eC = min(trazo(q, vec2(-0.09, 0.04), vec2(0.0, -0.05)), trazo(q, vec2(0.0, -0.05), vec2(0.09, 0.04))) - 1.2;
+      float chev = clamp(0.5 - eC * uPx, 0.0, 1.0) * dentro;
+      // sombra de contacto: plena 1,5 px junto al filo y se apaga en ~10 px; «Reducir transparencia»: contorno nítido de 2 px
+      float sombra = fuera * mix(exp(-max(eD - 1.5, 0.0) / 3.5), 1.0 - smoothstep(2.0, 2.0 + 2.0 * aa, eD), uOpaco);
       vec4 c = vec4(0.0, 0.0, 0.0, sombra * uSombra);
-      c = sobre(vec4(uColor, enA * uCuerpo), c);
-      c = sobre(vec4(1.0, 1.0, 1.0, canto * uCanto), c);
-      c = sobre(vec4(1.0, 1.0, 1.0, enF * uFlecha), c);
+      // cristal esmerilado: más blanco hacia el canto, como una lente; opaco con «Reducir transparencia»
+      float t = clamp(r / R, 0.0, 1.0);
+      c = sobre(vec4(uColor, dentro * min(1.0, uCuerpo * mix(0.45, 1.0, smoothstep(0.3, 1.0, t)) + uOpaco)), c);
+      // sombra suave del chevrón sobre el cristal: se distingue también sobre un suelo blanco
+      c = sobre(vec4(0.0, 0.0, 0.0, dentro * (1.0 - chev) * exp(-max(eC, 0.0) / 1.8) * 0.55 * uSombra * (1.0 - uOpaco)), c);
+      // bisel: el grosor del cristal oscurece un poco la banda de dentro del filo
+      float bisel = dentro * smoothstep(-6.0, -1.5, eD) * (1.0 - smoothstep(-1.5, -0.5, eD));
+      c = sobre(vec4(0.0, 0.0, 0.0, bisel * 0.1 * uCanto * (1.0 - uOpaco)), c);
+      // filo de luz (1,4 px por dentro del borde): más vivo en el canto del fondo y en el de delante que en los lados, como
+      // un cristal real; dentro, el reflejo tenue de la cara de abajo (un segundo filo a 3,5 px) le da grosor
+      vec2 dir = vP / max(r, 1e-5);
+      float filo = clamp((0.7 - abs(eD + 0.7)) * uPx + 0.5, 0.0, 1.0) * mix(1.0, 0.6, dir.x * dir.x);
+      float cara = clamp((0.5 - abs(eD + 3.5)) * uPx + 0.5, 0.0, 1.0) * 0.28 * (1.0 - uOpaco);
+      float brillo = pow(max(dot(dir, vec2(-0.55, -0.835)), 0.0), 4.0) * smoothstep(0.5, 0.97, t) * dentro;
+      c = sobre(vec4(1.0, 1.0, 1.0, cara * uCanto), c);
+      c = sobre(vec4(1.0, 1.0, 1.0, filo * uCanto), c);
+      c = sobre(vec4(1.0, 1.0, 1.0, brillo * 0.7 * uCanto * (1.0 - uOpaco)), c);
+      c = sobre(vec4(mix(vec3(1.0), vec3(0.012), uOpaco), chev * uFlecha), c); // chevrón blanco; oscuro sobre el disco opaco
       gl_FragColor = c;
       #include <colorspace_fragment>
     }`,
 };
+/** Píxeles del dispositivo por px CSS, compartido por las dos variantes: los filos, el chevrón y la sombra miden lo mismo
+    en cualquier pantalla (se pone en pintarEscena, porque la calidad adaptativa y las capturas cambian la proporción). */
+const uPxFlechas = { value: 1 };
 const materialFlecha = (v, color) => new THREE.ShaderMaterial({
   ...SOMBREADOR_FLECHA, transparent: true, depthTest: false, depthWrite: false,
   uniforms: { uCuerpo: { value: v.cuerpo }, uCanto: { value: v.canto }, uFlecha: { value: v.flecha }, uSombra: { value: v.sombra }, uOpaco: { value: 0 },
-    uColor: { value: new THREE.Color(color) } },
+    uColor: { value: new THREE.Color(color) }, uPx: uPxFlechas },
 });
 const matFlecha = materialFlecha(OPACIDAD_FLECHAS, 0xffffff);
 const matFlechaHover = materialFlecha(RESALTE_FLECHAS, 0xffffff);
@@ -1183,8 +1202,8 @@ function escalarFlecha(g) {
   g.userData.vidrio.scale.setScalar(k * (g === hoverActual ? 1.12 : 1));
   g.userData.hit.scale.setScalar(Math.max(k, 0.75));
 }
-/** Resalte (ratón sobre el aro o su rótulo, o foco de teclado en el rótulo): el cristal del aro se ilumina, la sombra se
-    marca un poco más, +12 % y el rótulo en negativo. Una sola flecha resaltada a la vez. */
+/** Resalte (ratón sobre el disco o su rótulo, o foco de teclado en el rótulo): el cristal del disco se ilumina, la sombra
+    se marca un poco más, +12 % y el rótulo en negativo. Una sola flecha resaltada a la vez. */
 function resaltarFlecha(g) {
   g ??= null; // apuntar() devuelve undefined fuera de las flechas
   if (g === hoverActual) return;
@@ -1202,7 +1221,7 @@ function resaltarFlecha(g) {
   }
   tocarEscena();
 }
-/** Opacidad según el estado: despierta (cuerpo 0,3, cantos 0,95, flecha 0,92, sombra 0,46); con la interfaz en reposo
+/** Opacidad según el estado: despierta (cuerpo 0,24, filo 0,92, chevrón 0,95, sombra 0,44); con la interfaz en reposo
     (ui-inactiva), la mitad, con un fundido de 380 ms (--d-3); con «Reducir transparencia», opacas, con un contorno negro
     nítido y sin atenuar; con «Reducir movimiento», sin fundido. */
 let fundidoFlechas = 0;
@@ -3043,6 +3062,7 @@ function hayQuePintar() {
 const fps = { t: 0, n: 0 };
 /** Pinta la escena del modo actual (sin foto todavía: el fondo del tema, no la esfera blanca de la textura vacía). */
 function pintarEscena() {
+  uPxFlechas.value = renderer.getPixelRatio();
   if (estado.modo === "maqueta") renderer.render(maqueta.escena(), maqueta.camara);
   else if (estado.modo === "tour" && !int.actual) renderer.clear();
   else renderer.render(estado.modo === "libre" ? escenaLibre : escena360, camara);

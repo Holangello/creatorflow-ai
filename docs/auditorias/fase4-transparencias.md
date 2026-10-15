@@ -31,6 +31,10 @@ En el apartado 4 está lo que no cambia y por qué.
 
 ## 2 · T1 · Flechas del suelo (`visor.js`)
 
+> **Sustituido en la ronda 3.** Tras «las flechas siguen pareciendo de videojuego», el aro con la flecha pasó a ser un disco de
+> cristal esmerilado con un chevrón fino, como los puntos de Look Around o de Matterport. Ver «Marcas del suelo» en
+> `docs/diseno/sistema.md`. Se mantienen los estados (reposo a la mitad, señalada, opaca) y la regla de contraste del filo.
+
 ### 2.1 Valores por estado
 
 | Estado | Aro y flecha | Contorno (aro y flecha) | Tamaño | Rótulo |
@@ -215,7 +219,11 @@ Frente a `1b677cf` son 92 líneas añadidas y 16 quitadas en `visor.js` (3 y 1 e
 
 ### 2.5 Salvaguarda del color de marca
 
-El resalte usa el color de la marca. Si ese color es muy oscuro, no se leería sobre su contorno; si es casi blanco, no se distinguiría del aro en reposo. `colorResalte` conserva el tono y la saturación y solo mueve la luminosidad hasta dejar la luminancia relativa entre 0,42 y 0,75. Comprobado así: champán `#cfad66` sin cambios; el champán del tema claro `#c9a55a` pasa a `#cca962` (imperceptible); el azul marino `#1a2b5c` pasa a `#9caee3`; el rojo `#b00020`, a `#ff91a5`; el verde `#2e7d32`, a `#61c566`; el azul `#0000ff`, a `#adadff`; y el blanco, a `#e0e0e0`. Con un acento casi blanco, el resalte se apoya además en el tamaño (+12 %), en el contorno más oscuro (65 %) y en el rótulo.
+> **Sustituido en la ronda 3 (vidrio neutro, «sin color»).** El aro resaltado ya no se tiñe del acento: se ilumina
+> (cuerpo blanco al 82 %, +12 % y sombra al 56 %). El rótulo resaltado va en negativo (relleno del color del texto).
+> `colorResalte` se quitó del núcleo. Ver «Vidrio adaptativo por pieza» en `docs/diseno/sistema.md`.
+
+El resalte usaba el color de la marca. Si ese color es muy oscuro, no se leería sobre su contorno; si es casi blanco, no se distinguiría del aro en reposo. `colorResalte` conserva el tono y la saturación y solo mueve la luminosidad hasta dejar la luminancia relativa entre 0,42 y 0,75. Comprobado así: champán `#cfad66` sin cambios; el champán del tema claro `#c9a55a` pasa a `#cca962` (imperceptible); el azul marino `#1a2b5c` pasa a `#9caee3`; el rojo `#b00020`, a `#ff91a5`; el verde `#2e7d32`, a `#61c566`; el azul `#0000ff`, a `#adadff`; y el blanco, a `#e0e0e0`. Con un acento casi blanco, el resalte se apoya además en el tamaño (+12 %), en el contorno más oscuro (65 %) y en el rótulo.
 
 ## 3 · El resto de piezas (`visor.css`, `paneles.css`, `plano.js`)
 
