@@ -116,6 +116,13 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - 15/10 07:0x UTC: los tres se pararon por el límite de uso (429). Reanudados a las 07:31 con SendMessage; su trabajo estaba en el árbol (instantánea 07:31).
     - El cliente pidió expresamente la apariencia «glass UI» en todo (15/10): está en el contrato del plan (§1.0). Vidrio adaptativo en `tema.css` (`data-luz-max`/`data-luz-min`); lo mide el núcleo.
     - Al terminar: las auditorías de [fase4-encargos-auditoria.md](../../docs/auditorias/fase4-encargos-auditoria.md) (visual/UI, accesibilidad y Maverick) en paralelo; después compactar, medir, probar, contingencias y enseñar al cliente.
+  - [x] **Auditorías finales** (15/10, 10:20–12:45 UTC): `docs/auditorias/fase4-visual.md` (P1 0 · P2 7 · P3 11), `fase4-accesibilidad.md` (P1 2 · P2 12 · P3 9) y `fase4-maverick.md` (P1 2 · P2 9 · P3 9).
+    - Los 4 P1 corregidos y probados (commit d17a58c): sin canal de contacto no se finge nada; three.js dentro del ZIP y aviso si el visor no arranca; atajos de una letra apagados de verdad; zoom y maqueta sin gestos.
+    - Ojo, lección aprendida: un enlace simbólico `node_modules` creado en un worktree se coló en un commit y, al fusionar, sustituyó la carpeta real. `.gitignore` ahora dice `node_modules` (sin barra) y se reinstaló con `npm ci`.
+  - [ ] **Cierre** según [fase4-cierre.md](../../docs/auditorias/fase4-cierre.md) (manda): sistema de diseño y exportación hechos por el orquestador (b5e8fe0 y siguiente); tres agentes en paralelo con §2.1 núcleo, §2.2 paneles y §2.3 Estudio y Guía (lanzados a las 12:50 UTC). Si un agente muere, relánzalo con su paquete y dile qué está hecho (mira `git diff`).
+    - Después: integrar (claves i18n del núcleo, contingencias), `npm run prueba:todo`, `npm run medir`, matriz de capturas, enseñar al cliente en claro y oscuro, de día y de noche.
+    - Decisiones para enseñar al cliente (fase4-cierre.md §3): «Modo juego» sigue en la barra del escritorio; marca blanca a decidir; vidrio adaptativo por página.
+    - Hoja de ruta: demo con fotos reales (la red del entorno bloquea bancos de fotos CC0: pedir fotos de la Osmo del cliente), publicar con un clic, estadísticas, proveedor homologado de idealista y Fotocasa.
   - [x] Base del sistema, adelantada mientras terminaba la fase 2. Documentado en `docs/diseno/sistema.md`, con la tabla de migración de variables.
     - `tema.css`: tokens, vidrio, componentes `c8-*`, claro y oscuro con contraste AA calculado, tallas fluidas S/M/L, muelles.
     - `tema.js`: preferencias compartidas, `?tema=` y `?talla=` en la URL, transparencia y movimiento reducidos.
