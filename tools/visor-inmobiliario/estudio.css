@@ -725,6 +725,11 @@ dialog.aviso-movil::backdrop { background: var(--c-fondo); }
   #btn-publicar { width: var(--alto-control); padding: 0; }
   .nombre-proyecto { flex: 1 1 auto; max-width: none; }
   #barra-sup .relleno { flex: 0 0 0; }
+  /* Plano: el lienzo conserva un alto útil y el panel va debajo; se desplaza la página, no el panel */
+  .seccion.completa { height: auto; }
+  .editor-plano { height: auto; }
+  .lienzo-plano { flex: none; height: 60vh; }
+  .plano-lado { max-height: none; }
 }
 @media (max-width: 600px) { #btn-vista .texto { display: none; } #btn-vista { width: var(--alto-control); padding: 0; } }
 /* Pantallas táctiles: objetivos de 44 px como mínimo (los .c8-* ya los cumplen) y campos a 16 px como mínimo (iOS no amplía al escribir) */
