@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// El sol de sol.js frente a valores conocidos (NOAA / timeanddate): elevación al mediodía solar, salida y puesta, azimut.
+// El sol de sol.js frente a valores conocidos (NOAA / timeanddate): elevación al mediodía solar, salida y puesta, azimut;
+// y lo que el Estudio lee del EXIF de las fotos para la barra del sol (fecha, hora, desfase y GPS).
 //   cd tools/visor-inmobiliario && node pruebas/sol.mjs
 import { posicionSol, diaSolar, lugarSol, recorridoSol, estadoSol, momentoDe, horaLocal, direccionSol } from "../sol.js";
 
@@ -47,6 +48,39 @@ const oeste = direccionSol(270, 0, 0), conNorte = direccionSol(270, 0, 90);
 ok(cerca(oeste[0], -1, 1e-9) && cerca(oeste[2], 0, 1e-9) && cerca(conNorte[2], 1, 1e-9), "dirección en el mundo del recorrido según el norte del plano");
 const noche = estadoSol(p.noche, l, r).luz, mediodia = estadoSol(p.dia, l, r).luz;
 ok(noche.fuerza === 0 && noche.lamparas > 0.8 && mediodia.fuerza > 2.5 && mediodia.lamparas === 0, "de noche, sin sol y con las lámparas; a mediodía, sol fuerte y lámparas apagadas");
+
+// Días muy cortos del norte (Tromsø, 20 de noviembre: el sol sale una hora y media): las paradas siguen en orden
+const tromso = recorridoSol(lugarSol({ sol: { lat: 69.65, lng: 18.96, fecha: "2026-11-20T12:00:00+01:00" } }));
+const pt = tromso.paradas;
+ok(tromso.ini < pt.amanecer && pt.amanecer < pt.dia && pt.dia < pt.atardecer && pt.atardecer < pt.noche && pt.noche < tromso.fin, "días muy cortos (Tromsø en noviembre): las paradas siguen en orden");
+
+// El Estudio: fecha, hora, desfase y GPS del EXIF de una foto de la Osmo 360 → tour.sol (GPS redondeado a ~1 km)
+const { leerMetadatos, solDeExif } = await import("../estudio-util.js");
+function jpegConExif({ fecha, desfase, lat, lng }) {
+  // TIFF little-endian: IFD0 (punteros a Exif y GPS) → Exif (DateTimeOriginal, OffsetTimeOriginal) → GPS (N/S, lat, E/W, lng)
+  const b = [], u16 = (v) => b.push(v & 255, v >> 8), u32 = (v) => { u16(v & 0xffff); u16(v >>> 16); };
+  const entrada = (tag, tipo, n, valor) => { u16(tag); u16(tipo); u32(n); u32(valor); };
+  const ascii = (txt) => [...txt].map((c) => c.charCodeAt(0)).concat(0);
+  const dms = (x) => { const g = Math.floor(x), m = Math.floor((x - g) * 60), s = Math.round(((x - g) * 60 - m) * 60 * 100); return [[g, 1], [m, 1], [s, 100]]; };
+  const IFD0 = 8, EXIF = IFD0 + 2 + 2 * 12 + 4, GPS = EXIF + 2 + 2 * 12 + 4, DATOS = GPS + 2 + 4 * 12 + 4;
+  const f = ascii(fecha), d = ascii(desfase), oLat = DATOS + f.length + d.length, oLng = oLat + 24;
+  b.push(0x49, 0x49, 42, 0); u32(IFD0);
+  u16(2); entrada(0x8769, 4, 1, EXIF); entrada(0x8825, 4, 1, GPS); u32(0);
+  u16(2); entrada(0x9003, 2, f.length, DATOS); entrada(0x9011, 2, d.length, DATOS + f.length); u32(0);
+  u16(4); entrada(1, 2, 2, (lat < 0 ? 83 : 78)); entrada(2, 5, 3, oLat); entrada(3, 2, 2, (lng < 0 ? 87 : 69)); entrada(4, 5, 3, oLng); u32(0);
+  b.push(...f, ...d);
+  for (const [n, q] of [...dms(Math.abs(lat)), ...dms(Math.abs(lng))]) { u32(n); u32(q); }
+  const app1 = [...ascii("Exif"), 0, ...b], largo = app1.length + 2;
+  return new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe1, largo >> 8, largo & 255, ...app1, 0xff, 0xd9])]);
+}
+const exif = await leerMetadatos(jpegConExif({ fecha: "2026:10:15 11:02:33", desfase: "+02:00", lat: 40.416775, lng: -3.70379 }));
+ok(exif?.fecha === "2026:10:15 11:02:33" && exif?.desfase === "+02:00" && cerca(exif?.gps?.lat, 40.416775, 1e-4) && cerca(exif?.gps?.lng, -3.70379, 1e-4),
+  "EXIF de la foto: fecha, desfase horario y GPS (oeste en negativo)", JSON.stringify(exif));
+const solFoto = solDeExif(exif);
+ok(solFoto?.fecha === "2026-10-15T11:02:33+02:00" && solFoto.desfase === 120 && solFoto.lat === 40.42 && solFoto.lng === -3.7,
+  "tour.sol con la hora local y su desfase, y la posición redondeada a 2 decimales (~1 km)", JSON.stringify(solFoto));
+const sinGps = solDeExif({ fecha: "2026:10:15 11:02:33", desfase: "-03:30" });
+ok(sinGps?.fecha === "2026-10-15T11:02:33-03:30" && sinGps.desfase === -210 && !("lat" in sinGps) && solDeExif({}) === null, "sin GPS, solo la fecha; sin fecha, nada");
 
 console.log(fallos ? `\n✗ ${fallos} comprobación(es) fallida(s)` : "\n✓ El sol cuadra");
 process.exit(fallos ? 1 : 0);

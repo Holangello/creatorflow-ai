@@ -216,7 +216,7 @@ export function iniciarPaneles(visor) {
   if (tiene(api?.alCambiar)) limpiezas.push(api.alCambiar(alCambiarTema));
 
   const on = (ev, fn) => { if (tiene(V.on)) { V.on(ev, fn); limpiezas.push(() => V.off?.(ev, fn)); } };
-  for (const ev of ["nodo", "estilo", "momento", "pintura", "comparar"]) on(ev, () => refrescar(ev));
+  for (const ev of ["nodo", "estilo", "momento", "sol", "pintura", "comparar"]) on(ev, () => refrescar(ev)); // sol: barra del sol (luz simulada)
   on("modo", () => renderizar());
   on("idioma", (d) => { const c = typeof d === "string" ? d : d?.idioma ?? d?.cod; if (c && c !== idiomaActual()) fijarIdioma(c); });
   on("guion:inicio", () => { ui.guiada = true; refrescar(); });
@@ -1932,7 +1932,7 @@ function dlgEstilo() {
     const actual = e.momento ?? "dia", nombreGrupo = nuevoId("luz");
     const iconos = { amanecer: "amanecer", dia: "sol", atardecer: "atardecer", noche: "luna" };
     partes.push(h("fieldset", { class: "pn-grupo" },
-      h("legend", {}, tr("momento.titulo"), h("span", { class: "pn-suave", "data-k": "luz-simulada", hidden: !(e.momentoSimulado === true && actual !== "dia") }, ` ${tr("momento.simulado")}`)),
+      h("legend", {}, tr("momento.titulo"), h("span", { class: "pn-suave", "data-k": "luz-simulada", hidden: e.momentoSimulado !== true }, ` ${tr("momento.simulado")}`)),
       h("div", { class: "c8-segmentado pn-segmentado", role: "radiogroup", "aria-label": tr("momento.titulo") }, momentos.map((m) =>
         h("label", { "data-k": `momento-${m}` },
           h("input", { type: "radio", name: nombreGrupo, value: m, checked: actual === m, onchange: () => { try { V.fijarMomento(m); } catch (er) { console.warn(er); } } }),
@@ -1960,7 +1960,8 @@ function pintarEstilo() {
   const av = d.querySelector("[data-k='estilo-aviso']"); if (av) av.hidden = disp;
   const ia = d.querySelector("[data-k='estilo-ia']"); if (ia) ia.hidden = !(actual !== "original" && disp);
   for (const r of d.querySelectorAll(".pn-segmentado input")) r.checked = r.value === (e.momento ?? "dia");
-  const sim = d.querySelector("[data-k='luz-simulada']"); if (sim) sim.hidden = !(e.momentoSimulado === true && (e.momento ?? "dia") !== "dia");
+  // con la barra del sol, también de día: la luz se simula en cuanto el sol no está a la hora de las fotos
+  const sim = d.querySelector("[data-k='luz-simulada']"); if (sim) sim.hidden = e.momentoSimulado !== true;
   for (const b of d.querySelectorAll(".pn-muestra")) {
     const k = b.dataset.k.split("-")[0];
     b.setAttribute("aria-pressed", String((e.pintura?.[k] ?? "").toLowerCase() === b.dataset.color));

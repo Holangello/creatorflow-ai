@@ -1111,11 +1111,12 @@ try {
     await p.evaluate(() => { window.__sol = []; addEventListener("visor:sol", (e) => window.__sol.push(e.detail)); });
     const sol = () => p.evaluate(() => ({ ...window.visor.sol, momentoEstado: window.visor.estado.momento, nodo: window.visor.estado.nodo, cabeceo: window.visor.estado.cabeceo,
       texto: document.querySelector("#sol .pista").getAttribute("aria-valuetext") }));
-    // Espera al aviso «sol» que da la barra al quedarse quieta (al soltar, al acabar la animación hacia una parada…)
-    const conAviso = async (accion) => {
+    // Espera al aviso «sol» que da la barra al quedarse quieta (al soltar, al acabar la animación hacia una parada…);
+    // con `hora`, al aviso de esa hora (una flecha pulsada justo antes también avisa)
+    const conAviso = async (accion, hora = null) => {
       const n = await p.evaluate(() => window.__sol.length);
       await accion();
-      await esperar(p, (n) => window.__sol.length > n, n, 20000).catch(() => {});
+      await esperar(p, ([n, h]) => window.__sol.length > n && (!h || window.__sol.at(-1).hora === h), [n, hora], 20000).catch(() => {});
       await p.waitForTimeout(200);
     };
     const s0 = await p.evaluate(() => { const b = document.querySelector("#sol"), t = b.querySelector(".pista");
@@ -1135,13 +1136,13 @@ try {
     const k2 = await sol();
     inf.ok(k1.hora === "18:35" && k2.hora === "17:35" && k1.nodo === "salon", "→ suma 15 minutos y Mayús+← resta una hora, sin cambiar de estancia", { k1: k1.hora, k2: k2.hora, nodo: k1.nodo });
     inf.ok(/17:35, Día, sol a \d+° sobre el horizonte, hacia el (suroeste|oeste)/.test(k2.texto), "el lector oye la hora, el momento y dónde está el sol", k2.texto);
-    await conAviso(() => p.keyboard.press("PageUp"));
+    await conAviso(() => p.keyboard.press("PageUp"), "18:59");
     const k3 = await sol();
     inf.ok(k3.hora === "18:59" && k3.momento === "atardecer" && k3.momentoEstado === "atardecer" && Math.abs(k3.cabeceo - k2.cabeceo) < 1e-6,
       "RePág lleva a la parada siguiente (atardecer, 18:59) y el momento del visor pasa a «atardecer»; la cámara no se mueve", { hora: k3.hora, momento: k3.momento });
     // Tocar un icono: va a su parada (como un pequeño timelapse) y avisa con «sol»
     const icono = await p.evaluate(() => { const r = document.querySelector("#sol [data-m='noche']").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
-    await conAviso(() => p.mouse.click(icono.x, icono.y));
+    await conAviso(() => p.mouse.click(icono.x, icono.y), "20:34");
     const k4 = await sol(), ev = await p.evaluate(() => window.__sol.at(-1));
     inf.ok(k4.hora === "20:34" && k4.momentoEstado === "noche" && ev?.hora === "20:34" && ev?.momento === "noche", "tocar la luna lleva a la noche (20:34) y emite «sol»", { hora: k4.hora, ev });
     // Arrastrar el punto hacia la izquierda: el sol vuelve atrás en el día
@@ -1157,7 +1158,7 @@ try {
       await esperar(p, (s) => document.querySelector(s), SEL.momento("amanecer"), 5000).catch(() => {});
       const opciones = await p.evaluate(() => [...document.querySelectorAll("[data-k^='momento-']")].map((e) => e.dataset.k.slice(8)));
       inf.ok(opciones.join() === "amanecer,dia,atardecer,noche", "«Estilo y luz» ofrece las mismas cuatro paradas", opciones);
-      await conAviso(() => p.click(SEL.momento("amanecer")));
+      await conAviso(() => p.click(SEL.momento("amanecer")), "08:45");
       const k6 = await sol();
       inf.ok(k6.hora === "08:45" && k6.momento === "amanecer" && /Amanecer/.test(k6.texto), "elegir «Amanecer» en el panel lleva la barra a las 08:45", k6.hora);
       await p.keyboard.press("Escape");

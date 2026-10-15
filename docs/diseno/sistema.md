@@ -265,6 +265,30 @@ Nada de rectángulos con esquinas vivas ni de flechas de bloque: parecían de vi
 - **Radar:** barrido giratorio.
 - **Confirmaciones:** ✓ que se dibuja con `--dibujar`.
 
+### Barra del sol (visor)
+
+Petición del cliente (15/10): «una barra arriba, que no tape nada, con un punto que se mueva adelante y atrás del amanecer
+al anochecer… el movimiento exacto del sol según las fotos de la Osmo 360… amanecer, día soleado, atardecer y noche».
+
+- **Dónde:** bajo el título (`#lugar`), encima del radar: es contexto del lugar («dónde y cuándo»). No ocupa el centro de la
+  foto ni la fila de la barra de vista; en reposo (`ui-inactiva`) se aparta como el título, y en el modo juego, la visita
+  guiada y la medición desaparece.
+- **Forma:** una cápsula de vidrio neutro (`.c8-vidrio--texto`) con «▶ Reproducir el día» y una pista: arriba los cuatro
+  iconos (amanecer, día, atardecer y noche, al estilo de SF Symbols, con su variante rellena en el momento actual) y debajo
+  un riel fino con lo recorrido más marcado y el punto, que es una cápsula blanca con la hora (el pomo de los deslizadores de
+  iOS: blanco también en oscuro). Una muesca en el riel marca la hora de las fotos: la luz real.
+- **Paradas a la misma distancia:** las cuatro paradas están equiespaciadas y entre ellas el tiempo es lineal; así el alba y
+  el ocaso, donde más cambia la luz, ocupan más barra que el mediodía. La hora exacta va en el punto.
+- **Gestos:** arrastrar el punto (imán suave de 5 px en las paradas y un toque háptico en Android al cambiar de momento);
+  tocar un icono lleva a su parada como un pequeño timelapse (0,6–1,1 s, por reloj, no por fotogramas); «Reproducir el día»
+  recorre la barra en 14 s. Con «Reducir movimiento», sin animaciones.
+- **Accesibilidad:** toda la pista es un solo `role="slider"` («Luz del sol») de 44 px de alto en táctil, con
+  `aria-valuetext` «19:12, Atardecer, sol a 5° sobre el horizonte, hacia el oeste» (y «luz real de la foto» a su hora);
+  ← → 15 min (Mayús, una hora), RePág/AvPág la parada siguiente o anterior, Inicio/Fin los extremos. Las flechas no
+  navegan ni RePág mueve la cámara mientras la barra tiene el foco.
+- **Coherencia:** el sol y la luna solo se usan para la luz de la vivienda (por eso el icono de Apariencia no los usa), y
+  las paradas de la barra son las mismas que «Luz» en «Estilo y luz».
+
 ### Hacer y evitar
 
 | ✅ Hacer | ❌ Evitar |

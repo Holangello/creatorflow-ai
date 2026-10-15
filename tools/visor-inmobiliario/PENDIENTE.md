@@ -177,6 +177,7 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
 | Al menos 5 estilos de diseño generados con IA, solo en terrenos o proyectos (`estado_obra: proyecto`) | ✅ original + 5; sello «Recreación virtual · IA» |
 | Viviendas ya construidas: cambiar color de paredes y suelo, pequeños detalles | ✅ máscaras por foto (editor en el Estudio) |
 | Ambiente de día y de noche, con las luces encendidas de noche | ✅ día, atardecer y noche (foto real o simulada) |
+| Barra del sol arriba (15/10): un punto que se mueve del amanecer a la noche con el sol exacto de las fotos de la Osmo 360; cuatro iconos (amanecer, día soleado, atardecer, noche); la luz que entra en cada estancia en la vista previa y en la maqueta 3D | ✅ `sol.js` (NOAA), barra bajo el título, demo con sol y sombras, fotos con la luz que entra por las ventanas, maqueta y paseo libre con sombras; el Estudio lee fecha, hora y GPS del EXIF. Falta probarlo con fotos reales de la Osmo del cliente |
 | Medidas, información del inmueble, planos de arquitecto y renders de software conocido | ✅ medición, ficha, certificado energético, plano (imagen, PDF, DXF), variantes de render 360, modelo GLB o splat |
 | Publicar en idealista y portales; enlace para la web propia; descargable como archivo | ✅ fotos 360 GPano ≤ 7,5 MB, vídeo 16:9, 9:16 y 1:1, ZIP web, HTML autónomo, plano PNG, dossier, QR. idealista solo admite tours de proveedores homologados: publicar fotos 360 y vídeo, y enlazar el tour |
 | Nombre: **cre8eight** | ✅ |
@@ -280,6 +281,7 @@ Antes de diseñar, carga las skills de diseño disponibles.
 - El ZIP no tiene ZIP64: no admite más de 4 GB.
 - Dos pestañas del Estudio a la vez sobre el mismo proyecto. Exportar mientras se procesan fotos.
 - `enlaceVista` está vacío en `file://`.
+- Barra del sol sobre fotos reales: la luz que entra por las ventanas es una aproximación (la ventana se reconoce por ser lo más claro de la foto y la estancia es su polígono del plano); la mancha de sol que la foto ya traía solo se atenúa. Sin fecha en el EXIF, el desfase horario es el del dispositivo del Estudio.
 - La Osmo 360 no ofrece RAW ni bracketing a 120 MP (el HDR es de 30 MP). Ver `docs/guia-osmo360.md`.
 
 ## Mapa rápido del código
@@ -293,5 +295,6 @@ Antes de diseñar, carga las skills de diseño disponibles.
 | `estudio.html`, `estudio.css`, `estudio*.js` | Estudio de creación en 8 pasos (IndexedDB, worker de imágenes, PDF, DXF, máscaras, música) |
 | `asistente-osmo.html` | Guía interactiva de captura con la Osmo 360 |
 | `plano.js`, `medicion.js`, `maqueta.js`, `guion.js`, `demo.js`, `util.js` | Módulos del visor |
+| `sol.js` | El sol de la vivienda: posición exacta (NOAA), salida y puesta, paradas de la barra del sol y la luz de cada altura del sol (`pruebas/sol.mjs`) |
 | `preparar_panos.py`, `extraer_fotogramas.py` | Scripts opcionales de línea de comandos |
 | `pruebas/humo.mjs` | Prueba de humo (`npm run prueba`) |

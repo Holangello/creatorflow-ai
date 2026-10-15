@@ -275,7 +275,8 @@ function pintar() {
         h("div", { class: "texto-sec", text: "Fotos de noche (con las luces encendidas) o de atardecer, desde el mismo punto y con la misma orientación que la de día." })),
       h("button", { type: "button", class: "c8-boton c8-boton--secundario", onclick: async () => subirVariantes(p.id, await elegirImgs(), { estilo: null, momentoDefecto: "noche" }) }, icono("subir", 16), "Subir foto de noche o atardecer")),
     luces ?? h("p", { class: "texto-sec", text: "Sin fotos de noche en esta estancia." }),
-    h("label", { class: "fila-interruptor", for: "noche-simulada" }, noche,
+    // Con la barra del sol, el visor ya ofrece los cuatro momentos (simulados fuera de la hora de las fotos): sobra
+    h("label", { class: "fila-interruptor", for: "noche-simulada", hidden: solActiva(t) }, noche,
       h("span", {}, h("b", { text: "Ofrecer vista de noche simulada" }),
         h("small", { class: "tenue", text: conNoche ? "Para las estancias sin foto de noche, el visor la simula oscureciendo la de día." : "Sin fotos de noche, el visor puede simular la noche oscureciendo la foto de día. El atardecer solo se ofrece con foto." }))),
     bloqueSol(t));
@@ -352,9 +353,10 @@ on("mascara", () => pintar());
  * Barra del sol del visor (amanecer → noche con la posición exacta del sol): la fecha, la hora y el lugar salen del EXIF
  * de la primera foto (tour.sol, al añadirla); aquí se ven, se corrigen o se apaga la barra.
  */
+const solActiva = (t) => !t._estudio.sinSol && (!!t.sol?.fecha || !!t._estudio.conSol);
 function bloqueSol(t) {
   const conFecha = !!t.sol?.fecha;
-  const activa = !t._estudio.sinSol && (conFecha || !!t._estudio.conSol);
+  const activa = solActiva(t);
   const sw = h("input", { type: "checkbox", class: "c8-interruptor", role: "switch", checked: activa, id: "barra-sol" });
   sw.onchange = () => cambiar((tt) => {
     if (sw.checked) { delete tt._estudio.sinSol; if (!tt.sol?.fecha) tt._estudio.conSol = true; }

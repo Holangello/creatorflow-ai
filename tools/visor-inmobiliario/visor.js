@@ -988,6 +988,7 @@ function fijarSol(ms, { animar = false } = {}) {
   if (!sol.activo) return Promise.resolve();
   ms = THREE.MathUtils.clamp(ms, sol.rec.ini, sol.rec.fin);
   if (sol.anim) sol.anim.ok();
+  clearTimeout(sol.quieto); // el aviso pendiente de una flecha lo da ya este cambio
   if (animar && !reducido() && Math.abs(ms - sol.ms) > 2 * 60000) {
     return new Promise((ok) => { sol.anim = { desde: sol.ms, hasta: ms, t0: performance.now(), dur: 0.6 + 0.5 * Math.abs(posDeMs(ms) - posDeMs(sol.ms)), ok }; });
   }
@@ -1015,6 +1016,7 @@ function ponerSol(ms) {
 async function solQuieto() {
   aplicarLuzSol(true);
   await sol.refresco;
+  if (sol.render) await sol.renderListo;
   visor.emitir("sol", infoSol());
 }
 
@@ -1032,6 +1034,7 @@ function aplicarLuzSol(final) {
   if (int.actual?.renderSol && int.fuenteActual?.sol) pedirRenderSol(final);
   if (pisoDemo && estado.modo !== "tour") aplicarAmbienteLibre();
   maqueta?.fijarSol?.(sol.e);
+  pedirSombras();
 }
 
 /** Fuerza y color con que el sol entra por las ventanas de una foto (sombreador, relucir): nada con el sol bajo el horizonte. */
@@ -1082,12 +1085,15 @@ function fuenteSolDemo(n, estilo) {
     },
   };
 }
-/** Como mucho un render del sol por fotograma; mientras se arrastra, con el cubo pequeño (el bueno al soltar). */
+/** Como mucho un render del sol por fotograma; mientras se arrastra, con el cubo pequeño (el bueno al soltar).
+    sol.renderListo: se cumple cuando ese render ya está hecho (fijarSol espera por él). */
 function pedirRenderSol(bueno) {
-  const nivel = bueno ? 2 : 1;
-  if (sol.render) { sol.render = Math.max(sol.render, nivel); return; }
-  sol.render = nivel;
-  requestAnimationFrame(() => { const b = sol.render === 2; sol.render = 0; renderSolDemo(b); });
+  if (!sol.render) {
+    sol.renderListo = new Promise((ok) => {
+      requestAnimationFrame(() => { const b = sol.render === 2; sol.render = 0; try { renderSolDemo(b); } finally { ok(); } });
+    });
+  }
+  sol.render = Math.max(sol.render, bueno ? 2 : 1);
 }
 function renderSolDemo(bueno) {
   const n = int.actual, f = int.fuenteActual;
@@ -1292,7 +1298,11 @@ async function prepararLibre() {
   catch (e) { aviso(`${tr("modo.libre")}: ${e.message}`, 6000); L.cargando = null; throw e; }
 }
 
+let sombrasPendientes = true;
+function pedirSombras() { sombrasPendientes = true; tocarEscena(); }
+
 function aplicarAmbienteLibre() {
+  pedirSombras();
   if (!pisoDemo) return;
   pisoDemo.aplicar({ estilo: estado.estilo, momento: estado.momento, pintura: estado.pintura, sol: sol.activo ? sol.e : null,
     ambienteMin: estado.modo === "maqueta" ? 0.55 : 0 }); // en la maqueta de noche, la casa no se pierde en el fondo
@@ -1428,7 +1438,12 @@ const maqueta = renderer && crearMaqueta({
   nodos: () => [...int.nodos.values()],
   escenaLibre,
   modeloLibre: () => (["demo", "glb"].includes(int.tour.libre?.tipo) ? int.libre.modelo : null),
-  ocultarTecho: (si) => escenaLibre.traverse((o) => { if (o.userData.superficie === "techo" || o.userData.superficie === "cielo") o.visible = !si; }),
+  // Maqueta del modelo: sin cielo y con el techo invisible desde arriba, pero que sigue tapando el sol (sus sombras): así
+  // se ve por qué ventanas entra la luz en cada estancia
+  ocultarTecho: (si) => escenaLibre.traverse((o) => {
+    if (o.userData.superficie === "cielo") o.visible = !si;
+    else if (o.userData.superficie === "techo") { o.material.colorWrite = !si; o.material.depthWrite = !si; }
+  }),
   alElegirNodo: async (n) => { await cambiarModo("tour"); irA(n); },
 });
 
@@ -2800,6 +2815,7 @@ async function cambiarModo(modo) {
   maqueta?.activar(modo === "maqueta");
   if (anterior === "maqueta" && pisoDemo) aplicarAmbienteLibre();
   visibilidadSol();
+  pedirSombras();
   if (sol.activo) aplicarLuzSol(true);
   document.body.classList.toggle("modo-libre", modo === "libre");
   document.body.classList.toggle("modo-maqueta", modo === "maqueta");
@@ -3513,6 +3529,10 @@ function pintarEscena() {
   // ya traen su hombro de altas luces, demo.js) y sin sol todo queda como estaba.
   const tono = sol.activo && estado.modo !== "tour" ? THREE.NeutralToneMapping : THREE.NoToneMapping;
   if (renderer.toneMapping !== tono) renderer.toneMapping = tono;
+  // Las sombras del sol (paseo libre y maqueta) no se recalculan en cada fotograma: la escena está quieta y solo cambian
+  // con el sol, el estilo o el modo (pedirSombras). Ahorra GPU y batería, sobre todo en el móvil.
+  renderer.shadowMap.autoUpdate = false;
+  if (sombrasPendientes && estado.modo !== "tour") { renderer.shadowMap.needsUpdate = true; sombrasPendientes = false; }
   if (estado.modo === "maqueta") renderer.render(maqueta.escena(), maqueta.camara);
   else if (estado.modo === "tour" && !int.actual) renderer.clear();
   else renderer.render(estado.modo === "libre" ? escenaLibre : escena360, camara);

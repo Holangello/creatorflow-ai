@@ -37,6 +37,9 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Una foto 360 no carga | Aviso con «Reintentar»; si era un estilo o un momento, se vuelve al anterior para que lo que se ve coincida con lo elegido |
 | Poca memoria gráfica (móviles) | Caché de texturas limitada (4 en táctil, 8 en escritorio) y versiones de 4096 px para móvil |
 | La música no carga o el formato no es compatible | El botón de sonido desaparece y el recorrido sigue; se reintenta si el tour se recarga |
+| Las fotos no traen fecha ni GPS (barra del sol) | La barra usa el día de hoy y la ubicación del inmueble (o Madrid); el agente puede indicar la fecha y la hora en «Estilo y luz → Luz». Sin desfase horario en el EXIF, el del dispositivo del Estudio en esa fecha |
+| La estancia de una foto no tiene polígono | El sol no puede «entrar» por las ventanas: al mover la barra solo cambia el tono (cálido o de noche) |
+| El móvil va justo al arrastrar la barra en la demo | Mientras se arrastra, el panorama se renderiza con un cubo cuatro veces más pequeño y como mucho una vez por fotograma; al soltar, con toda la calidad. Las animaciones van por reloj: duran lo mismo con pocos fotogramas |
 | El navegador bloquea el sonido automático | La música empieza con «Empezar visita» de la portada, o con el primer toque o clic si no hay portada |
 | No se puede capturar el ratón (modo juego) | Se mira arrastrando |
 | El navegador no tiene `<dialog>` | «Estancias y plano» y «Ayuda» se abren con el atributo `open` |

@@ -63,6 +63,10 @@ python3 -m http.server 8765
 - **Tarjeta del inmueble.** Precio, datos y ficha completa, con hipoteca, documentos y ubicación.
 - **Contactar.** Pregunta por WhatsApp con fotos de la vista y la estancia elegida, en 4 toques.
 - **Estancias y plano**, más un radar de esquina que se muestra y se oculta.
+- **Barra del sol**, bajo el título: un punto que se arrastra del amanecer a la noche (o cuatro iconos: amanecer, día,
+  atardecer y noche, y ▶ para ver pasar el día) con la posición exacta del sol el día y en el lugar de las fotos (EXIF de
+  la Osmo 360). En la demo y en la maqueta el sol entra por las ventanas con sus sombras; en las fotos, a su hora se ven tal
+  cual y al moverla la luz se simula (con sello).
 - **Estilo y luz:**
   - 5 estilos con IA, solo en viviendas en proyecto (obra nueva o terreno);
   - color de paredes y suelo en viviendas construidas;
@@ -81,6 +85,7 @@ python3 -m http.server 8765
 | Paseo libre | `W` `A` `S` `D` o flechas; `Shift` para correr | Pulgar izquierdo para caminar, derecha para mirar |
 | Acercar | Rueda | Pellizcar |
 | Teclas | `R` radar · `M` estancias y plano · `H` ayuda · `V` modo · `Q` `E` girar · `RePág` `AvPág` mirar arriba y abajo · `Esc` cerrar | — |
+| Barra del sol | Arrastrar el punto o clic en un icono; con la barra seleccionada, `←` `→` 15 min (`Shift` una hora) y `RePág` `AvPág` de momento en momento | Arrastrar el punto o tocar un icono |
 
 Los atajos de una sola letra se pueden desactivar en Ajustes (WCAG 2.1.4).
 
@@ -112,7 +117,8 @@ npm run prueba:todo    # humo + contraste AA + pruebas de extremo a extremo
 |---|---|
 | `npm run prueba` | Prueba de humo: visor, Estudio y Guía cargan sin errores |
 | `npm run contraste` | Contraste AA de los pares de colores del tema, en claro y en oscuro |
-| `npm run prueba:e2e` | Unas 490 comprobaciones del Estudio, los paneles, la exportación y la seguridad |
+| `npm run prueba:e2e` | Unas 510 comprobaciones del Estudio, los paneles (con la barra del sol), la exportación y la seguridad |
+| `npm run prueba:sol` | El sol de `sol.js` frente a posiciones y horas conocidas, y el EXIF (fecha, desfase y GPS) que lee el Estudio |
 | `npm run medir` | Peso de la carga inicial, tiempo hasta que el visor está listo y cuánta pantalla tapa la interfaz (objetivo en el teléfono: ≤ 15 %) |
 | `node pruebas/capturas.mjs` | Matriz de capturas: páginas × claro/oscuro × S/M/L × tamaños de pantalla |
 

@@ -88,6 +88,11 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
     { "id": "nordico", "nombre": "Texto" }
   ],
   "momentos": ["dia", "atardecer", "noche"],
+  "sol": {                              // barra del sol (amanecer → noche): fecha, hora y lugar de las fotos (EXIF de la Osmo 360)
+    "fecha": "2026-10-15T11:00:00+02:00", // hora local con su desfase: a esta hora la luz es la real de las fotos
+    "desfase": 120,                     // minutos respecto de UTC (si falta, el de la fecha ISO o el del dispositivo)
+    "lat": 40.42, "lng": -3.7           // GPS de la foto redondeado a 2 decimales (~1 km); si falta, inmueble.ubicacion o Madrid
+  },                                    // false: sin barra. {}: hoy en la ubicación del inmueble. Sin `sol`: barra solo con la demo o con `momentos`
   "personalizacion": {                  // cambio de colores (viviendas construidas; necesita `mascara`)
     "paredes": [{ "nombre": "Texto", "color": "#efe9df" }],
     "suelos":  [{ "nombre": "Texto", "color": "#8a6a4a" }]
@@ -154,6 +159,21 @@ la máscara base (mismo encuadre y mismos muebles).
 
 Si `estilo` no está disponible en un panorama, se muestra la base y el panel avisa ("estilo no disponible en esta estancia").
 
+### Barra del sol
+Con `tour.sol` (o la demo, o `momentos` con más de uno) el visor muestra bajo el título una barra del alba (salida − 40
+min) a la noche cerrada (puesta + 90 min) del día de las fotos, con cuatro paradas a la misma distancia: `amanecer` (salida
++ 20 min), `dia` (mediodía solar), `atardecer` (puesta − 35 min) y `noche` (puesta + 60 min). La posición del sol (azimut y
+altura) sale de `sol.js` (algoritmo de la NOAA, error < 0,1°) y se lleva al mundo del recorrido con `norte`. El momento con
+nombre (`visor.estado.momento`, que elige las variantes de arriba) sale de la altura del sol: noche por debajo de −4°,
+amanecer o atardecer por debajo de 10° y día el resto; `tour.momentos` pasa a ser las cuatro paradas.
+- **Fotos:** a la hora de `sol.fecha` se ve la foto tal cual. Al mover la barra, el tono sigue al sol (cálido y noche,
+  respecto de la luz de la foto) y, si la cámara está dentro de una `estancia` con polígono, el sol entra por lo que en la
+  foto es ventana (lo más claro del muro que cruza el rayo hacia el sol) y aclara suelo, techo y muros donde cae; la mancha
+  de la hora de la foto se atenúa. Lejos de esa hora, sello «Iluminación simulada».
+- **Demo** (`demo: true`): el modelo tiene huecos de ventana, cielo y una luz direccional con sombras; cada estancia se
+  vuelve a renderizar con el sol de la barra (`renderSol`).
+- **Maqueta y paseo libre:** el sol de la barra con sus sombras.
+
 ## 2. API JavaScript del visor (`window.visor`)
 
 ```js
@@ -162,7 +182,11 @@ visor.estado                    // { modo, nodo, rumbo, cabeceo, fov, estilo, mo
 visor.listo                     // true tras el evento "listo"
 visor.ir(idNodo)                // Promise
 visor.modo("tour" | "libre" | "maqueta")
-visor.fijarEstilo(id)  visor.fijarMomento(id)
+visor.fijarEstilo(id)  visor.fijarMomento(id)   // con la barra del sol, fijarMomento lleva el sol a esa parada (Promise)
+visor.sol                       // barra del sol: { ms, hora, momento, azimut, elevacion, lat, lng, fecha, salida, puesta,
+                                //   paradas: { amanecer, dia, atardecer, noche }, foto, reproduciendo } (horas «hh:mm» locales) o null
+visor.fijarSol(x, { animar })   // x: instante (ms), hora local «19:30» del día de las fotos o parada («amanecer»…). Promise
+visor.reproducirDia(si)         // «Reproducir el día»: true, false o alternar (sin argumento)
 visor.fijarPintura({ paredes: "#hex" | null, suelos: "#hex" | null })
 visor.comparar(true|false)      // pantalla dividida: original (izq.) vs estilo/momento/pintura actual (der.)
 visor.medir(true|false)         // herramienta de medición
@@ -297,7 +321,7 @@ los elementos. Sin elementos visibles, el botón no se ve. Cada elemento se pint
 | `#paneles` | Donde montan los paneles. Publican `--reserva-inferior` (alto ocupado abajo) y `--ancho-dock` (ancho a la derecha) |
 
 Clases de `body` que pone el núcleo: `tactil`, `embed`, `con-portada`, `ui-inactiva` (3,5 s sin interacción: se ocultan
-`#lugar`, `#modos`, `#barra-vista` y `#galeria`; quedan el radar y la tarjeta), `raton-capturado`, `modo-libre`,
+`#lugar`, `#sol`, `#modos`, `#barra-vista` y `#galeria`; quedan el radar y la tarjeta), `raton-capturado`, `modo-libre`,
 `modo-maqueta`, `guion-activo`, `midiendo`, `sin-webgl`, `vista-vacia` (vista previa del Estudio sin fotos: sin lienzo).
 Variable `--alto-tira`: alto de la tira de estancias (0 si no se ve).
 
@@ -308,7 +332,8 @@ sello, carga, rótulo de la estancia, portada y error. El radar y el plano dibuj
 
 Eventos (`visor.on`), también emitidos como `CustomEvent("visor:<evento>")` en `window` y enviados a
 `window.dataLayer` si existe (analítica):
-`listo`, `tour` (tras cada carga, también `visor:cargar`), `nodo` ({id}), `modo`, `estilo`, `momento`, `pintura`, `medida` ({metros, tipo}),
+`listo`, `tour` (tras cada carga, también `visor:cargar`), `nodo` ({id}), `modo`, `estilo`, `momento`, `sol` (lo mismo que `visor.sol`,
+al soltar la barra o al acabar una animación), `pintura`, `medida` ({metros, tipo}),
 `medir` ({activo}), `comparar` ({activo}), `contacto` ({canal}), `guion:inicio`, `guion:paso` ({paso, nodo, texto}), `guion:pausa`,
 `guion:fin`, `idioma`, `sonido` ({activo, volumen}; al silenciar/activar, al cambiar el volumen y con `disponible: false` si la
 música no se puede cargar), `modojuego` ({activo}), `giroscopio` ({activo}), `empezar` ({guiada, automatica}: al cerrar la
@@ -349,7 +374,8 @@ El Estudio guarda en `tour._estudio` lo que necesita para trabajar; `soloPublico
 | `ref` | Referencia automática (`C8-XXXXX`), solo en proyectos nuevos sin fotos |
 | `perfil` | `true`: el contacto viene de «Mi inmobiliaria»; `false`: el inmueble tiene contacto propio y el perfil no lo pisa |
 | `firmasPerfil` | Huellas del logo y de la foto del perfil ya copiados (`marca/logo.*`, `marca/agente.*`), para no reescribirlos |
-| `nocheSimulada` | «Ofrecer vista de noche simulada» sin foto real de noche |
+| `nocheSimulada` | «Ofrecer vista de noche simulada» sin foto real de noche (con la barra del sol no hace falta: se oculta) |
+| `sinSol` · `conSol` | Barra del sol apagada a mano (`sol: false` al publicar) o encendida sin fecha en las fotos (`sol: {}`: hoy) |
 | `estiloTodo` | «Mostrar todo» en Estilo y luz (si no, solo lo que corresponde a `estado_obra`) |
 | `sinZonas` | «No usar zonas»: no se proponen `secciones` automáticas |
 | `nombresGuia` | Nombres de estancias de la lista que llegó de la Guía y aún no tienen foto |

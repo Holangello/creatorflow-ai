@@ -22,6 +22,8 @@ const MUROS = [
 // Ventanas: [x, z] del centro (a 7 cm del muro, por dentro), giro y ancho; alféizar a 0,8 m y dintel a 2,2 m.
 const VENTANAS = [[0.07, 2.5, Math.PI / 2, 2.4], [8, 0.07, 0, 1.6], [9.93, 6, -Math.PI / 2, 1.8], [4.5, 7.93, Math.PI, 0.8]];
 const ALFEIZAR = 0.8, DINTEL = 2.2;
+const LUNA = new THREE.Color(0.32, 0.36, 0.46); // luz de noche de la maqueta (lineal)
+const REBOTE = new THREE.Color(1, 0.9, 0.78); // luz rebotada en el interior (lineal: ≈ #fff3e5)
 
 const ESTANCIAS = [
   { id: "salon", nombre: { es: "Salón-comedor", en: "Living-dining room" }, poligono: [[0, 0], [6, 0], [6, 5], [0, 5]], madera: true },
@@ -299,6 +301,10 @@ export function crearPisoDemo() {
     const L = s.luz, [dx, dy, dz] = s.direccion;
     hemi.color.setRGB(...L.cielo, THREE.SRGBColorSpace); hemi.groundColor.setRGB(...L.suelo, THREE.SRGBColorSpace);
     hemi.intensity = Math.max(L.ambiente, ambienteMin);
+    // La luz que rebota dentro (suelos de madera, paredes claras) es más cálida que el cielo: de día, el interior no queda gris
+    hemi.color.lerp(REBOTE, 0.5 * (1 - L.noche));
+    // En la maqueta (ambienteMin), de noche una luz gris azulada de luna: la casa se lee sobre el fondo y se ven las lámparas
+    if (ambienteMin) { hemi.color.lerp(LUNA, 0.75 * L.noche); hemi.groundColor.lerp(LUNA, 0.5 * L.noche); }
     sol.visible = L.fuerza > 0.01 && dy > -0.01;
     srgb(sol.color, L.sol);
     sol.intensity = L.fuerza * 1.5;

@@ -334,6 +334,16 @@ try {
     const vs = (await T(p)).panoramas.find((q) => q.id === "salon").variantes.map((v) => `${v.estilo ?? "-"}/${v.momento}/${v.origen}`).join(", ");
     inf.ok(vs === "nordico/dia/ia, -/noche/foto, industrial/dia/ia", "estilo, momento y origen de cada variante se deducen del nombre del archivo", vs);
 
+    // ---- barra del sol: las fotos de prueba no traen EXIF; el agente indica cuándo se hicieron y el visor muestra la barra
+    await p.waitForSelector("#sol-fecha");
+    const solAntes = await p.evaluate(() => ({ sol: window.__estudio.tour.sol ?? null, interruptor: document.querySelector("#barra-sol").checked }));
+    await p.evaluate(() => { const i = document.querySelector("#sol-fecha"); i.value = "2026-10-15T11:00"; i.dispatchEvent(new Event("change", { bubbles: true })); });
+    await esperar(p, () => /^2026-10-15T11:00:00[+-]\d{2}:\d{2}$/.test(window.__estudio.tour.sol?.fecha ?? ""), null, 10000);
+    const marcoSol = await (await p.waitForSelector(SEL.iframe)).contentFrame();
+    const barraEnVista = await esperar(marcoSol, () => window.visor?.sol?.foto === "11:00" && !document.querySelector("#sol").hidden, null, 30000).then(() => true, () => false);
+    inf.ok(!solAntes.sol && !solAntes.interruptor && barraEnVista && await p.evaluate(() => document.querySelector("#barra-sol").checked),
+      "sin fecha en las fotos la barra del sol está apagada; al indicar la fecha y la hora en «Luz», la vista previa la muestra con esa luz real", solAntes);
+
     await p.click(SEL.crearMascara);
     await esperar(p, () => { const c = document.querySelector(__SEL.lienzoMascara); return c && c.width > 50; });
     const lz = await p.locator(SEL.zonaMascara).boundingBox();
