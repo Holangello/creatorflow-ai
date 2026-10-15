@@ -25,7 +25,10 @@ const FALLBACK = {
   "ayuda.subir": "Sin suelo (splat): Espacio subir · C bajar", "ayuda.capturar": "Clic para capturar el ratón (Esc para soltar)",
   "ayuda.joystick": "Móvil: pulgar izquierdo para caminar, arrastra a la derecha para mirar", "ayuda.plano": "M mostrar/ocultar mapa · R radar o plano · V cambiar modo · 1-9 estancias · H ayuda",
   "aviso.cargando": "Cargando…", "aviso.error_carga": "No se pudo cargar {x}", "aviso.sin_tour": "No se encontró tour.json. Mostrando la demo.",
-  "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D", "aviso.vista_vacia": "La vista previa aparecerá aquí cuando añadas fotos 360.", "aviso.contexto_perdido": "Se perdió el contexto gráfico", "aviso.reintentar": "Reintentar",
+  "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D", "aviso.vista_vacia": "La vista previa aparecerá aquí cuando añadas fotos 360.",
+  "aviso.giroscopio_denegado": "Permiso de movimiento denegado", "aviso.error": "Error: {x}", "titulo.defecto": "Recorrido virtual",
+  "punto.video": "Vídeo", "punto.mas_info": "Más información", "comparar.antes": "Antes", "comparar.despues": "Después",
+  "guion.pausar": "Pausar visita guiada", "guion.reanudar": "Reanudar", "aviso.contexto_perdido": "Se perdió el contexto gráfico", "aviso.reintentar": "Reintentar",
   "aviso.clic_explorar": "Haz clic para explorar", "aviso.libre_tactil": "Pulgar izquierdo para caminar · arrastra a la derecha para mirar",
   "aviso.libre_raton": "WASD o flechas para caminar · ratón para mirar · Espacio saltar · Shift correr", "aviso.arrastra": "Arrastra para mirar",
   "aviso.estilo_no_disponible": "Este estilo no está disponible en esta estancia",
@@ -868,7 +871,7 @@ function actualizarBarraGuion() {
   barraGuion.querySelector(".progreso div").style.width = `${(p.progreso * 100).toFixed(1)}%`;
   const b = barraGuion.querySelector(".pausa");
   const txt = guion.pausado ? "▶" : "❚❚";
-  if (b.textContent !== txt) { b.textContent = txt; b.setAttribute("aria-label", guion.pausado ? "Reanudar" : "Pausa"); }
+  if (b.textContent !== txt) { b.textContent = txt; b.setAttribute("aria-label", tr(guion.pausado ? "guion.reanudar" : "guion.pausar")); }
 }
 
 // ------------------------------------------------------------------ entrada
@@ -1132,7 +1135,7 @@ async function alternarGiro() {
     int.giro = null;
   } else {
     if (typeof DeviceOrientationEvent?.requestPermission === "function") {
-      if ((await DeviceOrientationEvent.requestPermission().catch(() => "denied")) !== "granted") return aviso("Permiso de movimiento denegado");
+      if ((await DeviceOrientationEvent.requestPermission().catch(() => "denied")) !== "granted") return aviso(tr("aviso.giroscopio_denegado"));
     }
     int.giro = { offset: null, q: null };
     addEventListener("deviceorientation", alOrientacion);
@@ -1393,8 +1396,8 @@ function mostrarFicha(p) {
   const media = f.querySelector(".media");
   media.replaceChildren();
   if (p.imagen) { const i = new Image(); i.src = p.imagen; i.alt = texto(p.titulo); media.append(i); }
-  if (urlSegura(p.video)) { const a = document.createElement("a"); a.href = urlSegura(p.video); a.target = "_blank"; a.rel = "noopener"; a.textContent = "▶ Vídeo"; media.append(a); }
-  if (urlSegura(p.enlace)) { const a = document.createElement("a"); a.href = urlSegura(p.enlace); a.target = "_blank"; a.rel = "noopener"; a.textContent = "↗ Más información"; media.append(a); }
+  if (urlSegura(p.video)) { const a = document.createElement("a"); a.href = urlSegura(p.video); a.target = "_blank"; a.rel = "noopener"; a.textContent = `▶ ${tr("punto.video")}`; media.append(a); }
+  if (urlSegura(p.enlace)) { const a = document.createElement("a"); a.href = urlSegura(p.enlace); a.target = "_blank"; a.rel = "noopener"; a.textContent = `↗ ${tr("punto.mas_info")}`; media.append(a); }
   f.hidden = false;
   f.querySelector(".cerrar").focus({ preventScroll: true });
 }
@@ -1546,7 +1549,7 @@ function aplicarMarca() {
   } else for (const v of ["--acento", "--c-acento", "--acento-texto", "--c-sobre-acento"]) raiz.removeProperty(v);
   const logo = $("#logo");
   if (m.logo) { logo.src = m.logo; logo.alt = texto(m.nombre); logo.hidden = false; } else logo.hidden = true;
-  const titulo = texto(int.tour.titulo) || "Recorrido virtual";
+  const titulo = texto(int.tour.titulo) || tr("titulo.defecto");
   $("#titulo").textContent = titulo;
   document.title = `${titulo} · ${texto(m.nombre) || "cre8eight"}`;
 }
@@ -1563,7 +1566,11 @@ function refrescarTextos() {
   $("#btn-ayuda").setAttribute("aria-label", tr("ayuda.titulo"));
   pintarSonido();
   $("#btn-mapa").setAttribute("aria-label", tr("plano.ampliar"));
-  lienzo.setAttribute("aria-label", `${texto(int.tour.titulo)} · ${tr("aviso.arrastra")}`);
+  lienzo.setAttribute("aria-label", `${texto(int.tour.titulo) || tr("titulo.defecto")} · ${tr("aviso.arrastra")}`);
+  cortinilla.dataset.antes = tr("comparar.antes");
+  cortinilla.dataset.despues = tr("comparar.despues");
+  barraGuion.querySelector(".pausa").setAttribute("aria-label", tr(guion.pausado ? "guion.reanudar" : "guion.pausar"));
+  barraGuion.querySelector(".parar").setAttribute("aria-label", tr("guion.parar"));
   if (!$("#ayuda").hidden) renderAyuda();
   dibujarMapa();
 }
@@ -1997,7 +2004,7 @@ async function iniciar() {
   enviarPadre({ tipo: "visor:listo" });
 }
 
-iniciar().catch((e) => { console.error(e); $("#portada")?.remove(); if (!$("#error-carga")) aviso(`Error: ${e.message}`, 10000); });
+iniciar().catch((e) => { console.error(e); $("#portada")?.remove(); if (!$("#error-carga")) aviso(tr("aviso.error", { x: e.message }), 10000); });
 
 // Desarrollo (?dev): arrastrar y soltar un .spz/.ply/.splat/.sog/.glb para probarlo al instante.
 // En los recorridos publicados no se activa.

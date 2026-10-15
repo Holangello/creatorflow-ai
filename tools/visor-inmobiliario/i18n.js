@@ -72,7 +72,7 @@ export const diccionario = {
     "plantas.titulo": "Plantas", "plantas.cambiar": "Cambiar de planta",
 
     "guion.iniciar": "Visita guiada", "guion.parar": "Detener visita", "guion.pausar": "Pausar visita guiada",
-    "guion.reanudar": "Reanudar", "guion.paso": "Parada {n} de {total}", "guion.saltar": "Saltar",
+    "guion.reanudar": "Reanudar", "aviso.error": "Error: {x}", "titulo.defecto": "Recorrido virtual", "punto.video": "Vídeo", "punto.mas_info": "Más información", "comparar.antes": "Antes", "comparar.despues": "Después", "guion.paso": "Parada {n} de {total}", "guion.saltar": "Saltar",
 
     "nav.ir_a": "Ir a {x}", "nav.metros": "{x} m", "galeria.titulo": "Estancias",
 
@@ -254,7 +254,7 @@ export const diccionario = {
     "plantas.titulo": "Floors", "plantas.cambiar": "Change floor",
 
     "guion.iniciar": "Guided tour", "guion.parar": "Stop tour", "guion.pausar": "Pause guided tour",
-    "guion.reanudar": "Resume", "guion.paso": "Stop {n} of {total}", "guion.saltar": "Skip",
+    "guion.reanudar": "Resume", "aviso.error": "Error: {x}", "titulo.defecto": "Virtual tour", "punto.video": "Video", "punto.mas_info": "More information", "comparar.antes": "Before", "comparar.despues": "After", "guion.paso": "Stop {n} of {total}", "guion.saltar": "Skip",
 
     "nav.ir_a": "Go to {x}", "nav.metros": "{x} m", "galeria.titulo": "Rooms",
 
@@ -436,7 +436,7 @@ export const diccionario = {
     "plantas.titulo": "Étages", "plantas.cambiar": "Changer d'étage",
 
     "guion.iniciar": "Visite guidée", "guion.parar": "Arrêter la visite", "guion.pausar": "Mettre la visite guidée en pause",
-    "guion.reanudar": "Reprendre", "guion.paso": "Étape {n} sur {total}", "guion.saltar": "Passer",
+    "guion.reanudar": "Reprendre", "aviso.error": "Erreur : {x}", "titulo.defecto": "Visite virtuelle", "punto.video": "Vidéo", "punto.mas_info": "Plus d’informations", "comparar.antes": "Avant", "comparar.despues": "Après", "guion.paso": "Étape {n} sur {total}", "guion.saltar": "Passer",
 
     "nav.ir_a": "Aller à {x}", "nav.metros": "{x} m", "galeria.titulo": "Pièces",
 
@@ -618,7 +618,7 @@ export const diccionario = {
     "plantas.titulo": "Etagen", "plantas.cambiar": "Etage wechseln",
 
     "guion.iniciar": "Geführte Tour", "guion.parar": "Tour beenden", "guion.pausar": "Geführte Tour pausieren",
-    "guion.reanudar": "Fortsetzen", "guion.paso": "Station {n} von {total}", "guion.saltar": "Überspringen",
+    "guion.reanudar": "Fortsetzen", "aviso.error": "Fehler: {x}", "titulo.defecto": "Virtueller Rundgang", "punto.video": "Video", "punto.mas_info": "Weitere Informationen", "comparar.antes": "Vorher", "comparar.despues": "Nachher", "guion.paso": "Station {n} von {total}", "guion.saltar": "Überspringen",
 
     "nav.ir_a": "Zu {x} gehen", "nav.metros": "{x} m", "galeria.titulo": "Räume",
 
