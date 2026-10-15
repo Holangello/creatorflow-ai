@@ -482,7 +482,17 @@ try {
     await p.keyboard.press("Tab");
     await esperar(p, () => window.__estudio.tour.marca?.web === "https://www.inmo-prueba.es");
     await habilitado(p, SEL.zipWeb);
-    const web = await descargar(p, SEL.zipWeb);
+    // Este proyecto no tiene WhatsApp ni CRM: antes de descargar lo que se publica, el Estudio lo pregunta (M1)
+    const sinContacto = async (sel) => {
+      await p.click(sel);
+      await p.waitForSelector(SEL.dialogoTitulo);
+      const titulo = await p.textContent(SEL.dialogoTitulo);
+      await p.click("dialog[open] [data-principal]");
+      return titulo;
+    };
+    let pregunta;
+    const web = await descargar(p, async () => { pregunta = await sinContacto(SEL.zipWeb); });
+    inf.ok(pregunta === "Falta el contacto", "sin WhatsApp ni CRM, el Estudio pregunta antes de descargar el recorrido («Descargar igualmente» sigue)", pregunta);
     const z = leerZip(web.datos), rutas = Object.keys(z), tz = jsonDe(z["tour.json"]);
     inf.ok(["index.html", "visor.js", "visor.css", "paneles.js", "paneles.css", "i18n.js", "util.js", "vendor/qr.js"].every((f) => rutas.includes(f)), "ZIP web: incluye el visor completo");
     const sobran = ["demo.js", "exportar.js", "vendor/fflate.js", "vendor/fix-webm-duration.js"].filter((f) => rutas.includes(f));
@@ -507,7 +517,7 @@ try {
 
     const build = asegurarBuild();
     inf.ok(build.ok, `visor autónomo compilado al día (dist/)${build.recompilado ? ": recompilado" : ""}`, build.error);
-    const html = await descargar(p, SEL.htmlAutonomo); // «Recorrido en un solo archivo» (Para tus clientes)
+    const html = await descargar(p, () => sinContacto(SEL.htmlAutonomo)); // «Recorrido en un solo archivo» (Para tus clientes)
     const shtml = html.datos.toString("utf8");
     inf.ok(html.nombre.endsWith(".html") && shtml.includes("window.TOUR_EMBEBIDO") && !shtml.includes("docs/planta.dxf") && !shtml.includes('"_estudio"'),
       `HTML autónomo de ${(html.datos.length / 1048576).toFixed(1)} MB con el tour incrustado y sin material privado`);

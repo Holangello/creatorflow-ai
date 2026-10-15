@@ -8,9 +8,9 @@
 // 7. Demo en vivo: exportar el tour con texturas de three.js, vídeo 16:9 y 9:16 (con imagen y duración) y la demo
 //    como HTML autónomo sin red.
 // Sale con código 1 si algo falla.
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { servir, lanzar, contexto, abrir, RAIZ } from "./comun.mjs";
 import { crearInforme, erroresDe, esperar, leerZip, jsonDe, textoDe, asegurarBuild, glbMinimo } from "./e2e-util.mjs";
@@ -109,6 +109,27 @@ try {
       "lo publicado no incluye material privado, la carpeta estudio/ ni datos internos");
     inf.ok(r.avisos.some((a) => a.includes("docs/no-existe.pdf")), "un documento que no existe se avisa en vez de romper la exportación", r.avisos);
     inf.ok(rutas.includes("LEEME.txt") && textoDe(z["LEEME.txt"]).includes("SUBIRLO A TU HOSTING"), "incluye LEEME.txt con las instrucciones de publicación");
+    const three = ["vendor/three/build/three.module.min.js", "vendor/three/build/three.core.min.js", "vendor/three/examples/jsm/controls/OrbitControls.js"];
+    const mapa = JSON.parse(textoDe(z["index.html"]).match(/<script type="importmap">([\s\S]*?)<\/script>/)?.[1] ?? "{}").imports ?? {};
+    inf.ok(three.every((f) => rutas.includes(f)) && mapa.three === "./vendor/three/build/three.module.min.js" && mapa["three/addons/"] === "./vendor/three/examples/jsm/",
+      "three.js viaja en el ZIP y el importmap apunta a esa copia: lo publicado no depende de un CDN", { faltan: three.filter((f) => !rutas.includes(f)), mapa });
+    // Recorrido publicado servido solo y con cdn.jsdelivr.net caído: arranca igual (M2)
+    const dir = join(TMP, "zip-publicado");
+    for (const [ruta, datos] of Object.entries(z)) { mkdirSync(dirname(join(dir, ruta)), { recursive: true }); writeFileSync(join(dir, ruta), datos); }
+    const srv = await servir({ fixture: dir });
+    try {
+      const ctx = await contexto(navegador, { ancho: 1280, alto: 800 });
+      inf.cerrarAlFinal.push(ctx);
+      const cdn = [];
+      await ctx.route(/cdn\.jsdelivr\.net/, (r) => { cdn.push(r.request().url()); return r.abort(); });
+      const v = await abrir(ctx, `${srv.base}index.html`);
+      const listo = await v.waitForFunction(() => window.visor?.listo, null, { timeout: 120000 }).then(() => true, () => false);
+      inf.ok(listo && !cdn.length, "el recorrido del ZIP arranca con cdn.jsdelivr.net caído (three.js va dentro)", { listo, cdn });
+      // La página del repositorio sí usa el CDN: si cae, la portada lo dice y ofrece reintentar (nunca una carga infinita)
+      const w = await abrir(ctx, `${base}index.html?demo`);
+      const aviso = await w.waitForSelector("#portada .fallo-carga[role=alert]", { timeout: 30000 }).then((e) => e.textContent(), () => null);
+      inf.ok(/Reintentar|Try again/.test(aviso ?? ""), "sin three.js, la portada avisa de que no se ha podido cargar y ofrece reintentar", aviso);
+    } finally { srv.cerrar(); }
     const c = leerZip(Buffer.from(r.copia, "base64")), tc = jsonDe(c["tour.json"]);
     inf.ok("docs/nota-simple.pdf" in c && "estudio/proyecto.json" in c && tc.documentacion?.[0]?.publico === false && !("index.html" in c),
       "la copia de seguridad sí guarda lo privado y el proyecto de trabajo (y no el visor)");

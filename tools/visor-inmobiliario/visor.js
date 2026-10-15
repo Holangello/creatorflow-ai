@@ -31,8 +31,8 @@ const FALLBACK = {
   "ayuda.wasd": "[W] [A] [S] [D] o las flechas: ir a la estancia de delante, de detrás o de los lados · mantén [W] para seguir avanzando",
   "ayuda.libre_raton": "Paseo libre: [W] [A] [S] [D] o las flechas para caminar · [Shift] para correr",
   "ayuda.libre_tactil": "Paseo libre: pulgar izquierdo para caminar, arrastra a la derecha para mirar",
-  "ayuda.maqueta": "Maqueta: arrastra para girarla y toca una etiqueta para entrar en esa estancia",
-  "ayuda.mirar": "Arrastra para mirar alrededor", "ayuda.zoom_raton": "Rueda del ratón: acercar y alejar", "ayuda.zoom_tactil": "Pellizca para acercar y alejar",
+  "ayuda.maqueta": "Maqueta: arrastra (o usa las flechas y + −) para girarla y acercarla; toca una etiqueta para entrar en esa estancia",
+  "ayuda.mirar": "Arrastra para mirar alrededor", "ayuda.zoom_raton": "Rueda del ratón: acercar y alejar", "ayuda.zoom_tactil": "Pellizca para acercar y alejar, o usa «Acercar» y «Alejar» en «Más»",
   "ayuda.girar_teclas": "[Q] [E] girar · [RePág] [AvPág] mirar arriba y abajo", "ayuda.giroscopio": "«Mirar moviendo el móvil» está en «Más»",
   "ayuda.juego_entrar": "Pulsa [W] [A] [S] [D] o 🎮 para mirar con el ratón, como en un videojuego",
   "ayuda.juego_boton": "Pulsa 🎮 para mirar con el ratón, como en un videojuego",
@@ -53,7 +53,7 @@ const FALLBACK = {
   "pista.raton": "Arrastra para mirar · W A S D para moverte", "pista.tactil": "Arrastra para mirar · toca las flechas para avanzar",
   "aviso.estilo_no_disponible": "Este estilo no está disponible en esta estancia",
   // Barra de vista, menú «Más», modo juego, radar y «Estancias y plano»
-  "vista.titulo": "Vista", "mas.titulo": "Más", "comun.cerrar": "Cerrar", "comun.pantalla_completa": "Pantalla completa",
+  "vista.titulo": "Vista", "mas.titulo": "Más", "comun.cerrar": "Cerrar", "comun.pantalla_completa": "Pantalla completa", "comun.acercar": "Acercar", "comun.alejar": "Alejar",
   "radar.titulo": "Radar", "radar.mostrar": "Mostrar radar", "radar.ocultar": "Ocultar radar",
   "juego.titulo": "Modo juego", "juego.ayuda": "Mira con el ratón como en un videojuego (Esc para salir)", "juego.aviso": "Modo juego · Esc para salir",
   "juego.salida": "Has salido del modo juego · W A S D o 🎮 para volver", "juego.tarjeta": "Haz clic para caminar · W A S D · ratón para mirar · Esc para salir",
@@ -111,6 +111,7 @@ visor.emitir = (ev, datos = {}) => {
   try { window.dataLayer?.push({ event: `visor_${ev.replace(":", "_")}`, ...datos }); } catch {}
 };
 window.visor = visor;
+document.querySelector(".fallo-carga")?.remove(); // el aviso de «tarda más de lo normal» de index.html
 
 const estado = {
   modo: "tour", nodo: null, rumbo: 0, cabeceo: 0, fov: 75, estilo: "original", momento: "dia", momentoSimulado: false,
@@ -166,7 +167,7 @@ if (renderer) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 }
 visor.lienzo = lienzo;
-Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, programas: renderer?.info.programs?.map((x) => String(x.cacheKey)) ?? [],
+Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, maqueta: maqueta?.camara.position.toArray().map((x) => +x.toFixed(2)), programas: renderer?.info.programs?.map((x) => String(x.cacheKey)) ?? [],
   luz: { ...luz.medida, max: luz.max, min: luz.min, ms: luz.ms, n: luz.n,
     detalle: luz.zonas?.map((z) => [z.el ? z.el.id || z.el.className.split(" ")[0] : "vista", +z.p10.toFixed(3), +z.p90.toFixed(3)]) } }) });
 
@@ -1203,15 +1204,18 @@ addEventListener("keydown", (e) => {
   if (int.portada || e.target.closest?.("dialog, [role=dialog], [role=menu]")) return;
   const enUI = e.target !== document.body && e.target !== lienzo && e.target.closest?.("button, a, [role=slider]");
   if (enUI && ["Enter", "Space", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.code)) return;
+  // WCAG 2.1.4: con los atajos de una letra apagados (Ajustes), las letras solo actúan con el foco en el lienzo
+  // (role="application") o en el modo juego: ni un botón con el foco ni el control por voz mueven la vista sin querer.
+  const atajos = int.ajustes.atajos !== false;
+  if (!atajos && e.target !== lienzo && document.pointerLockElement !== lienzo && /^(Key[A-Z]|Digit\d)$/.test(e.code)) return;
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "PageUp", "PageDown"].includes(e.code)) e.preventDefault();
   if (guion.activo && e.code === "Space" && !enUI) { e.preventDefault(); guion.alternarPausa(); return; }
   if (guion.activo && e.code === "Escape") guion.parar();
   else if (guion.activo && !guion.pausado && !e.code.startsWith("Shift") && !["h", "m", "r"].includes(letra(e))) guion.alternarPausa();
   int.teclas.add(e.code);
   if (e.repeat) return;
-  const atajos = int.ajustes.atajos !== false; // WCAG 2.1.4: los atajos de una letra se pueden desactivar (Ajustes)
   const modificador = e.ctrlKey || e.metaKey || e.altKey;
-  if (estado.modo === "tour" && !modificador && (atajos || !/^(Key[A-Z]|Digit\d)$/.test(e.code) || ["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"].includes(e.code))) {
+  if (estado.modo === "tour" && !modificador) {
     const dir = { KeyW: 0, ArrowUp: 0, Enter: 0, KeyS: Math.PI, ArrowDown: Math.PI, KeyA: -Math.PI / 2, ArrowLeft: -Math.PI / 2, KeyD: Math.PI / 2, ArrowRight: Math.PI / 2 }[e.code];
     if (dir !== undefined) avanzar(dir);
     if (e.code === "Equal" || e.code === "NumpadAdd") fijarZoom(int.zoom * 0.85);
@@ -1682,7 +1686,7 @@ function elem(etiqueta, clase, txt) {
 }
 function boton(txt, clase) { const b = elem("button", clase, txt); b.type = "button"; return b; }
 const localeActual = () => i18n?.localeActual?.() ?? estado.idioma;
-const m2Corto = (a) => `${new Intl.NumberFormat(localeActual(), { maximumFractionDigits: 0 }).format(a)} m²`;
+const m2Corto = (a) => `${new Intl.NumberFormat(localeActual(), { maximumFractionDigits: 0, useGrouping: "always" }).format(a)} m²`;
 
 function mostrarFicha(p) {
   const f = $("#ficha");
@@ -1768,7 +1772,7 @@ function renderAyuda() {
   }
   secciones.push([plano ? "ayuda.sec_radar" : "ayuda.sec_estancias",
     [...(plano ? [r && atajos ? "ayuda.radar_raton" : "ayuda.radar_tactil"] : []), [r && atajos ? "ayuda.plano_raton" : "ayuda.plano_tactil", que]]]);
-  if (!EMBED && $("#paneles")?.childElementCount) { // los paneles siempre ofrecen «Foto de la vista» y «Contactar»
+  if (!EMBED && $("#paneles [data-k='contactar']")) { // sin canal de contacto, los paneles no ofrecen «Contactar»
     secciones.push(["ayuda.sec_foto", [["ayuda.foto", x("contacto.hacer_foto")], ["ayuda.contactar", x("contacto.corto")]]]);
   }
   if (hayEstiloYLuz()) secciones.push(["ayuda.sec_estilo", [["ayuda.estilo", x("personalizar.titulo")], ["ayuda.antes_despues", x("comparar.titulo")]]]);
@@ -1791,6 +1795,8 @@ const ICONOS = {
   camara: '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.4-2h6.2l1.4 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>',
   estilo: '<path d="M14.5 4.5 19.5 9.5 11 18l-5-5z"/><path d="M6 13c-2 1-2.5 3-2.5 6.5C7 19.5 9 19 10 17"/>',
   ayuda: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17h.01"/>',
+  acercar: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M7.5 10.5h6M10.5 7.5v6"/>',
+  alejar: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M7.5 10.5h6"/>',
   ok: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 };
 const ALIAS_ICONOS = { globo: "idioma", play: "guiada", regla: "medir", pincel: "estilo", foto: "camara", mapa: "plano", estancias: "plano", movil: "giroscopio" };
@@ -1855,6 +1861,13 @@ function agregarMas({ id, texto: txt, icono, accion, orden = 50, donde = "siempr
   return true;
 }
 function quitarMas(id) { const ok = itemsMas.delete(String(id)); actualizarBtnMas(); return ok; }
+// WCAG 2.5.1: en táctil el zoom no depende solo del pellizco: «Acercar» y «Alejar» en «Más» (recorrido y maqueta)
+if (esTactil) {
+  const conZoom = () => estado.modo === "tour" || estado.modo === "maqueta";
+  const zoom = (si) => () => { if (estado.modo === "maqueta") maqueta?.acercar(si); else fijarZoom(int.zoom * (si ? 0.8 : 1.25)); };
+  agregarMas({ id: "zoom-acercar", texto: () => tr("comun.acercar"), icono: "acercar", accion: zoom(true), orden: 25, donde: conZoom });
+  agregarMas({ id: "zoom-alejar", texto: () => tr("comun.alejar"), icono: "alejar", accion: zoom(false), orden: 26, donde: conZoom });
+}
 function actualizarBtnMas() {
   const b = $("#btn-mas");
   b.hidden = !listaMas().length; // sin elementos, sin botón
@@ -2235,7 +2248,7 @@ function precioPortada(i) {
   if (typeof n === "string") n = Number(n.replace(/[^\d,.]/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", "."));
   if (!(n > 0)) return "";
   let s;
-  try { s = new Intl.NumberFormat(localeActual(), { style: "currency", currency: i.moneda || "EUR", maximumFractionDigits: 0 }).format(n); }
+  try { s = new Intl.NumberFormat(localeActual(), { style: "currency", currency: i.moneda || "EUR", maximumFractionDigits: 0, useGrouping: "always" }).format(n); }
   catch { s = `${Math.round(n).toLocaleString()} €`; }
   return s + (i.operacion === "alquiler" ? tr("ficha.mes") : "");
 }

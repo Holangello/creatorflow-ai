@@ -128,10 +128,11 @@ let uid = 0;
 const nuevoId = (p) => `pn-${p}-${++uid}`;
 
 // ------------------------------------------------------------------ formato y validación
-const fmtNum = (n, d = 0) => new Intl.NumberFormat(localeActual(), { maximumFractionDigits: d, minimumFractionDigits: 0 }).format(n);
+// useGrouping "always": «1.200 €» y «3.793 €/m²» como en los portales (en español, Intl no agrupa las cifras de cuatro dígitos)
+const fmtNum = (n, d = 0) => new Intl.NumberFormat(localeActual(), { maximumFractionDigits: d, minimumFractionDigits: 0, useGrouping: "always" }).format(n);
 function fmtMoneda(n, d = 0) {
   const moneda = T?.inmueble?.moneda ?? "EUR";
-  try { return new Intl.NumberFormat(localeActual(), { style: "currency", currency: moneda, maximumFractionDigits: d, minimumFractionDigits: d }).format(n); }
+  try { return new Intl.NumberFormat(localeActual(), { style: "currency", currency: moneda, maximumFractionDigits: d, minimumFractionDigits: d, useGrouping: "always" }).format(n); }
   catch { return `${fmtNum(n, d)} ${moneda}`; }
 }
 const m2 = (n) => `${fmtNum(n, n < 100 ? 1 : 0)} m²`;
@@ -349,7 +350,12 @@ const marcarMovimiento = (si) => document.documentElement.classList.toggle("pn-s
 function alCambiarTema() {
   if (!raiz) return;
   pintarApariencia();
-  requestAnimationFrame(() => colocar());
+  requestAnimationFrame(() => {
+    colocar();
+    // con otra talla, el campo en el que se escribe puede quedar bajo el pie fijo del diálogo: se vuelve a enseñar (M14)
+    const f = document.activeElement;
+    if (f?.closest?.(".pn-dialogo") && f.matches("input, textarea, select")) f.scrollIntoView({ block: "nearest" });
+  });
 }
 
 // ------------------------------------------------------------------ datos derivados
@@ -551,19 +557,19 @@ function cerrarTodo() {
 // Una sola pieza en todos los tamaños: precio y datos (abren la ficha), «Contactar», «Foto de la vista» y, según el
 // tamaño, «Estilo y luz» o las acciones con texto. La ficha se despliega desde la propia tarjeta, que hace de cabecera.
 function tarjeta() {
-  const lateral = ui.disp === "lateral";
-  const fotoVista = botonIconoTexto("foto-vista", "camara", tr("contacto.hacer_foto"), fotoDeLaVista, { oculto: !puedeCapturar() });
+  const lateral = ui.disp === "lateral", contactar = canalContacto() !== "ninguno" ? botonContactar() : null;
+  const fotoVista = botonIconoTexto("foto-vista", "camara", tr("contacto.hacer_foto"), fotoDeLaVista, { oculto: !contactar || !puedeCapturar() });
   const t = h("aside", { class: "pn-tarjeta c8-vidrio c8-vidrio--texto", id: "pn-tarjeta", "aria-label": tr("tarjeta.titulo") },
     h("div", { class: "pn-t-cab" },
       ui.disp === "hoja" ? h("span", { class: "pn-asa", "aria-hidden": "true" }, h("span")) : null,
       botonResumen(),
       // escritorio: «Contactar» y «Foto de la vista» en dos columnas; móvil: una fila de botones que, si con la talla
       // elegida no cabe junto al precio, pasa entera a una segunda fila (paneles.css)
-      lateral ? [botonContactar(), fotoVista] : h("div", { class: "pn-t-botones" },
+      lateral ? [contactar, fotoVista] : h("div", { class: "pn-t-botones" },
         fotoVista,
         hayEstiloLuz() ? botonIconoTexto("estilo-luz", "pincel", tr("personalizar.titulo"), (e) => alternarDialogo("estilo", e.currentTarget),
           { "aria-haspopup": "dialog", "aria-expanded": String(ui.dialogo === "estilo") }) : null,
-        botonContactar(),
+        contactar,
         masDelNucleo() ? null : botonIconoTexto("mas", "mas", tr("mas.titulo"), (e) => alternarMenu(e.currentTarget), { "aria-haspopup": "menu", "aria-expanded": String(ui.menu) }))),
     lateral ? acciones() : null,
     panel());
@@ -1152,7 +1158,7 @@ function abrirDialogo(tipo, opener) {
   const d = raiz.querySelector(".pn-dialogo");
   requestAnimationFrame(() => (d?.querySelector("[autofocus]") ?? d?.querySelector(".pn-dlg-tit"))?.focus({ preventScroll: true }));
   // «Contactar» sin fotos adjunta la vista actual como foto 1 (se puede quitar)
-  if (tipo === "contacto" && ui.envio.estado === "inactivo" && !ui.capturas.length && !ui.autoQuitada && puedeCapturar()) tomarCaptura({ auto: true });
+  if (tipo === "contacto" && canalContacto() !== "ninguno" && ui.envio.estado === "inactivo" && !ui.capturas.length && !ui.autoQuitada && puedeCapturar()) tomarCaptura({ auto: true });
 }
 
 function cerrarDialogo() {
@@ -1439,9 +1445,11 @@ function pantallaPegar() {
 }
 
 // Validación: el error de un campo se borra al escribir y se comprueba al salir del campo
+// Por WhatsApp o email la inmobiliaria ya sabe cómo responder: el teléfono es opcional (minimización de datos, RGPD)
+const telefonoOpcional = () => ["whatsapp", "email"].includes(canalContacto());
 const VALIDAR = {
   nombre: (v) => (String(v ?? "").trim() ? null : tr("contacto.err_nombre")),
-  telefono: (v) => (telefonoValido(v) ? null : tr("contacto.err_telefono")),
+  telefono: (v) => ((!String(v ?? "").trim() && telefonoOpcional()) || telefonoValido(v) ? null : tr("contacto.err_telefono")),
   pregunta: (v) => (String(v ?? "").trim() ? null : tr("contacto.err_pregunta")),
   privacidad: (v) => (v ? null : tr("contacto.err_privacidad")),
 };
@@ -1484,6 +1492,7 @@ function dlgContacto() {
   if (env.estado === "exito") return pantallaExito();
   if (env.estado === "pegar") return pantallaPegar();
   const b = ui.borrador, canal = canalContacto();
+  if (canal === "ninguno") return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: h("p", { class: "pn-nota", role: "status" }, tr("contacto.sin_canal")) };
   const marca = R(T.marca?.nombre) || R(T.agente?.nombre) || "—";
   const ids = { n: nuevoId("c"), t: nuevoId("c"), p: nuevoId("c"), v: nuevoId("c"), rg: nuevoId("c"), z: nuevoId("c") };
   const err = env.campos ?? {};
@@ -1515,7 +1524,8 @@ function dlgContacto() {
   // 3) datos de contacto (se recuerdan para la próxima vez)
   const nombre = h("input", { id: ids.n, name: "nombre", type: "text", autocomplete: "name", required: true, "data-k": "c-nombre", value: b.nombre,
     "aria-invalid": err.nombre ? "true" : null, "aria-describedby": desc(ids.n, "nombre"), oninput: alEscribir("nombre"), onblur: alSalir("nombre") });
-  const telefono = h("input", { id: ids.t, name: "telefono", type: "tel", inputmode: "tel", autocomplete: "tel", required: true, "data-k": "c-telefono", placeholder: "+34 600 123 456", value: b.telefono,
+  const telOpcional = telefonoOpcional();
+  const telefono = h("input", { id: ids.t, name: "telefono", type: "tel", inputmode: "tel", autocomplete: "tel", required: !telOpcional, "data-k": "c-telefono", placeholder: "+34 600 123 456", value: b.telefono,
     "aria-invalid": err.telefono ? "true" : null, "aria-describedby": desc(ids.t, "telefono"), oninput: alEscribir("telefono"), onblur: alSalir("telefono") });
   const urlPriv = urlSegura(T.contacto?.url_privacidad);
   const viaWhatsApp = canal === "whatsapp", wa = numeroWhatsApp();
@@ -1529,7 +1539,7 @@ function dlgContacto() {
       campo("pregunta", ids.p, tr("contacto.pregunta"), [h("div", { class: "pn-chips", role: "group", "aria-label": tr("contacto.sugerencias") }, chips), pregunta]),
       h("div", { class: "pn-fila-datos" },
         campo("nombre", ids.n, tr("contacto.nombre"), nombre),
-        campo("telefono", ids.t, tr("contacto.telefono"), telefono))),
+        campo("telefono", ids.t, tr(telOpcional ? "contacto.telefono_opcional" : "contacto.telefono"), telefono))),
     // 4) pie fijo: privacidad con su primera capa plegada, envío y WhatsApp directo
     h("div", { class: "pn-form-pie" },
     h("div", { class: "pn-campo pn-check" + (err.privacidad ? " pn-invalido" : "") },
@@ -1576,11 +1586,13 @@ function urlWebhook() {
 function canalContacto() {
   const c = T.contacto ?? {};
   const wa = !!numeroWhatsApp(), hook = !!urlWebhook(), mail = emailValido(T.agente?.email);
+  // Sin WhatsApp, CRM ni email no se ofrece «Contactar»: una consulta que no llega a nadie es peor que no ofrecerla.
+  if (!wa && !hook && !mail) return "ninguno";
   let modo = ["whatsapp", "webhook", "ambos"].includes(c.modo) ? c.modo : hook ? "webhook" : "whatsapp";
   if (modo === "ambos" && !hook) modo = "whatsapp";
   if (modo === "ambos" && !wa) modo = "webhook";
-  if (modo === "whatsapp" && !wa) modo = hook ? "webhook" : mail ? "email" : "whatsapp";
-  if (modo === "webhook" && !hook) modo = wa ? "whatsapp" : mail ? "email" : "whatsapp";
+  if (modo === "whatsapp" && !wa) modo = hook ? "webhook" : "email";
+  if (modo === "webhook" && !hook) modo = wa ? "whatsapp" : "email";
   return modo;
 }
 function numeroWhatsApp() {
@@ -1612,7 +1624,7 @@ function mensajeWhatsApp(d) {
     tr("contacto.msg_interes", { x: [d.referencia, titulo()].filter(Boolean).join(" – ") }),
     "",
     `*${tr("contacto.msg_nombre")}:* ${d.nombre}`,
-    `*${tr("contacto.msg_telefono")}:* ${d.telefono}`,
+    d.telefono ? `*${tr("contacto.msg_telefono")}:* ${d.telefono}` : null,
     `*${tr("contacto.msg_zona")}:* ${d.estancia}`,
     `*${tr("contacto.msg_pregunta")}:* ${d.pregunta}`,
     ui.capturas.length ? `*${tr("contacto.msg_fotos")}:* ${ui.capturas.map((c, i) => `${i + 1} · ${c.estancia}`).join(", ")}` : null,
@@ -1931,10 +1943,11 @@ function dlgAjustes() {
       h("input", { id, type: "range", class: "c8-deslizador", min: "0.5", max: "2", step: "0.1", value: String(v), "data-k": "aj-velocidad", style: `--valor:${((v - 0.5) / 1.5) * 100}%`,
         oninput: (e) => { const x = +e.target.value; out.textContent = `${fmtNum(x, 1)}×`; cambiarAjuste({ sensibilidad: x, sensibilidadTactil: x }); } }),
       juego ? ajuste("wasd", tr("ajustes.modo_juego_wasd"), tr("ajustes.modo_juego_nota"), "modoJuegoWASD") : null,
-      juego ? ajuste("clic", tr("ajustes.captura_clic"), null, "capturaConClic") : null,
-      ajuste("atajos", tr("ajustes.atajos"), tr("ajustes.atajos_nota"))));
+      juego ? ajuste("clic", tr("ajustes.captura_clic"), null, "capturaConClic") : null));
   }
+  // Atajos de una letra (WCAG 2.1.4) también en táctil: un iPad o un móvil con teclado reciben todas las letras
   partes.push(grupo(tr("ajustes.accesibilidad"),
+    ajuste("atajos", tr("ajustes.atajos"), tr("ajustes.atajos_nota")),
     ajuste("movimiento", tr("ajustes.reducir_movimiento"), tr("ajustes.reducir_nota"), "reducirMovimiento"),
     temaApi() ? interruptor("transparencia", tr("ajustes.reducir_transparencia"), tr("ajustes.transparencia_nota"), ef.transparencia === "reducida",
       (si) => fijarTema("transparencia", si ? "reducida" : "normal")) : null));

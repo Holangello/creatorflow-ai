@@ -161,5 +161,39 @@
     <noscript><p class="sin-js">Este recorrido necesita JavaScript.</p></noscript>
   </div>
   <script type="module" src="visor.js"></script>
+  <script>
+    // Contingencia: si el visor no arranca (sin conexión, o el CDN de three.js caído o bloqueado), la portada lo dice y
+    // ofrece reintentar y el WhatsApp de la agencia, en vez de quedarse cargando para siempre. Si solo tarda, lo avisa.
+    (() => {
+      const L = { es: ["No se ha podido cargar el recorrido. Comprueba la conexión e inténtalo de nuevo.", "Está tardando más de lo normal…", "Reintentar"],
+        en: ["The tour couldn't load. Check your connection and try again.", "This is taking longer than usual…", "Try again"],
+        fr: ["Impossible de charger la visite. Vérifiez votre connexion et réessayez.", "Le chargement prend plus de temps que prévu…", "Réessayer"],
+        de: ["Der Rundgang konnte nicht geladen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.", "Das dauert länger als üblich…", "Erneut versuchen"] };
+      const [error, lento, reintentar] = L[(navigator.language || "es").slice(0, 2)] || L.en;
+      const avisar = (fallo) => {
+        if (window.visor && !fallo) return;
+        const c = document.querySelector("#portada .contenido") || document.body;
+        c.querySelector(".fallo-carga")?.remove();
+        const d = Object.assign(document.createElement("div"), { className: "fallo-carga" });
+        d.setAttribute("role", "alert");
+        const p = Object.assign(document.createElement("p"), { textContent: fallo ? error : lento });
+        const b = Object.assign(document.createElement("button"), { type: "button", className: "c8-boton c8-boton--primario", textContent: reintentar, onclick: () => location.reload() });
+        d.append(p, b);
+        c.append(d);
+        if (!fallo) return;
+        c.querySelector(".progreso")?.setAttribute("hidden", "");
+        fetch(new URLSearchParams(location.search).get("tour") || "tour.json").then((r) => r.json()).then((t) => {
+          let n = String(t.contacto?.whatsapp ?? t.agente?.telefono ?? "").trim().replace(/^00/, "+");
+          const intl = n.startsWith("+");
+          n = n.replace(/\D/g, "");
+          if (!intl && n.length === 9 && /^[6789]/.test(n)) n = "34" + n;
+          if (n.length >= 8 && n.length <= 15) d.append(Object.assign(document.createElement("a"),
+            { className: "c8-boton c8-boton--secundario", href: `https://wa.me/${n}`, target: "_blank", rel: "noopener", textContent: "WhatsApp" }));
+        }).catch(() => {});
+      };
+      document.currentScript.previousElementSibling.addEventListener("error", () => avisar(true));
+      setTimeout(() => avisar(false), 30000);
+    })();
+  </script>
 </body>
 </html>

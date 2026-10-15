@@ -506,6 +506,7 @@ try {
     if (!(await inf.requiere(p, piezas("ficha"), "ficha tras cambiar de tour"))) return;
     await p.click(SEL.ficha);
     await p.evaluate(() => window.__cambiarTour({ version: 2, titulo: "Chalet del Estudio", idiomas: ["es", "en"], marca: { nombre: "Otra Inmo", color: "#2f6f9f" },
+      contacto: { whatsapp: "34600111222" },
       inmueble: { referencia: "EST-9", operacion: "venta", tipo: "chalet", superficie_construida: 210, habitaciones: 5 }, panoramas: [{ id: "a", nombre: "Entrada", x: 0, z: 0, imagen: "a.jpg" }] }));
     // el color de marca lo fija el núcleo (--c-acento); los paneles lo usan en su botón principal
     const r = await p.evaluate((S) => ({ titulo: document.querySelector(S.titulo)?.textContent, precio: document.querySelector(S.precioCabecera)?.textContent, hip: !!document.querySelector(S.hipoteca),
@@ -515,6 +516,12 @@ try {
     await p.evaluate(() => { window.visor.tour = { ...window.visor.tour, titulo: "Sin evento", inmueble: { precio: 125000, operacion: "venta" } }; window.visor.emitir("nodo", { id: "a" }); });
     inf.ok(await esperar(p, (S) => document.querySelector(S.titulo)?.textContent === "Sin evento" && document.querySelector(S.precioCabecera)?.textContent.includes("125.000"), SD, 3000).then(() => true, () => false),
       "si visor.tour cambia sin evento, se detecta en el siguiente repintado");
+    // Sin WhatsApp, CRM ni email no se ofrece contactar: una consulta que no llega a nadie no se puede «enviar» (M1)
+    await p.evaluate(() => window.__cambiarTour({ version: 2, titulo: "Sin contacto", inmueble: { precio: 99000, operacion: "venta" },
+      panoramas: [{ id: "a", nombre: "Entrada", x: 0, z: 0, imagen: "a.jpg" }] }));
+    const sc = await esperar(p, (S) => document.querySelector(S.titulo)?.textContent === "Sin contacto", SD, 3000)
+      .then(() => p.evaluate((S) => ({ contactar: !!document.querySelector(S.contacto), foto: !!document.querySelector("[data-k='foto-vista']") }), SD), () => null);
+    inf.ok(sc && !sc.contactar && !sc.foto, "sin WhatsApp, CRM ni email no se ofrecen «Contactar» ni «Foto de la vista» (nunca una confirmación falsa)", sc);
   });
 
   // ================================================================== 11 · música
@@ -724,6 +731,50 @@ try {
       await esperar(q, () => window.visor?.listo === true, null, 90000);
       inf.ok(await q.evaluate((s) => document.querySelector(s).hidden, SEL.nucleoPantalla), "sin la API de pantalla completa (p. ej. iPhone) el botón se oculta");
     }
+  });
+
+  await inf.bloque("Núcleo real: atajos de una letra apagados (WCAG 2.1.4) y zoom sin pellizco (2.5.1)", async () => {
+    const ctx = await contexto(navegador, { ancho: 1280, alto: 800 });
+    inf.cerrarAlFinal.push(ctx);
+    const p = await abrir(ctx, `${base}index.html?demo`);
+    await esperar(p, () => window.visor?.listo === true, null, 90000);
+    if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar);
+    await p.evaluate(() => window.visor.ajustes({ atajos: false }));
+    const vista = (q) => q.evaluate(() => ({ nodo: window.visor.estado.nodo, rumbo: Math.round(window.visor.vista().rumbo), fov: window.visor.vista().fov }));
+    const mantener = async (q, tecla) => { await q.keyboard.down(tecla); await q.waitForTimeout(900); await q.keyboard.up(tecla); await q.waitForTimeout(600); };
+    const v0 = await vista(p);
+    await p.focus("#btn-radar");
+    await p.keyboard.press("s"); await mantener(p, "e");
+    const v1 = await vista(p);
+    inf.ok(v1.nodo === v0.nodo && v1.rumbo === v0.rumbo, "con los atajos apagados, S y E no mueven nada con el foco en un botón", { v0, v1 });
+    await p.focus("#lienzo"); await mantener(p, "e");
+    const v2 = await vista(p);
+    inf.ok(v2.rumbo !== v1.rumbo, "con el foco en el lienzo (role=application) las letras sí giran la vista", { v1, v2 });
+    // La maqueta también con el teclado (WCAG 2.1.1): flechas para girar, + y − para acercar
+    await p.evaluate(() => window.visor.modo("maqueta"));
+    await p.waitForTimeout(2500);
+    await p.focus("#lienzo");
+    const camaraMaqueta = () => p.evaluate(() => String(window.visor._debug.maqueta));
+    let antesMaqueta = await camaraMaqueta();
+    for (let i = 0; i < 10; i++) { await p.waitForTimeout(500); const c = await camaraMaqueta(); if (c === antesMaqueta) break; antesMaqueta = c; } // que se pare el encuadre inicial
+    for (const k of ["ArrowLeft", "ArrowLeft", "ArrowLeft", "Equal", "Equal"]) await p.keyboard.press(k);
+    await p.waitForTimeout(1200);
+    const trasMaqueta = await camaraMaqueta();
+    inf.ok(trasMaqueta !== antesMaqueta, "la maqueta gira y se acerca con el teclado (flechas y +)", { antesMaqueta, trasMaqueta });
+
+    const ctxT = await contexto(navegador, { ancho: 390, alto: 844, movil: true, escala: 2 });
+    inf.cerrarAlFinal.push(ctxT);
+    const q = await abrir(ctxT, `${base}index.html?demo`);
+    await esperar(q, () => window.visor?.listo === true, null, 90000);
+    if (await q.$(SEL.portadaEmpezar)) await q.click(SEL.portadaEmpezar);
+    const f0 = (await vista(q)).fov;
+    await q.evaluate(() => { dispatchEvent(new PointerEvent("pointermove")); window.visor.mas.abrir(); });
+    await q.click("#menu-mas [data-id='zoom-acercar']");
+    const f1 = (await vista(q)).fov;
+    inf.ok(f1 < f0, "en táctil, «Acercar» de «Más» acerca la vista sin pellizcar", { f0, f1 });
+    await q.evaluate(() => { dispatchEvent(new PointerEvent("pointermove")); window.visor.mas.abrir(); });
+    await q.click("#menu-mas [data-id='pn-ajustes']");
+    inf.ok(!!(await q.waitForSelector("[data-k='aj-atajos']", { timeout: 5000 }).catch(() => null)), "en táctil, Ajustes ofrece desactivar los atajos de una letra (un iPad con teclado los recibe)");
   });
 
   await inf.bloque("Núcleo real: barra de captura sin tapar la galería (3 tamaños)", async () => {

@@ -28,7 +28,16 @@ export function crearMaqueta(ctx) {
     controles.minDistance = 3;
     controles.maxDistance = 80;
     controles.screenSpacePanning = false;
+    // Teclado (WCAG 2.1.1), con el foco en el lienzo: ← → giran, ↑ ↓ inclinan, + − acercan y alejan
+    ctx.lienzo.addEventListener("keydown", (e) => {
+      if (!activa || e.ctrlKey || e.metaKey || e.altKey) return;
+      const f = { ArrowLeft: () => controles.rotateLeft(0.15), ArrowRight: () => controles.rotateLeft(-0.15), ArrowUp: () => controles.rotateUp(0.1),
+        ArrowDown: () => controles.rotateUp(-0.1), Equal: () => acercar(true), NumpadAdd: () => acercar(true), Minus: () => acercar(false), NumpadSubtract: () => acercar(false) }[e.code];
+      if (f) { e.preventDefault(); f(); }
+    });
   }
+  /** Acercar o alejar sin rueda ni pellizco (teclado y «Más» en táctil · WCAG 2.5.1). */
+  const acercar = (si) => { if (activa && controles) controles[si ? "dollyIn" : "dollyOut"](1.25); };
 
   const capa = document.createElement("div");
   capa.id = "maqueta-capa";
@@ -157,6 +166,7 @@ export function crearMaqueta(ctx) {
     },
     escena: () => escena,
     prepararControles,
+    acercar,
     activar(si) {
       if (si && !construida) construir();
       if (!si && hover) { hover.material.opacity = hover.userData.opacidadBase; hover = null; }

@@ -45,6 +45,10 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | El tour no tiene plano | El radar empieza oculto y se puede mostrar con R o con su botón |
 | Un toque cuando la interfaz está oculta | Solo la despierta: nunca navega por sorpresa |
 | Un icono SVG con scripts en el menú «Más» | Se descarta |
+| El visitante desactiva los atajos de una letra (WCAG 2.1.4) | Las letras solo actúan con el foco en el lienzo o en el modo juego; el interruptor está también en táctil |
+| El visitante no puede pellizcar (un dedo, puntero de cabeza) | «Acercar» y «Alejar» en «Más» (recorrido y maqueta); la maqueta gira con las flechas y se acerca con + y − |
+| El recorrido no tiene WhatsApp, CRM ni email | No se ofrecen «Contactar» ni «Foto de la vista»: nunca una confirmación de algo que no llega a nadie |
+| three.js no llega (CDN caído, red de empresa o filtro) | El ZIP publicado lleva three.js dentro. Donde se usa el CDN, la portada dice «No se ha podido cargar el recorrido» con «Reintentar» y el WhatsApp de la agencia; si solo tarda más de 30 s, lo avisa |
 | Teclado AZERTY | W A S D y Q E van por posición física; R, M, H y V por la letra. Los textos muestran las letras reales en Chromium; en Firefox y Safari dicen W A S D |
 | El vidrio adaptativo no puede medir la foto (lectura fallida, contexto gráfico perdido, foto sin CORS, sin WebGL) | Se quitan `data-luz-max` y `data-luz-min`: queda el vidrio del peor caso, que siempre cumple AA |
 | «Reducir transparencia», paseo libre o maqueta | No se mide la luz (vidrio opaco o del peor caso) |
@@ -82,6 +86,7 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | La URL no es válida | Se rechaza al escribirla y al exportar; Revisar la señala |
 | Falta el visor compilado para el HTML autónomo | Error claro: «ejecuta npm run build» |
 | Hay documentos privados | Nunca salen en el ZIP para la web ni en el HTML autónomo, solo en la copia de seguridad |
+| Se publica sin WhatsApp ni CRM | El ZIP y el archivo único piden confirmación: el recorrido no tendrá «Contactar» |
 | No hay almacenamiento local para «Mi inmobiliaria» | El perfil se aplica solo a este proyecto y se avisa |
 | El perfil está incompleto | Nunca pisa los datos propios de un proyecto |
 | El enlace de la Guía viene mal formado | Se ignora lo raro sin romper nada |
@@ -107,6 +112,7 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | MediaRecorder no admite MP4 | Se graba en WebM con la duración corregida |
 | Se cancela una grabación | Se detiene de verdad y se restaura el visor |
 | El tour de la demo contiene texturas 3D | La copia del tour las descarta antes de serializar (antes agotaba la memoria) |
+| No se puede traer three.js al crear el ZIP | El `index.html` del ZIP se queda con el CDN y se avisa al descargar |
 | No se puede leer `tema.js` al crear el HTML autónomo | Se avisa y el archivo sale con el tema oscuro por defecto de `tema.css` |
 
 ### Diseño (`tema.css` / `tema.js`)

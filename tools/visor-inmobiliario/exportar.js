@@ -205,10 +205,10 @@ async function reescalar(blob, maxLado, { tipo = "auto", calidad = 0.86 } = {}) 
 
 function formatoPrecio(n, moneda = "EUR", idioma = "es") {
   if (n == null || n === "") return "";
-  try { return new Intl.NumberFormat(idioma === "es" ? "es-ES" : idioma, { style: "currency", currency: moneda, maximumFractionDigits: 0 }).format(n); }
+  try { return new Intl.NumberFormat(idioma === "es" ? "es-ES" : idioma, { style: "currency", currency: moneda, maximumFractionDigits: 0, useGrouping: "always" }).format(n); }
   catch { return `${n} ${moneda}`; }
 }
-const num = (n, dec = 0, idioma = "es") => new Intl.NumberFormat(idioma === "es" ? "es-ES" : idioma, { minimumFractionDigits: dec, maximumFractionDigits: dec }).format(n);
+const num = (n, dec = 0, idioma = "es") => new Intl.NumberFormat(idioma === "es" ? "es-ES" : idioma, { minimumFractionDigits: dec, maximumFractionDigits: dec, useGrouping: "always" }).format(n);
 
 // Textos del plano y del dossier en los idiomas del visor (si falta uno, inglés).
 const ROTULOS = {
@@ -310,6 +310,37 @@ const ARCHIVOS_VISOR = [
 // El recorrido publicado nunca usa la demo ni las herramientas de exportación: no viajan en el ZIP (≈ 193 kB).
 const NO_PUBLICAR = new Set(["demo.js", "exportar.js", "vendor/fflate.js", "vendor/fix-webm-duration.js"]);
 const SIN_COMPRIMIR = /\.(jpe?g|png|webp|avif|gif|mp4|webm|mov|sog|spz|ksplat|glb|zip|pdf|woff2?|mp3|m4a|aac|ogg|opus)$/i;
+
+/**
+ * three.js (y Spark si hay un splat) viajan en el ZIP: el recorrido publicado no depende de un CDN ni manda la IP de cada
+ * visitante a un tercero (M2). Se copian de las mismas direcciones fijas del importmap de index.html y el importmap pasa a
+ * rutas locales. Si no se pueden traer, index.html se queda con el CDN y se avisa.
+ */
+async function sinCDN(html, t, poner, avisos) {
+  const m = html.match(/<script type="importmap">([\s\S]*?)<\/script>/);
+  let mapa;
+  try { mapa = JSON.parse(m?.[1] ?? ""); } catch { return html; }
+  const im = mapa.imports ?? {}, abs = (u) => new URL(u, MODULO).href;
+  if (!im.three || !im["three/addons/"]) return html;
+  const libre = t.libre ?? {}, splat = libre.tipo === "splat" && !!im["@sparkjsdev/spark"], glb = libre.tipo === "glb" || (splat && !!libre.colisionador);
+  const jsm = ["controls/OrbitControls.js", ...(glb ? ["loaders/GLTFLoader.js", "utils/BufferGeometryUtils.js", "utils/SkeletonUtils.js"] : []), ...(splat ? ["postprocessing/Pass.js"] : [])];
+  const lista = [["vendor/three/build/three.module.min.js", abs(im.three)], ["vendor/three/build/three.core.min.js", new URL("three.core.min.js", abs(im.three)).href],
+    ...jsm.map((f) => [`vendor/three/examples/jsm/${f}`, abs(im["three/addons/"] + f)]), ...(splat ? [["vendor/spark/spark.module.js", abs(im["@sparkjsdev/spark"])]] : [])];
+  try {
+    const bajados = await Promise.all(lista.map(async ([ruta, url]) => {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return [ruta, await r.blob()];
+    }));
+    for (const [ruta, blob] of bajados) await poner(ruta, blob);
+  } catch (e) {
+    avisos.push(`No se pudo incluir three.js (${e.message}): el recorrido lo cargará de internet (cdn.jsdelivr.net)`);
+    return html;
+  }
+  const imports = { ...im, three: "./vendor/three/build/three.module.min.js", "three/addons/": "./vendor/three/examples/jsm/" };
+  if (splat) imports["@sparkjsdev/spark"] = "./vendor/spark/spark.module.js";
+  return html.replace(m[1], () => `\n    ${JSON.stringify({ ...mapa, imports }, null, 2).replace(/\n/g, "\n    ")}\n  `);
+}
 
 function leeme(t, idioma) {
   const titulo = texto(t.titulo, idioma) || "Recorrido virtual";
@@ -429,6 +460,7 @@ export async function exportarZIP(tour, archivos = new Map(), { incluirVisor = t
       } catch { /* sin red / file:// */ }
     }
     if (!salida["index.html"]) avisos.push("No se pudo incluir index.html del visor (¿exportando desde file://?)");
+    else salida["index.html"] = [strToU8(await sinCDN(new TextDecoder().decode(salida["index.html"][0]), t, poner, avisos)), { level: 6 }];
   }
   salida["LEEME.txt"] = [strToU8(leeme(t, t.idioma ?? "es")), { level: 6 }];
   onProgreso?.(0.9);

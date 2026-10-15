@@ -3,7 +3,7 @@
 //   · 3 · Para tus clientes (dossier, recorrido en un solo archivo y QR) · Avanzado (tour.json).
 // La copia de seguridad está en «Proyecto ▾». La web es la de «Mi inmobiliaria»; con web se escribe `url_publica`.
 import { slug, norm360, zipAlmacenado } from "./estudio-util.js";
-import { app, h, icono, emitir, on, toast, textoDe, colocado, calcularEnlaces, tourParaExportar, archivosParaExportar, rutasUsadas,
+import { app, h, icono, emitir, on, toast, confirmar, textoDe, colocado, calcularEnlaces, tourParaExportar, archivosParaExportar, rutasUsadas,
   fmtMB, archivosFaltantes, urlsNoValidas, urlPermitida, MENSAJE_URL, tienePlano, textosTraducibles, textoExacto, referenciaDe, VIDRIO } from "./estudio-nucleo.js";
 import { problemaVariante, nombreEstilo, origenDe } from "./estudio-variantes.js";
 import { fijarWeb, migrarWebAntigua } from "./estudio-perfil.js";
@@ -173,6 +173,15 @@ function webPublica() {
   const w = String(app.tour?.marca?.web ?? "").trim();
   return w && urlPermitida(w) && /^https?:\/\/[^/\s]+/i.test(w) ? w.replace(/\/+$/, "") : null;
 }
+/** Como el visor (canalContacto de paneles.js): sin WhatsApp, teléfono del agente, CRM ni email no ofrece «Contactar». */
+function sinContacto(t) {
+  const C = t.contacto ?? {}, A = t.agente ?? {}, num = (v) => RE_WA.test(String(v ?? "").replace(/[\s+()-]/g, ""));
+  return !num(C.whatsapp) && !num(A.telefono) && !/^https?:\/\/\S+$/i.test(String(C.webhook ?? "").trim()) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(A.email ?? "").trim());
+}
+/** Antes de descargar lo que se publica: sin contacto, el recorrido no tendrá «Contactar» y se pregunta (M1). */
+const seguirSinContacto = async () => !sinContacto(app.tour) || confirmar("Falta el contacto",
+  "Sin el WhatsApp o el CRM de tu inmobiliaria, el recorrido no tendrá «Contactar» y los visitantes no podrán preguntarte. Escríbelo en Mi inmobiliaria o descarga igualmente.",
+  "Descargar igualmente");
 /** Dirección del recorrido publicado (url_publica) o null si aún no hay web: nunca un dominio de ejemplo (E4). */
 const urlPublica = () => { const w = webPublica(); return w ? `${w}/tours/${nombreBase()}/` : null; };
 function descargar(blob, nombre) {
@@ -255,6 +264,7 @@ function pintarPublicar() {
 
   // 1 · Tu web
   const zipWeb = accion({ boton: "Descargar mi recorrido (ZIP)", necesita: ["exportarZIP"], fn: async (prog) => {
+    if (!(await seguirSinContacto())) return "Cancelado";
     const { t: tt, archivos } = datosPublicos();
     const z = await EXP.exportarZIP(tt, archivos, { incluirVisor: true, onProgreso: prog });
     descargar(z, `${ref}.zip`);
@@ -352,6 +362,7 @@ function pintarPublicar() {
   const unArchivo = tarjeta({ ic: "abrir", titulo: "Recorrido en un solo archivo", texto: "Se abre con doble clic, sin internet. Para enviarlo por email o WeTransfer, o enseñarlo en la oficina.",
     controles: [sel([["movil", "Calidad estándar (4K, recomendado)"], ["alta", "Alta calidad (8K, archivo grande)"]], op.calidad, (v) => { prefs.calidad = v; guardarPrefs(); }, "Calidad")],
     boton: "Crear el archivo", necesita: ["exportarHTMLAutonomo"], fn: async (prog) => {
+      if (!(await seguirSinContacto())) return "Cancelado";
       const { t: tt, archivos } = datosPublicos();
       const b = await EXP.exportarHTMLAutonomo(tt, archivos, { calidad: prefs.calidad ?? "movil", onProgreso: prog });
       descargar(b, `${ref}.html`);

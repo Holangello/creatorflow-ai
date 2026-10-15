@@ -86,7 +86,7 @@ export function tituloAuto(t = app.tour, idioma = "es") {
   const tipo = TIPOS_TXT[I.tipo]?.[k] ?? (I.tipo ? String(I.tipo).charAt(0).toUpperCase() + String(I.tipo).slice(1) : TIPOS_TXT.piso[k]);
   const partes = [`${tipo} ${OPERACION_TXT[I.operacion === "alquiler" ? "alquiler" : "venta"][k]}`];
   if (hab > 0) partes.push(`${hab} ${HAB_TXT[k]}`);
-  if (m2 > 0) partes.push(`${m2.toLocaleString(LOCALES[idioma] ?? "es-ES", { maximumFractionDigits: 1 })} m²`);
+  if (m2 > 0) partes.push(`${m2.toLocaleString(LOCALES[idioma] ?? "es-ES", { maximumFractionDigits: 1, useGrouping: "always" })} m²`);
   return partes.join(" · ");
 }
 /** Referencia del anuncio: la que escribió el agente o la automática del proyecto. */
@@ -740,7 +740,7 @@ export function elegirArchivos({ aceptar = "image/*", multiple = false, carpeta 
     i.click();
   });
 }
-export const fmtM2 = (v) => `${v.toLocaleString("es-ES", { maximumFractionDigits: 1, minimumFractionDigits: 1 })} m²`;
+export const fmtM2 = (v) => `${v.toLocaleString("es-ES", { maximumFractionDigits: 1, minimumFractionDigits: 1, useGrouping: "always" })} m²`;
 export const fmtMB = (b) => `${(b / 1048576).toLocaleString("es-ES", { maximumFractionDigits: 1 })} MB`;
 
 /** Capa «trabajando…» a pantalla completa (procesar un PDF, una copia de seguridad…). Se quita con .remove(). */

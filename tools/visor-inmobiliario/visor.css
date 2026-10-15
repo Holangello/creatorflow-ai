@@ -251,6 +251,8 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
 #portada .progreso { width: min(14rem, 60vw); height: 0.1875rem; margin-top: var(--e-3); border-radius: var(--r-pastilla); background: var(--c-pista); overflow: hidden; }
 #portada .progreso div { height: 100%; width: 5%; border-radius: inherit; background: var(--c-acento); transition: width var(--d-3) var(--salida); }
 #portada.lista .progreso { display: none; }
+#portada .fallo-carga { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-3); margin-top: var(--e-3); }
+#portada .fallo-carga p { flex-basis: 100%; margin: 0; color: var(--c-texto-2); text-wrap: pretty; }
 #portada .acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-3); margin-top: var(--e-3); }
 #portada .acciones .c8-boton { min-height: 3rem; padding: 0 var(--e-6); font-size: var(--t-cuerpo); }
 #portada .idiomas { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-1); }
