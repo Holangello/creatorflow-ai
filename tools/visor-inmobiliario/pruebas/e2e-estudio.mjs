@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 // Pruebas de extremo a extremo del Estudio (estudio.html) en Chromium sin cabeza.
 //   cd tools/visor-inmobiliario && node pruebas/e2e-estudio.mjs
+// Interfaz de la fase 3: 4 pasos (Fotos · Plano opcional · Datos · Publicar) y «Más herramientas» (Orientación y notas,
+// Estilo y luz, Extras), sin modos Rápido/Completo; «Proyecto ▾» (nuevo, copia, restaurar), «Mi inmobiliaria» y «?».
 // 0. Vista previa del Estudio (index.html?embed&estudio): arranca vacía, sin generar la demo, en menos de 2 s.
-// 1. Flujo completo: fotos (aviso 2:1) → plano (calibrar, colocar arrastrando, conectar, estancia, muro) → dirección
-//    (Alinear, nota) → variantes y máscara → datos → revisar → tour.json → recarga.
-// 2. Material del arquitecto (DXF, PDF de varias páginas, render 360, galería, GLB, documentos, música) y exportadores
-//    (ZIP web, fotos 360 GPano, plano, dossier, HTML autónomo, vídeo), deshacer/rehacer e importar el ZIP publicado.
-// 3. Modo rápido: nombres del Asistente, orden, datos con formato español, URL javascript: rechazada, vista previa sin
-//    datos de la demo, ZIP público sin documentos privados, copia de seguridad y restauración en un navegador limpio.
+// 1. Flujo completo: fotos (aviso 2:1) → plano (calibrar, colocar arrastrando, conectar, estancia, muro) → orientación
+//    (Alinear, nota) → estilo y luz (estilos, máscara, aviso legal) → datos y Mi inmobiliaria → antes de publicar →
+//    tour.json (con zonas automáticas) → recarga.
+// 2. Planos del arquitecto en Plano (DXF, PDF de varias páginas), render 360 como estilo «Proyecto», Extras (galería, GLB,
+//    documentos, música) y exportadores (ZIP web, fotos 360 GPano, plano, dossier con QR, archivo único, vídeo),
+//    deshacer/rehacer e importar el ZIP publicado desde «Proyecto ▾».
+// 3. Lista de la Guía («Usar»), orden, «Saltar» el plano, datos con formato español, Mi inmobiliaria (URL javascript:
+//    rechazada), vista previa sin datos de la demo, ZIP público sin documentos privados, copia de seguridad y restauración
+//    en un navegador limpio.
 // 4. iPad (objetivos ≥ 44 px, cajón de vista previa) y «Colocar» sin arrastrar a 1024×768.
-// 5. Fallo de guardado (cuota), atajos de una tecla desactivables y prueba del CRM.
+// 5. Fallo de guardado (cuota), atajos de una tecla desactivables desde «?» y prueba del CRM en Mi inmobiliaria.
 // Las imágenes, PDF, DXF, GLB y WAV se generan al vuelo (e2e-util.mjs). Sale con código 1 si algo falla.
 import { servir, lanzar, contexto, abrir } from "./comun.mjs";
 import { crearInforme, FaltaPieza, erroresDe, esperar, subir, descargar, leerZip, jsonDe, archivo, mediosEstudio, asegurarBuild } from "./e2e-util.mjs";
@@ -18,55 +23,57 @@ import { crearInforme, FaltaPieza, erroresDe, esperar, subir, descargar, leerZip
 // están en window.__SEL (se inyecta con addInitScript). Lo que se comprueba es el resultado en window.__estudio.tour,
 // en los archivos guardados y en lo que se descarga.
 const SEL = {
-  // estructura · el plan de la fase 3 quita los modos Rápido/Completo: «modoAntiguo» es su testigo
-  pasos: "#pasos button", pasosCompletos: "#pasos > button:not(.modo-compacto)", modoAntiguo: "#pasos .modo-compacto",
-  cambiarModo: "#pasos .modo-compacto:visible, #pasos .modo-actual .enlace:visible",
-  tituloSeccion: "#trabajo .cab-seccion h1", estadoGuardado: "#estado-guardado", botonesFotos: "#trabajo button",
-  abrir: "#btn-abrir", atajos: "#btn-atajos", interruptorAtajos: "#interruptor-atajos",
+  // estructura: 4 pasos y «Más herramientas»; «modoAntiguo» es el testigo de los modos Rápido/Completo (ya no existen)
+  pasos: "#pasos button", pasosPrincipales: "#pasos > button[data-seccion]", masHerramientas: "#pasos .mas-herramientas",
+  herramientas: "#lista-herramientas button[data-seccion]", modoAntiguo: "#pasos .modo-compacto, #pasos .modo-actual",
+  tituloSeccion: "#trabajo .cab-seccion h1", resumenRevisar: "#antes-de-publicar .cab-antes [role=status]", estadoGuardado: "#estado-guardado",
+  botonesFotos: "#trabajo button", ayuda: "#btn-ayuda", interruptorAtajos: "#interruptor-atajos", perfil: "#btn-perfil",
   botonVista: "#btn-vista", vista: "#vista", vistaNodo: "#vista-nodo", iframe: "#iframe-visor", vistaVacia: "#vacio", panelesVista: "#paneles", panelesRaiz: ".pn-raiz",
+  // menú «Proyecto ▾» (nombre del proyecto en la barra superior)
+  proyecto: "#btn-proyecto", proyectoNuevo: ".menu-proyecto >> text=Proyecto nuevo", restaurar: ".menu-proyecto >> text=Restaurar copia…",
+  copiaSeguridad: ".menu-proyecto >> text=Copia de seguridad",
   // diálogos
   dialogo: "dialog[open]", dialogoTitulo: "dialog[open] h2", dialogoCampo: "dialog[open] input", dialogoSelect: "dialog[open] select",
-  omitirFotos: "dialog[open] >> text=Omitir esas fotos", proyectoNuevo: "dialog[open] >> text=Proyecto nuevo",
-  modoCompleto: "dialog[open] .opcion-modo[data-modo=completo]", modoRapido: "dialog[open] .opcion-modo[data-modo=rapido]", crearProyecto: "dialog[open] >> text=Crear proyecto",
-  restaurar: "dialog[open] >> text=Restaurar copia de seguridad o ZIP", entendido: "dialog[open] >> text=Entendido",
+  omitirFotos: "dialog[open] >> text=Omitir esas fotos", entendido: "dialog[open] >> text=Entendido",
   importarPlano: "dialog[open] >> text=Importar plano", paginaPdf: "dialog[open] canvas", paginasPdf: "dialog[open] button:has(canvas)",
   pagina2: "dialog[open] >> text=Página 2", usarPagina: "dialog[open] >> text=Usar esta página",
-  usoRender: "dialog[open] select >> nth=0", estiloRender: "dialog[open] select >> nth=2", anadirRender: "dialog[open] button:text-is('Añadir')",
-  // fotos
+  // fotos · la lista de la Guía se ofrece con «Usar · No usar» (S-10)
   elegirFotos: "text=Elegir fotos", bajarPrimera: ".foto >> nth=0 >> [data-orden=bajar]",
-  ofertaGuia: "text=Nombres de tu Guía", // fase 3 (S-10): la lista de la Guía se ofrece con «Usar · No usar» en vez de aplicarse sola
-  continuarPlano: "[data-continuar=plano]", continuarSinPlano: "text=Continuar sin plano", continuarPublicar: "[data-continuar=exportar], [data-continuar=publicar]",
-  // plano
-  subirPlano: "text=Subir plano", subirPlanoMaterial: "button:has-text('Subir plano') >> nth=0", anadirPlanta: "button[title='Añadir planta']",
+  ofertaGuia: ".aviso-guia", usarGuia: ".aviso-guia button:text-is('Usar')",
+  continuarPlano: "[data-continuar=plano]", saltarPlano: "[data-continuar=datos]:has-text('Saltar')",
+  // plano (también los planos del arquitecto: DXF, PDF o imagen)
+  subirPlano: "text=Subir plano", anadirPlanta: "button[title='Añadir planta']",
   fichaFoto: ".ficha-arrastre", colocar: ".ficha-arrastre >> nth=0 >> text=Colocar", lienzoPlano: ".lienzo-plano canvas", panelSeleccion: ".panel-sel", herramientasPlano: ".herramientas",
-  // dirección y notas
+  // orientación y notas
   alinear: "#btn-alinear", alinearActivo: "#btn-alinear:not([disabled])", infoAlinear: "#info-alinear", objetivo: 'select[aria-label="Estancia hacia la que miras"]', nota: ".punto",
-  // variantes y máscara
-  subirVariantes: "text=Subir variantes", crearMascara: "button:has-text('Crear máscara') >> nth=-1", editorMascara: ".editor-mascara",
+  // estilo y luz: estilos (IA o render), zonas de color y aviso legal
+  mostrarTodo: "#estilo-todo", subirEstilos: "text=Subir estilos", primeraEstancia: ".selector-nodos button >> nth=0",
+  estiloVariante: '.variante select[aria-label="Estilo"]', origenVariante: '.variante select[aria-label="Origen de la imagen"]',
+  crearMascara: "[data-campo=zonas-color] button:has-text('Marcar zonas de color')", editorMascara: ".editor-mascara",
   lienzoMascara: ".editor-mascara canvas", zonaMascara: ".editor-mascara .lienzo", guardarMascara: ".editor-mascara >> text=Guardar máscara", cargando: ".cargando-global",
-  // material
-  subirRenders: "text=Subir renders 360", subirImagenes: "text=Subir imágenes", subirModelo: "text=Subir modelo", subirDocumentos: "text=Subir documentos", subirMusica: "text=Subir música",
+  textoRecomendado: "text=Usar texto recomendado",
+  // extras
+  subirImagenes: "text=Subir imágenes", subirModelo: "text=Subir modelo", subirDocumentos: "text=Subir documentos", subirMusica: "text=Subir música",
   publico: "label.check:has-text('Público')", licenciaMusica: "label:has-text('Tengo licencia') input", quitarDocumento: "button[aria-label='Quitar documento']",
-  filaDocumento: ".fila", casillaPublico: "label.check input",
+  filaDocumento: ".fila-doc", casillaPublico: "label.check input",
   // datos
   campo: (etiqueta) => `.campo:has(> label:text-is("${etiqueta}")) :is(input, textarea)`,
-  consumoC: '[aria-label="Consumo: letra C"]', emisionesD: '[aria-label="Emisiones: letra D"]',
-  pestanaContacto: "role=tab[name='Contacto y marca']", pestanaAvanzado: "role=tab[name='Avanzado']", verTodo: "text=Ver todos los datos",
-  apartadoColores: "summary:has-text('Colores, estilos')", textoRecomendado: "text=Usar texto recomendado",
-  apartadoSecciones: "summary:has-text('Secciones de la vivienda')", usarSecciones: "text=Usar secciones",
-  apartadoCrm: "summary:has-text('Enviar consultas a mi CRM')", probarCrm: "text=Enviar una consulta de prueba", resultadoCrm: ".avanzado[open] p[role=status]",
-  errorPrivacidad: ".campo:has(> label:text-is('Dirección de tu política de privacidad')) .error-campo",
-  errorCrm: ".campo:has(> label:text-is('Dirección de conexión que te da tu CRM')) .error-campo",
-  // revisar y publicar
-  comprobacionOk: ".comprobacion.ok b", comprobacionError: ".comprobacion.error b", avanzado: "details.avanzado",
+  consumoC: '[aria-label="Consumo: letra C"]', emisionesD: '[aria-label="Emisiones: letra D"]', contactoDatos: "[data-campo=contacto] button:has-text('Mi inmobiliaria')",
+  // Mi inmobiliaria: marca, contacto, privacidad y CRM (se escriben una vez para todos los recorridos)
+  campoPerfil: (etiqueta) => `dialog[open] .c8-campo:has(> label:text-is("${etiqueta}")) :is(input, textarea)`,
+  guardarPerfil: "dialog[open] button:text-is('Guardar')", errorPrivacidad: "dialog[open] [data-campo=url_privacidad] .c8-error",
+  apartadoCrm: "dialog[open] summary:has-text('Conectar con mi CRM')", probarCrm: "dialog[open] >> text=Enviar una consulta de prueba",
+  resultadoCrm: "dialog[open] .resultado-crm", errorCrm: "dialog[open] [data-campo=webhook] .c8-error",
+  // publicar («Antes de publicar» es su cabecera)
+  comprobacionOk: ".comprobacion.ok b", comprobacionError: ".comprobacion.error b", avanzado: "details.avanzado", webPublicar: "#web-publicar",
   zipWeb: "text=Descargar mi recorrido (ZIP)", fotos360: "text=Descargar fotos 360 (ZIP)", planoPng: "text=Descargar plano", dossier: "text=Abrir dossier",
-  htmlAutonomo: "text=Crear archivo HTML", video: "text=Grabar vídeo", estadoVideo: ".exporte:has(h3:has-text('Vídeo')) [role=status]",
-  tourJson: "text=Descargar tour.json", copiaSeguridad: "text=Descargar copia de seguridad",
-  hoja: ".hoja", hojaTitulos: ".hoja h2", hojaQr: ".qr svg", hojaPlanos: "img.plano", boton: ".btn",
+  htmlAutonomo: "text=Crear el archivo", video: "text=Grabar vídeo", estadoVideo: ".exporte:has(h3:has-text('Vídeo')) [role=status]",
+  tourJson: "text=Descargar tour.json",
+  hoja: ".hoja", hojaTitulos: ".hoja h2", hojaQr: ".qr svg", hojaPlanos: "img.plano", boton: ":is(.btn, .c8-boton)",
 };
 const SD = JSON.parse(JSON.stringify(SEL)); // sin las funciones: es lo que se inyecta en la página como __SEL
-// Pasos por su #ancla. El plan de la fase 3 junta Revisar y Publicar en «#publicar» (con #revisar y #exportar como alias)
-// y convierte Dirección, Variantes y Material en herramientas (orientacion, estilo, extras).
+// Pasos por su #ancla. La fase 3 junta Revisar y Publicar en «#publicar» (con #revisar y #exportar como alias) y convierte
+// Dirección, Variantes y Material en herramientas (orientacion, estilo, extras); las anclas antiguas siguen funcionando.
 const PASO = { revisar: ["revisar", "publicar"], exportar: ["exportar", "publicar"], orientar: ["orientar", "orientacion"], variantes: ["variantes", "estilo"], material: ["material", "extras"] };
 const enPaso = (s) => PASO[s] ?? [s];
 
@@ -113,12 +120,13 @@ async function tecla(p, k, seccion) {
   await p.keyboard.press(k);
   await esperar(p, (ok) => ok.includes(window.__estudio.seccion), enPaso(seccion));
 }
-/** Pasa al modo completo con el control visible (botón compacto o enlace del pie, según el ancho). */
-async function modoCompleto(p) {
-  await p.locator(SEL.cambiarModo).first().click();
-  await esperar(p, () => window.__estudio.tour._estudio.modo === "completo");
+/** Abre los apartados «Avanzado…» de la pantalla (p. ej. «Avanzado» de Publicar o «Avanzado: modelo 3D» de Extras). */
+const abrirAvanzado = (p) => p.evaluate(() => { for (const d of document.querySelectorAll(__SEL.avanzado)) if (/^Avanzado/.test(d.querySelector("summary")?.textContent ?? "")) d.open = true; });
+/** Mi inmobiliaria abierta: guarda y espera a que se cierre el diálogo. */
+async function guardarPerfil(p) {
+  await p.click(SEL.guardarPerfil);
+  await esperar(p, () => !document.querySelector(__SEL.dialogo));
 }
-const abrirAvanzado = (p) => p.evaluate(() => { for (const d of document.querySelectorAll(__SEL.avanzado)) if (d.querySelector("summary")?.textContent === "Avanzado") d.open = true; });
 /** Arrastra la ficha de una foto hasta un punto del plano (reintenta si la lista lateral se repinta a mitad). */
 async function arrastrarFicha(p, nombre, id, destino) {
   for (let intento = 0; intento < 3; intento++) {
@@ -161,14 +169,13 @@ try {
   // ================================================================== 1 · flujo completo
   await inf.bloque("Flujo completo de creación (1440×900)", async () => {
     const { ctx, p } = await estudio();
-    const conModos = await inf.requiere(p, { "modos Rápido/Completo": SEL.modoAntiguo }, "modos Rápido y Completo del Estudio (el plan de la fase 3 los quita)");
-    if (conModos) inf.ok(await p.evaluate(() => window.__estudio.tour._estudio.modo === "rapido"), "un proyecto nuevo empieza en modo rápido");
+    inf.ok(!(await p.$(SEL.modoAntiguo)) && await p.evaluate(() => !("modo" in window.__estudio.tour._estudio)), "sin modos Rápido/Completo: un proyecto nuevo no guarda ningún modo");
     await esperar(p, () => { const w = document.querySelector(__SEL.iframe)?.contentWindow; return w?.visor?.listo && w.document.querySelector(__SEL.vistaVacia); }, null, 20000);
     inf.ok(true, "sin fotos, la vista previa del Estudio muestra el aviso «#vacio» (no la demo)");
-    if (conModos) {
-      await modoCompleto(p);
-      inf.ok(await p.evaluate(() => document.querySelectorAll(__SEL.pasosCompletos).length === 8), "el modo completo muestra los 8 pasos");
-    }
+    const barra = await p.evaluate(() => ({ pasos: [...document.querySelectorAll(__SEL.pasosPrincipales)].map((b) => b.dataset.seccion).join(),
+      herramientas: [...document.querySelectorAll(__SEL.herramientas)].map((b) => b.dataset.seccion).join(), mas: !!document.querySelector(__SEL.masHerramientas) }));
+    inf.ok(barra.pasos === "fotos,plano,datos,publicar" && barra.mas && barra.herramientas === "orientacion,estilo,extras",
+      "barra lateral: los 4 pasos y «Más herramientas» (orientación, estilo y luz, extras)", barra);
 
     // ---- fotos: 5 fotos 2:1 y una foto normal (4:3)
     await subir(p, SEL.elegirFotos, de("salon.jpg", "cocina.jpg", "pasillo.jpg", "DJI_20250314_0001.jpg", "dormitorio-grande.jpg", "normal.jpg"));
@@ -296,9 +303,11 @@ try {
     const nota = (await T(p)).panoramas.find((q) => q.id === "salon").puntos[0];
     inf.ok(Number.isFinite(nota.yaw) && Number.isFinite(nota.pitch), `«P» + clic en la vista previa crea una nota en ese punto (yaw ${nota.yaw}°, pitch ${nota.pitch}°)`);
 
-    // ---- variantes y máscara
+    // ---- estilo y luz: estilos y foto de noche, máscara y aviso legal («Mostrar todo»: la vivienda no está marcada como obra nueva)
     await ir(p, "variantes");
-    await subir(p, await inf.pieza(p, SEL.subirVariantes, "«Subir variantes»"), de("salon-nordico.jpg", "salon-noche.jpg", "salon-industrial.jpg"));
+    await p.click(SEL.mostrarTodo);
+    await esperar(p, () => window.__estudio.tour._estudio.estiloTodo === true);
+    await subir(p, SEL.subirEstilos, de("salon-nordico.jpg", "salon-noche.jpg", "salon-industrial.jpg"));
     await esperar(p, () => (window.__estudio.tour.panoramas.find((q) => q.id === "salon").variantes?.length ?? 0) === 3 && !document.querySelector(__SEL.cargando), null, 60000);
     const vs = (await T(p)).panoramas.find((q) => q.id === "salon").variantes.map((v) => `${v.estilo ?? "-"}/${v.momento}/${v.origen}`).join(", ");
     inf.ok(vs === "nordico/dia/ia, -/noche/foto, industrial/dia/ia", "estilo, momento y origen de cada variante se deducen del nombre del archivo", vs);
@@ -324,38 +333,33 @@ try {
     });
     inf.ok(cob.ruta === "panos/mascaras/salon.png" && cob.w === 2 * cob.h && cob.paredes > 0.3 && cob.suelo > 0.25,
       `máscara con la varita: paredes ${Math.round(cob.paredes * 100)} % y suelo ${Math.round(cob.suelo * 100)} % (PNG ${cob.w}×${cob.h})`);
+    await p.click(SEL.textoRecomendado); // aviso legal de las imágenes (hay estilos IA): un solo campo, en Estilo y luz
+    await esperar(p, () => /no contractuales/.test(JSON.stringify(window.__estudio.tour.inmueble?.aviso_legal ?? "")));
 
-    // ---- datos del anuncio
+    // ---- datos del anuncio y contacto (Mi inmobiliaria)
     await ir(p, "datos");
-    if (await p.$(SEL.verTodo)) await p.click(SEL.verTodo);
     await campo(p, "Título del anuncio").fill("Piso reformado en Calle Mayor");
     await campo(p, "Referencia").fill("REF-1234");
     await campo(p, "Precio (€)").fill("349.000");
     await p.click(SEL.consumoC);
     await p.click(SEL.emisionesD);
-    await p.click(SEL.pestanaContacto);
-    await campo(p, "WhatsApp de la empresa").fill("34600111222");
-    await campo(p, "Dirección de tu política de privacidad").fill("https://www.ejemplo.com/privacidad");
-    await p.click(SEL.pestanaAvanzado);
-    await p.click(SEL.apartadoColores);
-    await p.click(SEL.textoRecomendado);
-    await p.click(await inf.pieza(p, SEL.apartadoSecciones, "apartado «Secciones de la vivienda»"));
-    await p.click(await inf.pieza(p, SEL.usarSecciones, "«Usar secciones»"));
-    await esperar(p, () => Array.isArray(window.__estudio.tour.secciones));
+    await p.locator(SEL.contactoDatos).first().click();
+    await p.locator(SEL.campoPerfil("WhatsApp de la empresa")).fill("34600111222");
+    await p.locator(SEL.campoPerfil("Tu política de privacidad (dirección)")).fill("https://www.ejemplo.com/privacidad");
+    await guardarPerfil(p);
     t = await T(p);
     const I = t.inmueble;
     inf.ok(tx(t.titulo) === "Piso reformado en Calle Mayor" && I.referencia === "REF-1234" && I.precio === 349000 && I.certificado_energetico.consumo_letra === "C" && I.certificado_energetico.emisiones_letra === "D",
       "datos del anuncio guardados (el precio «349.000» se lee como 349000)");
-    inf.ok(t.contacto.whatsapp === "34600111222" && t.contacto.url_privacidad === "https://www.ejemplo.com/privacidad", "contacto por WhatsApp y política de privacidad guardados");
-    inf.ok(/no contractuales/.test(tx(I.aviso_legal)) && t.secciones.length >= 2, `aviso legal recomendado y ${t.secciones.length} secciones de la vivienda`);
+    inf.ok(t.contacto.whatsapp === "34600111222" && t.contacto.url_privacidad === "https://www.ejemplo.com/privacidad", "contacto por WhatsApp y política de privacidad guardados (desde Mi inmobiliaria)");
 
-    // ---- revisar
+    // ---- antes de publicar (cabecera de Publicar)
     await ir(p, "revisar");
-    const h1 = await p.textContent(SEL.tituloSeccion);
+    const resumen = await p.textContent(SEL.resumenRevisar);
     const oks = await p.$$eval(SEL.comprobacionOk, (bs) => bs.map((b) => b.textContent));
-    inf.ok(/^Listo para publicar/.test(h1), `Revisar no encuentra nada por corregir («${h1}»)`);
+    inf.ok(/^Listo para publicar/.test(resumen), `«Antes de publicar» no encuentra nada por corregir («${resumen}»)`);
     inf.ok(oks.includes("Todas las fotos están en el plano") && oks.includes("Todas las fotos están conectadas") && oks.includes("Certificado energético C / D"),
-      "Revisar confirma fotos en el plano, todas conectadas y certificado energético", oks.join(" | "));
+      "«Antes de publicar» confirma fotos en el plano, todas conectadas y certificado energético", oks.join(" | "));
 
     // ---- publicar: tour.json
     await ir(p, "exportar");
@@ -368,6 +372,9 @@ try {
       "tour.json: la foto del salón lleva su nota, sus 3 variantes, su máscara y su giro");
     inf.ok(tj.estilos?.map((e) => e.id).join() === "original,nordico,industrial" && tx(tj.estancias?.[0]?.nombre) === "Salón comedor" && tj.plantas[0].muros?.length === 1,
       "tour.json: solo los estilos con imágenes, la estancia y el muro dibujados");
+    const zonas = (tj.secciones ?? []).map((z) => `${tx(z.nombre)}: ${z.estancias.join("+")}`).join(" · ");
+    inf.ok(/no contractuales/.test(tx(tj.inmueble?.aviso_legal)) && (tj.secciones?.length ?? 0) >= 2 && !("secciones" in (await T(p))),
+      `aviso legal recomendado y ${tj.secciones?.length ?? 0} zonas de la vivienda automáticas, sin pulsar nada (${zonas})`);
 
     // ---- recarga: todo sigue guardado
     const antes = await p.evaluate(() => window.__estudio.archivos.size);
@@ -382,24 +389,20 @@ try {
   });
 
   // ================================================================== 2 · material del arquitecto y exportadores
-  await inf.bloque("Material del arquitecto y exportadores (modo completo)", async () => {
+  await inf.bloque("Planos del arquitecto, render 360, extras y exportadores", async () => {
     const { ctx, p } = await estudio();
     const idInicial = await p.evaluate(() => window.__estudio.proyecto.id);
-    await p.click(await inf.pieza(p, SEL.abrir, "menú «Abrir» del Estudio"));
-    await p.click(await inf.pieza(p, SEL.proyectoNuevo, "«Proyecto nuevo»"));
-    if (await inf.requiere(p, { "diálogo de modo": SEL.modoCompleto }, "«Proyecto nuevo» con elección de modo (el plan de la fase 3 quita los modos)")) {
-      inf.ok(await p.getAttribute(SEL.modoRapido, "aria-pressed") === "true", "«Proyecto nuevo» pregunta el modo y recomienda el rápido");
-      await p.click(SEL.modoCompleto);
-      await p.click(SEL.crearProyecto);
-      await esperar(p, () => window.__estudio.tour._estudio.modo === "completo" && !document.querySelector(__SEL.dialogo));
-      inf.ok(await p.evaluate(() => document.querySelectorAll(__SEL.pasosCompletos).length === 8), "eligiendo «Completo» se crea el proyecto con los 8 pasos");
-    }
+    await p.click(SEL.proyecto);
+    await p.click(SEL.proyectoNuevo);
     await esperar(p, (id) => window.__estudio.proyecto.id !== id && window.__estudio.tour.panoramas.length === 0 && !document.querySelector(__SEL.dialogo), idInicial);
+    inf.ok(!(await p.$(SEL.dialogo)) && await p.evaluate(() => !("modo" in window.__estudio.tour._estudio)), "«Proyecto ▾ → Proyecto nuevo» crea el proyecto sin preguntar ningún modo");
+    inf.ok(await p.evaluate(() => document.querySelectorAll(__SEL.pasosPrincipales).length === 4 && !!document.querySelector(__SEL.masHerramientas)),
+      "el proyecto nuevo tiene los 4 pasos y «Más herramientas» (ya no hay modo completo de 8 pasos)");
     await fotos(p, ["salon.jpg", "cocina.jpg"], 2);
 
-    // ---- planos: DXF a escala y PDF de varias páginas
-    await ir(p, "material");
-    await subir(p, SEL.subirPlanoMaterial, de("planta.dxf"));
+    // ---- planos del arquitecto en el paso Plano: DXF a escala y PDF de varias páginas
+    await ir(p, "plano");
+    await subir(p, SEL.subirPlano, de("planta.dxf"));
     await p.click(SEL.importarPlano);
     await esperar(p, () => (window.__estudio.tour.plantas[0].muros?.length ?? 0) > 0 && !!window.__estudio.tour.plantas[0].plano?.imagen);
     let t = await T(p);
@@ -413,8 +416,8 @@ try {
     await p.fill(SEL.dialogoCampo, "Planta primera");
     await p.keyboard.press("Enter");
     await esperar(p, () => window.__estudio.tour.plantas.length === 2);
-    await ir(p, "material");
-    await subir(p, SEL.subirPlanoMaterial, de("planos.pdf"));
+    await ir(p, "plano");
+    await subir(p, SEL.subirPlano, de("planos.pdf"));
     await p.waitForSelector(SEL.paginaPdf, { timeout: 30000 });
     inf.ok(await p.locator(SEL.paginasPdf).count() === 2, "un PDF de 2 páginas ofrece elegir la página con miniaturas");
     await p.click(SEL.pagina2);
@@ -423,20 +426,25 @@ try {
     t = await T(p);
     inf.ok(tx(t.plantas[1].nombre) === "Planta primera" && t.documentacion.some((d) => tx(d.nombre) === "planos (pág. 2)"), "la página 2 del PDF es el plano de la «Planta primera»");
 
-    // ---- render 360 como variante, galería, modelo 3D, documentos y música
-    await ir(p, "material");
-    await subir(p, await inf.pieza(p, SEL.subirRenders, "«Subir renders 360»"), de("salon-nordico.jpg"));
-    await p.waitForSelector(SEL.dialogoSelect);
-    await p.selectOption(SEL.usoRender, "variante");
-    await p.selectOption(SEL.estiloRender, "proyecto");
-    await p.click(SEL.anadirRender);
+    // ---- render 360 del arquitecto como estilo «Proyecto» (Estilo y luz); galería, modelo 3D, documentos y música (Extras)
+    await ir(p, "variantes");
+    await p.click(SEL.mostrarTodo);
+    await esperar(p, () => window.__estudio.tour._estudio.estiloTodo === true);
+    await p.click(SEL.primeraEstancia);
+    await subir(p, SEL.subirEstilos, de("salon-nordico.jpg"));
     await esperar(p, () => (window.__estudio.tour.panoramas[0].variantes?.length ?? 0) === 1 && !document.querySelector(__SEL.cargando), null, 60000);
+    await p.selectOption(SEL.estiloVariante, "__proyecto");
+    await esperar(p, () => window.__estudio.tour.panoramas[0].variantes[0].estilo === "proyecto");
+    await p.selectOption(SEL.origenVariante, "render");
+    await esperar(p, () => window.__estudio.tour.panoramas[0].variantes[0].origen === "render");
     t = await T(p);
     const vr = t.panoramas[0].variantes[0];
-    inf.ok(vr.estilo === "proyecto" && vr.origen === "render" && t.estilos.some((e) => e.id === "proyecto"), "un render 360 se añade como variante «Proyecto» con origen render");
+    inf.ok(vr.estilo === "proyecto" && vr.origen === "render" && t.estilos.some((e) => e.id === "proyecto"), "un render 360 se añade como estilo «Proyecto» con origen render");
 
+    await ir(p, "material");
     await subir(p, SEL.subirImagenes, de("render-salon.jpg"));
     await esperar(p, () => (window.__estudio.tour.galeria?.length ?? 0) === 1);
+    await abrirAvanzado(p); // «Avanzado: modelo 3D»
     await subir(p, SEL.subirModelo, de("modelo.glb"));
     await esperar(p, () => !!window.__estudio.tour.libre);
     await subir(p, SEL.subirDocumentos, de("memoria-calidades.pdf"));
@@ -452,8 +460,11 @@ try {
     inf.ok(t.libre?.tipo === "glb" && t.libre.url === "modelo/modelo.glb" && t.documentacion.some((d) => d.tipo === "modelo" && !d.publico), "el GLB activa el paseo libre y queda como material privado");
     inf.ok(t.audio.musica.archivo === "audio/musica-prueba.wav" && t._estudio.musicaLicencia === true, "música del proyecto con la licencia confirmada");
 
-    // ---- exportadores
+    // ---- exportadores (con la web escrita: enlace y QR reales; sin web no se genera ninguno de ejemplo)
     await ir(p, "exportar");
+    await p.fill(SEL.webPublicar, "https://www.inmo-prueba.es");
+    await p.keyboard.press("Tab");
+    await esperar(p, () => window.__estudio.tour.marca?.web === "https://www.inmo-prueba.es");
     await habilitado(p, SEL.zipWeb);
     const web = await descargar(p, SEL.zipWeb);
     const z = leerZip(web.datos), rutas = Object.keys(z), tz = jsonDe(z["tour.json"]);
@@ -480,8 +491,7 @@ try {
 
     const build = asegurarBuild();
     inf.ok(build.ok, `visor autónomo compilado al día (dist/)${build.recompilado ? ": recompilado" : ""}`, build.error);
-    await abrirAvanzado(p);
-    const html = await descargar(p, await inf.pieza(p, SEL.htmlAutonomo, "«Crear archivo HTML»"));
+    const html = await descargar(p, SEL.htmlAutonomo); // «Recorrido en un solo archivo» (Para tus clientes)
     const shtml = html.datos.toString("utf8");
     inf.ok(html.nombre.endsWith(".html") && shtml.includes("window.TOUR_EMBEBIDO") && !shtml.includes("docs/planta.dxf") && !shtml.includes('"_estudio"'),
       `HTML autónomo de ${(html.datos.length / 1048576).toFixed(1)} MB con el tour incrustado y sin material privado`);
@@ -509,31 +519,31 @@ try {
 
     // ---- importar el ZIP publicado como proyecto nuevo
     const idAntes = await p.evaluate(() => window.__estudio.proyecto.id);
-    await p.click(await inf.pieza(p, SEL.abrir, "menú «Abrir» del Estudio"));
-    await subir(p, await inf.pieza(p, SEL.restaurar, "«Restaurar copia de seguridad o ZIP»"), [archivo("recorrido.zip", web.datos)]);
+    await p.click(SEL.proyecto);
+    await subir(p, SEL.restaurar, [archivo("recorrido.zip", web.datos)]);
     await esperar(p, (id) => window.__estudio.proyecto.id !== id && window.__estudio.tour.panoramas.length === 2 && window.__estudio.guardado === "ok", idAntes, 60000);
     const ti = await T(p);
-    inf.ok(ti.plantas.length === 2 && ti.plantas[0].muros?.length === 7 && ti.libre?.url && ti.galeria?.length === 1 && ti.audio?.musica?.archivo && ti._estudio.modo === "completo",
-      "importar el ZIP publicado crea un proyecto nuevo con plantas, muros, modelo, galería y música");
+    inf.ok(ti.plantas.length === 2 && ti.plantas[0].muros?.length === 7 && ti.libre?.url && ti.galeria?.length === 1 && ti.audio?.musica?.archivo && !("modo" in ti._estudio),
+      "importar el ZIP publicado («Proyecto ▾ → Restaurar copia…») crea un proyecto nuevo con plantas, muros, modelo, galería y música");
     const err = erroresDe(p, IGNORAR);
     inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
   });
 
-  // ================================================================== 3 · modo rápido
+  // ================================================================== 3 · guía, datos esenciales, ZIP público y copia de seguridad
   let copia = null;
-  await inf.bloque("Modo rápido: datos, ZIP público sin privados y copia de seguridad", async () => {
+  await inf.bloque("Guía, datos esenciales, Mi inmobiliaria, ZIP público sin privados y copia de seguridad", async () => {
     const { ctx, p } = await estudio();
-    // La lista que deja la Guía Osmo 360 en este navegador (localStorage), como si se hubiera usado antes de abrir el Estudio.
+    // La lista que deja la Guía Osmo 360 en este navegador (localStorage), como si se hubiera usado antes de abrir el Estudio:
+    // el Estudio la ofrece («Usar · No usar») y, con «Usar», las fotos la toman en orden de disparo (S-10).
     await p.evaluate(() => localStorage.setItem("cre8eight:asistente", JSON.stringify({ estancias: ["Salón", "Cocina"], tomas: { Cocina: 2 } })));
     await p.reload();
     await esperar(p, () => window.__estudio?.tour && document.querySelector(window.__SEL.pasos));
-    if (await p.waitForSelector(SEL.ofertaGuia, { timeout: 1500 }).then(() => true, () => false))
-      throw new FaltaPieza("nombres de la Guía Osmo 360: ya no se aplican solos, el Estudio los ofrece con «Usar · No usar» (S-10). Adaptar la prueba a la interfaz nueva; el resto del bloque no se ha comprobado");
+    await p.click(SEL.usarGuia);
+    await esperar(p, () => !document.querySelector(__SEL.ofertaGuia));
     await fotos(p, ["salon.jpg", "cocina.jpg", "pasillo.jpg", "DJI_20250314_0001.jpg"], 4);
     let t = await T(p);
-    const conModos = !!(await p.$(SEL.modoAntiguo));
     inf.ok(t.panoramas.map((x) => tx(x.nombre)).join() === "Salón,Cocina,Cocina 2,Salón",
-      "las fotos toman los nombres del Asistente Osmo 360 en orden de disparo", t.panoramas.map((x) => tx(x.nombre)).join());
+      "con «Usar», las fotos toman los nombres de la Guía Osmo 360 en orden de disparo", t.panoramas.map((x) => tx(x.nombre)).join());
     await p.click(SEL.bajarPrimera);
     await esperar(p, () => window.__estudio.tour.panoramas[0].id === "cocina");
     inf.ok((await T(p)).panoramas.map((x) => x.id).join() === "cocina,salon,cocina-2,salon-2", "el botón ↓ cambia el orden de la visita sin arrastrar");
@@ -544,7 +554,8 @@ try {
     inf.ok(!vp.demo && vp.ref !== "DEMO-001" && !/DEMO-001|Inmobiliaria Demo|Demo ·/.test(vp.texto), "la vista previa muestra el proyecto y ningún dato de la demo", vp);
 
     await p.click(SEL.continuarPlano);
-    await p.click(await inf.pieza(p, SEL.continuarSinPlano, "«Continuar sin plano»"));
+    await esperar(p, () => window.__estudio.seccion === "plano");
+    await p.click(SEL.saltarPlano); // el plano es opcional: «Saltar → Datos»
     await esperar(p, () => window.__estudio.seccion === "datos");
     await campo(p, "Precio (€)").fill("349.000");
     await campo(p, "m² construidos").fill("112,5");
@@ -553,17 +564,21 @@ try {
     await campo(p, "Baños").fill("2");
     await p.click(SEL.consumoC);
     await p.click(SEL.emisionesD);
-    await campo(p, "WhatsApp de la empresa").fill("34 600 111 222");
-    const priv = campo(p, "Dirección de tu política de privacidad");
+    await p.locator(SEL.contactoDatos).first().click(); // «Completar Mi inmobiliaria»
+    await p.locator(SEL.campoPerfil("WhatsApp de la empresa")).fill("34 600 111 222");
+    const priv = p.locator(SEL.campoPerfil("Tu política de privacidad (dirección)"));
     await priv.fill("javascript:alert(1)");
+    await priv.press("Tab");
+    await p.click(SEL.guardarPerfil); // no se guarda: el diálogo sigue abierto con el error
     const errPriv = await p.locator(SEL.errorPrivacidad).textContent();
-    inf.ok((await T(p)).contacto.url_privacidad == null && /Solo se admiten direcciones que empiecen por https:/.test(errPriv) && (await priv.getAttribute("aria-invalid")) === "true",
-      "una dirección javascript: se rechaza con un mensaje claro y no se guarda");
+    inf.ok((await T(p)).contacto?.url_privacidad == null && /empezando por https:\/\//.test(errPriv) && (await priv.getAttribute("aria-invalid")) === "true" && !!(await p.$(SEL.dialogo)),
+      "una dirección javascript: se rechaza con un mensaje claro y no se guarda", errPriv);
     await priv.fill("https://www.ejemplo.com/privacidad");
+    await guardarPerfil(p);
     t = await T(p);
     const I = t.inmueble;
     inf.ok(I.precio === 349000 && I.superficie_construida === 112.5 && I.superficie_util === 96 && I.habitaciones === 3 && I.banos === 2 && t.contacto.whatsapp === "34 600 111 222" && t.contacto.url_privacidad === "https://www.ejemplo.com/privacidad",
-      "los 8 datos rápidos se guardan con formato español («349.000», «112,5»)");
+      "los datos esenciales y Mi inmobiliaria se guardan con formato español («349.000», «112,5»)");
     await esperar(p, () => /349\.000/.test(document.querySelector(__SEL.iframe).contentDocument?.querySelector(__SEL.panelesVista)?.innerText ?? ""), null, 20000);
     inf.ok(true, "la vista previa se actualiza con el precio del Estudio");
 
@@ -579,14 +594,14 @@ try {
     await esperar(p, () => !!window.__estudio.tour.audio?.musica?.archivo);
     await ir(p, "revisar");
     const errores = await p.$$eval(SEL.comprobacionError, (bs) => bs.map((b) => b.textContent));
-    inf.ok(errores.includes("Falta confirmar la licencia de la música"), "Revisar exige confirmar la licencia de la música", errores.join(" | "));
+    inf.ok(errores.includes("Falta confirmar la licencia de la música"), "«Antes de publicar» exige confirmar la licencia de la música", errores.join(" | "));
     await ir(p, "material");
     await p.locator(SEL.licenciaMusica).check();
     await ir(p, "revisar");
-    const h1 = await p.textContent(SEL.tituloSeccion);
-    inf.ok(h1 === "Listo para publicar · 3 sugerencias", `con la licencia confirmada: «${h1}» (sin plano no hay error de conexiones)`);
+    const resumen = await p.textContent(SEL.resumenRevisar);
+    inf.ok(resumen === "Listo para publicar · 1 sugerencia para pulirlo.",
+      `con la licencia confirmada: «${resumen}» (sin plano no hay error de conexiones; título y referencia son automáticos; solo falta completar Mi inmobiliaria)`);
 
-    await p.click(SEL.continuarPublicar);
     await habilitado(p, SEL.zipWeb);
     const z = leerZip((await descargar(p, SEL.zipWeb)).datos), rutas = Object.keys(z), tz = jsonDe(z["tour.json"]);
     inf.ok(rutas.includes("docs/memoria-calidades.pdf") && !rutas.some((r) => r.includes("nota-simple") || r.startsWith("estudio/")) && tz.documentacion?.map((d) => d.archivo).join() === "docs/memoria-calidades.pdf",
@@ -595,11 +610,10 @@ try {
     inf.ok(cadena === "cocina@0→salon salon@2.5→cocina+cocina-2 cocina-2@5→salon+salon-2 salon-2@7.5→cocina-2", "sin plano, las fotos se conectan en fila en el orden de la lista", cadena);
     inf.ok(tz.audio?.musica?.archivo === "audio/musica-prueba.wav" && rutas.includes("audio/musica-prueba.wav"), "la música viaja en el ZIP público");
 
-    await abrirAvanzado(p);
-    copia = await descargar(p, await inf.pieza(p, SEL.copiaSeguridad, "«Descargar copia de seguridad»"));
+    copia = await descargar(p, async () => { await p.click(SEL.proyecto); await p.click(SEL.copiaSeguridad); });
     const zc = leerZip(copia.datos), pj = jsonDe(zc["estudio/proyecto.json"]);
-    inf.ok(["docs/nota-simple-privada.pdf", "estudio/proyecto.json", "tour.json", "LEEME.txt"].every((r) => r in zc) && (!conModos || pj.tour._estudio.modo === "rapido") && pj.tour._estudio.musicaLicencia === true && pj.tour.estilos.length === 6,
-      "copia de seguridad: incluye lo privado y el proyecto de trabajo completo (licencia de la música, estilos y ajustes)");
+    inf.ok(["docs/nota-simple-privada.pdf", "estudio/proyecto.json", "tour.json", "LEEME.txt"].every((r) => r in zc) && !("modo" in pj.tour._estudio) && pj.tour._estudio.musicaLicencia === true && pj.tour.estilos.length === 6,
+      "copia de seguridad («Proyecto ▾»): incluye lo privado y el proyecto de trabajo completo (licencia de la música, estilos y ajustes)");
     const err = erroresDe(p, IGNORAR);
     inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
   });
@@ -608,11 +622,11 @@ try {
     if (!copia) { console.log("  (se omite: el bloque anterior no llegó a descargar la copia de seguridad)"); return; }
     const { ctx, p } = await estudio({}, "#revisar");
     inf.ok(enPaso("revisar").includes(await p.evaluate(() => window.__estudio.seccion)), "estudio.html#revisar abre directamente ese paso");
-    await p.click(await inf.pieza(p, SEL.abrir, "menú «Abrir» del Estudio"));
-    await subir(p, await inf.pieza(p, SEL.restaurar, "«Restaurar copia de seguridad o ZIP»"), [archivo(copia.nombre, copia.datos)]);
+    await p.click(SEL.proyecto);
+    await subir(p, SEL.restaurar, [archivo(copia.nombre, copia.datos)]);
     await esperar(p, () => window.__estudio.tour.panoramas.length === 4 && window.__estudio.guardado === "ok", null, 60000);
-    const r = await p.evaluate(() => ({ t: window.__estudio.tour, n: window.__estudio.archivos.size, conModos: !!document.querySelector(window.__SEL.modoAntiguo) }));
-    inf.ok((!r.conModos || r.t._estudio.modo === "rapido") && r.t.estilos.length === 6 && r.t.contacto.whatsapp === "34 600 111 222" && r.t.documentacion.length === 2 && r.t._estudio.musicaLicencia === true && r.n === 11,
+    const r = await p.evaluate(() => ({ t: window.__estudio.tour, n: window.__estudio.archivos.size }));
+    inf.ok(!("modo" in r.t._estudio) && r.t.estilos.length === 6 && r.t.contacto.whatsapp === "34 600 111 222" && r.t.documentacion.length === 2 && r.t._estudio.musicaLicencia === true && r.n === 11,
       `la copia se restaura íntegra: estilos, contacto, 2 documentos, música con licencia y ${r.n} archivos`);
   });
 
@@ -629,8 +643,7 @@ try {
         const otros = peq.filter((b) => !b.herr), herr = peq.filter((b) => b.herr);
         inf.ok(!otros.length, `iPad · ${nombre}: los botones visibles miden al menos 44 px de alto`, otros.map((b) => b.txt).join(", "));
         if (hash === "plano" && (await inf.requiere(p, { "herramientas del plano": SEL.herramientasPlano }, "iPad · tamaño de las herramientas del plano")))
-          inf.pendiente(!herr.length, "iPad · Plano: las herramientas (Seleccionar, Calibrar, Estancia, Muro, Conectar) miden al menos 44 px",
-            `miden ${herr[0]?.txt.split(" ").pop() ?? "?"}: en estudio.css «.herramientas .btn { min-height: 32px }» (línea 216) gana por especificidad a la regla táctil «@media (pointer: coarse) { .btn { min-height: var(--toque) } }»`);
+          inf.ok(!herr.length, "iPad · Plano: las herramientas (Seleccionar, Calibrar, Estancia, Conectar) miden al menos 44 px", herr.map((b) => b.txt).join(", "));
       }
       await p.tap(SEL.botonVista);
       await esperar(p, () => { const r = document.querySelector(__SEL.vista).getBoundingClientRect(); return document.body.classList.contains("vista-abierta") && r.left >= -1 && r.right <= innerWidth + 1 && r.width > 200; });
@@ -683,22 +696,20 @@ try {
     await esperar(p, () => window.__estudio?.tour?.panoramas?.length === 1);
     inf.ok(await p.evaluate(() => window.__estudio.archivos.size === 2), "tras el reintento, la foto y su miniatura sobreviven a una recarga");
 
-    const conAtajos = await inf.requiere(p, { "botón de atajos": SEL.atajos }, "diálogo «Atajos de teclado»");
-    if (conAtajos) {
-      await p.click(SEL.atajos);
-      await p.click(SEL.interruptorAtajos);
-      await p.keyboard.press("Escape");
-      await esperar(p, () => !document.querySelector(__SEL.dialogo));
-      const antes = await p.evaluate(() => window.__estudio.seccion);
-      await p.keyboard.press("3");
-      inf.ok(await p.evaluate((s) => window.__estudio.seccion === s && window.__estudio.atajos === false, antes), "con los atajos de una tecla desactivados, «3» no cambia de paso");
-      await p.click(SEL.atajos);
-      await p.click(SEL.interruptorAtajos);
-      await p.keyboard.press("Escape");
-      await esperar(p, () => !document.querySelector(__SEL.dialogo));
-      await tecla(p, "3", "datos");
-      inf.ok(true, "al reactivarlos, «3» vuelve a llevar al paso 3 (Datos)");
-    } else await ir(p, "datos");
+    // Los atajos de una tecla se desactivan en «?» (Ayuda y atajos)
+    await p.click(SEL.ayuda);
+    await p.click(SEL.interruptorAtajos);
+    await p.keyboard.press("Escape");
+    await esperar(p, () => !document.querySelector(__SEL.dialogo));
+    const antes = await p.evaluate(() => window.__estudio.seccion);
+    await p.keyboard.press("3");
+    inf.ok(await p.evaluate((s) => window.__estudio.seccion === s && window.__estudio.atajos === false, antes), "con los atajos de una tecla desactivados, «3» no cambia de paso");
+    await p.click(SEL.ayuda);
+    await p.click(SEL.interruptorAtajos);
+    await p.keyboard.press("Escape");
+    await esperar(p, () => !document.querySelector(__SEL.dialogo));
+    await tecla(p, "3", "datos");
+    inf.ok(true, "al reactivarlos, «3» vuelve a llevar al paso 3 (Datos)");
 
     const recibidos = [];
     let estado = 200;
@@ -706,11 +717,11 @@ try {
       recibidos.push({ tipo: r.request().headers()["content-type"] ?? "", cuerpo: r.request().postDataBuffer()?.toString("latin1") ?? "" });
       await r.fulfill({ status: estado, body: "{}", contentType: "application/json", headers: { "access-control-allow-origin": "*" } });
     });
-    await p.click(await inf.pieza(p, SEL.verTodo, "«Ver todos los datos»"));
-    await p.click(SEL.pestanaContacto);
+    await p.click(SEL.perfil); // el CRM se configura una vez, en Mi inmobiliaria
     await p.click(SEL.apartadoCrm);
-    const hook = campo(p, "Dirección de conexión que te da tu CRM");
+    const hook = p.locator(SEL.campoPerfil("Dirección de conexión que te da tu CRM"));
     await hook.fill("http://crm.prueba.test/hook");
+    await hook.press("Tab");
     inf.ok(await p.locator(SEL.errorCrm).textContent() === "La dirección debe empezar por https://",
       "la conexión con el CRM exige https://");
     await hook.fill("https://crm.prueba.test/hook");

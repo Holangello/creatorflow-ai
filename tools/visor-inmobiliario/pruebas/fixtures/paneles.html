@@ -6,8 +6,12 @@
 <title>Pruebas · paneles con visor simulado</title>
 <!-- Banco de pruebas de paneles.js (e2e-paneles.mjs): un visor SIMULADO que cumple la API de ESQUEMA.md §2, sin WebGL,
      para probar contacto, WhatsApp, fotos, galería, música, teclado… en milisegundos. Parámetros de la URL:
-     ?modo=whatsapp|webhook|ambos  ?formato=json  ?op=alquiler  ?tramite  ?sonido=no  ?lang=fr  ?color=#hex
-     Expone window.__registro (eventos y llamadas al visor) y window.__cambiarTour(tour) (simula «visor:cargar»). -->
+     ?modo=whatsapp|webhook|ambos  ?formato=json  ?op=alquiler  ?obra=proyecto  ?tramite  ?sonido=no  ?lang=fr  ?color=#hex
+     Expone window.__registro (eventos y llamadas al visor) y window.__cambiarTour(tour) (simula «visor:cargar»).
+     Carga las mismas hojas que index.html (tema, núcleo y paneles) y, como el núcleo, fija el tema oscuro y el color de marca. -->
+<script src="../../tema.js"></script>
+<script>window.cre8Tema?.porDefecto({ tema: "oscuro" });</script>
+<link rel="stylesheet" href="../../tema.css">
 <link rel="stylesheet" href="../../visor.css">
 <link rel="stylesheet" href="../../paneles.css">
 <style>
@@ -45,7 +49,7 @@ const tour = {
   agente: { nombre: "Ana Pérez", telefono: "+34 600 111 222", email: "ana@example.com" },
   contacto: { modo: q.get("modo") ?? "webhook", webhook_formato: q.get("formato") ?? undefined, whatsapp: "34600111222", webhook: "https://hook.example.com/contacto", url_privacidad: "https://example.com/privacidad" },
   inmueble: {
-    referencia: "REF-1234", operacion: q.get("op") ?? "venta", tipo: "atico", estado_obra: "construido",
+    referencia: "REF-1234", operacion: q.get("op") ?? "venta", tipo: "atico", estado_obra: q.get("obra") ?? "construido",
     precio: q.get("op") === "alquiler" ? 2400 : 349000, moneda: "EUR", gastos_comunidad_mes: 85, ibi_anual: 420,
     superficie_construida: 112, superficie_util: 96, habitaciones: 3, banos: 2, planta: "3ª", ascensor: true,
     orientacion: "Sur", ano_construccion: 1998, estado: "Reformado", calefaccion: "Aerotermia", aire_acondicionado: true,
@@ -64,6 +68,7 @@ const tour = {
     { id: "bano", nombre: "Baño", planta: "p0", poligono: [[4.2,5],[6.4,5],[6.4,7.4],[4.2,7.4]] },
   ],
   momentos: ["dia", "atardecer", "noche"],
+  guion: [{ nodo: "salon", segundos: 6 }, { nodo: "cocina", segundos: 6 }],
   audio: { musica: { archivo: "audio/musica.mp3", volumen: 0.4, titulo: "Brisa de tarde", autor: "Laura Gómez", licencia: "CC BY 4.0" } },
   secciones: [
     { id: "dia", nombre: "Zona de día", estancias: ["salon", "cocina"] },
@@ -122,8 +127,20 @@ const visor = window.visor = {
   ajustes(o) { registro.push(["ajustes", o]); },
 };
 window.__registro = registro;
+// Como el núcleo (visor.js, aplicarMarca): el color de marca válido pasa a los tokens del acento; si el tour no trae, se quita
+function aplicarMarca() {
+  const c = visor.tour.marca?.color, raiz = document.documentElement.style;
+  if (/^#[0-9a-f]{6}$/i.test(c ?? "")) {
+    const [r, g, b] = [1, 3, 5].map((i) => { const x = parseInt(c.slice(i, i + 2), 16) / 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; });
+    const L = 0.2126 * r + 0.7152 * g + 0.0722 * b, sobre = (L + 0.05) / 0.05 >= 1.05 / (L + 0.05) ? "#15110a" : "#ffffff"; // texto con más contraste (WCAG)
+    for (const v of ["--acento", "--c-acento"]) raiz.setProperty(v, c);
+    for (const v of ["--acento-texto", "--c-sobre-acento"]) raiz.setProperty(v, sobre);
+  }
+  else for (const v of ["--acento", "--c-acento", "--acento-texto", "--c-sobre-acento"]) raiz.removeProperty(v);
+}
+aplicarMarca();
 // Simula «visor:cargar» del Estudio: el núcleo sustituye visor.tour y emite "tour"
-window.__cambiarTour = (nuevo) => { visor.tour = nuevo; visor.estado.nodo = nuevo.panoramas?.[0]?.id ?? null; visor.emitir("tour", {}); };
+window.__cambiarTour = (nuevo) => { visor.tour = nuevo; visor.estado.nodo = nuevo.panoramas?.[0]?.id ?? null; aplicarMarca(); visor.emitir("tour", {}); };
 const m = await import("../../paneles.js");
 window.__paneles = m.iniciarPaneles(visor);
 </script>

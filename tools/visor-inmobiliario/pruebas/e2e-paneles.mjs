@@ -1,45 +1,54 @@
 #!/usr/bin/env node
-// Pruebas de extremo a extremo de los paneles del visor (paneles.js): ficha, contacto con fotos y WhatsApp, galería,
-// compartir, personalizar, música, idiomas, teclado y objetivos táctiles.
+// Pruebas de extremo a extremo de los paneles del visor (paneles.js): tarjeta del inmueble, ficha, contacto con fotos y
+// WhatsApp, galería, compartir, «Estilo y luz», «Más», Ajustes, música, idiomas, teclado y objetivos táctiles.
 //   cd tools/visor-inmobiliario && node pruebas/e2e-paneles.mjs
 // La mayoría usa un visor SIMULADO (pruebas/fixtures/paneles.html, API de ESQUEMA.md sin WebGL: rápido y determinista);
-// el último bloque usa el núcleo REAL (index.html?demo): interfaz inactiva, pantalla completa y barra de captura.
+// los dos últimos bloques usan el núcleo REAL (index.html?demo): interfaz inactiva, pantalla completa y barra de captura.
 // Lo que se comprueba es comportamiento (qué llega al CRM o a WhatsApp, qué guarda, a dónde va el foco, qué cabe en
 // pantalla); los selectores están agrupados en SEL para adaptarlos cuando cambie el diseño. Sale con código 1 si algo falla.
+// Fase 3 (fase3-plan.md §3.3 y §4.2): la tarjeta del inmueble sustituye a la pestaña, la hoja de vista previa y el dock;
+// «Contactar» adjunta sola la vista actual (PA1) y «Enviar por WhatsApp» copia la foto y abre el chat en el mismo gesto;
+// Compartir, Idioma y Ajustes van en «Más»; «Estilo y luz» depende de estado_obra (PA3).
 import { servir, lanzar, contexto, abrir } from "./comun.mjs";
 import { crearInforme, erroresDe, esperar } from "./e2e-util.mjs";
 
 const SEL = {
   raiz: ".pn-raiz",
-  ficha: "[data-k='pestana']", peek: "[data-k='peek-precio']", panel: ".pn-panel", cuerpoPanel: ".pn-panel-cuerpo", energia: ".pn-sec-energia",
-  contacto: ["[data-k='contacto-dock']", "[data-k='contacto-peek']"], contactoBotones: "[data-k^='contacto-']", whatsappDirecto: ".pn-dock-wa", dock: ".pn-dock",
-  personalizar: [".pn-rail [data-k='personalizar']", "[data-k='personalizar-peek']"],
+  // tarjeta del inmueble: el resumen «precio · datos» abre la ficha; en el móvil la tarjeta es la hoja que se arrastra
+  tarjeta: ".pn-tarjeta", ficha: ".pn-tarjeta [data-k='ficha']", peek: ".pn-tarjeta [data-k='ficha']", panel: ".pn-tarjeta", cuerpoPanel: ".pn-panel-cuerpo", energia: ".pn-sec-energia",
+  contacto: ".pn-tarjeta [data-k='contactar']", contactoTexto: ".pn-tarjeta [data-k='contactar'] > span:not(.pn-num)",
+  whatsappDirecto: "[data-k='wa-directo']", // enlace secundario dentro del diálogo de contacto (PA2)
+  personalizar: ".pn-tarjeta [data-k='estilo-luz']",
   estilo: (id) => `[data-k='estilo-${id}']`, momento: (id) => `[data-k='momento-${id}']`, pared: (c) => `[data-k='paredes-${c}']`, comparar: "[data-k='comparar']",
-  compartir: [".pn-rail [data-k='compartir']", ".pn-fila-herr [data-k='compartir']"], qr: ".pn-qr-img svg",
-  ajustes: [".pn-rail [data-k='ajustes']", ".pn-fila-herr [data-k='ajustes']"], invertirY: "[data-k='aj-invertirY']",
-  musica: "[data-k='aj-musica']", volumen: "[data-k='aj-volumen']", volumenTxt: "[data-k='aj-vol-txt']", creditoMusica: ".pn-musica-credito", creditoApp: ".pn-credito",
-  idioma: "[data-k='idioma']", idiomaX: (c) => `[data-k='idioma-${c}']`, botonDock: ".pn-dock-btn",
-  guiada: "[data-k='guiada']", medir: "[data-k='medir']", hipoteca: ".pn-hip", precioCabecera: ".pn-cabecera .pn-precio", titulo: ".pn-titulo", marca: ".pn-marca-nombre",
+  // «Más»: el menú del núcleo (#btn-mas → #menu-mas) o, sin visor.mas (como en el visor simulado), el propio de los paneles
+  mas: ["#btn-mas", ".pn-tarjeta [data-k='mas']"], masItem: (id) => `#menu-mas [data-id='${id}'], .pn-menu [data-k='mas-${id}']`,
+  compartirFicha: "[data-k='compartir-ficha']", qr: ".pn-qr-img svg", compartirNativo: "[data-k='sh-nativo']", compartirWa: "[data-k='sh-wa']", copiarEnlace: "[data-k='copiar']",
+  musica: "[data-k='aj-musica']", volumen: "[data-k='aj-volumen']", volumenTxt: "[data-k='aj-vol-txt']", movimiento: "[data-k='aj-movimiento']",
+  creditoMusica: ".pn-musica-credito", creditoApp: ".pn-credito",
+  idiomaX: (c) => `[data-k='idioma-${c}']`,
+  guiada: "[data-k='guiada']", medir: "[data-k='medir']", hipoteca: ".pn-hip", precioCabecera: ".pn-t-precio", titulo: ".pn-titulo", marca: ".pn-marca-nombre",
   dialogo: ".pn-dialogo:not([hidden])", cerrarDialogo: "[data-k='cerrar-dlg']", tituloDialogo: "pn-dlg-tit", cuerpoDialogo: ".pn-dlg-cuerpo",
   zona: "[data-k='c-zona']", nombre: "[data-k='c-nombre']", telefono: "[data-k='c-telefono']", pregunta: "[data-k='c-pregunta']", privacidad: "[data-k='c-priv']",
   sugerencia: "[data-k='sug-contacto.sug_visita']", enviar: "[data-k='enviar']", reintentar: "[data-k='reintentar']", enviarWhatsApp: "[data-k='enviar-wa']",
   exito: ".pn-estado-ok", error: ".pn-error", invalidos: ".pn-dialogo [aria-invalid='true']",
-  hacerFoto: "[data-k='hacer-foto']", capturar: "[data-k='capturar']", capturaListo: "[data-k='captura-listo']", quitarFoto: (i) => `[data-k='quitar-${i}']`, tira: ".pn-tira li",
+  hacerFoto: "[data-k='hacer-foto']", capturar: "[data-k='capturar']", capturaListo: "[data-k='captura-listo']", quitarFoto: (i) => `[data-k='quitar-${i}']`, tira: ".pn-dialogo .pn-tira li:has(img)",
   barraCaptura: ".pn-barra-captura", ayudaCaptura: ".pn-bc-texto", numCaptura: ".pn-bc-num",
-  pasosWhatsApp: ".pn-pasos li", principal: ".pn-dialogo .pn-btn-acento", abrirWhatsApp: "[data-k='abrir-wa']", copiarSiguiente: "[data-k='copiar-siguiente']", terminado: "[data-k='terminado']",
+  // tras «Enviar por WhatsApp», una sola pantalla «Pega la foto y envía»
+  pasosWhatsApp: ".pn-pasos li", principal: ".pn-dialogo .c8-boton--primario", pegar: "[data-k='terminado'], [data-k='copiar-siguiente'], [data-k='copiar-otra-vez'], [data-k='descargar-fotos']",
+  copiarSiguiente: "[data-k='copiar-siguiente']", terminado: "[data-k='terminado']",
   galeriaTipo: (t) => `[data-k='gal-tipo:${t}']`, galeriaTodo: "[data-k='gal-todo']", galeriaItem: (i) => `[data-k='gal-item-${i}']`, galeria: ".pn-galeria li",
   lightbox: ".pn-lb", lightboxNum: ".pn-lb-n", documentos: ".pn-sec-docs",
-  nucleoRail: ".pn-rail", nucleoGaleria: "#galeria", nucleoPantalla: "#btn-pantalla",
+  nucleoGaleria: "#galeria", nucleoPantalla: "#btn-pantalla",
   portadaEmpezar: "#portada .empezar", // portada de la fase 3: «Empezar visita» es el primer gesto
 };
 
 const SD = JSON.parse(JSON.stringify(SEL)); // SEL sin las funciones, para pasarlo a page.evaluate
-// Testigos: piezas de la interfaz actual que la fase 3 rehace (tarjeta del inmueble, contacto en 4 toques, menú «Más»).
-// Si faltan, el bloque queda «pendiente de la interfaz nueva» en vez de fallar.
+// Testigos: piezas de la interfaz de las que dependen los bloques. Si faltan, el bloque queda «pendiente de la interfaz
+// nueva» en vez de fallar (hay que adaptar SEL).
 const PIEZAS = {
-  contacto: { "botón de contacto (dock u hoja)": SEL.contacto },
-  ficha: { "pestaña de la ficha u hoja": [SEL.ficha, SEL.peek] },
-  herramientas: { "personalizar": SEL.personalizar, "compartir": SEL.compartir, "ajustes": SEL.ajustes },
+  contacto: { "«Contactar» de la tarjeta": SEL.contacto },
+  ficha: { "resumen de la tarjeta (abre la ficha)": SEL.ficha },
+  herramientas: { "«Estilo y luz»": SEL.personalizar, "«Más»": SEL.mas },
 };
 const piezas = (...nombres) => Object.assign({}, ...nombres.map((n) => PIEZAS[n]));
 const inf = crearInforme("e2e · Paneles del visor");
@@ -94,20 +103,29 @@ const abrirHoja = async (p) => {
   if (!ok) throw new Error(`la hoja no se abre al pulsar el precio (antes: ${JSON.stringify(antes)})`);
   await estable(p);
 };
-const abrirContacto = async (p) => { await pulsar(p, SEL.contacto); await p.waitForSelector(SEL.dialogo); await estable(p); };
+/** «Contactar» abre el diálogo y adjunta sola la vista actual como foto 1 (PA1): se espera a que esté en la tira. */
+const abrirContacto = async (p) => {
+  await pulsar(p, SEL.contacto); await p.waitForSelector(SEL.dialogo);
+  await esperar(p, (s) => document.querySelectorAll(s).length >= 1, SEL.tira, 8000).catch(() => {});
+  await estable(p);
+};
+/** Abre «Más» (el menú del núcleo o el propio) y elige un elemento por su id (pn-compartir, pn-idioma, pn-ajustes…). */
+const elegirMas = async (p, id) => { await pulsar(p, SEL.mas); await p.waitForSelector(SEL.masItem(id)); await p.click(SEL.masItem(id)); await estable(p); };
 const rellenar = async (p, pregunta = "¿Se puede tirar esta pared?") => {
   await p.fill(SEL.nombre, "Lucía Martín"); await p.fill(SEL.telefono, "612 345 678"); await p.fill(SEL.pregunta, pregunta); await p.check(SEL.privacidad);
 };
+/** Espera a que la barra de captura cuente n fotos («n fotos»). */
+const fotosEnBarra = (p, n, ms = 5000) => esperar(p, ([s, n]) => document.querySelector(s)?.textContent?.startsWith(String(n)), [SEL.numCaptura, n], ms);
 const foco = (p) => p.evaluate(() => document.activeElement?.dataset?.k ?? document.activeElement?.className ?? "");
 const enFoco = (p, k) => esperar(p, (k) => document.activeElement?.dataset?.k === k, k, 3000).then(() => true, () => false);
 const IGNORAR = [/status of 500/];
-/** Objetivos táctiles visibles de menos de 44 px dentro de los paneles. */
+/** Objetivos táctiles visibles de menos de 44 px dentro de los paneles (y del menú «Más» del núcleo). */
 const objetivosPequenos = (p) => p.evaluate(() => {
   const malos = [];
-  for (const el of document.querySelectorAll("#paneles :is(button, a[href], input, select, textarea, summary, [role=switch], [role=radio])")) {
+  for (const el of document.querySelectorAll("#paneles :is(button, a[href], input, select, textarea, summary, [role=switch], [role=radio], label[data-k]), #menu-mas:not([hidden]) button")) {
     const r = el.getBoundingClientRect(), s = getComputedStyle(el);
     if (!r.width || !r.height || s.visibility === "hidden" || el.closest("[inert]") || el.closest(".pn-capturando > :not(.pn-barra-captura)")) continue;
-    if (el.matches("input[type=checkbox], input[type=color]")) continue; // la etiqueta o la muestra es el objetivo
+    if (el.matches("input[type=checkbox], input[type=radio], input[type=color]")) continue; // la etiqueta o la muestra es el objetivo
     if (el.matches("a") && el.closest("p, label") && getComputedStyle(el).display === "inline") continue; // enlace dentro de una frase
     if (r.right < 0 || r.bottom < 0 || r.left > innerWidth || r.top > innerHeight) continue;
     if (Math.min(r.width, r.height) < 43.5) malos.push(`${el.dataset.k ?? el.className ?? el.tagName} ${Math.round(r.width)}×${Math.round(r.height)}`);
@@ -123,21 +141,28 @@ try {
       if (!(await inf.requiere(p, piezas("contacto", "ficha"), `${n}: disposición y contacto`))) return;
       const clase = await p.getAttribute(SEL.raiz, "class");
       inf.ok(clase.includes(`pn-disp-${disp}`), `${n}: disposición «${disp}»`, clase);
-      const botones = await p.$$eval(SEL.contactoBotones, (bs) => bs.filter((b) => b.getBoundingClientRect().width && /^contacto-/.test(b.dataset.k)).map((b) => b.textContent.trim()));
-      inf.ok(botones.length >= 1 && botones.every((t) => t === "Contactar"), `${n}: botón «Contactar» siempre visible`, botones);
-      inf.ok(!!(await p.$(SEL.whatsappDirecto)) === (disp === "lateral"), `${n}: acceso directo a WhatsApp solo en escritorio`);
+      // un solo botón de contacto en todos los tamaños (PA2): el «Contactar» de la tarjeta, dentro de la pantalla
+      const botones = await p.$$eval("#paneles [data-k='contactar']", (bs) => bs.filter((b) => { const r = b.getBoundingClientRect(); return r.width && r.left >= -1 && r.right <= innerWidth + 1 && r.bottom <= innerHeight + 1; })
+        .map((b) => b.textContent.trim()));
+      inf.ok(botones.length === 1 && botones[0] === "Contactar", `${n}: botón «Contactar» siempre visible (uno solo)`, botones);
+      // el acceso directo a WhatsApp ya no está fuera: es un enlace secundario dentro del diálogo de contacto (PA2)
+      inf.ok(!(await p.$("#paneles a[href*='wa.me']")), `${n}: sin acceso directo a WhatsApp fuera del diálogo de contacto`);
       if (disp === "hoja") inf.ok(parseFloat(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--reserva-inferior"))) > 50, `${n}: la hoja reserva su alto para que el núcleo no quede debajo (--reserva-inferior)`);
       await abrirContacto(p);
       const v = await p.evaluate((S) => {
         const d = document.querySelector(S.dialogo), f = document.querySelector(S.hacerFoto), z = document.querySelector(S.zona), cuerpo = d.querySelector(S.cuerpoDialogo).getBoundingClientRect();
-        const rd = d.getBoundingClientRect(), rf = f.getBoundingClientRect(), dock = document.querySelector(S.dock);
-        return { dock: !!dock && dock.getBoundingClientRect().width > 0 && getComputedStyle(dock).display !== "none",
-          foto: rf.top >= cuerpo.top - 1 && rf.bottom <= cuerpo.bottom + 1 && rf.bottom <= innerHeight, orden: !!(z.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING),
+        const rd = d.getBoundingClientRect(), rf = f.getBoundingClientRect(), c = document.querySelector(S.contacto).getBoundingClientRect();
+        const encima = document.elementFromPoint(c.left + c.width / 2, c.top + c.height / 2);
+        return { tapado: !!encima && d.contains(encima), separado: c.right <= rd.left + 1 || c.left >= rd.right - 1 || c.bottom <= rd.top + 1 || c.top >= rd.bottom - 1,
+          foto: rf.top >= cuerpo.top - 1 && rf.bottom <= cuerpo.bottom + 1 && rf.bottom <= innerHeight, orden: !!(f.compareDocumentPosition(z) & Node.DOCUMENT_POSITION_FOLLOWING),
+          adjunta: document.querySelectorAll(S.tira).length, directo: !!d.querySelector(S.whatsappDirecto),
           dentro: rd.left >= -1 && rd.right <= innerWidth + 1 && rd.top >= -1 && rd.bottom <= innerHeight + 1, foco: document.activeElement?.dataset?.k ?? document.activeElement?.className };
       }, SD);
       inf.ok(v.dentro, `${n}: el diálogo de contacto cabe en pantalla`, v);
-      inf.ok(!v.dock, `${n}: con el diálogo abierto el botón de contacto se oculta`, v);
-      inf.ok(v.foto && v.orden, `${n}: «Hacer foto» justo bajo la estancia y visible sin desplazar`);
+      inf.ok(disp === "lateral" ? v.separado : v.tapado, `${n}: con el diálogo abierto, «Contactar» ${disp === "lateral" ? "queda al lado: el diálogo no tapa la tarjeta" : "queda debajo del diálogo"}`, v);
+      inf.ok(v.adjunta === 1, `${n}: «Contactar» adjunta sola la vista actual como foto 1`, v);
+      inf.ok(v.foto && v.orden, `${n}: «Añadir otra vista» junto a las fotos, antes de la estancia y visible sin desplazar`, v);
+      inf.ok(v.directo, `${n}: el WhatsApp directo es un enlace secundario dentro del diálogo`);
       inf.ok(tactil ? v.foco === SEL.tituloDialogo : v.foco === "c-zona", `${n}: foco inicial ${tactil ? "en el título (no abre el teclado)" : "en la estancia"} (${v.foco})`);
       await p.click(SEL.hacerFoto);
       await p.click(SEL.capturar);
@@ -162,16 +187,15 @@ try {
         inf.ok(!peq.length, `${n}: objetivos táctiles ≥ 44 px en la ficha`, peq.join(", "));
         await p.keyboard.press("Escape");
         await estable(p);
-        for (const [k, sel] of [["personalizar", SEL.personalizar], ["compartir", SEL.compartir], ["ajustes", SEL.ajustes]]) {
-          if (disp === "hoja" && k !== "personalizar") await abrirHoja(p);
-          if (![sel].flat().some(Boolean) || !(await p.$([sel].flat().join(", ")))) continue; // esa herramienta no existe en esta disposición
-          await pulsar(p, sel, 3000, true);
-          await p.waitForSelector(SEL.dialogo);
+        // «Estilo y luz» está en la tarjeta; Compartir y Ajustes, en «Más» (fase 3)
+        for (const [k, abrirla] of [["«Estilo y luz»", () => pulsar(p, SEL.personalizar)], ["«Más»", () => pulsar(p, SEL.mas)],
+          ["Compartir", () => elegirMas(p, "pn-compartir")], ["Ajustes", () => elegirMas(p, "pn-ajustes")]]) {
+          await abrirla();
+          if (k !== "«Más»") await p.waitForSelector(SEL.dialogo);
           await estable(p);
           const pq = await objetivosPequenos(p);
           inf.ok(!pq.length, `${n}: objetivos táctiles ≥ 44 px en ${k}`, pq.join(", "));
           await cerrarDialogo(p);
-          if (disp === "hoja") { await p.keyboard.press("Escape"); await estable(p); }
         }
       }
       const err = erroresDe(p, IGNORAR);
@@ -179,24 +203,31 @@ try {
     });
   }
 
-  // ================================================================== 2 · personalizar, compartir y envío
+  // ================================================================== 2 · Estilo y luz, compartir y envío
   for (const [n, opciones] of [["escritorio", {}], ["móvil", { ancho: 390, alto: 844, tactil: true }]]) {
-    await inf.bloque(`Personalizar, compartir y consulta completa (${n})`, async () => {
+    await inf.bloque(`Estilo y luz, compartir y consulta completa (${n})`, async () => {
       const { p, red } = await simulado(opciones);
-      if (!(await inf.requiere(p, piezas("contacto", "herramientas"), "personalizar, compartir y contacto"))) return;
+      if (!(await inf.requiere(p, piezas("contacto", "herramientas"), "Estilo y luz, compartir y contacto"))) return;
       await pulsar(p, SEL.personalizar);
-      await p.click(SEL.estilo("nordico")); await p.click(SEL.momento("noche")); await p.click(SEL.pared("#a9b5a0"));
+      await p.waitForSelector(SEL.dialogo);
+      // vivienda construida (el visor simulado): Colores y Luz, sin estilos IA (PA3; los estilos se prueban en el bloque 2 b)
+      inf.ok(!(await p.$(SEL.estilo("nordico"))), "en una vivienda construida «Estilo y luz» no ofrece estilos IA");
+      await p.click(SEL.momento("noche")); await p.click(SEL.pared("#a9b5a0"));
       const est = await p.evaluate(() => ({ ...window.visor.estado }));
-      inf.ok(est.estilo === "nordico" && est.momento === "noche" && est.pintura.paredes === "#a9b5a0", "Personalizar aplica estilo, momento y color de paredes en el visor");
+      inf.ok(est.momento === "noche" && est.pintura.paredes === "#a9b5a0", "«Estilo y luz» aplica la luz y el color de paredes en el visor", est);
       await p.click(SEL.comparar);
-      inf.ok(await p.evaluate(() => window.visor.estado.comparar === true), "«Comparar» activa la vista antes/después");
+      inf.ok(await p.evaluate(() => window.visor.estado.comparar === true), "«Antes y después» activa la vista comparada");
       await p.keyboard.press("Escape");
-      if (!(await visible(p, SEL.compartir))) await abrirHoja(p);
-      await pulsar(p, SEL.compartir, 3000, true);
-      inf.ok(!!(await p.waitForSelector(SEL.qr, { timeout: 5000 }).catch(() => null)), "Compartir genera el código QR del enlace a la vista");
+      await elegirMas(p, "pn-compartir");
+      if (n === "escritorio") inf.ok(!!(await p.waitForSelector(SEL.qr, { timeout: 5000 }).catch(() => null)), "Compartir genera el código QR del enlace a la vista");
+      else {
+        const sh = await p.evaluate((S) => ({ qr: !!document.querySelector(S.qr), compartir: !!document.querySelector(S.compartirNativo) || !!document.querySelector(S.compartirWa), copiar: !!document.querySelector(`${S.dialogo} ${S.copiarEnlace}`) }), SD);
+        inf.ok(!sh.qr && sh.compartir && sh.copiar, "en el móvil, Compartir ofrece compartir y copiar el enlace (sin QR: no se escanea la pantalla que se tiene en la mano)", sh);
+      }
       await p.keyboard.press("Escape");
-      if (n === "móvil") await p.keyboard.press("Escape");
       await abrirContacto(p);
+      // se quita la vista adjunta (✕) para que la consulta vaya en JSON; las fotos se prueban en el bloque 7
+      await p.click(SEL.quitarFoto(0));
       await p.click(SEL.enviar);
       inf.ok((await p.$$(SEL.invalidos)).length === 4, "enviar el formulario vacío marca los 4 campos obligatorios");
       await p.fill(SEL.nombre, "Lucía Martín"); await p.fill(SEL.telefono, "612 345 678");
@@ -208,6 +239,18 @@ try {
       inf.ok(await p.evaluate(() => window.__registro.some(([e, d]) => e === "contacto" && d.canal === "webhook")), "se emite el evento «contacto» (canal webhook) para la analítica");
     });
   }
+
+  // ================================================================== 2 b · Estilo y luz en un proyecto
+  await inf.bloque("Estilo y luz en un proyecto: estilos IA (y colores si el tour los trae)", async () => {
+    const { p } = await simulado({ query: "?obra=proyecto" });
+    if (!(await inf.requiere(p, { "«Estilo y luz»": SEL.personalizar }, "Estilo y luz en un proyecto"))) return;
+    await pulsar(p, SEL.personalizar);
+    await p.waitForSelector(SEL.dialogo);
+    await p.click(SEL.estilo("nordico")); await p.click(SEL.momento("noche"));
+    const est = await p.evaluate(() => ({ ...window.visor.estado }));
+    inf.ok(est.estilo === "nordico" && est.momento === "noche", "en un proyecto, «Estilo y luz» aplica el estilo (recreación con IA) y la luz en el visor", est);
+    inf.ok(!!(await p.$(SEL.pared("#a9b5a0"))), "si el proyecto trae también colores, se ven los dos (PA3)");
+  });
 
   // ================================================================== 3 · validación
   await inf.bloque("Validación del formulario de contacto", async () => {
@@ -243,7 +286,6 @@ try {
     await p.waitForSelector(SEL.reintentar, { timeout: 5000 });
     inf.ok(!!(await p.$(SEL.enviarWhatsApp)), "si el CRM falla se ofrecen «Reintentar» y enviar por WhatsApp");
     await p.click(SEL.enviarWhatsApp);
-    await esperar(p, () => true);
     for (let i = 0; i < 30 && !red.wa.length; i++) await p.waitForTimeout(100); // la ventana de wa.me se intercepta en la red
     const url = decodeURIComponent(red.wa[0] ?? "");
     inf.ok(url.includes("wa.me/34600111222") && url.includes("Lucía") && url.includes("REF-1234") && url.includes("Salón"), "WhatsApp alternativo con el mensaje completo (nombre, referencia, estancia)", url.slice(0, 120));
@@ -253,9 +295,9 @@ try {
   // ================================================================== 5 · WhatsApp, alquiler, idioma y herramientas
   await inf.bloque("Modo WhatsApp, alquiler, idioma y herramientas", async () => {
     const { p, red } = await simulado({ query: "?modo=whatsapp&op=alquiler" });
-    if (!(await inf.requiere(p, { ...piezas("contacto", "ficha", "herramientas"), idioma: SEL.idioma, "visita guiada": SEL.guiada, medir: SEL.medir }, "WhatsApp, idioma y herramientas"))) return;
+    if (!(await inf.requiere(p, { ...piezas("contacto", "ficha", "herramientas"), "visita guiada": SEL.guiada, medir: SEL.medir }, "WhatsApp, idioma y herramientas"))) return;
     await p.click(SEL.ficha);
-    await p.waitForSelector(SEL.precioCabecera);
+    await p.waitForSelector(SEL.cuerpoPanel);
     inf.ok(!(await p.$(SEL.hipoteca)), "en alquiler no hay calculadora de hipoteca");
     await p.keyboard.press("Escape");
     await abrirContacto(p);
@@ -263,30 +305,31 @@ try {
     await p.click(SEL.enviar);
     for (let i = 0; i < 30 && !red.wa.length; i++) await p.waitForTimeout(100);
     inf.ok(red.wa.length === 1 && red.hook.length === 0, "en modo WhatsApp la consulta abre wa.me y no usa el CRM");
-    await p.keyboard.press("Escape");
-    await p.click(SEL.idioma); await p.click(SEL.idiomaX("en"));
-    inf.ok(await esperar(p, (s) => document.documentElement.lang === "en" && document.querySelector(s)?.textContent.trim() === "Contact", SEL.botonDock, 3000).then(() => true, () => false)
+    await cerrarDialogo(p);
+    await elegirMas(p, "pn-idioma"); await p.click(SEL.idiomaX("en"));
+    inf.ok(await esperar(p, (s) => document.documentElement.lang === "en" && document.querySelector(s)?.textContent.trim() === "Contact", SEL.contactoTexto, 3000).then(() => true, () => false)
       && await p.evaluate(() => window.__registro.some(([e, c]) => e === "idioma" && c === "en")), "cambiar a inglés traduce la interfaz y avisa al visor (visor.idioma)");
-    await p.keyboard.press("Escape");
+    await cerrarDialogo(p);
     await p.click(SEL.guiada);
     inf.ok(await p.evaluate((s) => window.visor.estado.guionActivo && document.querySelector(s).getAttribute("aria-pressed") === "true", SEL.guiada), "la visita guiada se inicia y el botón queda pulsado");
     await p.click(SEL.guiada);
     inf.ok(await p.evaluate(() => !window.visor.estado.guionActivo), "y se detiene");
     await p.click(SEL.medir);
     inf.ok(await p.evaluate(() => window.visor.estado.midiendo === true), "«Medir» activa la medición");
-    await pulsar(p, SEL.ajustes);
-    await p.check(SEL.invertirY);
-    inf.ok(await p.evaluate(() => JSON.parse(localStorage.getItem("visor:ajustes") ?? "{}").invertirY === true), "los ajustes (invertir eje Y) se guardan");
+    // fuera «Invertir eje» (P-4): los ajustes los guarda el núcleo con visor.ajustes()
+    await elegirMas(p, "pn-ajustes");
+    await p.click(SEL.movimiento);
+    inf.ok(await p.evaluate(() => window.__registro.some(([e, o]) => e === "ajustes" && o?.reducirMovimiento === true)), "los ajustes («Reducir movimiento») se envían al núcleo para guardarse (visor.ajustes)");
   });
 
   // ================================================================== 6 · francés, trámite y hoja táctil
   await inf.bloque("Francés, certificado en trámite y hoja táctil", async () => {
     const { p, ctx } = await simulado({ ancho: 390, alto: 844, tactil: true, query: "?lang=fr&tramite" });
-    if (!(await inf.requiere(p, { personalizar: SEL.personalizar, "hoja del móvil": SEL.peek }, "hoja táctil y personalizar en francés"))) return;
+    if (!(await inf.requiere(p, { "«Estilo y luz»": SEL.personalizar, "hoja del móvil": SEL.peek }, "hoja táctil y «Estilo y luz» en francés"))) return;
     await p.evaluate(() => window.visor.ir("cocina"));
     await pulsar(p, SEL.personalizar);
     inf.ok((await p.textContent(SEL.dialogo)).includes("Non disponible dans cette pièce"), "en una estancia sin máscara se avisa (en francés) de que no se puede pintar");
-    await p.keyboard.press("Escape");
+    await cerrarDialogo(p);
     const caja = await p.locator(SEL.peek).boundingBox();
     const cdp = await ctx.newCDPSession(p);
     const punto = (y) => [{ x: caja.x + 40, y }];
@@ -306,13 +349,16 @@ try {
       inf.ok(await p.evaluate((s) => document.querySelector(s).value === "salon", SEL.zona), "la estancia de interés empieza en la estancia que se está viendo");
       const grupos = await p.evaluate((s) => [...document.querySelectorAll(`${s} optgroup`)].map((g) => g.label).join(), SEL.zona);
       inf.ok(grupos === "Zona de día,Zona de noche", `las estancias se agrupan por secciones (${grupos})`);
+      // la vista que se adjuntó sola se quita con ✕ (aquí, para contar solo las fotos hechas a mano)
+      await p.click(SEL.quitarFoto(0));
+      inf.ok((await p.$$(SEL.tira)).length === 0 && await enFoco(p, "hacer-foto"), "la vista adjunta se quita con ✕ y el foco pasa a «Añadir otra vista»");
       await p.selectOption(SEL.zona, "cocina");
       await p.click(SEL.hacerFoto);
-      inf.ok(await enFoco(p, "capturar"), "al entrar en modo captura el foco va a «Capturar»");
-      for (let k = 0; k < 3; k++) { await p.click(SEL.capturar); await esperar(p, ([s, n]) => document.querySelector(s)?.textContent?.startsWith(String(n)), [SEL.numCaptura, k + 1], 5000); }
+      inf.ok(await enFoco(p, "capturar"), "al entrar en modo captura el foco va a «Hacer foto»");
+      for (let k = 0; k < 3; k++) { await p.click(SEL.capturar); await fotosEnBarra(p, k + 1); }
       await p.evaluate(() => window.visor.ir("cocina"));
       await p.click(SEL.capturar);
-      await esperar(p, ([s, n]) => document.querySelector(s)?.textContent?.startsWith(String(n)), [SEL.numCaptura, 4], 5000);
+      await fotosEnBarra(p, 4);
       await p.keyboard.press("Escape");
       inf.ok(await enFoco(p, "hacer-foto") && (await p.$$(SEL.tira)).length === 4, "Escape vuelve al formulario con las 4 fotos");
       await p.click(SEL.quitarFoto(1)); await p.click(SEL.quitarFoto(1));
@@ -326,39 +372,42 @@ try {
     }
     {
       const { p, red } = await simulado({ query: "?formato=json" });
-      await abrirContacto(p);
+      await abrirContacto(p); // la vista actual ya va como foto 1
       await p.click(SEL.hacerFoto); await p.click(SEL.capturar);
-      await esperar(p, (s) => document.querySelector(s)?.textContent?.startsWith("1"), SEL.numCaptura, 5000);
+      await fotosEnBarra(p, 2);
       await p.click(SEL.capturaListo); await rellenar(p); await p.click(SEL.enviar);
       await p.waitForSelector(SEL.exito, { timeout: 5000 });
       const h = red.hook[0] ?? {};
-      inf.ok(Array.isArray(h.fotos) && h.fotos[0]?.base64?.length > 1000 && h.fotos[0].tipo === "image/jpeg" && !!h.fotos[0].enlace, "con webhook_formato «json» las fotos van en base64 con su enlace");
+      inf.ok(Array.isArray(h.fotos) && h.fotos.length === 2 && h.fotos.every((f) => f.base64?.length > 1000 && f.tipo === "image/jpeg" && !!f.enlace),
+        "con webhook_formato «json» las fotos (la vista adjunta y la hecha) van en base64 con su enlace");
     }
   });
 
   // ================================================================== 8 · WhatsApp con fotos
-  await inf.bloque("WhatsApp con fotos: escritorio (portapapeles) y móvil (compartir archivos)", async () => {
+  await inf.bloque("WhatsApp con fotos: en el mismo gesto se copia la foto y se abre el chat (escritorio y móvil)", async () => {
     {
       const { p, red } = await simulado({ query: "?modo=whatsapp", permisos: ["clipboard-read", "clipboard-write"] });
       if (!(await inf.requiere(p, piezas("contacto"), "WhatsApp con fotos"))) return;
-      await abrirContacto(p); await p.click(SEL.hacerFoto);
-      for (let k = 1; k <= 2; k++) { await p.click(SEL.capturar); await esperar(p, ([s, n]) => document.querySelector(s)?.textContent?.startsWith(String(n)), [SEL.numCaptura, k], 5000); }
+      await abrirContacto(p); // foto 1: la vista actual
+      await p.click(SEL.hacerFoto);
+      await p.click(SEL.capturar); await fotosEnBarra(p, 2);
       await p.click(SEL.capturaListo); await rellenar(p);
       await p.click(SEL.enviar);
-      await p.waitForSelector(SEL.abrirWhatsApp);
-      const pre = await p.evaluate((S) => ({ pasos: [...document.querySelectorAll(S.pasosWhatsApp)].map((l) => l.textContent), principales: document.querySelectorAll(S.principal).length, foco: document.activeElement?.dataset.k }), SD);
-      inf.ok(red.wa.length === 0 && pre.pasos.length === 3 && /Ctrl\+V|⌘V/.test(pre.pasos[2]) && pre.principales === 1 && pre.foco === "abrir-wa",
-        "antes de abrir WhatsApp se explican 3 pasos y hay un único botón principal con el foco", pre);
-      await p.click(SEL.abrirWhatsApp);
       for (let i = 0; i < 30 && !red.wa.length; i++) await p.waitForTimeout(100);
+      await p.waitForSelector(SEL.pegar);
+      const pre = await p.evaluate((S) => ({ titulo: document.querySelector(`${S.dialogo} .${S.tituloDialogo}`)?.textContent, pasos: document.querySelectorAll(S.pasosWhatsApp).length,
+        principales: document.querySelectorAll(S.principal).length, foco: document.activeElement?.dataset.k }), SD);
+      inf.ok(red.wa.length === 1 && pre.titulo === "Pega la foto y envía" && !pre.pasos && pre.principales === 1 && pre.foco === "copiar-siguiente",
+        "«Enviar por WhatsApp» abre el chat en el mismo gesto (sin pantalla de pasos) y queda una sola pantalla «Pega la foto y envía» con un único botón principal, con el foco", pre);
       await p.bringToFront();
       let tipos = [];
-      for (let i = 0; i < 30 && !tipos.includes("image/png"); i++) { // la foto se copia de forma asíncrona tras abrir WhatsApp
+      for (let i = 0; i < 30 && !tipos.includes("image/png"); i++) { // la copia termina de forma asíncrona tras abrir WhatsApp
         tipos = await p.evaluate(async () => { try { return (await navigator.clipboard.read()).flatMap((i) => i.types); } catch (e) { return ["ERR " + e.message]; } });
         if (!tipos.includes("image/png")) await p.waitForTimeout(100);
       }
       const msg = decodeURIComponent(red.wa[0] ?? "");
-      inf.ok(/Foto 1 – Salón: http/.test(msg) && /Foto 2 – Salón: http/.test(msg) && /Estancia de interés:\* Salón/.test(msg), "el mensaje lleva una línea con el enlace de cada foto");
+      const enlaces = msg.replace(/^https:\/\/wa\.me\/\d+\?text=/, "").match(/https?:\/\/\S+/g) ?? [];
+      inf.ok(/\*Fotos:\* 1 · Salón, 2 · Salón/.test(msg) && enlaces.length === 1 && /Estancia de interés:\* Salón/.test(msg), "el mensaje nombra cada foto por su estancia y lleva un solo enlace (a la vista)", msg.replace(/\n/g, " ⏎ "));
       inf.ok(tipos.includes("image/png"), `la primera foto queda en el portapapeles para pegarla (${tipos})`);
       await p.click(SEL.copiarSiguiente);
       inf.ok(await esperar(p, (S) => /Foto 2 de 2 copiada/.test(document.querySelector(S.dialogo).innerText) && document.activeElement?.dataset.k === "terminado", SD, 5000).then(() => true, () => false),
@@ -367,30 +416,32 @@ try {
       inf.ok(/Te responderemos por WhatsApp/.test(await p.textContent(SEL.dialogo)), "confirmación final");
     }
     {
-      const init = () => { navigator.canShare = (d) => !!d?.files?.length; navigator.share = async (d) => { window.__compartido = { n: d.files.length, texto: d.text }; }; };
+      // aunque el móvil pueda compartir archivos, se abre el chat de la agencia (wa.me): la hoja de compartir no sabe a quién enviar
+      const init = () => { navigator.canShare = (d) => !!d?.files?.length; navigator.share = async (d) => { window.__compartido = { n: d.files?.length ?? 0, texto: d.text }; }; };
       const { p, red } = await simulado({ ancho: 390, alto: 844, tactil: true, query: "?modo=whatsapp", init });
       await abrirContacto(p); await p.click(SEL.hacerFoto); await p.click(SEL.capturar);
-      await esperar(p, (s) => document.querySelector(s)?.textContent?.startsWith("1"), SEL.numCaptura, 5000);
+      await fotosEnBarra(p, 2);
       await p.click(SEL.capturaListo); await rellenar(p); await p.click(SEL.enviar);
-      const c = await esperar(p, () => window.__compartido, null, 5000).then(() => p.evaluate(() => window.__compartido), () => null);
-      inf.ok(c?.n === 1 && /Foto 1/.test(c.texto) && red.wa.length === 0, "en el móvil la foto se comparte como archivo (navigator.share) junto al mensaje", c);
+      for (let i = 0; i < 30 && !red.wa.length; i++) await p.waitForTimeout(100);
+      const c = await p.evaluate(() => window.__compartido ?? null);
+      inf.ok(red.wa.length === 1 && !c, "en el móvil «Enviar por WhatsApp» abre en el mismo gesto el chat de la agencia (wa.me), no la hoja de compartir del sistema", { wa: red.wa.length, c });
     }
     {
       const init = () => { try { delete Navigator.prototype.canShare; } catch {} navigator.canShare = undefined; };
       const { p } = await simulado({ ancho: 390, alto: 844, tactil: true, query: "?modo=whatsapp", init, permisos: ["clipboard-read", "clipboard-write"] });
       await abrirContacto(p); await p.click(SEL.hacerFoto); await p.click(SEL.capturar);
-      await esperar(p, (s) => document.querySelector(s)?.textContent?.startsWith("1"), SEL.numCaptura, 5000);
+      await fotosEnBarra(p, 2);
       await p.click(SEL.capturaListo); await rellenar(p); await p.click(SEL.enviar);
-      await p.waitForSelector(SEL.abrirWhatsApp);
+      await p.waitForSelector(SEL.pegar);
       const t = await p.textContent(SEL.dialogo);
-      inf.ok(/mantén pulsado el cuadro de mensaje y toca Pegar/.test(t) && !/Ctrl\+V|⌘V/.test(t), "en táctil sin compartir archivos se explica «mantén pulsado… Pegar» (nunca Ctrl+V)");
+      inf.ok(/mantén pulsado el cuadro de mensaje y toca Pegar/.test(t) && !/Ctrl\+V|⌘V/.test(t), "en táctil se explica «mantén pulsado… Pegar» (nunca Ctrl+V)");
     }
   });
 
   // ================================================================== 9 · galería y documentos
   await inf.bloque("Galería, visor de imágenes, documentos y crédito", async () => {
     const { p } = await simulado();
-    if (!(await inf.requiere(p, { "pestaña de la ficha": SEL.ficha }, "galería de la ficha"))) return;
+    if (!(await inf.requiere(p, piezas("ficha"), "galería de la ficha"))) return;
     await p.click(SEL.ficha);
     await p.click(SEL.galeriaTipo("render"));
     inf.ok((await p.$$(SEL.galeria)).length === 2, "el filtro por tipo muestra solo los 2 renders");
@@ -411,14 +462,15 @@ try {
   // ================================================================== 10 · cambio de tour
   await inf.bloque("Cambio de tour (vista previa del Estudio)", async () => {
     const { p } = await simulado();
-    if (!(await inf.requiere(p, { "pestaña de la ficha": SEL.ficha }, "ficha tras cambiar de tour"))) return;
+    if (!(await inf.requiere(p, piezas("ficha"), "ficha tras cambiar de tour"))) return;
     await p.click(SEL.ficha);
     await p.evaluate(() => window.__cambiarTour({ version: 2, titulo: "Chalet del Estudio", idiomas: ["es", "en"], marca: { nombre: "Otra Inmo", color: "#2f6f9f" },
       inmueble: { referencia: "EST-9", operacion: "venta", tipo: "chalet", superficie_construida: 210, habitaciones: 5 }, panoramas: [{ id: "a", nombre: "Entrada", x: 0, z: 0, imagen: "a.jpg" }] }));
+    // el color de marca lo fija el núcleo (--c-acento); los paneles lo usan en su botón principal
     const r = await p.evaluate((S) => ({ titulo: document.querySelector(S.titulo)?.textContent, precio: document.querySelector(S.precioCabecera)?.textContent, hip: !!document.querySelector(S.hipoteca),
-      acento: getComputedStyle(document.documentElement).getPropertyValue("--acento").trim(), marca: document.querySelector(S.marca)?.textContent, viejo: document.body.innerText.includes("Chamberí") }), SD);
+      acento: getComputedStyle(document.querySelector(S.contacto)).backgroundColor, marca: document.querySelector(S.marca)?.textContent, viejo: document.body.innerText.includes("Chamberí") }), SD);
     inf.ok(r.titulo === "Chalet del Estudio" && r.marca === "Otra Inmo" && !r.viejo, "el evento «tour» repinta los paneles con los datos nuevos (nada del tour anterior)", r);
-    inf.ok(r.precio === "Precio a consultar" && !r.hip && r.acento === "#2f6f9f", "sin precio: «Precio a consultar», sin hipoteca y con el color de la marca nueva", r);
+    inf.ok(r.precio === "Precio a consultar" && !r.hip && r.acento === "rgb(47, 111, 159)", "sin precio: «Precio a consultar», sin hipoteca y «Contactar» con el color de la marca nueva", r);
     await p.evaluate(() => { window.visor.tour = { ...window.visor.tour, titulo: "Sin evento", inmueble: { precio: 125000, operacion: "venta" } }; window.visor.emitir("nodo", { id: "a" }); });
     inf.ok(await esperar(p, (S) => document.querySelector(S.titulo)?.textContent === "Sin evento" && document.querySelector(S.precioCabecera)?.textContent.includes("125.000"), SD, 3000).then(() => true, () => false),
       "si visor.tour cambia sin evento, se detecta en el siguiente repintado");
@@ -428,24 +480,24 @@ try {
   await inf.bloque("Música del proyecto", async () => {
     {
       const { p } = await simulado();
-      if (!(await inf.requiere(p, { ajustes: SEL.ajustes, "pestaña de la ficha": SEL.ficha }, "música en Ajustes y en la ficha"))) return;
-      await pulsar(p, SEL.ajustes);
-      const a = await p.evaluate((S) => ({ sw: document.querySelector(S.musica)?.getAttribute("aria-checked"), vol: document.querySelector(S.volumen)?.value, txt: document.querySelector(S.volumenTxt)?.textContent }), SD);
-      inf.ok(a.sw === "true" && a.vol === "40" && /40/.test(a.txt), "Ajustes muestra la música activa al volumen del proyecto (40 %)", a);
+      if (!(await inf.requiere(p, { "«Más»": SEL.mas, ...piezas("ficha") }, "música en Ajustes y en la ficha"))) return;
+      await elegirMas(p, "pn-ajustes");
+      const a = await p.evaluate((S) => ({ sw: document.querySelector(S.musica)?.checked, vol: document.querySelector(S.volumen)?.value, txt: document.querySelector(S.volumenTxt)?.textContent }), SD);
+      inf.ok(a.sw === true && a.vol === "40" && /40/.test(a.txt), "Ajustes muestra la música activa al volumen del proyecto (40 %)", a);
       await p.click(SEL.musica);
-      inf.ok(await p.evaluate((s) => window.visor.sonido.activo === false && document.querySelector(s).getAttribute("aria-checked") === "false", SEL.musica), "el interruptor silencia la música");
+      inf.ok(await p.evaluate((s) => window.visor.sonido.activo === false && document.querySelector(s).checked === false, SEL.musica), "el interruptor silencia la música");
       await p.evaluate(() => { window.visor.sonido.volumen = 0.7; window.visor.sonido.alternar(); });
-      inf.ok(await esperar(p, (S) => document.querySelector(S.musica).getAttribute("aria-checked") === "true" && document.querySelector(S.volumen).value === "70", SD, 3000).then(() => true, () => false),
+      inf.ok(await esperar(p, (S) => document.querySelector(S.musica).checked === true && document.querySelector(S.volumen).value === "70", SD, 3000).then(() => true, () => false),
         "se sincroniza con el evento «sonido» del núcleo");
       await p.fill(SEL.volumen, "25");
       inf.ok(await p.evaluate(() => Math.abs(window.visor.sonido.volumen - 0.25) < 0.001), "el deslizador fija el volumen del visor");
-      await p.keyboard.press("Escape");
+      await cerrarDialogo(p);
       await p.click(SEL.ficha);
       inf.ok((await p.textContent(SEL.creditoMusica)) === "Música: Brisa de tarde · Laura Gómez (CC BY 4.0)", "la ficha acredita la música (título, autor y licencia)");
     }
     {
       const { p } = await simulado({ query: "?sonido=no" });
-      await pulsar(p, SEL.ajustes);
+      await elegirMas(p, "pn-ajustes");
       inf.ok(!(await p.$(SEL.musica)), "sin música disponible no aparece la fila de música");
     }
   });
@@ -453,23 +505,24 @@ try {
   // ================================================================== 12 · teclado
   await inf.bloque("Uso solo con teclado", async () => {
     const { p } = await simulado();
-    if (!(await inf.requiere(p, { "pestaña de la ficha": SEL.ficha, "botón de contacto": SEL.contacto[0] }, "uso con teclado"))) return;
+    if (!(await inf.requiere(p, piezas("contacto", "ficha"), "uso con teclado"))) return;
     await p.focus(SEL.ficha); await p.keyboard.press("Enter");
-    inf.ok(await esperar(p, (s) => document.querySelector(s).classList.contains("pn-abierto"), SEL.raiz, 3000).then(() => true, () => false), "Enter abre la ficha");
+    inf.ok(await esperar(p, (s) => document.querySelector(s)?.getAttribute("aria-expanded") === "true", SEL.ficha, 3000).then(() => true, () => false), "Enter abre la ficha");
     await p.keyboard.press("Escape");
-    inf.ok(await enFoco(p, "pestana"), "Escape la cierra y devuelve el foco a su botón");
-    await p.focus(SEL.contacto[0]); await p.keyboard.press("Enter");
+    inf.ok(await enFoco(p, "ficha"), "Escape la cierra y devuelve el foco a su botón");
+    await p.focus(SEL.contacto); await p.keyboard.press("Enter");
     inf.ok(await enFoco(p, "c-zona"), "Enter abre el contacto con el foco en la estancia");
-    await p.keyboard.press("Tab");
-    inf.ok(await enFoco(p, "hacer-foto"), "Tab lleva a «Hacer foto de esta vista»");
+    await esperar(p, (s) => document.querySelectorAll(s).length === 1, SEL.tira, 8000).catch(() => {}); // la vista adjunta
+    await p.keyboard.press("Shift+Tab");
+    inf.ok(await enFoco(p, "hacer-foto"), "Mayús+Tab lleva a «Añadir otra vista» (las fotos van antes de la estancia)");
     await p.keyboard.press("Enter");
-    inf.ok(await enFoco(p, "capturar"), "Enter entra en modo captura con el foco en «Capturar»");
+    inf.ok(await enFoco(p, "capturar"), "Enter entra en modo captura con el foco en «Hacer foto»");
     await p.keyboard.press("Enter");
-    await esperar(p, (s) => document.querySelector(s)?.textContent?.startsWith("1"), SEL.numCaptura, 5000);
+    await fotosEnBarra(p, 2);
     await p.keyboard.press("Escape");
-    inf.ok(await enFoco(p, "hacer-foto") && (await p.$$(SEL.tira)).length === 1, "Escape vuelve al formulario con la foto hecha");
+    inf.ok(await enFoco(p, "hacer-foto") && (await p.$$(SEL.tira)).length === 2, "Escape vuelve al formulario con la foto hecha (junto a la vista adjunta)");
     await p.keyboard.press("Escape");
-    inf.ok(await enFoco(p, "contacto-dock"), "Escape cierra el contacto y devuelve el foco al botón");
+    inf.ok(await enFoco(p, "contactar"), "Escape cierra el contacto y devuelve el foco al botón");
   });
 
   // ================================================================== 13 · núcleo real
@@ -481,17 +534,21 @@ try {
     await p.waitForTimeout(500); // que terminen los cambios de clase del arranque (portada, paneles)
     const antes = await p.evaluate(() => { const b = document.body; window.__cambiosSoloBody = 0; new MutationObserver((m) => { window.__cambiosSoloBody += m.length; }).observe(b, { attributes: true, attributeFilter: ["class"] }); return b.className; });
     await p.waitForTimeout(1000); // se comprueba que NO cambia nada sin tocar
-    const r = await p.evaluate((s) => ({ cambios: window.__cambiosSoloBody, body: document.body.className, rail: document.querySelector(s) ? getComputedStyle(document.querySelector(s)).opacity : "1" }), SEL.nucleoRail);
-    inf.ok(r.cambios === 0 && !r.body.includes("ui-inactiva") && r.rail === "1", `sin tocar nada, la interfaz no parpadea: 0 cambios de clase del body en 1 s (antes «${antes}»)`, r);
+    const r = await p.evaluate((s) => ({ cambios: window.__cambiosSoloBody, body: document.body.className, tarjeta: document.querySelector(s) ? getComputedStyle(document.querySelector(s)).opacity : "1" }), SEL.tarjeta);
+    inf.ok(r.cambios === 0 && !r.body.includes("ui-inactiva") && r.tarjeta === "1", `sin tocar nada, la interfaz no parpadea: 0 cambios de clase del body en 1 s (antes «${antes}»)`, r);
     await p.waitForTimeout(3000); // y tampoco se oculta pasado el plazo de inactividad (3,5 s) si nadie ha interactuado
     inf.ok(await p.evaluate(() => !document.body.classList.contains("ui-inactiva") && window.__cambiosSoloBody === 0), "antes de la primera interacción la interfaz no se oculta");
     if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar); // con portada, el primer gesto es empezar la visita
     await p.mouse.move(640, 300); await p.keyboard.press("ArrowRight");
     const oculta = await esperar(p, () => document.body.classList.contains("ui-inactiva"), null, 8000).then(() => true, () => false);
     inf.ok(oculta, "tras interactuar y 3,5 s de inactividad, la interfaz se oculta (ui-inactiva)");
-    if (await inf.requiere(p, { "dock de contacto": SEL.dock }, "botón de contacto visible con la interfaz oculta")) {
-      const tras = await p.evaluate((S) => ({ raiz: document.querySelector(S.raiz).className, dock: getComputedStyle(document.querySelector(S.dock)).opacity }), SD);
-      inf.ok(tras.raiz.includes("pn-interactuado") && tras.dock === "1", "con la interfaz oculta, el botón de contacto sigue visible", tras);
+    if (await inf.requiere(p, { "tarjeta del inmueble": SEL.tarjeta, ...piezas("contacto") }, "tarjeta visible con la interfaz oculta")) {
+      // la tarjeta nunca desaparece: en reposo queda en «349.000 € · Contactar»
+      const tras = await p.evaluate((S) => {
+        const vis = (s) => { const e = document.querySelector(s); if (!e?.getClientRects().length) return false; for (let n = e; n && n !== document.body; n = n.parentElement) if (+getComputedStyle(n).opacity < 0.5 || getComputedStyle(n).visibility === "hidden") return false; return true; };
+        return { precio: vis(S.precioCabecera), contactar: vis(S.contacto), body: document.body.className };
+      }, SD);
+      inf.ok(tras.precio && tras.contactar && tras.body.includes("ui-inactiva"), "con la interfaz oculta, la tarjeta sigue con el precio y «Contactar»", tras);
     }
     const conPantalla = await inf.requiere(p, { "botón de pantalla completa": SEL.nucleoPantalla }, "botón de pantalla completa");
     if (conPantalla) inf.ok(await p.evaluate((s) => !document.querySelector(s).hidden, SEL.nucleoPantalla), "con la API de pantalla completa el botón está visible");
@@ -519,10 +576,11 @@ try {
       if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar);
       if (!(await inf.requiere(p, { ...piezas("contacto"), "galería del núcleo": SEL.nucleoGaleria }, `${n}: barra de captura sobre el núcleo real`))) { await ctx.close(); continue; }
       await pulsar(p, SEL.contacto);
+      await esperar(p, (s) => document.querySelectorAll(s).length === 1, SEL.tira, 15000).catch(() => {}); // la vista adjunta (foto 1)
       await p.click(SEL.hacerFoto);
       await p.click(SEL.capturar);
       await p.click(SEL.capturar).catch(() => {}); // una segunda pulsación durante la captura se ignora
-      await esperar(p, (s) => /^[12]/.test(document.querySelector(s)?.textContent ?? ""), SEL.numCaptura, 15000);
+      await esperar(p, (s) => /^[23]/.test(document.querySelector(s)?.textContent ?? ""), SEL.numCaptura, 15000);
       const bc = await p.evaluate((S) => {
         const r = document.querySelector(S.barraCaptura)?.getBoundingClientRect(), g = document.querySelector(S.nucleoGaleria)?.getBoundingClientRect();
         const cruza = r && g && g.width && r.left < g.right - 1 && g.left < r.right - 1 && r.top < g.bottom - 1 && g.top < r.bottom - 1;

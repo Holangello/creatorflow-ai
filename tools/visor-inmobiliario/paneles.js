@@ -305,7 +305,8 @@ const enlaceVista = () => {
 };
 const titulo = () => R(T.titulo) || R(inm().tipo ? tr(`tipo.${inm().tipo}`) : "") || document.title;
 
-// Estilo y luz: estilos IA solo en proyectos; colores solo en viviendas construidas; luz y antes/después en ambos
+// Estilo y luz (PA3): estilos IA solo en proyectos; colores donde el tour los traiga (lo normal, en viviendas construidas;
+// si un proyecto trae los dos, se ven ambos); luz y antes/después en todos
 function listaEstilos() {
   if (!esProyecto()) return [];
   const conVariantes = panoramas().some((p) => (p.variantes ?? []).some((v) => v.estilo && v.estilo !== "original"));
@@ -339,7 +340,7 @@ function listaMomentos() {
   m = m.filter((x) => MOMENTOS.includes(x));
   return m.length > 1 && tiene(V.fijarMomento) ? m : [];
 }
-const hayPintura = () => !esProyecto() && tiene(V.fijarPintura) && panoramas().some((p) => p.mascara || (p.variantes ?? []).some((v) => v.mascara))
+const hayPintura = () => tiene(V.fijarPintura) && panoramas().some((p) => p.mascara || (p.variantes ?? []).some((v) => v.mascara))
   && [...(T.personalizacion?.paredes ?? []), ...(T.personalizacion?.suelos ?? [])].some((m) => colorValido(m?.color));
 const hayEstiloLuz = () => listaEstilos().length > 0 || hayPintura() || listaMomentos().length > 0;
 // Visita guiada con 3 estancias o más (o un guion de 2 paradas), como en la portada y en «Estancias y plano» del núcleo
@@ -1729,7 +1730,7 @@ async function pintarQR() {
 }
 
 // ------------------------------------------------------------------ estilo y luz
-// Proyectos: Estilo (recreaciones con IA). Viviendas construidas: Colores. En ambos: Luz y «Antes y después».
+// Proyectos: Estilo (recreaciones con IA). Colores si el tour los trae (viviendas construidas). En todos: Luz y «Antes y después».
 // En el móvil es una hoja baja (la escena se sigue viendo); en el escritorio, una ventana junto a su botón.
 function dlgEstilo() {
   const e = est(), partes = [];
