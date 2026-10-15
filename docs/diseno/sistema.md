@@ -9,10 +9,11 @@ Base común del visor, el Estudio y el Asistente. Archivos fuente:
 ## Principios
 
 1. **La vivienda es la protagonista.** Los controles flotan sobre la imagen como piezas de vidrio y no tapan más de lo necesario.
-2. **Legible sobre cualquier foto.** La opacidad del vidrio está calculada para el peor caso: vidrio oscuro sobre pared blanca y vidrio claro sobre ventana de noche.
-3. **Un solo acento.** Champán `#cfad66` en oscuro y `#c9a55a` en claro. El color de marca del tour (`marca.color`) lo sustituye, y las variantes derivadas se calculan con `color-mix()`.
-4. **Movimiento con inercia.** Muelles en vez de curvas lineales. Con «Reducir movimiento» todo es instantáneo.
-5. **Todo en variables.** Ningún componente usa colores fijos y los tamaños van en `rem`.
+2. **Legible sobre cualquier foto.** Cada pieza de vidrio mide lo que tiene detrás y toma la opacidad justa para que su texto cumpla AA; sin medida, la del peor caso (vidrio oscuro sobre pared blanca, vidrio claro sobre ventana de noche).
+3. **Vidrio sin color.** El cristal es neutro, como el de iOS: deja ver la foto desenfocada, pero no toma su color. El color se reserva para la acción principal («Contactar», «Empezar visita») y para la marca.
+4. **Un solo acento.** Champán `#cfad66` en oscuro y `#c9a55a` en claro. El color de marca del tour (`marca.color`) lo sustituye, y las variantes derivadas se calculan con `color-mix()`.
+5. **Movimiento con inercia.** Muelles en vez de curvas lineales. Con «Reducir movimiento» todo es instantáneo.
+6. **Todo en variables.** Ningún componente usa colores fijos y los tamaños van en `rem`.
 
 ## Uso en una página
 
@@ -101,20 +102,27 @@ La talla multiplica la base: **S** 0,875, **M** 1, **L** 1,18. En pantallas tác
 
 | Token | Oscuro | Claro | Uso |
 |---|---|---|---|
-| `--vidrio` | `rgba(22,24,28,.56)` | `rgba(255,255,255,.5)` | controles solo con icono (≥3:1 sobre el peor fondo) |
-| `--vidrio-texto` | `rgba(20,22,26,.78)` | `rgba(255,255,255,.78)` | paneles con texto (AA sobre el peor fondo, también el texto secundario) |
-| `--vidrio-denso` | `.9` | `.9` | menús y diálogos |
-| `--vidrio-ambiente` | `rgba(20,22,26,.55)` | `rgba(255,255,255,.55)` | paneles sobre el ambiente conocido (Estudio, Guía): toman su color y el texto sigue ≥ 4,9:1 |
-| `--vidrio-desenfoque` · `--vidrio-saturacion` | `22px` · `170%` | — | material |
-| `--vidrio-reflejo-1/2` · `--vidrio-brillo` · `--vidrio-luz` | — | — | canto especular y luz del puntero |
+| `--vidrio-tinte` | `20 22 26` (grafito, un punto frío) | `255 255 255` | color del cristal (rgb sin alfa) |
+| `--vidrio-a-icono` · `--vidrio-a-texto` · `--vidrio-a-denso` | `.56` · `.78` · `.9` | `.5` · `.78` · `.9` | alfas del peor fondo: las usa la pieza que no se ha medido |
+| `--vidrio-a-suelo` · `--vidrio-a-suelo-icono` · `--vidrio-a-suelo-denso` | `.4` · `.34` · `.6` | `.46` · `.4` · `.62` | alfa mínima de una pieza medida: por debajo, el vidrio tomaría el color de la foto |
+| `--vidrio` · `--vidrio-texto` · `--vidrio-denso` | — | — | el tinte con la alfa de la pieza (`--vidrio-a`, la medida) o la del peor caso: controles solo con icono, paneles con texto, menús y diálogos |
+| `--vidrio-ambiente` | `rgba(20,22,26,.4)` | `rgba(255,255,255,.42)` | paneles sobre el ambiente conocido (Estudio, Guía): el texto sigue ≥ 4,5:1 |
+| `--vidrio-desenfoque` · `--vidrio-saturacion` · `--vidrio-aclarado` | `24px` · `80%` · `.86` | — · — · `1.1` | material (`--vidrio-filtro`): desenfoque medio, sin el color de la foto, y su brillo siempre a favor del contraste |
+| `--vidrio-reflejo-1/2` · `--vidrio-brillo` · `--vidrio-luz` | — | — | canto especular a dos lados (`--vidrio-canto`), volumen del cristal (`--vidrio-volumen`) y luz del puntero |
+| `--c-sobre-texto` | `#121418` | `#ffffff` | icono o texto sobre un relleno del color del texto (estado activo) |
 
 Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más claras u oscuras (`--c-texto-2-vidrio`). Así se mantienen en AA sobre cualquier foto.
 
-**Ambiente.** Donde no hay foto detrás (Estudio, Guía, pantallas de error), el fondo es `var(--ambiente), var(--c-fondo)`: luces suaves de acento e información, más presentes en claro. Es lo que hace que el vidrio se note sin desenfocar nada.
+**Ambiente.** Donde no hay foto detrás (Estudio, Guía, pantallas de error), el fondo es `var(--ambiente), var(--c-fondo)`: luces suaves y neutras (`--ambiente-luz`, blanca), como un estudio fotográfico. Es lo que hace que el vidrio se note sin desenfocar nada. Sin color, como el vidrio; el acento queda para las acciones principales y la marca.
 
 **Campos y casillas.** Borde `--c-borde-campo` (≥ 3:1 por dentro y por fuera, WCAG 1.4.11): `rgba(255,255,255,.42)` en oscuro y `rgba(0,0,0,.45)` en claro.
 
-**Estado pulsado y opción elegida.** El botón pulsado se rellena de acento y, en claro, lleva además un aro de 1,5 px en `--c-acento-texto`; la opción elegida de un segmentado, un aro de 1 px. Así el estado no depende solo del matiz (1.4.11). En colores forzados (Windows), el pulsado usa `Highlight`.
+**Estado pulsado y opción elegida.** Sobre el vidrio, sin color:
+- el botón pulsado de una pastilla (radar, música) se rellena del color del texto con el icono en negativo (`--c-sobre-texto`), como los interruptores del Centro de control. Contrasta con el vidrio lo mismo que su texto (≥ 4,5:1 por construcción, 1.4.11);
+- la opción elegida de un segmentado sobre la foto es una cápsula de vidrio más clara (`--c-segmento`) con un canto del color del texto al 72 % (≥ 3:1);
+- el rótulo de una flecha señalada y el punto «i» al pasar, en negativo; el aro de la flecha se ilumina (más blanco).
+
+Fuera del vidrio (Estudio, diálogos), el pulsado sigue siendo de acento con su aro. En colores forzados (Windows), el pulsado usa `Highlight`.
 
 **Botón de vidrio.** Un `.c8-boton` que además es `.c8-vidrio` (p. ej. «Ampliar» del radar) conserva el material: su `--b-fondo` es `--vidrio`.
 
@@ -173,23 +181,38 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
 
 Para un nombre sobre una miniatura: `--c-sobre-foto` (blanco en los dos temas) sobre `--velo-foto` entero bajo el texto, nunca sobre la parte que se desvanece: así llega a 6,2:1 incluso sobre una foto blanca. En la tira de estancias del núcleo el nombre va abajo; en las fotos de la consulta, arriba, para no tapar la franja de marca que la captura lleva abajo. `pruebas/contraste.mjs` lo comprueba con `--velo-foto` sobre blanco.
 
-## Vidrio adaptativo («liquid glass»)
+## Vidrio adaptativo por pieza («liquid glass» neutro)
 
-La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el cliente.
+La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el cliente. Tras ver la primera versión pidió
+que fuera «más realista, verdadero glass UI, sin color, como el propio iOS». De ahí salen las reglas del material:
 
-- Las alfas de `--vidrio`, `--vidrio-texto` y `--vidrio-denso` están calculadas para el peor fondo de la foto: una pared blanca en oscuro y una zona negra en claro.
-- Si la página mide la foto que hay detrás, el vidrio se vuelve más transparente sin bajar nunca de AA. El visor lo hace con el fotograma y lo indica en `<html>`:
-  - `data-luz-max`: luminancia de las zonas más claras (percentil 90). `baja` si es ≤ 0,10; `media` si es ≤ 0,35. Manda en el tema oscuro.
-  - `data-luz-min`: luminancia de las zonas más oscuras (percentil 10). `alta` si es ≥ 0,45; `media` si es ≥ 0,18. Manda en el tema claro.
-  - Sin atributos, se aplica el peor caso. «Reducir transparencia» siempre gana.
+- **Sin color.**
+  - Saturación del 80 % (iOS la sube; aquí una foto cálida volvía el vidrio marrón).
+  - Tinte neutro: grafito un punto frío en oscuro y blanco en claro.
+  - Alfa mínima (`--vidrio-a-suelo*`) para que el cristal domine sobre el color de la foto.
+  - Ningún relleno de acento sobre la foto, salvo la acción principal.
+- **Realista.**
+  - Desenfoque medio (24 px), que deja ver formas detrás.
+  - Canto especular a dos lados (la luz entra arriba a la izquierda y se refleja abajo a la derecha).
+  - Un filo de 1 px arriba y luz en el grosor del cristal junto a los bordes (`--vidrio-volumen`).
+  - Sombra suave y amplia: flota.
+- **Por pieza.**
+  - El visor mide la vista en 32×18 píxeles: tras cada cambio, cada 0,7 s mientras se mueve y al pararse.
+  - Para cada pieza (HUD, rótulos, tarjeta, diálogos) toma los percentiles 10 y 90 de la luminancia que tiene detrás.
+  - `cre8Tema.vidrio` (tema.js) calcula la alfa mínima para que todo lo que se lee en ella cumpla AA, con un 10 % de holgura, entre su suelo y el peor caso. La guarda en `--vidrio-a`.
+  - Oscurecer es inmediato; aclarar, despacio y solo si compensa.
+- **Aspecto oscuro en el tema claro (como iOS 26).**
+  - Una pieza pequeña sobre una zona oscura de la foto pasa a vidrio oscuro con texto claro (`data-vidrio-aspecto="oscuro"`, con histéresis) si así es claramente más transparente.
+  - Menús, diálogos y la tarjeta grande del escritorio siguen el tema.
+- **Brillo de lo de detrás (`--vidrio-aclarado`).**
+  - En claro, ×1,1: más luz bajo el texto oscuro. En oscuro y en el aspecto oscuro, ×0,86.
+  - Siempre va a favor del contraste, así que la alfa calculada sin él sigue valiendo.
+- **Sin medida** (otra página, paseo libre, maqueta, sin WebGL, un fallo): el peor caso de `--vidrio-a-*`, que siempre cumple.
+- **«Reducir transparencia»:** superficies opacas, sin `backdrop-filter`.
 
-| Nivel | Oscuro: `--vidrio` / `--vidrio-texto` / `--vidrio-denso` | Claro: `--vidrio` / `--vidrio-texto` / `--vidrio-denso` |
-|---|---|---|
-| Peor caso (sin medir) | 0,56 / 0,78 / 0,9 | 0,5 / 0,78 / 0,9 |
-| Media | 0,44 / 0,64 / 0,8 | 0,4 / 0,62 / 0,8 |
-| Más transparente (`luz-max=baja` / `luz-min=alta`) | 0,32 / 0,42 / 0,62 | 0,3 / 0,44 / 0,62 |
+`npm run contraste` aplica la alfa calculada a piezas de muestra (texto principal, secundario, terciario, enlace de acento, iconos, pulsado, segmentado) sobre 21 fondos, en los dos temas, en el aspecto oscuro y con colores de marca extremos, y la mide con el lienzo sin la holgura.
 
-`npm run contraste` comprueba cada nivel sobre el fondo límite de su intervalo.
+**Refracción en los cantos (como iOS 26): descartada.** Solo Chrome admite un filtro SVG en `backdrop-filter`. Safari en el iPhone, el móvil de la mayoría de los compradores, no lo admite. Además costaría rendimiento en móviles modestos. El canto especular y la luz en el grosor dan la misma lectura en todos los navegadores.
 
 ## Componentes
 
@@ -251,9 +274,9 @@ La ruta más rápida es **apuntar las variables antiguas a los tokens nuevos** a
 | `estudio.css` `--toque` / `--velo` / `--qr-fondo` / `--ce-*` | `--toque-minimo` / `--velo` / `--c-qr-fondo` / `--ce-*` |
 | `asistente-osmo.html` `--vidrio` / `--vidrio-2` | `--vidrio-texto` / `--c-capa-hover` |
 
-Pendiente para el rediseño (fase 4):
+Hecho en la fase 4 (estaba pendiente para el rediseño):
 
 - **Superficies:** sin decimales en el plano, la maqueta, el título y la lista («30 m²»); las medidas de la herramienta de medir sí llevan dos.
 - **Color de marca:** `visor.js` fija `--c-acento` con `marca.color`, acotado para el tema vigente (luminancia ≤ 0,55 en claro y ≥ 0,06 en oscuro: una marca blanca o negra no desaparece sobre el vidrio), y calcula `--c-sobre-acento` para ese relleno; se recalcula al cambiar de tema. El dossier, el plano y el vídeo exportados usan los mismos topes. El champán por defecto no cambia. `--c-acento-texto` y `--c-foco` salen de `--c-acento` con color relativo (`oklch(from …)`), acotando la luminosidad para que cualquier marca se lea; sin color relativo, con `color-mix()`.
 - **Empaquetado:** el HTML autónomo (`build.mjs`) debe incrustar las fuentes de `vendor/fonts/` (cargador `dataurl` de esbuild para `.woff2`), y el ZIP web debe incluirlas.
-- **Vidrio adaptativo (opcional):** muestrear el brillo medio de la vista (un lienzo pequeño cada ~500 ms) y ajustar el tinte del HUD, como hace Apple.
+- **Vidrio adaptativo:** por pieza, con la vista medida en 32×18 píxeles (ver «Vidrio adaptativo por pieza»).

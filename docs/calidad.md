@@ -65,7 +65,8 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | El recorrido no tiene WhatsApp, CRM ni email | No se ofrecen «Contactar» ni «Foto de la vista»: nunca una confirmación de algo que no llega a nadie |
 | three.js no llega (CDN caído, red de empresa o filtro) | El ZIP publicado lleva three.js dentro. Donde se usa el CDN, la portada dice «No se ha podido cargar el recorrido» con «Reintentar» y el WhatsApp de la agencia; si solo tarda más de 30 s, lo avisa |
 | Teclado AZERTY | W A S D y Q E van por posición física; R, M, H y V por la letra. Los textos muestran las letras reales en Chromium; en Firefox y Safari dicen W A S D |
-| El vidrio adaptativo no puede medir la foto (lectura fallida, contexto gráfico perdido, foto sin CORS, sin WebGL) | Se quitan `data-luz-max` y `data-luz-min`: queda el vidrio del peor caso, que siempre cumple AA |
+| El vidrio adaptativo no puede medir la foto (lectura fallida, contexto gráfico perdido, foto sin CORS, sin WebGL) | Se quitan `--vidrio-a` y `data-vidrio-aspecto` de cada pieza: queda el vidrio del peor caso, que siempre cumple AA |
+| Una foto muy cálida o muy saturada detrás del vidrio | El vidrio no toma su color: saturación del 80 %, tinte neutro y una alfa mínima por tema (`--vidrio-a-suelo*`) |
 | «Reducir transparencia», paseo libre o maqueta | No se mide la luz (vidrio opaco o del peor caso) |
 | Un cambio de escena no avisa al pintado bajo demanda (`tocarEscena()`) | Se ve al mover la vista. La grabación, las transiciones, la visita guiada, la medición y el comparador fuerzan el pintado |
 | Falla la precompilación de shaders tras la portada | Se compilan al pintar, como antes (un tirón al empezar) |

@@ -268,7 +268,7 @@ button.chip { cursor: pointer; }
 .foto:hover { background: var(--c-capa-hover); }
 .foto + .foto { box-shadow: 0 -1px 0 var(--c-separador); }
 .foto:hover + .foto, .foto.sel + .foto { box-shadow: none; }
-.foto.sel { border-color: color-mix(in srgb, var(--c-acento) 60%, transparent); background: var(--c-acento-suave); box-shadow: none; }
+.foto.sel { border-color: color-mix(in srgb, var(--c-texto) 30%, transparent); background: var(--c-capa-activa); box-shadow: none; }
 .foto.arrastrando { opacity: 0.4; }
 .foto.destino-arriba { box-shadow: 0 -2px 0 var(--c-acento); }
 .foto.destino-abajo { box-shadow: 0 2px 0 var(--c-acento); }
@@ -331,7 +331,7 @@ button.chip { cursor: pointer; }
   background: var(--c-acento); color: var(--c-sobre-acento); font: var(--peso-semi) var(--t-pie) / 1.4 var(--fuente); box-shadow: var(--sombra-2); pointer-events: none; }
 .fila-lista { display: flex; align-items: center; gap: var(--e-2); min-height: 2.25rem; padding: var(--e-1) var(--e-2); border-radius: var(--r-2); font-size: var(--t-sec); cursor: pointer; }
 .fila-lista:hover { background: var(--c-capa-hover); }
-.fila-lista.sel { background: var(--c-acento-suave); }
+.fila-lista.sel { background: var(--c-capa-activa); }
 .fila-lista.total { margin-top: var(--e-1); border-top: 1px solid var(--c-separador); border-radius: 0; cursor: default; }
 .fila-lista.total:hover { background: none; }
 .fila-lista .nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

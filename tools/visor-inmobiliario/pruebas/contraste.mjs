@@ -58,12 +58,13 @@ try {
         cre8Tema.fijar("tema", tema);
         document.documentElement.style.removeProperty("--c-acento");
         if (color) document.documentElement.style.setProperty("--c-acento", color);
-        document.documentElement.style.setProperty("--prueba-ambiente", "color-mix(in srgb, var(--c-acento) var(--ambiente-acento), var(--c-fondo))");
         const lienzo = document.createElement("canvas"); lienzo.width = lienzo.height = 1;
         const g = lienzo.getContext("2d", { willReadFrequently: true });
         /** Color CSS (con alfa, color-mix…) compuesto sobre `sobre` → [r, g, b]. */
         const pintar = (css, sobre = "#808080") => { g.fillStyle = sobre; g.fillRect(0, 0, 1, 1); g.fillStyle = css; g.fillRect(0, 0, 1, 1); return [...g.getImageData(0, 0, 1, 1).data.slice(0, 3)]; };
         const resolver = (v) => { if (v.startsWith("#")) return v; const e = document.createElement("i"); e.style.color = `var(${v})`; document.body.append(e); const c = getComputedStyle(e).color; e.remove(); return c; };
+        // El ambiente en su punto más intenso: su luz compuesta sobre el fondo
+        document.documentElement.style.setProperty("--prueba-ambiente", `rgb(${pintar(resolver("--ambiente-luz"), resolver("--c-fondo"))})`);
         const lum = ([r, gg, b]) => [r, gg, b].map((x) => { x /= 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }).reduce((s, x, i) => s + x * [0.2126, 0.7152, 0.0722][i], 0);
         const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
         return pares.map(([fg, bg, min, sobre]) => {
@@ -109,8 +110,9 @@ try {
           const tinte = V.aRgb(`rgb(${cs.getPropertyValue("--vidrio-tinte").trim()})`);
           // como el visor: el techo es el peor caso del vidrio con texto (también para los iconos de acento)
           const conTexto = lista.some((x) => x.minimo > 3), techo = parseFloat(cs.getPropertyValue("--vidrio-a-texto"));
+          const suelo = parseFloat(cs.getPropertyValue(conTexto ? "--vidrio-a-suelo" : "--vidrio-a-suelo-icono"));
           for (const [l10, l90] of FONDOS) {
-            const a = V.alfa(lista, tinte, l10, l90, conTexto ? 0.24 : 0.2, techo);
+            const a = V.alfa(lista, tinte, l10, l90, suelo, techo);
             pieza.style.setProperty("--vidrio-a", String(a));
             const fondoCss = getComputedStyle(pieza).backgroundColor;
             for (const l of [l10, l90]) {

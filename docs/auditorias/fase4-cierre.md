@@ -111,7 +111,7 @@ Este documento **manda**: dice qué se aplica, quién lo hace y qué pasa a la h
 
 - **M16 · «Modo juego» en la barra del escritorio: se queda.** La navegación tipo Minecraft es un requisito del cliente y el botón la hace descubrible. W A S D también entra.
 - **M17 · Marca blanca (ocultar «Creado con cre8eight»): la decide el cliente** según cómo venda cre8eight. Se deja preparado para la fase 5 si lo pide.
-- **Vidrio adaptativo por pieza en vez de por página:** no. El plan eligió la regla del peor caso a propósito (siempre AA).
+- **Vidrio adaptativo por pieza en vez de por página:** primero se descartó (el plan eligió la regla del peor caso, siempre AA). Después se hizo, tras pedir el cliente más transparencia y un vidrio como el de iOS: cada pieza mide lo que tiene detrás y nunca baja de AA. Ver «Vidrio adaptativo por pieza» en [sistema.md](../diseno/sistema.md).
 
 ## 4. Hoja de ruta (no son correcciones de esta fase)
 

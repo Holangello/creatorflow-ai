@@ -443,10 +443,11 @@ function asignar(slot, s) {
 // de cualquier suelo. Todo en un sombreador con distancias con signo sobre un cuadrado: los cantos y la sombra miden lo
 // mismo en píxeles a cualquier distancia, con antialias, y sin geometría de más. Contraste: el canto (blanco) frente a la
 // sombra que lo rodea ≥ 3:1 también sobre un suelo blanco puro; sobre lo oscuro, el blanco. Las opacidades cambian con el
-// estado de la interfaz (opacidadFlechas) y el tamaño con la distancia y la pantalla (escalarFlecha).
+// estado de la interfaz (opacidadFlechas) y el tamaño con la distancia y la pantalla (escalarFlecha). Sin color, como el
+// resto del vidrio: al señalarla, el aro se ilumina (más blanco) en vez de teñirse del acento.
 const LADO_FLECHA = 1; // el cuadrado (m) cubre el aro (0,355 m de radio) y su sombra a cualquier distancia
 const OPACIDAD_FLECHAS = { cuerpo: 0.3, canto: 0.95, flecha: 0.92, sombra: 0.46, reposo: 0.5 };
-const RESALTE_FLECHAS = { cuerpo: 0.62, canto: 1, flecha: 1, sombra: 0.5 };
+const RESALTE_FLECHAS = { cuerpo: 0.82, canto: 1, flecha: 1, sombra: 0.56 };
 const geoVidrioFlecha = new THREE.PlaneGeometry(LADO_FLECHA, LADO_FLECHA).rotateX(-Math.PI / 2);
 const geoDisco = new THREE.CircleGeometry(0.6, 32).rotateX(-Math.PI / 2);
 const SOMBREADOR_FLECHA = {
@@ -498,7 +499,7 @@ const materialFlecha = (v, color) => new THREE.ShaderMaterial({
     uColor: { value: new THREE.Color(color) } },
 });
 const matFlecha = materialFlecha(OPACIDAD_FLECHAS, 0xffffff);
-const matFlechaHover = materialFlecha(RESALTE_FLECHAS, 0xcfad66); // uColor: --c-acento (colorResalte)
+const matFlechaHover = materialFlecha(RESALTE_FLECHAS, 0xffffff);
 const matInvisible = new THREE.MeshBasicMaterial({ visible: false });
 
 const etiquetas = $("#etiquetas");
@@ -1182,8 +1183,8 @@ function escalarFlecha(g) {
   g.userData.vidrio.scale.setScalar(k * (g === hoverActual ? 1.12 : 1));
   g.userData.hit.scale.setScalar(Math.max(k, 0.75));
 }
-/** Resalte (ratón sobre el aro o su rótulo, o foco de teclado en el rótulo): el cristal del aro se tiñe del acento, la
-    sombra se marca un poco más, +12 % y el rótulo en acento. Una sola flecha resaltada a la vez. */
+/** Resalte (ratón sobre el aro o su rótulo, o foco de teclado en el rótulo): el cristal del aro se ilumina, la sombra se
+    marca un poco más, +12 % y el rótulo en negativo. Una sola flecha resaltada a la vez. */
 function resaltarFlecha(g) {
   g ??= null; // apuntar() devuelve undefined fuera de las flechas
   if (g === hoverActual) return;
@@ -1221,18 +1222,6 @@ function opacidadFlechas() {
     if (x < 1) fundidoFlechas = requestAnimationFrame(paso);
   };
   fundidoFlechas = requestAnimationFrame(paso);
-}
-/** Color del resalte: el acento de la marca con su tono y su saturación; solo cambia la luminosidad si hace falta: más
-    clara para leerse sobre su contorno (luminancia ≥ 0,42: ≥ 3:1 incluso sobre un suelo blanco), más oscura si es casi
-    blanco, para distinguirse del aro en reposo (≤ 0,75). El champán por defecto (0,44) no cambia. */
-const hslResalte = { h: 0, s: 0, l: 0 };
-function colorResalte(acento) {
-  const c = matFlechaHover.uniforms.uColor.value.set(acento); // canales lineales (three r152+): la luminancia relativa es su media ponderada
-  const lum = () => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
-  c.getHSL(hslResalte, THREE.SRGBColorSpace);
-  const paso = (d) => c.setHSL(hslResalte.h, hslResalte.s, (hslResalte.l = THREE.MathUtils.clamp(hslResalte.l + d, 0, 1)), THREE.SRGBColorSpace);
-  for (let i = 0; i < 50 && lum() < 0.42; i++) paso(0.02);
-  for (let i = 0; i < 50 && lum() > 0.75; i++) paso(-0.02);
 }
 // ---- modo juego (ratón capturado, como en Minecraft): W A S D, el botón 🎮 o un clic en el paseo libre.
 // Contingencia: si el navegador no deja capturar el ratón, se sigue mirando arrastrando (sin aviso de error).
@@ -1606,14 +1595,11 @@ document.addEventListener("visibilitychange", () => {
 
 // ------------------------------------------------------------------ tema: colores de la escena y vidrio adaptativo
 const transparenciaReducida = () => document.documentElement.dataset.transparencia === "reducida";
-/** Colores de la escena que salen de los tokens: el realce de las flechas del suelo (acento) y el fondo sin foto. */
+/** Color de la escena que sale de los tokens: el fondo sin foto. */
 function colorearTema() {
   tocarEscena();
-  const cs = getComputedStyle(document.documentElement);
-  const hex = (v) => { const x = cs.getPropertyValue(v).trim(); return /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(x) ? x : null; };
-  const acento = hex("--c-acento"), fondo = hex("--c-fondo");
-  if (acento) colorResalte(acento);
-  if (fondo) renderer?.setClearColor(fondo);
+  const fondo = getComputedStyle(document.documentElement).getPropertyValue("--c-fondo").trim();
+  if (/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(fondo)) renderer?.setClearColor(fondo);
 }
 document.addEventListener("cre8:tema", () => {
   pintarAcento(); // el relleno del color de marca depende del tema
@@ -1677,8 +1663,8 @@ function pasoAlfas(ahora) {
   if (sigue) fundidoVidrio = requestAnimationFrame(pasoAlfas);
 }
 /** Con los percentiles de cada zona, la alfa de cada pieza (cre8Tema.vidrio, en tema.js). Sin tema.js o sin
-    backdrop-filter, nada: el peor caso. Los suelos dejan el vidrio siempre visible como vidrio; los techos son el peor
-    caso de tema.css (--vidrio-a-*). */
+    backdrop-filter, nada: el peor caso. Los suelos (--vidrio-a-suelo*, de cada tema) dejan el vidrio siempre visible
+    como vidrio y sin el color de la foto; los techos son el peor caso de tema.css (--vidrio-a-*). */
 function aplicarAlfas() {
   const V = window.cre8Tema?.vidrio;
   if (!V || !luz.zonas || !conDesenfoque || transparenciaReducida()) return quitarLuz();
@@ -1691,12 +1677,13 @@ function aplicarAlfas() {
     const tinte = V.aRgb(`rgb(${cs.getPropertyValue("--vidrio-tinte").trim() || "20 22 26"})`);
     if (!tinte) continue;
     const techo = { texto: num("--vidrio-a-texto", 0.78), denso: num("--vidrio-a-denso", 0.9) };
+    const suelos = { texto: num("--vidrio-a-suelo", 0.4), icono: num("--vidrio-a-suelo-icono", 0.34), denso: num("--vidrio-a-suelo-denso", 0.6) };
     const lista = V.exigencias(z.el);
     // colores a mitad de una transición (acaba de cambiar el aspecto o el tema): se calcula al terminar
     if (!lista) { clearTimeout(luz.reintento); luz.reintento = setTimeout(aplicarAlfas, 260); continue; }
     const conTexto = lista.some((x) => x.minimo > 3);
     // techo: el peor caso de tema.css (con iconos de acento, como un botón pulsado, el de texto: el de icono no basta)
-    const [suelo, tope] = denso ? [0.6, techo.denso] : [conTexto ? 0.24 : 0.2, techo.texto];
+    const [suelo, tope] = denso ? [suelos.denso, techo.denso] : [conTexto ? suelos.texto : suelos.icono, techo.texto];
     const alfa = V.alfa(lista, tinte, z.p10, z.p90, suelo, tope);
     // Como iOS 26, en claro una pieza pequeña pasa a vidrio oscuro (texto claro) si así puede ser bastante más transparente:
     // el otro aspecto se estima con sus colores más exigentes (principal y secundario del vidrio). Menús, diálogos y la
@@ -2434,7 +2421,7 @@ function pintarAcento() {
   if (a) { raiz.setProperty("--c-acento", a.relleno); raiz.setProperty("--c-sobre-acento", a.sobre); }
   else for (const v of ["--c-acento", "--c-sobre-acento"]) raiz.removeProperty(v);
   colorearTema();
-  radar.retema(); planoGrande.retema(); // el radar y el plano releen el acento en el próximo dibujo
+  radar.retema(); planoGrande.retema(); // el radar y el plano releen sus colores en el próximo dibujo
 }
 
 function aplicarMarca() {

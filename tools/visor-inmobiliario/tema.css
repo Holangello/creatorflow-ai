@@ -128,9 +128,12 @@
   --velo-foto: rgba(0, 0, 0, 0.62);
   --ce-a: #00a651; --ce-b: #4cb848; --ce-c: #bfd730; --ce-d: #e8d900; --ce-e: #fdb913; --ce-f: #f37021; --ce-g: #ed1c24;
 
-  /* Vidrio: parámetros comunes (material «liquid glass»: mucho desenfoque y color, filo finísimo) */
-  --vidrio-desenfoque: 40px;
-  --vidrio-saturacion: 190%;
+  /* Vidrio: parámetros comunes. Material «liquid glass» neutro, como el de iOS: deja ver la foto desenfocada pero no toma
+     su color (petición del cliente: «verdadero glass UI, sin color»). Saturación por debajo del 100 % para que una foto
+     cálida no lo vuelva marrón; el brillo de lo que hay detrás (--vidrio-aclarado) lo ajusta cada tema, siempre a favor
+     del contraste (más luz bajo el texto oscuro, menos bajo el claro). */
+  --vidrio-desenfoque: 24px;
+  --vidrio-saturacion: 80%;
   --filo: 1px;                  /* borde del vidrio: 1 px, y 0,5 px en pantallas de alta densidad */
 
   /* Luz especular que sigue al puntero (la actualiza tema.js) */
@@ -198,20 +201,26 @@ html[data-talla="l"] { --talla: 1.18; }
   /* Vidrio: un tinte (rgb sin alfa) y las alfas del peor fondo posible (pared blanca detrás). Cada pieza que flota sobre
      una foto lleva su propia alfa medida (--vidrio-a, «Vidrio adaptativo» más abajo); sin medida, estas, que siempre
      cumplen. --vidrio, --vidrio-texto y --vidrio-denso salen de aquí (abajo, en :root y en cada .c8-vidrio). */
-  --vidrio-tinte: 20 22 26;
+  --vidrio-tinte: 20 22 26;                 /* grafito, un punto frío: neutraliza las fotos cálidas */
   --vidrio-a-icono: 0.56;                   /* controles solo icono: ≥ 3:1 */
   --vidrio-a-texto: 0.78;                   /* paneles con texto: ≥ 4,5:1 (AA) incluso el secundario */
   --vidrio-a-denso: 0.9;                    /* menús y diálogos */
+  /* Suelos de la alfa medida: por debajo, el vidrio dejaría de leerse como vidrio y tomaría el color de la foto */
+  --vidrio-a-suelo: 0.4;                    /* piezas con texto */
+  --vidrio-a-suelo-icono: 0.34;             /* piezas solo con iconos */
+  --vidrio-a-suelo-denso: 0.6;              /* menús y diálogos */
+  --vidrio-aclarado: 0.86;                  /* lo de detrás, algo más oscuro bajo el texto claro */
   --vidrio-ambiente: rgba(20, 22, 26, 0.4); /* sobre el ambiente conocido (Estudio, Guía): toma su color, texto ≥ 4,5:1 */
   --c-borde-campo: rgba(255, 255, 255, 0.42);/* borde de campos y casillas: ≥ 3:1 (WCAG 1.4.11) */
   /* Texto secundario sobre el vidrio, «vibrante» (más cerca del principal): deja aclarar el vidrio sin bajar de AA */
   --c-texto-2-vidrio: #d0d3d8;              /* 6,0:1 en el peor caso (vidrio sobre blanco) */
   --c-texto-3-vidrio: #c3c6cc;              /* 5,3:1 */
-  --vidrio-borde: rgba(255, 255, 255, 0.1); /* filo finísimo */
-  --vidrio-reflejo-1: rgba(255, 255, 255, 0.3);
-  --vidrio-reflejo-2: rgba(255, 255, 255, 0.05);
-  --vidrio-brillo: rgba(255, 255, 255, 0.07);
+  --vidrio-borde: rgba(255, 255, 255, 0.12); /* filo finísimo */
+  --vidrio-reflejo-1: rgba(255, 255, 255, 0.55); /* canto especular: arriba a la izquierda… */
+  --vidrio-reflejo-2: rgba(255, 255, 255, 0.22); /* …y su reflejo abajo a la derecha */
+  --vidrio-brillo: rgba(255, 255, 255, 0.07);    /* luz dentro del grosor del cristal, junto a los cantos */
   --vidrio-luz: rgba(255, 255, 255, 0.35);
+  --c-sobre-texto: #121418;                      /* sobre un relleno del color del texto (estado activo) */
   --velo: rgba(0, 0, 0, 0.5);
 
   /* Sombras suaves y difusas: el vidrio flota, no pesa */
@@ -261,15 +270,20 @@ html[data-talla="l"] { --talla: 1.18; }
   --vidrio-a-icono: 0.5;                    /* ≥ 3:1 sobre negro */
   --vidrio-a-texto: 0.78;                   /* ≥ 4,5:1 sobre negro, también el secundario */
   --vidrio-a-denso: 0.9;
+  --vidrio-a-suelo: 0.46;                   /* el vidrio claro necesita más blanco para leerse como vidrio esmerilado */
+  --vidrio-a-suelo-icono: 0.4;
+  --vidrio-a-suelo-denso: 0.62;
+  --vidrio-aclarado: 1.1;                   /* lo de detrás, algo más claro bajo el texto oscuro */
   --vidrio-ambiente: rgba(255, 255, 255, 0.42);
   --c-borde-campo: rgba(0, 0, 0, 0.45);
   --c-texto-2-vidrio: #3d3d43;              /* 6,4:1 en el peor caso (vidrio sobre negro) */
   --c-texto-3-vidrio: #45454b;              /* 5,6:1 */
-  --vidrio-borde: rgba(0, 0, 0, 0.07);      /* filo oscuro finísimo: dibuja el borde sobre fondos claros */
-  --vidrio-reflejo-1: rgba(255, 255, 255, 0.85);
-  --vidrio-reflejo-2: rgba(255, 255, 255, 0.3);
-  --vidrio-brillo: rgba(255, 255, 255, 0.5);
+  --vidrio-borde: rgba(0, 0, 0, 0.08);      /* filo oscuro finísimo: dibuja el borde sobre fondos claros */
+  --vidrio-reflejo-1: rgba(255, 255, 255, 0.95);
+  --vidrio-reflejo-2: rgba(255, 255, 255, 0.6);
+  --vidrio-brillo: rgba(255, 255, 255, 0.45);
   --vidrio-luz: rgba(255, 255, 255, 0.7);
+  --c-sobre-texto: #ffffff;
   --velo: rgba(24, 24, 28, 0.28);
 
   --sombra-1: 0 1px 2px rgba(15, 20, 30, 0.05), 0 8px 24px rgba(15, 20, 30, 0.08);
@@ -344,9 +358,9 @@ html[data-talla="l"] { --talla: 1.18; }
   --c-ok: #4cc38a; --c-aviso: #f2c14e; --c-error: #ff7b72; --c-info: #7aa7ff;
   --c-ok-texto: #4cc38a; --c-aviso-texto: #f2c14e; --c-error-texto: #ff7b72; --c-info-texto: #7aa7ff;
   --c-acento-texto: #d9b872; --c-acento-suave: rgba(207, 173, 102, 0.16);
-  --vidrio-tinte: 20 22 26; --vidrio-a-icono: 0.56; --vidrio-a-texto: 0.78; --vidrio-a-denso: 0.9;
-  --vidrio-borde: rgba(255, 255, 255, 0.1); --vidrio-reflejo-1: rgba(255, 255, 255, 0.3); --vidrio-reflejo-2: rgba(255, 255, 255, 0.05);
-  --vidrio-brillo: rgba(255, 255, 255, 0.07); --vidrio-luz: rgba(255, 255, 255, 0.35);
+  --vidrio-tinte: 20 22 26; --vidrio-a-icono: 0.56; --vidrio-a-texto: 0.78; --vidrio-a-denso: 0.9; --vidrio-aclarado: 0.86;
+  --vidrio-borde: rgba(255, 255, 255, 0.12); --vidrio-reflejo-1: rgba(255, 255, 255, 0.55); --vidrio-reflejo-2: rgba(255, 255, 255, 0.22);
+  --vidrio-brillo: rgba(255, 255, 255, 0.07); --vidrio-luz: rgba(255, 255, 255, 0.35); --c-sobre-texto: #121418;
   --sombra-texto: 0 1px 2px rgba(0, 0, 0, 0.45);
   --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.14), 0 8px 24px rgba(0, 0, 0, 0.18);
   --sombra-2: 0 2px 6px rgba(0, 0, 0, 0.12), 0 18px 48px rgba(0, 0, 0, 0.26);
@@ -360,17 +374,17 @@ html[data-talla="l"] { --talla: 1.18; }
 }
 
 /* ------------------------------------------------------------------ Ambiente
-   Luces suaves hechas con los tokens, para que el vidrio se note donde no hay foto detrás (Estudio, Guía, pantallas de
-   error). En claro, más presencia. Sobre él, los paneles usan --vidrio-ambiente. */
+   Luces suaves y neutras, como un estudio fotográfico, para que el vidrio se note donde no hay foto detrás (Estudio,
+   Guía, pantallas de error). Sin color, como el vidrio (petición del cliente). Sobre él, los paneles usan
+   --vidrio-ambiente. --ambiente-luz es la luz en su punto más intenso (pruebas/contraste.mjs la compone sobre el fondo). */
 :root {
-  --ambiente-acento: 24%;
-  --ambiente-info: 16%;
+  --ambiente-luz: rgba(255, 255, 255, 0.07);
   --ambiente:
-    radial-gradient(70rem 46rem at 0% 0%, color-mix(in srgb, var(--c-acento) var(--ambiente-acento), transparent), transparent 70%),
-    radial-gradient(60rem 50rem at 100% 8%, color-mix(in srgb, var(--c-info) var(--ambiente-info), transparent), transparent 65%),
-    radial-gradient(64rem 42rem at 48% 115%, color-mix(in srgb, var(--c-acento) 14%, transparent), transparent 70%);
+    radial-gradient(70rem 46rem at 0% 0%, var(--ambiente-luz), transparent 70%),
+    radial-gradient(60rem 50rem at 100% 8%, color-mix(in srgb, var(--ambiente-luz) 70%, transparent), transparent 65%),
+    radial-gradient(64rem 42rem at 48% 115%, color-mix(in srgb, var(--ambiente-luz) 55%, transparent), transparent 70%);
 }
-:root[data-tema="claro"] { --ambiente-acento: 34%; --ambiente-info: 24%; }
+:root[data-tema="claro"] { --ambiente-luz: rgba(255, 255, 255, 0.85); }
 /* Marca «c8» (Estudio y Guía) */
 .logo-e { display: grid; place-items: center; flex: none; width: 1.875rem; height: 1.875rem; border-radius: var(--r-2);
   background: conic-gradient(from 200deg, var(--c-acento), color-mix(in oklab, var(--c-acento) 55%, var(--c-acento-texto)), var(--c-acento));
@@ -387,6 +401,8 @@ html[data-talla="l"] { --talla: 1.18; }
   --vidrio-denso: var(--c-sup-1);
   --vidrio-desenfoque: 0px;
   --vidrio-saturacion: 100%;
+  --vidrio-aclarado: 1;
+  --vidrio-brillo: transparent;
   --vidrio-reflejo-1: transparent;
   --vidrio-reflejo-2: transparent;
   --vidrio-luz: transparent;
@@ -451,25 +467,32 @@ html[data-talla="l"] { --talla: 1.18; }
    Ojo: backdrop-filter convierte el elemento en contenedor de sus hijos fixed, y un vidrio dentro de otro solo
    desenfoca el contenido del padre: dentro de un vidrio usa rellenos (--c-capa-*), no otro vidrio. */
 :where(.c8-vidrio) { position: relative; }
+/* Volumen: el canto de arriba recoge la luz (1 px) y el grosor del cristal brilla un poco junto a los bordes, como el
+   vidrio de iOS. Las piezas que cambian su sombra la conservan con var(--vidrio-volumen). */
+:root, .c8-vidrio {
+  --vidrio-filtro: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion)) brightness(var(--vidrio-aclarado));
+  --vidrio-volumen: inset 0 1px 0 var(--vidrio-brillo), inset 0 0 1rem var(--vidrio-brillo);
+  --vidrio-canto: linear-gradient(135deg, var(--vidrio-reflejo-1) 0%, transparent 32%, transparent 62%, var(--vidrio-reflejo-2) 100%);
+}
 .c8-vidrio {
   /* sobre fondos imprevisibles el texto secundario sube de contraste */
   --c-texto-2: var(--c-texto-2-vidrio);
   --c-texto-3: var(--c-texto-3-vidrio);
   isolation: isolate;
   background: var(--vidrio);
-  -webkit-backdrop-filter: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion));
-  backdrop-filter: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion));
+  -webkit-backdrop-filter: var(--vidrio-filtro);
+  backdrop-filter: var(--vidrio-filtro);
   border: var(--filo) solid var(--vidrio-borde);
-  box-shadow: var(--sombra-1);
+  box-shadow: var(--vidrio-volumen), var(--sombra-1);
 }
-.c8-vidrio.c8-vidrio--texto { background: var(--vidrio-texto); box-shadow: var(--sombra-2); }
-.c8-vidrio.c8-vidrio--denso { background: var(--vidrio-denso); box-shadow: var(--sombra-3); }
+.c8-vidrio.c8-vidrio--texto { background: var(--vidrio-texto); box-shadow: var(--vidrio-volumen), var(--sombra-2); }
+.c8-vidrio.c8-vidrio--denso { background: var(--vidrio-denso); box-shadow: var(--vidrio-volumen), var(--sombra-3); }
 /* Barra a todo el ancho (cabecera o pie): sin radio ni canto especular, que sin bordes laterales sobresaldría 1 px
    y daría desplazamiento horizontal. Solo el filo de abajo (cabecera) o de arriba (pie): border-width en la página. */
 .c8-vidrio.c8-vidrio--barra { border-radius: 0; }
 .c8-vidrio.c8-vidrio--barra::before { display: none; }
-/* Canto especular: una luz fina arriba (como el cristal pulido de iOS) que se apaga por los lados; abajo, un reflejo leve.
-   Es el único canto marcado del vidrio: el borde (--filo) es casi invisible. */
+/* Canto especular, como el cristal de iOS: la luz entra arriba a la izquierda y se refleja abajo a la derecha; por los
+   otros lados el canto casi desaparece. Es el único canto marcado del vidrio: el borde (--filo) es casi invisible. */
 .c8-vidrio::before {
   content: "";
   position: absolute;
@@ -478,7 +501,7 @@ html[data-talla="l"] { --talla: 1.18; }
   border-radius: inherit;
   padding: 1px;
   pointer-events: none;
-  background: linear-gradient(170deg, var(--vidrio-reflejo-1) 0%, transparent 30%, transparent 78%, var(--vidrio-reflejo-2) 100%);
+  background: var(--vidrio-canto);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
@@ -488,7 +511,7 @@ html[data-talla="l"] { --talla: 1.18; }
   .c8-vidrio::before {
     background:
       radial-gradient(14rem circle at var(--luz-x) var(--luz-y), var(--vidrio-luz), transparent 70%) fixed,
-      linear-gradient(170deg, var(--vidrio-reflejo-1) 0%, transparent 30%, transparent 78%, var(--vidrio-reflejo-2) 100%);
+      var(--vidrio-canto);
   }
 }
 
@@ -608,10 +631,11 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-pastilla > .c8-separador { width: 1px; align-self: stretch; margin: var(--e-2) var(--e-1); background: var(--c-borde-2); }
 .c8-pastilla .c8-boton { --b-fondo: transparent; }
 .c8-pastilla .c8-boton:hover { --b-fondo: var(--c-capa-hover); }
-.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento-suave); --b-texto: var(--c-acento-texto); }
-/* Pulsado, como en iOS: icono teñido del acento y un relleno suave; el aro fino del acento lo distingue también sin color
-   (≥ 3:1 sobre el vidrio, WCAG 1.4.11, A7) */
-.c8-pastilla .c8-boton[aria-pressed="true"] { box-shadow: inset 0 0 0 1.5px var(--c-acento-texto); }
+/* Pulsado sin color, como los interruptores del Centro de control de iOS: relleno del color del texto e icono en negativo.
+   Contrasta con el vidrio tanto como su texto (≥ 4,5:1 por construcción; WCAG 1.4.11, A7). El acento queda para la
+   acción principal («Contactar», «Empezar visita»). */
+.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-texto); --b-texto: var(--c-sobre-texto); }
+.c8-pastilla .c8-boton[aria-pressed="true"]:hover { --b-fondo: color-mix(in srgb, var(--c-texto) 88%, transparent); }
 
 /* ------------------------------------------------------------------ Control segmentado (radios), hasta 6 opciones
    <div class="c8-segmentado" role="radiogroup"><label><input type="radio" name="x"><span>Día</span></label>…</div> */
@@ -656,7 +680,10 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-segmentado.c8-vidrio { background: var(--vidrio-texto); border-color: var(--vidrio-borde); }
 /* La opción elegida se distingue también por su aro, no solo por el relleno (WCAG 1.4.11) */
 .c8-segmentado::after { box-shadow: inset 0 0 0 1px var(--c-acento-texto), var(--sombra-1); }
-.c8-segmentado.c8-vidrio::after { box-shadow: inset 0 0 0 1px var(--c-acento-texto), inset 0 1px 0 var(--vidrio-brillo), var(--sombra-1); }
+/* Sobre la foto, sin color: la elegida es una cápsula de vidrio más clara con un canto del color del texto (≥ 3:1 sobre
+   el vidrio), como la pestaña elegida de iOS 26. */
+.c8-segmentado.c8-vidrio::after {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-texto) 72%, transparent), inset 0 1px 0 var(--vidrio-brillo), var(--sombra-1); }
 .c8-segmentado.c8-vidrio > label { color: var(--c-texto); text-shadow: var(--sombra-texto); }
 .c8-segmentado.c8-vidrio > label:has(input:checked) { color: var(--c-texto); }
 .c8-segmentado > label {

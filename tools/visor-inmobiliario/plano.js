@@ -2,7 +2,8 @@
 // modoMapa() "radar": centrado en el visitante y girando con su mirada (esquina); "plano": norte arriba («Estancias y plano»).
 // Colores, letra y tamaños salen de los tokens de tema.css, leídos del propio lienzo (está dentro de un vidrio, así que
 // el texto secundario es su versión para vidrio). Se releen y se repinta con el evento "cre8:tema" (tema, talla) y con
-// retema() (color de marca del tour). En claro, tinta oscura sobre vidrio claro; en oscuro, al revés.
+// retema() (aspecto del vidrio). En claro, tinta oscura sobre vidrio claro; en oscuro, al revés. Sin color, como el vidrio:
+// la posición del visitante va en negativo (relleno del color del texto con su contorno).
 import { areaPoligono, puntoEtiqueta, puntoEnPoligono } from "./util.js";
 
 // Uso en el dibujo → token
@@ -13,15 +14,12 @@ const TOKENS = {
   capaActiva: "--c-capa-activa",   // estancia bajo el puntero
   separador: "--c-separador",      // anillos de distancia del radar
   borde: "--c-borde-2",            // aro del radar
-  acento: "--c-acento",            // foto actual y posición del visitante
-  acentoTinta: "--c-acento-texto", // enlaces y cono de visión: se leen sobre el vidrio en los dos temas
-  sobreAcento: "--c-sobre-acento", // contorno de la posición y de la foto actual
+  sobreTexto: "--c-sobre-texto",   // contorno de la posición (en negativo: sin color, como el resto del vidrio)
   contorno: "--c-fondo",           // contorno de los demás puntos
 };
 // Contingencia: sin tema.css (o con un color que el lienzo no entienda), los valores del tema oscuro.
 const RESERVA = { texto: [245, 245, 247, 1], texto2: [195, 199, 205, 1], capa: [255, 255, 255, 0.08], capaActiva: [255, 255, 255, 0.14],
-  separador: [255, 255, 255, 0.08], borde: [255, 255, 255, 0.18], acento: [207, 173, 102, 1], acentoTinta: [217, 184, 114, 1],
-  sobreAcento: [21, 17, 10, 1], contorno: [10, 11, 13, 1] };
+  separador: [255, 255, 255, 0.08], borde: [255, 255, 255, 0.18], sobreTexto: [18, 20, 24, 1], contorno: [10, 11, 13, 1] };
 
 /** Color CSS (hex, rgb(), color-mix(), oklch(from …)…) → [r, g, b, a] en sRGB, pintando un píxel. null si no se entiende. */
 let pixel = null;
@@ -184,7 +182,7 @@ export function crearPlano(canvas, ctx) {
 
     // Enlaces entre las fotos, bajo los rótulos: el halo del rótulo tapa la línea que lo cruza (V14)
     const nodos = ctx.nodos().filter((n) => n.planta === p.id);
-    g.strokeStyle = css(C.acentoTinta, 0.5); g.lineWidth = 1.5; g.setLineDash([3, 3]);
+    g.strokeStyle = css(C.texto, 0.45); g.lineWidth = 1.5; g.setLineDash([3, 3]);
     g.beginPath();
     for (const n of nodos) for (const v of n.vecinos) {
       if (v.planta !== p.id || v.id < n.id) continue;
@@ -239,9 +237,9 @@ export function crearPlano(canvas, ctx) {
     for (const n of nodos) {
       const [x, z] = T.a(n.x, n.z);
       const es = n === actual;
-      g.fillStyle = css(es ? C.acento : C.texto);
+      g.fillStyle = css(C.texto);
       g.beginPath(); g.arc(x, z, (grande ? 6 : 5) * u, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = css(es ? C.sobreAcento : C.contorno, es ? 1 : 0.85); g.lineWidth = 1.5; g.stroke();
+      g.strokeStyle = css(es ? C.sobreTexto : C.contorno, es ? 1 : 0.85); g.lineWidth = es ? 2 : 1.5; g.stroke();
     }
 
     // Norte (solo si se conoce): flecha en la esquina del plano; en el radar, una «N» en el borde que gira con la vista.
@@ -261,10 +259,10 @@ export function crearPlano(canvas, ctx) {
       const dirPantalla = T.radar ? 0 : pos.rumbo; // en radar, la mirada siempre apunta arriba
       const rad = (grande ? 70 : 46) * u;
       const grd = g.createRadialGradient(x, z, 0, x, z, rad);
-      grd.addColorStop(0, css(C.acentoTinta, 0.55)); grd.addColorStop(1, css(C.acentoTinta, 0));
+      grd.addColorStop(0, css(C.texto, 0.42)); grd.addColorStop(1, css(C.texto, 0));
       g.fillStyle = grd;
       g.beginPath(); g.moveTo(x, z); g.arc(x, z, rad, dirPantalla - Math.PI / 2 - media, dirPantalla - Math.PI / 2 + media); g.closePath(); g.fill();
-      g.fillStyle = css(C.acento); g.strokeStyle = css(C.sobreAcento); g.lineWidth = 2;
+      g.fillStyle = css(C.texto); g.strokeStyle = css(C.sobreTexto); g.lineWidth = 2.5;
       g.beginPath(); g.arc(x, z, 7 * u, 0, Math.PI * 2); g.fill(); g.stroke();
     }
     if (T.radar) {
@@ -319,7 +317,7 @@ export function crearPlano(canvas, ctx) {
   return {
     dibujar,
     invalidar: () => marcos.clear(),
-    /** Tras cambiar el color de marca (--c-acento): relee los colores en el próximo dibujo. */
+    /** Tras cambiar el aspecto del vidrio que lo contiene (o el color de marca): relee los colores en el próximo dibujo. */
     retema: () => { paleta = null; },
     /** Colores vigentes (pruebas y depuración). */
     get paleta() { return (paleta ??= leerPaleta()); },
