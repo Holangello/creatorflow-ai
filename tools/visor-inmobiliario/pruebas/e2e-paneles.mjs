@@ -132,7 +132,8 @@ const sinDesbordeX = (p) => p.evaluate(() => ({ ok: document.documentElement.scr
   scroll: document.documentElement.scrollWidth, ancho: document.documentElement.clientWidth }));
 /**
  * Contraste WCAG del texto de una pieza de vidrio en el PEOR caso: su fondo translúcido compuesto sobre una foto blanca
- * pura y sobre una negra pura (con el vidrio adaptativo sin medir, como aquí, el núcleo aplica ese peor caso).
+ * pura y sobre una negra pura, tal como quedan detrás del cristal esmerilado (backdrop-filter: contraste y brillo,
+ * cre8Tema.vidrio.esmerilar). Con el vidrio adaptativo sin medir, como aquí, el núcleo aplica ese peor caso.
  * Los colores se pasan por un lienzo: así valen también los que el navegador da en oklch() o color().
  * → { [selector]: contraste mínimo }
  */
@@ -143,12 +144,15 @@ const contrasteVidrio = (p, vidrio, selectores) => p.evaluate(([vidrio, selector
   const sobre = (f, fondo) => f.c.map((v, i) => v * f.a + fondo[i] * (1 - f.a));
   const lum = (c) => c.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
   const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
-  const fondo = rgba(getComputedStyle(document.querySelector(vidrio)).backgroundColor);
+  const csv = getComputedStyle(document.querySelector(vidrio)), fondo = rgba(csv.backgroundColor);
+  const filtro = { contraste: parseFloat(csv.getPropertyValue("--vidrio-contraste")), aclarado: parseFloat(csv.getPropertyValue("--vidrio-aclarado")) };
+  const conFiltro = csv.backdropFilter && csv.backdropFilter !== "none" && window.cre8Tema?.vidrio?.esmerilar;
+  const fotos = [[255, 255, 255], [0, 0, 0]].map((c) => (conFiltro ? window.cre8Tema.vidrio.esmerilar(c, filtro) : c));
   const r = {};
   for (const s of selectores) {
     const el = document.querySelector(s); if (!el) { r[s] = 0; continue; }
     const texto = rgba(getComputedStyle(el).color);
-    r[s] = Math.round(Math.min(...[[255, 255, 255], [0, 0, 0]].map((foto) => { const bajo = sobre(fondo, foto); return ratio(sobre(texto, bajo), bajo); })) * 100) / 100;
+    r[s] = Math.round(Math.min(...fotos.map((foto) => { const bajo = sobre(fondo, foto); return ratio(sobre(texto, bajo), bajo); })) * 100) / 100;
   }
   return r;
 }, [vidrio, selectores]);
