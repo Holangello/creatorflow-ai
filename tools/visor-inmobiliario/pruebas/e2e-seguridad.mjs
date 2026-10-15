@@ -78,7 +78,8 @@ const auditar = (p) => p.evaluate((xss) => ({
   peligrosos: [...document.querySelectorAll("[href], [src]")].map((e) => e.getAttribute("href") ?? e.getAttribute("src"))
     .filter((u) => /^\s*(javascript|vbscript|data:text\/html)/i.test(u ?? "") || /\t|\n/.test(u ?? "")),
   inyectados: document.querySelectorAll("img[src='x'], [onerror], [onload]:not(body)").length,
-  scripts: [...document.querySelectorAll("body script")].filter((s) => /alert|__xss/.test(s.textContent)).length,
+  // Llamadas a alert() o la marca __xss del tour hostil (no la palabra suelta: el aviso de carga de index.html usa role="alert")
+  scripts: [...document.querySelectorAll("body script")].filter((s) => /\balert\s*\(|__xss/.test(s.textContent)).length,
 }), XSS);
 
 try {
