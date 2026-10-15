@@ -36,6 +36,14 @@ for (const pagina of PAGINAS) {
       const p = await abrir(ctx, url);
       if (pagina.startsWith("index.html")) await p.waitForFunction(() => window.visor?.listo, null, { timeout: 90000 });
       await p.waitForTimeout(1200);
+      // Visor con portada (fase 3): primero la portada y, tras «Empezar visita», la interfaz del visor.
+      if (await p.$("#portada")) {
+        const nPortada = nombre.replace(/\.png$/, "_portada.png");
+        await p.screenshot({ path: join(SALIDA, nPortada) });
+        filas.push({ pagina, tema, talla, tam: `${tam} · portada`, nombre: nPortada, errores: [] });
+        await p.evaluate(() => window.visor.empezar?.());
+        await p.waitForTimeout(1200);
+      }
       await p.screenshot({ path: join(SALIDA, nombre) });
       filas.push({ pagina, tema, talla, tam, nombre, errores: p.errores });
       if (p.errores.length) fallos++;

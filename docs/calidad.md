@@ -21,6 +21,7 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | `npm run prueba` | Humo: el visor carga la demo; navegación, estilo, noche, modo libre, maqueta, música y captura; móvil, Estudio, Asistente y el tema (claro + talla L) |
 | `npm run prueba:e2e` · `npm run prueba:todo` | Extremo a extremo, 321 comprobaciones en unos 6 min: Estudio (92), paneles (150), exportación (45: ZIP, HTML autónomo sin red, GPano, plano, dossier, vídeo) y seguridad (34: tour hostil, escapes, sin `file://`). Se elige con `node pruebas/e2e.mjs estudio seguridad`; el detalle está en `pruebas/LEEME.md`. Lo que depende de una interfaz en obras sale como «pendiente» en vez de fallar |
 | `node pruebas/capturas.mjs` | Matriz visual: páginas × claro/oscuro × S/M/L × de 360×640 a 3840×2160 y 3440×1440, con hoja de contactos |
+| `npm run medir` | Métricas para compactar, en el teléfono y el portátil: JS propio y de dependencias, CSS y fuentes hasta `visor.listo`; tiempo hasta `listo`; controles visibles y % de pantalla tapada, con la interfaz despierta y en reposo. Falla si en el teléfono la interfaz en reposo tapa más del 15 %. Los tiempos dependen de la máquina: se comparan en la misma. En este contenedor las fuentes dan 0 KB porque Inter ya está instalada en el sistema |
 | Auditorías por fase | QA, UX/UI, Maverick, esencialista y organización (`docs/auditorias/`) |
 
 ## Planes de contingencia (si falla… → entonces…)
@@ -35,8 +36,15 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Una foto 360 no carga | Aviso con «Reintentar»; si era un estilo o un momento, se vuelve al anterior para que lo que se ve coincida con lo elegido |
 | Poca memoria gráfica (móviles) | Caché de texturas limitada (4 en táctil, 14 en escritorio) y versiones de 4096 px para móvil |
 | La música no carga o el formato no es compatible | El botón de sonido desaparece y el recorrido sigue; se reintenta si el tour se recarga |
-| El navegador bloquea el sonido automático | La música empieza con el primer toque o clic |
+| El navegador bloquea el sonido automático | La música empieza con «Empezar visita» de la portada, o con el primer toque o clic si no hay portada |
 | No se puede capturar el ratón (modo juego) | Se mira arrastrando |
+| El navegador no tiene `<dialog>` | «Estancias y plano» y «Ayuda» se abren con el atributo `open` |
+| Falla la descarga con progreso de la portada | La foto se carga de la forma normal |
+| `tour.json` falla con la portada delante | Queda la pantalla de error, sin capas inertes encima |
+| El tour no tiene plano | El radar empieza oculto y se puede mostrar con R o con su botón |
+| Un toque cuando la interfaz está oculta | Solo la despierta: nunca navega por sorpresa |
+| Un icono SVG con scripts en el menú «Más» | Se descarta |
+| Teclado AZERTY | W A S D y Q E van por posición física; R, M, H y V por la letra. Los textos muestran las letras reales en Chromium; en Firefox y Safari dicen W A S D |
 | No hay almacenamiento local (modo privado) | Se usan los valores por defecto |
 | No se pueden copiar imágenes al portapapeles (Firefox) | Las fotos se descargan y se indica adjuntarlas con el clip de WhatsApp |
 | Falla el webhook del CRM o lo bloquea CORS | Aviso honesto; WhatsApp sigue siendo el canal principal |
@@ -62,6 +70,7 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | MediaRecorder no admite MP4 | Se graba en WebM con la duración corregida |
 | Se cancela una grabación | Se detiene de verdad y se restaura el visor |
 | El tour de la demo contiene texturas 3D | La copia del tour las descarta antes de serializar (antes agotaba la memoria) |
+| No se puede leer `tema.js` al crear el HTML autónomo | Se avisa y el archivo sale con el tema oscuro por defecto de `tema.css` |
 
 ### Diseño (`tema.css` / `tema.js`)
 

@@ -200,7 +200,8 @@ visor.mas.abrir() / .cerrar()
 ```
 
 **Menú «Más».** Lo pinta el núcleo (`#btn-mas` en la barra de vista y `#menu-mas`, `role="menu"`); los paneles solo aportan
-los elementos. Sin elementos visibles, el botón no se ve.
+los elementos. Sin elementos visibles, el botón no se ve. Cada elemento se pinta al abrir el menú como un `button` con
+`data-id` = su `id` (p. ej. `#menu-mas [data-id="pn-compartir"]`).
 
 | Campo | Qué es |
 |---|---|

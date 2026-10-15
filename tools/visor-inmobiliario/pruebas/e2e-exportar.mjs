@@ -18,14 +18,16 @@ import { crearInforme, erroresDe, esperar, leerZip, jsonDe, textoDe, asegurarBui
 // Selectores de la interfaz (agrupados para adaptarlos fácilmente cuando cambie el diseño).
 const SEL = {
   compartir: "[data-k='compartir']",                 // botón Compartir de los paneles
+  mas: "#btn-mas", compartirMas: "#menu-mas [data-id='pn-compartir']", // fase 3: Compartir está en el menú «Más» del núcleo
   compartirSinWeb: "[data-k='sh-sin-web']",          // aviso «sin dirección web» del diálogo Compartir
   compartirEnlace: ".pn-dialogo input[readonly], .pn-dialogo input[type=url], .pn-dialogo input[type=text]",
   qr: ".pn-qr-img svg", cajaQr: ".pn-qr",
-  contacto: "[data-k='contacto-dock'], [data-k='contacto-peek']",
+  contacto: ".pn-tarjeta [data-k='contactar']",      // «Contactar» de la tarjeta: adjunta sola la vista actual como foto 1
   hacerFoto: "[data-k='hacer-foto']", capturar: "[data-k='capturar']", capturaListo: "[data-k='captura-listo']", numCaptura: ".pn-bc-num",
   nombre: "[data-k='c-nombre']", telefono: "[data-k='c-telefono']", pregunta: "[data-k='c-pregunta']", privacidad: "[data-k='c-priv']",
-  enviar: "[data-k='enviar']", abrirWhatsApp: "[data-k='abrir-wa']",
+  enviar: "[data-k='enviar']",                       // «Enviar por WhatsApp»: copia la foto y abre el chat en el mismo gesto
   paneles: "#paneles",                               // contenedor de los paneles en index.html
+  portadaEmpezar: "#portada .empezar",               // portada de la fase 3: «Empezar visita» antes de tocar la interfaz
   // dossier imprimible (documento exportado)
   hoja: ".hoja", hojaTitulos: ".hoja h2", hojaPrecio: ".precio", hojaQr: ".qr svg", hojaPlano: "img.plano", hojaLogo: "header img",
 };
@@ -46,6 +48,12 @@ async function paginaExportar() {
   const p = await abrir(ctx, `${base}pruebas/fixtures/exportar.html`);
   await esperar(p, () => window.listo === true);
   return { ctx, p };
+}
+/** Abre «Compartir»: el botón de los paneles o, desde la fase 3, su elemento del menú «Más» del núcleo. */
+async function abrirCompartir(f) {
+  if (await f.$(SEL.compartir)) return f.click(SEL.compartir);
+  await f.click(SEL.mas);
+  await f.click(SEL.compartirMas);
 }
 /** Abre un HTML autónomo desde el disco (file://). Toda petición http(s) se registra y se aborta (salvo wa.me). */
 async function abrirArchivo(ruta, opciones = {}) {
@@ -88,6 +96,8 @@ try {
     const z = leerZip(Buffer.from(r.zip, "base64")), rutas = Object.keys(z), tz = jsonDe(z["tour.json"]);
     const visor = ["index.html", "visor.js", "visor.css", "paneles.js", "paneles.css", "i18n.js", "util.js", "plano.js", "guion.js", "medicion.js", "maqueta.js", "vendor/qr.js"];
     inf.ok(visor.every((f) => rutas.includes(f)), "el ZIP lleva el visor completo para publicarlo tal cual", visor.filter((f) => !rutas.includes(f)).join(", "));
+    const diseno = ["tema.js", "tema.css", "vendor/fonts/inter/inter-latin-opsz-normal.woff2", "vendor/fonts/inter/inter-latin-ext-opsz-normal.woff2", "vendor/fonts/inter/OFL.txt"];
+    inf.ok(diseno.every((f) => rutas.includes(f)), "el ZIP lleva el sistema de diseño (tema.js, tema.css y la fuente Inter con su licencia)", diseno.filter((f) => !rutas.includes(f)).join(", "));
     const sobran = ["demo.js", "exportar.js", "vendor/fflate.js", "vendor/fix-webm-duration.js"].filter((f) => rutas.includes(f));
     inf.ok(!sobran.length, "el ZIP NO lleva la demo ni las herramientas de exportación (demo.js, exportar.js, fflate, fix-webm-duration)", sobran.join(", "));
     inf.ok(tz.panoramas.every((x) => rutas.includes(x.imagen) && rutas.includes(x.miniatura)) && rutas.includes("marca/logo.svg"), "las fotos, miniaturas y el logo viajan en el ZIP con sus rutas");
@@ -169,11 +179,14 @@ try {
     {
       const { p: f, red, wa } = await abrirArchivo(join(TMP, "sin-web.html"));
       await esperar(f, (s) => window.visor?.listo === true && document.querySelector(`${s} *`), SEL.paneles, 60000);
+      if (await f.$(SEL.portadaEmpezar)) await f.click(SEL.portadaEmpezar); // con portada, lo de detrás está inerte hasta empezar
       inf.ok(f.errores.length === 0 && f.dialogos.length === 0, "abierto con doble clic (file://) llega a visor.listo sin errores", f.errores.slice(0, 3).join(" | "));
+      const tema = await f.evaluate(() => ({ api: typeof window.cre8Tema?.fijar === "function", tema: document.documentElement.dataset.tema ?? "", fuente: [...document.fonts].some((x) => /Inter/i.test(x.family)) }));
+      inf.ok(tema.api && tema.tema && tema.fuente && r.sin.includes("data:font/woff2"), "el HTML autónomo lleva el sistema de diseño en línea: tema.js aplica el tema y la fuente Inter va incrustada", tema);
       inf.ok(red.length === 0, "funciona sin conexión: ninguna petición a la red", red.slice(0, 3).join(" | "));
       inf.ok(await f.evaluate(() => window.visor.enlaceVista() === ""), "sin url_publica, visor.enlaceVista() devuelve \"\" (no la ruta del disco)");
-      if (await inf.requiere(f, { compartir: SEL.compartir, contacto: SEL.contacto }, "Compartir y contacto en el HTML autónomo sin web")) {
-        await f.click(SEL.compartir);
+      if (await inf.requiere(f, { compartir: [SEL.compartir, SEL.mas], contacto: SEL.contacto }, "Compartir y contacto en el HTML autónomo sin web")) {
+        await abrirCompartir(f);
         await f.waitForSelector(SEL.compartirSinWeb);
         inf.ok(!(await f.$(SEL.qr)), "Compartir explica que no hay dirección web («sh-sin-web») y no genera QR");
         // Contacto por WhatsApp con una foto: ningún enlace file:// en el mensaje
@@ -181,21 +194,18 @@ try {
         await f.locator(SEL.contacto).first().click();
         await f.click(SEL.hacerFoto);
         await f.click(SEL.capturar);
-        await esperar(f, (s) => document.querySelector(s)?.textContent?.startsWith("1"), SEL.numCaptura, 15000).catch(() => {});
+        await esperar(f, (s) => document.querySelector(s)?.textContent?.startsWith("2"), SEL.numCaptura, 15000).catch(() => {}); // la vista adjunta y la hecha
         await f.click(SEL.capturaListo);
         await f.fill(SEL.nombre, "Lucía Martín"); await f.fill(SEL.telefono, "612 345 678"); await f.fill(SEL.pregunta, "¿Se puede visitar el sábado?");
         await f.check(SEL.privacidad);
         await f.click(SEL.enviar);
-        const boton = await f.waitForSelector(SEL.abrirWhatsApp, { timeout: 5000 }).catch(() => null);
-        if (boton) await boton.click();
         for (let i = 0; i < 50 && !wa.length; i++) await f.waitForTimeout(100); // la ventana de wa.me se intercepta en la red
         const msg = decodeURIComponent(wa[0] ?? "");
         if (process.env.E2E_DEPURAR) console.log(msg);
         inf.ok(wa.length === 1 && msg.includes("Lucía Martín") && !/file:/i.test(msg), "el mensaje de WhatsApp lleva la consulta y ninguna ruta file://", msg.replace(/\n/g, " ⏎ ").slice(0, 200));
-        // Sin web no hay enlace que poner: las líneas «📷 Foto N – estancia: <enlace>» y «*Vista:* <enlace>» quedan colgando.
+        // Sin web no hay enlace que poner: el mensaje no deja líneas colgando («📷 Foto N – estancia:» ni «*Vista:*» vacías).
         const vacias = msg.split("\n").map((l) => l.trim()).filter((l) => /^📷.*:$/u.test(l) || /^\*[^*]+:\*$/.test(l));
-        inf.pendiente(wa.length === 1 && !vacias.length, "sin dirección web, el mensaje de WhatsApp no deja líneas sin enlace («Foto 1 – …:» ni «Vista:» vacías)",
-          `${vacias.map((l) => `«${l}»`).join(" y ")}: paneles.js mensajeWhatsApp() (líneas 1360-1361) añade siempre «: \${c.enlace}» y «*Vista:* \${d.url}» aunque enlaceVista() devuelva ""`);
+        inf.ok(wa.length === 1 && !vacias.length, "sin dirección web, el mensaje de WhatsApp no deja líneas sin enlace («Foto 1 – …:» ni «Vista:» vacías)", vacias);
       }
       const fuga = await f.evaluate((s) => [...document.querySelectorAll("[href], [src]")].map((e) => e.getAttribute("href") ?? e.getAttribute("src")).filter((u) => /^file:/i.test(u ?? "")).concat(/file:\/\//.test(document.querySelector(s)?.innerText ?? "") ? ["texto de los paneles"] : []), SEL.paneles);
       inf.ok(!fuga.length, "ningún enlace, imagen ni texto de la interfaz contiene una ruta file://", fuga.slice(0, 3).join(" | "));
@@ -204,15 +214,16 @@ try {
     {
       const { p: f } = await abrirArchivo(join(TMP, "con-web.html"));
       await esperar(f, (s) => window.visor?.listo === true && document.querySelector(`${s} *`), SEL.paneles, 60000);
+      if (await f.$(SEL.portadaEmpezar)) await f.click(SEL.portadaEmpezar); // con portada, lo de detrás está inerte hasta empezar
       const enlace = await f.evaluate(() => window.visor.enlaceVista());
       inf.ok(enlace.startsWith("https://ejemplo.com/tour/#v="), `con url_publica el enlace a la vista empieza por esa dirección (${enlace.slice(0, 48)}…)`);
-      if (await inf.requiere(f, { compartir: SEL.compartir }, "Compartir con url_publica en el HTML autónomo")) {
-        await f.click(SEL.compartir);
+      if (await inf.requiere(f, { compartir: [SEL.compartir, SEL.mas] }, "Compartir con url_publica en el HTML autónomo")) {
+        await abrirCompartir(f);
         await esperar(f, (s) => [...document.querySelectorAll(s)].some((i) => i.value.includes("https://ejemplo.com/tour/")), SEL.compartirEnlace, 10000);
         inf.ok(!(await f.$(SEL.compartirSinWeb)), "Compartir ofrece ese enlace para copiar, por WhatsApp o por email");
         const qr = await esperar(f, ([s, caja]) => !!document.querySelector(s) || document.querySelector(caja)?.hidden, [SEL.qr, SEL.cajaQr], 8000).then(() => f.$(SEL.qr)).then((e) => !!e, () => false);
-        inf.pendiente(qr, "con url_publica, Compartir muestra también el código QR en el HTML autónomo",
-          `paneles.js pintarQR() hace import("./vendor/qr.js") junto al HTML (build.mjs no lo empaqueta): desde file:// falla y el QR se oculta${f.avisos.some((a) => /QR no disponible/.test(a)) ? " (consola: «QR no disponible»)" : ""}`);
+        // pintarQR() importa «./vendor/qr.js» con la ruta literal: esbuild lo incluye en el bundle y funciona desde file://
+        inf.ok(qr, "con url_publica, Compartir muestra también el código QR en el HTML autónomo", f.avisos.filter((a) => /QR/.test(a)).join(" | "));
       }
     }
   });

@@ -19,17 +19,18 @@ import { crearInforme, erroresDe, esperar, subir, descargar, archivo, asegurarBu
 // Selectores de la interfaz (agrupados para adaptarlos fácilmente cuando cambie el diseño).
 const SEL = {
   raiz: ".pn-raiz", paneles: "#paneles",                 // paneles montados / su contenedor en index.html
-  ficha: "[data-k='pestana'], [data-k='peek-precio']",   // abrir la ficha (escritorio / móvil)
-  cuerpoFicha: ".pn-panel-cuerpo", precio: ".pn-cabecera .pn-precio", mailto: "#paneles a[href^='mailto:']",
-  contacto: "[data-k='contacto-dock'], [data-k='contacto-peek']",
+  ficha: ".pn-tarjeta [data-k='ficha']",                 // resumen de la tarjeta del inmueble: abre la ficha (todos los tamaños)
+  cuerpoFicha: ".pn-panel-cuerpo", precio: ".pn-t-precio", mailto: "#paneles a[href^='mailto:']",
+  contacto: ".pn-tarjeta [data-k='contactar']",           // «Contactar» de la tarjeta (un solo botón en todos los tamaños)
   zonas: "[data-k='c-zona'] option",
   documentos: ".pn-docs a",
   tituloPaneles: ".pn-titulo",
   tituloNucleo: "#titulo, #lugar",                       // título del núcleo (la fase 3 lo lleva al botón #lugar)
+  portadaEmpezar: "#portada .empezar",                   // portada de la fase 3: «Empezar visita» antes de tocar la interfaz
   puntoInfo: "#etiquetas .info",                         // botón «i» de una nota en la vista 360
   fichaPunto: "#ficha h2",                               // título de la nota abierta
   hoja: ".hoja",
-  estudioPasos: "#pasos button", estudioVistaPrevia: "#iframe-visor", estudioAbrir: "#btn-abrir", estudioRestaurar: "dialog[open] >> text=Restaurar copia de seguridad o ZIP",
+  estudioPasos: "#pasos button", estudioVistaPrevia: "#iframe-visor", estudioAbrir: "#btn-proyecto", estudioRestaurar: ".menu-proyecto >> text=Restaurar copia…",
   estudioErrores: ".comprobacion.error b",
   estudioAvanzado: "details.avanzado", estudioTourJson: "text=Descargar tour.json",
 };
@@ -86,6 +87,7 @@ try {
     await inf.bloque(`Tour hostil con el código actual (${nombre})`, async () => {
       const { p } = await pagina(`${base}index.html`, opciones);
       await esperar(p, (s) => window.visor?.listo === true && document.querySelector(s), SEL.raiz, 60000);
+      if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar); // con portada, lo de detrás está inerte hasta empezar
       const conPaneles = await inf.requiere(p, { ficha: SEL.ficha, contacto: SEL.contacto }, "ficha y contacto con datos hostiles");
       let docs = [], textoFicha = "", zonas = [];
       if (conPaneles) {
@@ -155,12 +157,12 @@ try {
     })(tourHostil);
     const { p } = await pagina(`${base}estudio.html`, { ancho: 1440, alto: 900 });
     await esperar(p, (s) => window.__estudio?.tour && document.querySelector(s), SEL.estudioPasos);
-    await p.click(await inf.pieza(p, SEL.estudioAbrir, "menú «Abrir» del Estudio"));
-    await subir(p, await inf.pieza(p, SEL.estudioRestaurar, "«Restaurar copia de seguridad o ZIP»"), [archivo("hostil.zip", Buffer.from(zipSync(zip)))]);
+    await p.click(await inf.pieza(p, SEL.estudioAbrir, "menú «Proyecto ▾» del Estudio"));
+    await subir(p, await inf.pieza(p, SEL.estudioRestaurar, "«Proyecto ▾ → Restaurar copia…»"), [archivo("hostil.zip", Buffer.from(zipSync(zip)))]);
     await esperar(p, () => window.__estudio.tour.panoramas.length === 4 && window.__estudio.guardado === "ok", null, 60000);
     await paso(p, "revisar");
     const errores = await p.$$eval(SEL.estudioErrores, (bs) => bs.map((b) => b.textContent));
-    inf.ok(errores.some((e) => /dirección\(es\) web no válidas/.test(e)), "Revisar marca como error las direcciones javascript: del proyecto", errores);
+    inf.ok(errores.some((e) => /^\d+ direcci(ón web no válida|ones web no válidas)$/.test(e)), "«Antes de publicar» marca como error las direcciones javascript: del proyecto", errores);
     await paso(p, "exportar");
     await p.evaluate((s) => { for (const d of document.querySelectorAll(s)) if (d.querySelector("summary")?.textContent === "Avanzado") d.open = true; }, SEL.estudioAvanzado);
     const tj = (await descargar(p, SEL.estudioTourJson)).datos.toString("utf8");
@@ -196,6 +198,7 @@ try {
     f.dialogos = [];
     f.on("dialog", (d) => { f.dialogos.push(d.message()); d.dismiss(); });
     await esperar(f, () => window.visor?.listo === true, null, 60000);
+    if (await f.$(SEL.portadaEmpezar)) await f.click(SEL.portadaEmpezar);
     if (await f.$(SEL.ficha)) await f.locator(SEL.ficha).first().click();
     const r = await auditar(f);
     inf.ok(!f.dialogos.length && !r.xss.length && !r.peligrosos.length && !r.inyectados && (await f.textContent(SEL.tituloNucleo)).includes("<img src=x"),
