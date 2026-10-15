@@ -12,6 +12,10 @@
   body { min-height: 100dvh; }
   /* Fondo de ambiente, como el Estudio: fijo detrás del contenido para que la cabecera y el pie de vidrio tomen su color */
   body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--ambiente); pointer-events: none; }
+  /* Detrás de la cabecera y el pie solo pasan el ambiente y el propio contenido de la guía (sin fotos), desenfocados: se
+     sabe lo que hay, así que el vidrio puede ser más transparente que el peor caso (texto ≥ 4,5:1 aunque pase un bloque
+     de texto por debajo; ver docs/diseno/sistema.md). «Reducir transparencia» lo deja opaco, como siempre. */
+  .cabecera.c8-vidrio, .pie.c8-vidrio { --vidrio-a: 0.55; }
   .marco { box-sizing: border-box; width: min(46rem, 100%); margin: 0 auto; padding: 0 max(var(--e-4), env(safe-area-inset-right, 0px)) calc(7rem + env(safe-area-inset-bottom, 0px)) max(var(--e-4), env(safe-area-inset-left, 0px)); }
   .cabecera { position: sticky; top: 0; z-index: var(--z-panel); display: flex; align-items: center; gap: var(--e-2);
     margin: 0 0 var(--e-5); padding: calc(var(--e-2) + env(safe-area-inset-top, 0px)) max(var(--e-4), 50% - 23rem + var(--e-4)) var(--e-2);

@@ -1690,12 +1690,13 @@ function aplicarAlfas() {
     const cs = getComputedStyle(z.el), num = (v, x) => parseFloat(cs.getPropertyValue(v)) || x;
     const tinte = V.aRgb(`rgb(${cs.getPropertyValue("--vidrio-tinte").trim() || "20 22 26"})`);
     if (!tinte) continue;
-    const techo = { icono: num("--vidrio-a-icono", 0.56), texto: num("--vidrio-a-texto", 0.78), denso: num("--vidrio-a-denso", 0.9) };
+    const techo = { texto: num("--vidrio-a-texto", 0.78), denso: num("--vidrio-a-denso", 0.9) };
     const lista = V.exigencias(z.el);
     // colores a mitad de una transición (acaba de cambiar el aspecto o el tema): se calcula al terminar
     if (!lista) { clearTimeout(luz.reintento); luz.reintento = setTimeout(aplicarAlfas, 260); continue; }
     const conTexto = lista.some((x) => x.minimo > 3);
-    const [suelo, tope] = denso ? [0.6, techo.denso] : conTexto ? [0.24, techo.texto] : [0.2, techo.icono];
+    // techo: el peor caso de tema.css (con iconos de acento, como un botón pulsado, el de texto: el de icono no basta)
+    const [suelo, tope] = denso ? [0.6, techo.denso] : [conTexto ? 0.24 : 0.2, techo.texto];
     const alfa = V.alfa(lista, tinte, z.p10, z.p90, suelo, tope);
     // Como iOS 26, en claro una pieza pequeña pasa a vidrio oscuro (texto claro) si así puede ser bastante más transparente:
     // el otro aspecto se estima con sus colores más exigentes (principal y secundario del vidrio). Menús, diálogos y la
@@ -1705,7 +1706,9 @@ function aplicarAlfas() {
       const otro = oscura ? { tinte: [255, 255, 255], c: [[29, 29, 31], [77, 77, 77]] } : { tinte: [20, 22, 26], c: [[245, 245, 247], [195, 198, 204]] };
       const sintetica = (conTexto ? [4.5] : [3]).flatMap((m) => (secundario ? otro.c : otro.c.slice(0, 1)).map((c) => ({ color: [...c, 1], minimo: m, capas: [] })));
       const alfaOtro = V.alfa(sintetica, otro.tinte, z.p10, z.p90, suelo, oscura ? techo.texto : 0.78);
-      const cambia = oscura ? alfaOtro <= alfa + 0.02 : alfaOtro + 0.06 < alfa;
+      // cambia si el otro aspecto es claramente más transparente; si empatan, manda el fondo (oscuro detrás → vidrio
+      // oscuro), para que las piezas vecinas sobre la misma zona no salgan de dos aspectos
+      const cambia = alfaOtro + 0.06 < alfa || (oscura ? z.p90 > 0.24 && alfaOtro <= alfa + 0.02 : z.p90 < 0.16 && alfaOtro <= alfa + 0.001);
       if (cambia) { // su alfa se calcula en la siguiente vuelta, con los colores ya cambiados
         cambiarAspecto(z.el, oscura ? null : "oscuro");
         clearTimeout(luz.reintento); luz.reintento = setTimeout(aplicarAlfas, 260);
