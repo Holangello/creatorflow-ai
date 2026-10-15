@@ -217,6 +217,12 @@ momento y como mucho una vez por segundo con la vista quieta) y pone en `<html>`
 más transparente cuando la foto lo permite, siempre con AA. Sin atributos (no se pudo medir, sin WebGL, «Reducir
 transparencia»), el vidrio es el del peor caso.
 
+**Pintado bajo demanda (fase 4).** En el recorrido el núcleo solo pinta cuando algo cambia (la cámara, una transición, una
+foto que termina de cargar, el estilo o el momento, el tema, el tamaño) o mientras dura algo que lo necesita (visita
+guiada, medición, comparador, grabación con `visor.tiempoReal(true)` o `visor.tamanoCaptura`); con la vista quieta no
+pinta. El evento `frame` (sin `CustomEvent`) sale solo cuando se pinta y `visor.renderizar()` pinta siempre. El paseo
+libre y la maqueta pintan en cada fotograma.
+
 **Menú «Más».** Lo pinta el núcleo (`#btn-mas` en la barra de vista y `#menu-mas`, `role="menu"`); los paneles solo aportan
 los elementos. Sin elementos visibles, el botón no se ve. Cada elemento se pinta al abrir el menú como un `button` con
 `data-id` = su `id` (p. ej. `#menu-mas [data-id="pn-compartir"]`).

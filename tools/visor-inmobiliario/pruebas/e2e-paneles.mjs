@@ -746,6 +746,16 @@ try {
         return { dentro: !!r && r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight, cruza: !!cruza, n: document.querySelector(S.numCaptura)?.textContent };
       }, SD);
       inf.ok(bc.dentro && !bc.cruza, `${n}: la barra de captura cabe en pantalla y no tapa la galería de estancias del núcleo`, bc);
+      // al terminar las fotos la tira del núcleo no se mueve debajo de la barra (fase 4: antes, en el escritorio, cada foto
+      // publicaba la reserva de la hoja del móvil y el núcleo subía la tira)
+      await esperar(p, () => !document.querySelector("[data-k='capturar'][aria-disabled='true']"), null, 15000).catch(() => {});
+      await p.waitForTimeout(800);
+      const bc2 = await p.evaluate((S) => {
+        const r = document.querySelector(S.barraCaptura)?.getBoundingClientRect(), g = document.querySelector(S.nucleoGaleria)?.getBoundingClientRect();
+        return { cruza: !!(r && g && g.width && r.left < g.right - 1 && g.left < r.right - 1 && r.top < g.bottom - 1 && g.top < r.bottom - 1),
+          reserva: getComputedStyle(document.documentElement).getPropertyValue("--reserva-inferior").trim() };
+      }, SD);
+      inf.ok(!bc2.cruza, `${n}: al terminar las fotos la barra sigue sin tapar la galería`, bc2);
       await p.click(SEL.capturaListo);
       const err = erroresDe(p);
       inf.ok(!err.length, `${n}: sin errores de consola`, err.slice(0, 3).join(" | "));

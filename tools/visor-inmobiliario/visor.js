@@ -413,7 +413,7 @@ async function prepararSlot(n) {
     if (primera) tex = primera;
     else {
       tex = (await f.cargarMini().catch(() => null)) ?? (await grande);
-      grande.then((t) => { if (int.actual === n && int.fuenteActual?.clave === f.clave && !int.transicion) U.texA.value = t; }).catch(() => {});
+      grande.then((t) => { if (int.actual === n && int.fuenteActual?.clave === f.clave && !int.transicion) { U.texA.value = t; tocarEscena(); } }).catch(() => {});
     }
   } else tex = await f.cargar();
   const masc = await mascaraDe(n, f.variante).catch(() => null);
@@ -421,6 +421,7 @@ async function prepararSlot(n) {
 }
 
 function asignar(slot, s) {
+  tocarEscena();
   U[`tex${slot}`].value = s.tex;
   U[`yaw${slot}`].value = s.yaw;
   U[`masc${slot}`].value = s.masc ?? blanco;
@@ -450,6 +451,7 @@ const alturaNodo = (n = int.actual) => n?.altura_camara ?? int.tour?.altura_cama
 const plantaPorId = (id) => int.tour?.plantas?.find((p) => p.id === id);
 
 function construirPuntos() {
+  tocarEscena();
   grupoFlechas.clear();
   etiquetas.replaceChildren();
   etiquetasActivas = [];
@@ -721,6 +723,7 @@ async function actualizarComparacion() {
   U.yawC.value = (int.actual.yaw ?? 0) * GRAD;
 }
 function fijarCorte(f) {
+  tocarEscena();
   f = THREE.MathUtils.clamp(f, 0.02, 0.98);
   U.corte.value = f;
   cortinilla.style.left = `${f * 100}%`;
@@ -1108,6 +1111,7 @@ function hover(e) {
   hoverActual?.userData.partes.forEach((m) => (m.material = matAro));
   g?.userData.partes.forEach((m) => (m.material = matAroHover));
   hoverActual = g;
+  tocarEscena();
   lienzo.style.cursor = g ? "pointer" : "";
 }
 // ---- modo juego (ratón capturado, como en Minecraft): W A S D, el botón 🎮 o un clic en el paseo libre.
@@ -1481,6 +1485,7 @@ document.addEventListener("visibilitychange", () => {
 const transparenciaReducida = () => document.documentElement.dataset.transparencia === "reducida";
 /** Colores de la escena que salen de los tokens: el realce de las flechas del suelo (acento) y el fondo sin foto. */
 function colorearTema() {
+  tocarEscena();
   const cs = getComputedStyle(document.documentElement);
   const hex = (v) => { const x = cs.getPropertyValue(v).trim(); return /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(x) ? x : null; };
   const acento = hex("--c-acento"), fondo = hex("--c-fondo");
@@ -2092,6 +2097,7 @@ async function cambiarModo(modo) {
   if (guion.activo && modo !== "tour") guion.parar();
   const anterior = estado.modo;
   estado.modo = modo;
+  tocarEscena();
   if (modo === "tour") luz.pendiente = true; else quitarLuz(); // la luz se mide en la foto 360
   maqueta?.activar(modo === "maqueta");
   if (anterior === "maqueta" && pisoDemo) aplicarAmbienteLibre();
@@ -2271,6 +2277,7 @@ function soltarPortada(animar = true) {
   if (!int.portada) return false;
   int.portada = false;
   luz.pendiente = true;
+  tocarEscena();
   document.body.classList.remove("con-portada");
   for (const hijo of $("#app").children) hijo.inert = false;
   if (portada) {
@@ -2336,6 +2343,7 @@ Object.assign(visor, {
   fijarEstilo(id) { if (estado.estilo === id) return; const ant = estado.estilo; estado.estilo = id; return refrescarAmbiente("estilo", ant); },
   fijarMomento(id) { if (estado.momento === id) return; const ant = estado.momento; estado.momento = id; return refrescarAmbiente("momento", ant); },
   fijarPintura({ paredes = null, suelos = null } = {}) {
+    tocarEscena();
     estado.pintura = { paredes, suelos };
     const p = hexALineal(paredes), s = hexALineal(suelos);
     U.activaPared.value = p ? 1 : 0; U.activaSuelo.value = s ? 1 : 0;
@@ -2345,6 +2353,7 @@ Object.assign(visor, {
     visor.emitir("pintura", { ...estado.pintura });
   },
   comparar(si) {
+    tocarEscena();
     estado.comparar = !!si;
     cortinilla.hidden = !(si && estado.modo === "tour");
     if (si) { fijarCorte(0.5); actualizarComparacion(); $("#pista").hidden = true; } else { U.corte.value = -1; U.texC.value = blanco; }
@@ -2355,6 +2364,7 @@ Object.assign(visor, {
     if (si && estado.modo === "maqueta") return;
     estado.midiendo = !!si;
     medicion.activar(estado.midiendo);
+    tocarEscena(); // al cerrar, las marcas de la medición desaparecen
     medirTira();
     if (si) {
       $("#pista").hidden = true;
@@ -2532,7 +2542,7 @@ addEventListener("message", async (e) => {
   if (m.tipo === "visor:ir") irA(m.nodo);
   if (m.tipo === "visor:yaw") {
     const n = int.nodos.get(m.nodo);
-    if (n) { n.yaw = m.yaw; if (n === int.actual) { U.yawA.value = m.yaw * GRAD; construirPuntos(); } }
+    if (n) { n.yaw = m.yaw; if (n === int.actual) { U.yawA.value = m.yaw * GRAD; construirPuntos(); } } // construirPuntos repinta
   }
 });
 
@@ -2705,6 +2715,7 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
 
 // ------------------------------------------------------------------ bucle y arranque
 function redimensionar() {
+  tocarEscena();
   const w = int.captura?.w ?? innerWidth, h = int.captura?.h ?? innerHeight;
   if (int.captura) renderer?.setPixelRatio(1);
   renderer?.setSize(w, h, false);
@@ -2723,6 +2734,28 @@ function redimensionar() {
 addEventListener("resize", redimensionar);
 
 let tMapa = 0, tVista = 0, ultimaVista = "";
+// Pintar bajo demanda (fase 4): en el recorrido 360, con la vista quieta no se pinta (la GPU descansa: batería en el
+// móvil y una vista previa del Estudio más ligera). Se pinta si se mueve la cámara (también el zoom o el giroscopio), hay
+// una transición, la visita guiada, la medición o una grabación de vídeo, se mantiene una tecla, o algo avisó con
+// tocarEscena() (texturas, flechas, corte del comparador, pintura, tamaño, tema). El paseo libre y la maqueta pintan
+// siempre (amortiguación de la órbita, joystick, splats).
+const pinta = { firma: new Float64Array(32), marcos: 2, radar: true };
+/** La imagen cambió sin mover la cámara: pintar los próximos fotogramas (por fotogramas, no por tiempo: con fotogramas
+    lentos un plazo en ms caducaría antes de pintar; el segundo cubre una textura que tarde uno en subir). */
+function tocarEscena(n = 2) { pinta.marcos = Math.max(pinta.marcos, n); pinta.radar = true; }
+function hayQuePintar() {
+  const a = camara.matrixWorld.elements, b = camara.projectionMatrix.elements, f = pinta.firma;
+  let mueve = false;
+  for (let i = 0; i < 16; i++) {
+    if (f[i] !== a[i]) { f[i] = a[i]; mueve = true; }
+    if (f[16 + i] !== b[i]) { f[16 + i] = b[i]; mueve = true; }
+  }
+  if (mueve) pinta.radar = true;
+  const avisado = pinta.marcos > 0;
+  if (avisado) pinta.marcos--;
+  return mueve || avisado || !!int.transicion || guion.activo || estado.midiendo || estado.comparar
+    || int.tiempoReal || !!int.captura || int.teclas.size > 0 || !!int.giro;
+}
 const fps = { t: 0, n: 0 };
 /** Pinta la escena del modo actual (sin foto todavía: el fondo del tema, no la esfera blanca de la textura vacía). */
 function pintarEscena() {
@@ -2754,9 +2787,10 @@ function bucle() {
     else camara.rotation.set(estado.cabeceo, -estado.rumbo, 0);
     estado.fov = camara.fov;
     camara.updateMatrixWorld();
-    if (pintar) { renderizar(); actualizarEtiquetas(); quizaMedirLuz(); }
+    if (pintar && hayQuePintar()) { renderizar(); actualizarEtiquetas(); }
+    if (pintar) quizaMedirLuz(); // pinta su propio lienzo de 32×18: no necesita el fotograma
     tMapa += dt;
-    if (pintar && tMapa > 0.033) { tMapa = 0; dibujarRadar(); }
+    if (pintar && pinta.radar && tMapa > 0.033) { tMapa = 0; pinta.radar = false; dibujarRadar(); }
     tVista += dt;
     // Mientras se va a otra estancia no se informa al Estudio (estado.nodo aún es la anterior): lo hace llegar().
     if (EMBED && tVista > 0.15 && !int.navDestino && !int.transicion) {

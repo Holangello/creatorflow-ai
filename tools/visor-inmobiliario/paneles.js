@@ -256,6 +256,10 @@ export function iniciarPaneles(visor) {
     const ro = new ResizeObserver(() => colocar());
     const barra = barraNucleo();
     if (barra) ro.observe(barra);
+    // la tira de estancias del núcleo puede crecer después (miniaturas que terminan de cargar): la barra de captura
+    // se vuelve a colocar encima
+    const tira = document.getElementById("galeria");
+    if (tira) ro.observe(tira);
     let vista = null;
     limpiezas.push(() => ro.disconnect());
     observarTarjeta = (t) => { if (t === vista) return; if (vista) ro.unobserve(vista); vista = t; if (t) ro.observe(t); };
@@ -1272,7 +1276,8 @@ async function tomarCaptura({ auto = false } = {}) {
     if (!auto) aviso(tr("contacto.err_captura"));
   } finally { ui.tomando = false; }
   actualizarBarraCaptura(); pintarFotos(); pintarContador();
-  if (ui.capturando) { colocarHoja(false); if (ui.capturas.length >= MAX_FOTOS) raiz.querySelector("[data-k='captura-listo']")?.focus({ preventScroll: true }); }
+  // colocar() y no colocarHoja(): en el escritorio la hoja no existe y su reserva subiría la tira del núcleo bajo la barra
+  if (ui.capturando) { colocar(); if (ui.capturas.length >= MAX_FOTOS) raiz.querySelector("[data-k='captura-listo']")?.focus({ preventScroll: true }); }
   return c;
 }
 function quitarCaptura(c) {
@@ -1348,6 +1353,7 @@ function actualizarBarraCaptura() {
   barra.querySelector(".pn-bc-num").textContent = textoNumFotos(n);
   const b = barra.querySelector("[data-k='capturar']");
   if (b) { b.disabled = n >= MAX_FOTOS; b.setAttribute("aria-disabled", String(!!ui.tomando)); }
+  colocarBarra(); // por si la tira del núcleo se ha movido mientras se hacía la foto
 }
 
 // --- bloque de fotos del formulario (se repinta en su sitio, sin tocar los campos)
