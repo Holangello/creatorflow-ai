@@ -330,6 +330,34 @@ html[data-talla="l"] { --talla: 1.18; }
   .c8-vidrio, :root[data-tema="oscuro"] .c8-vidrio { --c-acento-texto: oklch(from var(--c-acento) max(l, 0.84) c h); }
   :root[data-tema="claro"] .c8-vidrio { --c-acento-texto: oklch(from var(--c-acento) min(l, 0.4) c h); }
 }
+/* Como en iOS 26: en el tema claro, una pieza pequeña sobre una foto oscura pasa a vidrio oscuro con texto claro, y así
+   puede ser muy transparente sin bajar de AA (el texto oscuro sobre una foto oscura necesitaría un vidrio casi blanco).
+   La pone la página que mide la foto (data-vidrio-aspecto="oscuro"; el visor, con histéresis); menús y diálogos siguen el
+   tema. Son los valores del tema oscuro que se usan dentro de un vidrio (si cambian arriba, cambian aquí). */
+:root .c8-vidrio[data-vidrio-aspecto="oscuro"] {
+  color-scheme: dark;
+  --c-texto: #f5f5f7;
+  --c-texto-2-vidrio: #d0d3d8; --c-texto-3-vidrio: #c3c6cc;
+  --c-borde: rgba(255, 255, 255, 0.1); --c-borde-2: rgba(255, 255, 255, 0.18); --c-separador: rgba(255, 255, 255, 0.08);
+  --c-capa-hover: rgba(255, 255, 255, 0.08); --c-capa-activa: rgba(255, 255, 255, 0.14); --c-campo: rgba(0, 0, 0, 0.28);
+  --c-scroll: rgba(255, 255, 255, 0.22); --c-pista: #2c3037; --c-segmento: rgba(255, 255, 255, 0.16); --c-borde-campo: rgba(255, 255, 255, 0.42);
+  --c-ok: #4cc38a; --c-aviso: #f2c14e; --c-error: #ff7b72; --c-info: #7aa7ff;
+  --c-ok-texto: #4cc38a; --c-aviso-texto: #f2c14e; --c-error-texto: #ff7b72; --c-info-texto: #7aa7ff;
+  --c-acento-texto: #d9b872; --c-acento-suave: rgba(207, 173, 102, 0.16);
+  --vidrio-tinte: 20 22 26; --vidrio-a-icono: 0.56; --vidrio-a-texto: 0.78; --vidrio-a-denso: 0.9;
+  --vidrio-borde: rgba(255, 255, 255, 0.1); --vidrio-reflejo-1: rgba(255, 255, 255, 0.3); --vidrio-reflejo-2: rgba(255, 255, 255, 0.05);
+  --vidrio-brillo: rgba(255, 255, 255, 0.07); --vidrio-luz: rgba(255, 255, 255, 0.35);
+  --sombra-texto: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.14), 0 8px 24px rgba(0, 0, 0, 0.18);
+  --sombra-2: 0 2px 6px rgba(0, 0, 0, 0.12), 0 18px 48px rgba(0, 0, 0, 0.26);
+}
+:where(.c8-vidrio[data-vidrio-aspecto]) { color: var(--c-texto); }
+@supports (color: color-mix(in srgb, red, blue)) {
+  :root .c8-vidrio[data-vidrio-aspecto="oscuro"] { --c-acento-suave: color-mix(in srgb, var(--c-acento) 16%, transparent); }
+}
+@supports (color: oklch(from red l c h)) {
+  :root .c8-vidrio[data-vidrio-aspecto="oscuro"] { --c-acento-texto: oklch(from var(--c-acento) max(l, 0.84) c h); }
+}
 
 /* ------------------------------------------------------------------ Ambiente
    Luces suaves hechas con los tokens, para que el vidrio se note donde no hay foto detrás (Estudio, Guía, pantallas de

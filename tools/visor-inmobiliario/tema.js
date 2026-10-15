@@ -152,9 +152,17 @@
       también lo oculto solo a la vista (en reposo) y la ficha plegada: al volver a verse, la alfa ya vale. */
   function exigencias(pieza) {
     var cs0 = getComputedStyle(pieza);
-    var firma = [raiz.getAttribute("data-tema"), cs0.getPropertyValue("--c-acento"), pieza.className, pieza.childElementCount, pieza.textContent.length, pieza.hasAttribute("data-sin-rotulos")].join("|");
+    var firma = [raiz.getAttribute("data-tema"), pieza.getAttribute("data-vidrio-aspecto"), cs0.getPropertyValue("--c-acento"), pieza.className, pieza.childElementCount,
+      pieza.textContent.length, pieza.hasAttribute("data-sin-rotulos")].join("|");
     var previo = analisis && analisis.get(pieza);
     if (previo && previo.firma === firma) return previo.lista;
+    // un color que aún está cambiando (transición tras cambiar de tema o de aspecto) daría el valor de en medio: null,
+    // y quien llama lo vuelve a intentar al acabar
+    try {
+      if (pieza.getAnimations && pieza.getAnimations({ subtree: true }).some(function (a) {
+        return a.playState === "running" && /^(color|fill|stroke|all)$/.test(a.transitionProperty || "");
+      })) return null;
+    } catch (e) { /* sin getAnimations: se analiza igual */ }
     var lista = [], vistos = {};
     var anadir = function (css, minimo, capas) {
       var c = aRgb(css); if (!c || c[3] < 0.05) return;
@@ -184,7 +192,7 @@
       if (cs.display === "none") return;
       var nombre = el.tagName.toLowerCase();
       if (nombre === "svg") { var ci = capasHasta(el); if (ci) anadir(cs.color, 3, ci.concat(elegida(el))); return; }
-      var texto = nombre === "input" || nombre === "textarea" || nombre === "select";
+      var texto = nombre === "textarea" || nombre === "select" || (nombre === "input" && !/^(radio|checkbox|range|hidden|color|file|image|submit|button|reset)$/.test(el.type));
       for (var h = el.firstChild; !texto && h; h = h.nextSibling) if (h.nodeType === 3 && /\S/.test(h.nodeValue)) texto = true;
       if (texto && cs.visibility !== "hidden") {
         var ct = capasHasta(el);

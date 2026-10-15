@@ -1646,6 +1646,15 @@ function quitarLuz() {
   luz.medida = luz.zonas = null;
   for (const el of alfasVidrio.keys()) el.style.removeProperty("--vidrio-a");
   alfasVidrio.clear();
+  for (const el of document.querySelectorAll("[data-vidrio-aspecto]")) cambiarAspecto(el, null);
+}
+/** Vidrio oscuro en el tema claro (tema.css, como iOS 26): con un fundido corto para que no salte. El radar relee sus
+    colores (los toma de su lienzo). */
+function cambiarAspecto(el, aspecto) {
+  if ((el.dataset.vidrioAspecto ?? null) === aspecto) return;
+  if (aspecto) el.dataset.vidrioAspecto = aspecto; else delete el.dataset.vidrioAspecto;
+  if (!reducido()) el.animate?.([{ filter: "blur(3px)" }, { filter: "blur(0px)" }], { duration: 280, easing: "ease-out" });
+  if (el.contains($("#mapa"))) { radar.retema(); dibujarMapa(); }
 }
 /** Lleva la alfa de una pieza hacia `objetivo`: oscurecer, enseguida; aclarar, solo si compensa y despacio. La primera
     vez parte del peor caso (`techo`), que es lo que la pieza tenía sin medida. */
@@ -1673,19 +1682,40 @@ function pasoAlfas(ahora) {
 function aplicarAlfas() {
   const V = window.cre8Tema?.vidrio;
   if (!V || !luz.zonas || !conDesenfoque || transparenciaReducida()) return quitarLuz();
-  const cs = getComputedStyle(document.documentElement), num = (v, x) => parseFloat(cs.getPropertyValue(v)) || x;
-  const tinte = V.aRgb(`rgb(${cs.getPropertyValue("--vidrio-tinte").trim() || "20 22 26"})`);
-  if (!tinte) return quitarLuz();
-  const techo = { icono: num("--vidrio-a-icono", 0.56), texto: num("--vidrio-a-texto", 0.78), denso: num("--vidrio-a-denso", 0.9) };
-  const vivas = new Set();
+  const claro = document.documentElement.dataset.tema === "claro", vivas = new Set();
   for (const z of luz.zonas) {
     if (!z.el) continue;
-    const lista = V.exigencias(z.el);
-    const [suelo, tope] = z.el.classList.contains("c8-vidrio--denso") ? [0.6, techo.denso] : lista.some((x) => x.minimo > 3) ? [0.24, techo.texto] : [0.2, techo.icono];
-    fijarAlfa(z.el, V.alfa(lista, tinte, z.p10, z.p90, suelo, tope), tope);
     vivas.add(z.el);
+    const denso = z.el.classList.contains("c8-vidrio--denso");
+    const cs = getComputedStyle(z.el), num = (v, x) => parseFloat(cs.getPropertyValue(v)) || x;
+    const tinte = V.aRgb(`rgb(${cs.getPropertyValue("--vidrio-tinte").trim() || "20 22 26"})`);
+    if (!tinte) continue;
+    const techo = { icono: num("--vidrio-a-icono", 0.56), texto: num("--vidrio-a-texto", 0.78), denso: num("--vidrio-a-denso", 0.9) };
+    const lista = V.exigencias(z.el);
+    // colores a mitad de una transición (acaba de cambiar el aspecto o el tema): se calcula al terminar
+    if (!lista) { clearTimeout(luz.reintento); luz.reintento = setTimeout(aplicarAlfas, 260); continue; }
+    const conTexto = lista.some((x) => x.minimo > 3);
+    const [suelo, tope] = denso ? [0.6, techo.denso] : conTexto ? [0.24, techo.texto] : [0.2, techo.icono];
+    const alfa = V.alfa(lista, tinte, z.p10, z.p90, suelo, tope);
+    // Como iOS 26, en claro una pieza pequeña pasa a vidrio oscuro (texto claro) si así puede ser bastante más transparente:
+    // el otro aspecto se estima con sus colores más exigentes (principal y secundario del vidrio). Menús, diálogos y la
+    // tarjeta grande del escritorio siguen el tema.
+    if (claro && !denso && !z.el.matches(".pn-disp-lateral .pn-tarjeta")) {
+      const oscura = z.el.dataset.vidrioAspecto === "oscuro", secundario = lista.some((x) => V.razon(x.color, oscura ? [245, 245, 247] : [29, 29, 31]) > 1.06);
+      const otro = oscura ? { tinte: [255, 255, 255], c: [[29, 29, 31], [77, 77, 77]] } : { tinte: [20, 22, 26], c: [[245, 245, 247], [195, 198, 204]] };
+      const sintetica = (conTexto ? [4.5] : [3]).flatMap((m) => (secundario ? otro.c : otro.c.slice(0, 1)).map((c) => ({ color: [...c, 1], minimo: m, capas: [] })));
+      const alfaOtro = V.alfa(sintetica, otro.tinte, z.p10, z.p90, suelo, oscura ? techo.texto : 0.78);
+      const cambia = oscura ? alfaOtro <= alfa + 0.02 : alfaOtro + 0.06 < alfa;
+      if (cambia) { // su alfa se calcula en la siguiente vuelta, con los colores ya cambiados
+        cambiarAspecto(z.el, oscura ? null : "oscuro");
+        clearTimeout(luz.reintento); luz.reintento = setTimeout(aplicarAlfas, 260);
+        continue;
+      }
+    }
+    fijarAlfa(z.el, alfa, tope);
   }
   for (const el of [...alfasVidrio.keys()]) if (!vivas.has(el)) { el.style.removeProperty("--vidrio-a"); alfasVidrio.delete(el); }
+  for (const el of document.querySelectorAll("[data-vidrio-aspecto]")) if (!vivas.has(el)) cambiarAspecto(el, null);
 }
 /** Zonas con vidrio encima: para cada pieza `.c8-vidrio` que se ve sobre `marco` (el rectángulo de la pantalla que ocupa
     la rejilla de 32×18), las celdas cuyo centro tapa (la del centro de la pieza si es más pequeña que una celda). Las
