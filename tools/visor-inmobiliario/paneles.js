@@ -11,7 +11,7 @@ const R = resolverTexto;
 const CLAVE_CONTACTO = "visor:contacto";
 const MAX_FOTOS = 6;
 const ESTILOS_POR_DEFECTO = ["original", "nordico", "mediterraneo", "industrial", "contemporaneo_minimalista", "clasico"];
-const MOMENTOS = ["dia", "atardecer", "noche"];
+const MOMENTOS = ["amanecer", "dia", "atardecer", "noche"]; // amanecer: parada de la barra del sol del núcleo
 // Escala oficial del certificado energético (los tokens --ce-* de tema.css; aquí el respaldo)
 const ENERGIA = { A: "#00a651", B: "#4cb848", C: "#bfd730", D: "#e8d900", E: "#fdb913", F: "#f37021", G: "#ed1c24" };
 const ENERGIA_OSCURO = new Set(["C", "D", "E"]);
@@ -47,7 +47,9 @@ const P = {
   copiar: "M10.5 9h8a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 9 18.5v-8A1.5 1.5 0 0 1 10.5 9zM6 15h-.5A1.5 1.5 0 0 1 4 13.5v-8A1.5 1.5 0 0 1 5.5 4h8A1.5 1.5 0 0 1 15 5.5V6",
   descargar: "M12 4v12M7 11l5 5 5-5M5 20h14",
   sol: "M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
-  atardecer: "M3 18h18M7 18a5 5 0 0 1 10 0M12 3v4M4.9 9.9l1.4 1.4M19.1 9.9l-1.4 1.4M2 14h2M20 14h2M6 21h12",
+  // amanecer y atardecer: los mismos que los iconos de la barra del sol (index.html): medio sol en el horizonte y flecha
+  amanecer: "M2.5 18h19M7.5 18a4.5 4.5 0 0 1 9 0M6.4 14.75 5.1 14M17.6 14.75l1.3-.75M12 10V4M9.5 6.5 12 4l2.5 2.5",
+  atardecer: "M2.5 18h19M7.5 18a4.5 4.5 0 0 1 9 0M6.4 14.75 5.1 14M17.6 14.75l1.3-.75M12 4v6M9.5 7.5 12 10l2.5-2.5",
   luna: "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z",
   pin: "M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   doc: "M7.5 3h6.4L18 7.1v11.4a2.5 2.5 0 0 1-2.5 2.5h-8A2.5 2.5 0 0 1 5 18.5v-13A2.5 2.5 0 0 1 7.5 3zM13.5 3.1v3.4a1 1 0 0 0 1 1h3.4M8.5 12.5h7M8.5 16h5",
@@ -1928,7 +1930,7 @@ function dlgEstilo() {
   const momentos = listaMomentos();
   if (momentos.length) {
     const actual = e.momento ?? "dia", nombreGrupo = nuevoId("luz");
-    const iconos = { dia: "sol", atardecer: "atardecer", noche: "luna" };
+    const iconos = { amanecer: "amanecer", dia: "sol", atardecer: "atardecer", noche: "luna" };
     partes.push(h("fieldset", { class: "pn-grupo" },
       h("legend", {}, tr("momento.titulo"), h("span", { class: "pn-suave", "data-k": "luz-simulada", hidden: !(e.momentoSimulado === true && actual !== "dia") }, ` ${tr("momento.simulado")}`)),
       h("div", { class: "c8-segmentado pn-segmentado", role: "radiogroup", "aria-label": tr("momento.titulo") }, momentos.map((m) =>

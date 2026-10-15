@@ -1,6 +1,6 @@
 // Paso 1 · Fotos 360: subida, procesado en Web Worker (8192 / 4096 / 512), nombres (también los de la Guía Osmo 360)
 // y orden de la visita.
-import { dimensiones, leerMetadatos, describirCamara, fechaExif, norm180 } from "./estudio-util.js";
+import { dimensiones, leerMetadatos, describirCamara, fechaExif, norm180, solDeExif } from "./estudio-util.js";
 import { app, h, $, icono, cambiar, emitir, on, toast, dialogo, confirmar, guardarArchivo, urlDe, idLibre, elegirArchivos,
   textoDe, fijarTexto, colocado, pano, fmtMB, calcularEnlaces, tienePlano, VIDRIO } from "./estudio-nucleo.js";
 import { campoTexto } from "./estudio-campos.js";
@@ -252,6 +252,9 @@ export async function anadirFotos(archivos, { render = false } = {}) {
             ...(render ? { render: true } : {}), ...(camara ? { camara } : {}), ...(exif?.fecha ? { fecha: exif.fecha } : {}),
             ...(rumbo != null ? { brujula: rumbo, brujulaFuente: exif.rumboFuente } : {}), ...(r.limitado ? { limitado: true } : {}) };
           if (!t.inicio) t.inicio = id;
+          // Barra del sol: la primera foto con fecha (en orden de disparo) da la fecha, la hora y el lugar de la luz real
+          const sol = solDeExif(exif);
+          if (sol && !t.sol) t.sol = sol;
         });
         if (!app.nodo) { app.nodo = id; emitir("nodo", {}); }
         if (r.limitado) toast("Este dispositivo limita el tamaño de imagen: la foto se guardó a menor resolución. Prepárala en un ordenador para 8K.", "aviso", 7000);

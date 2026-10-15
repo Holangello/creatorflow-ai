@@ -191,7 +191,7 @@ h2.sub { margin: var(--e-6) 0 var(--e-3); font-size: var(--t-cuerpo); }
 .campo { display: flex; flex-direction: column; gap: var(--e-1); min-width: 0; }
 .campo > span:first-child, .campo > label, .etq-campo { color: var(--c-texto-2); font-size: var(--t-sec); font-weight: var(--peso-medio); }
 .campo small { color: var(--c-texto-3); font-size: var(--t-pie); }
-.c8-base :where(input:is([type=text], [type=number], [type=url], [type=email], [type=tel], [type=search], :not([type])), select, textarea) {
+.c8-base :where(input:is([type=text], [type=number], [type=url], [type=email], [type=tel], [type=search], [type=datetime-local], :not([type])), select, textarea) {
   width: 100%; min-height: var(--alto-control); padding: var(--e-2) var(--e-3); border: 1px solid var(--c-borde-2); border-radius: var(--r-2);
   background-color: var(--c-campo); color: var(--c-texto); font: var(--peso-normal) var(--t-ui) / var(--lh-ui) var(--fuente);
   transition: border-color var(--d-1) var(--suave), box-shadow var(--d-2) var(--suave); }
@@ -737,7 +737,7 @@ dialog.aviso-movil::backdrop { background: var(--c-fondo); }
 }
 /* Pantallas táctiles: objetivos de 44 px como mínimo (los .c8-* ya los cumplen) y campos a 16 px como mínimo (iOS no amplía al escribir) */
 @media (pointer: coarse) {
-  .c8-base :where(input:is([type=text], [type=number], [type=url], [type=email], [type=tel], [type=search], :not([type])), select, textarea) { min-height: var(--toque-minimo); font-size: max(16px, var(--t-ui)); }
+  .c8-base :where(input:is([type=text], [type=number], [type=url], [type=email], [type=tel], [type=search], [type=datetime-local], :not([type])), select, textarea) { min-height: var(--toque-minimo); font-size: max(16px, var(--t-ui)); }
   #pasos button, #pasos .grupo-herramientas button.herramienta { min-height: 3.25rem; }
   :is(.check, .fila-lista, .barra-plantas .pestana, .sugerencias button, .letras-ce button, .punto > summary, .avanzado > summary, .posicion-exacta > summary, .plegable-c8 > summary, .enlace-guia) { min-height: var(--toque-minimo); }
   .letras-ce { flex-wrap: wrap; } /* en táctil, 44 px sin encoger: pasan a dos líneas si no caben */
@@ -745,3 +745,6 @@ dialog.aviso-movil::backdrop { background: var(--c-fondo); }
   .chips .chip button { min-width: 2rem; min-height: 2rem; }
   .foto .orden-btns .c8-boton { width: var(--toque-minimo); min-height: var(--toque-minimo); }
 }
+
+/* Barra del sol (Estilo y luz → Luz): interruptor y la fecha y hora de las fotos */
+.bloque-sol .campo { margin-top: var(--e-3); max-width: 16rem; }

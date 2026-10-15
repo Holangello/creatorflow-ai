@@ -40,12 +40,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 [hidden] { display: none !important; } /* también si tema.css no llega a cargar */
 
 /* ================================================================== HUD */
-#modos, #barra-vista, #galeria, #guion-barra { transition: opacity var(--d-3) var(--suave); }
+#sol, #modos, #barra-vista, #galeria, #guion-barra { transition: opacity var(--d-3) var(--suave); }
 /* Sin interacción durante 3,5 s la escena manda: quedan el radar y la tarjeta del inmueble (paneles). */
-body.ui-inactiva :is(#lugar, #modos, #barra-vista, #galeria):not(:focus-within) { opacity: 0; pointer-events: none; }
+body.ui-inactiva :is(#lugar, #sol, #modos, #barra-vista, #galeria):not(:focus-within) { opacity: 0; pointer-events: none; }
 /* Modo juego (ratón capturado): nada pulsable a la vista salvo el radar, el aviso y el precio. Los paneles se ocultan;
    un elemento suyo puede volver a verse con visibility: visible. */
-body.raton-capturado :is(#lugar, #modos, #barra-vista, #galeria, #menu-mas, #pista, #tarjeta-juego, #btn-ampliar, #guion-barra) { opacity: 0; pointer-events: none; }
+body.raton-capturado :is(#lugar, #sol, #modos, #barra-vista, #galeria, #menu-mas, #pista, #tarjeta-juego, #btn-ampliar, #guion-barra) { opacity: 0; pointer-events: none; }
 body.raton-capturado #paneles { visibility: hidden; }
 body.raton-capturado #lienzo { cursor: none; }
 
@@ -65,6 +65,38 @@ body.raton-capturado #lienzo { cursor: none; }
 #estancia:empty { display: none; }
 #lugar .chev { width: var(--icono-s); height: var(--icono-s); color: var(--c-texto-2); transition: transform var(--d-3) var(--muelle); }
 #lugar[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+/* Barra del sol (bajo el título): ▶ y una pista con los cuatro momentos (amanecer, día, atardecer, noche) como paradas a
+   la misma distancia; el punto es una cápsula blanca con la hora, como el pomo de los deslizadores de iOS. Toda la pista
+   es el deslizador (role="slider"). --t: posición del punto (0-1); --k: ancho del punto (los iconos se centran en él). */
+#sol { display: flex; align-items: center; gap: 0.125rem; width: min(18.5rem, 100%); padding: 0.125rem var(--e-3) 0.125rem 0.125rem; border-radius: var(--r-4); }
+#sol .reproducir { flex: none; color: var(--c-texto); }
+#sol .reproducir.pausado .ic-pausa .barras { opacity: 0; scale: 0.5; }
+#sol .reproducir.pausado .ic-pausa .play { opacity: 1; scale: 1; }
+#sol .reproducir .ic-pausa { width: var(--icono-s); height: var(--icono-s); }
+#sol .pista { --k: 2.875rem; position: relative; flex: 1; min-width: 0; height: max(2.75rem, var(--toque-minimo)); touch-action: none; cursor: pointer;
+  border-radius: var(--r-3, 0.75rem); outline: none; -webkit-user-select: none; user-select: none; }
+#sol .paradas { position: absolute; inset: 0 0 auto; height: 1.375rem; pointer-events: none; }
+#sol .paradas svg { position: absolute; top: 0.1875rem; width: 1.125rem; height: 1.125rem; translate: -50% 0; color: var(--c-texto-2);
+  left: calc(var(--k) / 2 + var(--p) * (100% - var(--k))); transition: color var(--d-2) var(--suave), scale var(--d-3) var(--muelle-rebote); }
+#sol .paradas [data-m="amanecer"] { --p: 0.08; }
+#sol .paradas [data-m="dia"] { --p: 0.36; }
+#sol .paradas [data-m="atardecer"] { --p: 0.64; }
+#sol .paradas [data-m="noche"] { --p: 0.92; }
+#sol .paradas svg.activo { color: var(--c-texto); scale: 1.12; }
+#sol .paradas svg.activo .relleno { fill: currentColor; }
+#sol .riel { position: absolute; left: calc(var(--k) / 2); right: calc(var(--k) / 2); bottom: 0.6875rem; height: 0.1875rem; border-radius: var(--r-pastilla);
+  background: color-mix(in srgb, var(--c-texto) 24%, transparent); pointer-events: none; }
+#sol .riel::before { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(var(--t, 0) * 100%); border-radius: inherit;
+  background: color-mix(in srgb, var(--c-texto) 72%, transparent); }
+/* La hora de las fotos (la luz real): una muesca en la pista */
+#sol .riel .foto { position: absolute; top: 50%; left: calc(var(--f, 0) * 100%); width: 0.125rem; height: 0.625rem; translate: -50% -50%; border-radius: 1px; background: var(--c-texto); }
+#sol .pomo { position: absolute; bottom: 0.1875rem; left: calc(var(--t, 0) * (100% - var(--k))); width: var(--k); height: 1.25rem; border-radius: var(--r-pastilla);
+  background: #fff; color: #1d1d1f; font: var(--peso-semi) var(--t-pie) / 1.25rem var(--fuente); text-align: center; letter-spacing: 0; pointer-events: none;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 1px 2px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(0, 0, 0, 0.16); transition: scale var(--d-2) var(--muelle); }
+#sol .pista.arrastrando .pomo { scale: 1.08; }
+#sol .pista:focus-visible .pomo { outline: 2px solid var(--c-foco); outline-offset: 2px; }
+body:is(.guion-activo, .midiendo) #sol { display: none; }
 
 #radar { position: relative; width: var(--radar); aspect-ratio: 1; flex: none; }
 #radar .disco { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
@@ -400,7 +432,7 @@ body:is(.modo-libre, .modo-maqueta, .sin-webgl) #rotulo, :root[data-movimiento="
 #vacio { position: absolute; inset: 0; margin: auto; height: fit-content; max-width: min(26rem, 80vw); text-align: center; color: var(--c-texto-2); text-wrap: balance;
   font: var(--peso-normal) var(--t-cuerpo) / var(--lh-texto) var(--fuente); pointer-events: none; }
 body.vista-vacia #lienzo { visibility: hidden; }
-body.sin-webgl :is(#lienzo, #modos, #radar, #btn-radar, #btn-juego, #etiquetas) { display: none; }
+body.sin-webgl :is(#lienzo, #modos, #sol, #radar, #btn-radar, #btn-juego, #etiquetas) { display: none; }
 body.sin-webgl #galeria { display: flex !important; top: calc(var(--bajo-modos) + 3.5rem); bottom: auto; flex-wrap: wrap; justify-content: center; max-width: min(92vw, 48rem); }
 body.embed #btn-pantalla { display: none; }
 
@@ -453,6 +485,7 @@ body.embed #btn-pantalla { display: none; }
   #esquina { max-width: calc(50vw - 10.5rem); gap: var(--e-1); }
   #lugar { min-height: var(--alto-control); padding-block: 0.125rem; }
   #logo { height: 1.5rem; max-width: 4rem; }
+  #sol .pista { height: var(--toque-minimo); }
   #modos > label { padding: 0 var(--e-3); min-height: calc(var(--alto-control) - 0.625rem); }
   #portada { padding-block: var(--e-3) var(--e-8); }
   #portada .contenido { gap: var(--e-2); padding: var(--e-4) var(--e-5); }

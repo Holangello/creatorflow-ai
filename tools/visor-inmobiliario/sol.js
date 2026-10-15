@@ -67,17 +67,19 @@ export function lugarSol(tour, ahora = Date.now()) {
   return { lat, lng, inicio, desfase, fecha: ms };
 }
 
-/** Recorrido de la barra del sol para ese día: del alba (salida − 40 min) a la noche cerrada (puesta + 75 min), y las
+/** Recorrido de la barra del sol para ese día: del alba (salida − 40 min) a la noche cerrada (puesta + 90 min), y las
     paradas de los cuatro iconos: amanecer (salida + 20 min), día (mediodía solar), atardecer (puesta − 35 min) y noche
-    (puesta + 60 min). Sin salida o sin puesta, el día entero con las paradas a las 7, 13, 19 y 22 h. */
+    (puesta + 60 min); en los días muy cortos del norte, el amanecer y el atardecer se acercan al mediodía sin cruzarlo.
+    Sin salida o sin puesta, el día entero con las paradas a las 7, 13, 19 y 22 h. */
 export function recorridoSol(lugar) {
   const d = diaSolar(lugar.inicio, lugar.lat, lugar.lng), h = (x) => lugar.inicio + x * 60 * MIN;
   if (d.salida == null || d.puesta == null) {
     return { ini: lugar.inicio, fin: lugar.inicio + 24 * 60 * MIN, paradas: { amanecer: h(7), dia: h(13), atardecer: h(19), noche: h(22) }, dia: d };
   }
+  const manana = Math.min(20 * MIN, (d.mediodia - d.salida) / 4), tarde = Math.min(35 * MIN, (d.puesta - d.mediodia) / 4);
   return {
-    ini: d.salida - 40 * MIN, fin: d.puesta + 75 * MIN, dia: d,
-    paradas: { amanecer: d.salida + 20 * MIN, dia: d.mediodia, atardecer: d.puesta - 35 * MIN, noche: d.puesta + 60 * MIN },
+    ini: d.salida - 40 * MIN, fin: d.puesta + 90 * MIN, dia: d,
+    paradas: { amanecer: d.salida + manana, dia: d.mediodia, atardecer: d.puesta - tarde, noche: d.puesta + 60 * MIN },
   };
 }
 

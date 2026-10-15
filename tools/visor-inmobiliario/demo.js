@@ -2,6 +2,9 @@
 // Las "fotos 360" se renderizan desde este modelo con una CubeCamera (igual que Corona
 // renderiza panoramas esféricos), incluidas 5 variantes de estilo, día/atardecer/noche
 // y las máscaras de paredes/suelo para cambiar colores.
+// Barra del sol: las ventanas son huecos de verdad en los muros (con carpintería y vidrio), fuera hay un cielo que sigue
+// al sol y una luz direccional con sombras entra por ellas; `aplicar({ sol })` la coloca con la posición exacta de sol.js
+// y `nodo.renderSol()` vuelve a renderizar el panorama de una estancia con ella.
 import * as THREE from "three";
 
 const ALTO = 2.6;
@@ -15,6 +18,10 @@ const MUROS = [
   [0, 5, 1, 5], [2, 5, 6, 5],
   [3, 5, 3, 6], [3, 7, 3, 8],
 ];
+
+// Ventanas: [x, z] del centro (a 7 cm del muro, por dentro), giro y ancho; alféizar a 0,8 m y dintel a 2,2 m.
+const VENTANAS = [[0.07, 2.5, Math.PI / 2, 2.4], [8, 0.07, 0, 1.6], [9.93, 6, -Math.PI / 2, 1.8], [4.5, 7.93, Math.PI, 0.8]];
+const ALFEIZAR = 0.8, DINTEL = 2.2;
 
 const ESTANCIAS = [
   { id: "salon", nombre: { es: "Salón-comedor", en: "Living-dining room" }, poligono: [[0, 0], [6, 0], [6, 5], [0, 5]], madera: true },
@@ -71,6 +78,8 @@ export const DEMO_TOUR = {
   altura_camara: 1.5,
   inicio: "salon",
   norte: 0,
+  // Fecha, hora y lugar de las «fotos» (en un tour real, del EXIF de la Osmo 360): la barra del sol empieza con esta luz
+  sol: { lat: 40.42, lng: -3.7, fecha: "2026-10-15T18:20:00+02:00" },
   plantas: [{ id: "p0", nombre: { es: "Planta única", en: "Single floor" }, muros: MUROS }],
   estancias: ESTANCIAS.map(({ id, nombre, poligono }) => ({ id, nombre, planta: "p0", poligono, altura_techo: ALTO })),
   estilos: Object.keys(ESTILOS).map((id) => ({ id })),
@@ -158,26 +167,74 @@ export function crearPisoDemo() {
   techo.position.set(5, ALTO, 4);
   grupo.add(marcar(techo, "techo"));
 
+  // Muros, con el hueco de cada ventana (antepecho debajo y dintel encima): por ahí entran el sol y la vista del cielo.
   const matMuro = mat("pared", 0xf1ede6);
+  const matCarpinteria = mat("carpinteria", 0xe9e9e6);
+  const matVidrio = new THREE.MeshBasicMaterial({ color: 0xcfe0ee, transparent: true, opacity: 0.1, depthWrite: false });
+  const pieza = (x1, z1, ux, uz, s0, s1, y0, y1, material, superficie) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(s1 - s0, y1 - y0, GROSOR), material);
+    const sc = (s0 + s1) / 2;
+    m.position.set(x1 + ux * sc, (y0 + y1) / 2, z1 + uz * sc);
+    m.rotation.y = -Math.atan2(uz, ux);
+    grupo.add(marcar(m, superficie));
+    return m;
+  };
   for (const [x1, z1, x2, z2] of MUROS) {
-    const largo = Math.hypot(x2 - x1, z2 - z1) + GROSOR;
-    const m = new THREE.Mesh(new THREE.BoxGeometry(largo, ALTO, GROSOR), matMuro);
-    m.position.set((x1 + x2) / 2, ALTO / 2, (z1 + z2) / 2);
-    m.rotation.y = -Math.atan2(z2 - z1, x2 - x1);
-    grupo.add(marcar(m, "pared"));
-    colisiones.push(m);
+    const largo = Math.hypot(x2 - x1, z2 - z1), ux = (x2 - x1) / largo, uz = (z2 - z1) / largo;
+    const huecos = VENTANAS.map(([x, z, , ancho]) => [(x - x1) * ux + (z - z1) * uz, Math.abs((x - x1) * uz - (z - z1) * ux), ancho])
+      .filter(([s, d]) => d < 0.1 && s > 0 && s < largo).map(([s, , ancho]) => [s - ancho / 2, s + ancho / 2]).sort((a, b) => a[0] - b[0]);
+    let s = -GROSOR / 2;
+    for (const [a, b] of huecos) {
+      colisiones.push(pieza(x1, z1, ux, uz, s, a, 0, ALTO, matMuro, "pared"));
+      colisiones.push(pieza(x1, z1, ux, uz, a, b, 0, ALFEIZAR, matMuro, "pared"));
+      pieza(x1, z1, ux, uz, a, b, DINTEL, ALTO, matMuro, "pared");
+      // Carpintería (marco de 5 cm y, en las anchas, un parteluz) y el vidrio, que también para al paseo libre
+      const c = (s0, s1, y0, y1) => pieza(x1, z1, ux, uz, s0, s1, y0, y1, matCarpinteria, "mueble");
+      c(a, b, ALFEIZAR, ALFEIZAR + 0.05); c(a, b, DINTEL - 0.05, DINTEL); c(a, a + 0.05, ALFEIZAR, DINTEL); c(b - 0.05, b, ALFEIZAR, DINTEL);
+      if (b - a > 1.2) c((a + b) / 2 - 0.025, (a + b) / 2 + 0.025, ALFEIZAR, DINTEL);
+      const v = new THREE.Mesh(new THREE.PlaneGeometry(b - a, DINTEL - ALFEIZAR), matVidrio);
+      v.position.set(x1 + (ux * (a + b)) / 2, (ALFEIZAR + DINTEL) / 2, z1 + (uz * (a + b)) / 2);
+      v.rotation.y = -Math.atan2(uz, ux);
+      grupo.add(marcar(v, "ventana"));
+      colisiones.push(v);
+      s = b;
+    }
+    colisiones.push(pieza(x1, z1, ux, uz, s, largo + GROSOR / 2, 0, ALTO, matMuro, "pared"));
   }
 
-  // Ventanas (paneles luminosos)
-  const matVentana = new THREE.MeshBasicMaterial({ color: 0xd6ebff });
-  for (const [x, z, ry, ancho] of [[0.07, 2.5, Math.PI / 2, 2.4], [8, 0.07, 0, 1.6], [9.93, 6, -Math.PI / 2, 1.8], [4.5, 7.93, Math.PI, 0.8]]) {
-    const v = new THREE.Mesh(new THREE.PlaneGeometry(ancho, 1.4), matVentana);
-    v.position.set(x, 1.5, z); v.rotation.y = ry;
-    grupo.add(marcar(v, "ventana"));
-  }
+  // Fuera: un cielo que sigue al sol (degradado, halo y disco) y, bajo el horizonte, la ciudad difuminada
+  const cielo = new THREE.Mesh(new THREE.SphereGeometry(40, 48, 24), new THREE.ShaderMaterial({
+    uniforms: { solDir: { value: new THREE.Vector3(0, 1, 0) }, cenit: { value: new THREE.Color() }, horizonte: { value: new THREE.Color() },
+      suelo: { value: new THREE.Color() }, solColor: { value: new THREE.Color() } },
+    vertexShader: "varying vec3 vP; void main() { vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: /* glsl */ `
+      uniform vec3 solDir, cenit, horizonte, suelo, solColor; varying vec3 vP;
+      void main() {
+        vec3 d = normalize(vP);
+        vec3 c = d.y > 0.0 ? mix(horizonte, cenit, pow(d.y, 0.5)) : mix(horizonte * 0.85, suelo, pow(min(-d.y * 4.0, 1.0), 0.6));
+        float s = max(dot(d, solDir), 0.0);
+        c += solColor * (pow(s, 6.0) * 0.45 + pow(s, 900.0) * 6.0) * step(-0.02, d.y);
+        gl_FragColor = vec4(c, 1.0);
+        #include <colorspace_fragment>
+      }`,
+    side: THREE.BackSide, depthWrite: false,
+  }));
+  cielo.position.set(5, 0, 4);
+  cielo.frustumCulled = false;
+  grupo.add(marcar(cielo, "cielo"));
 
   const hemi = new THREE.HemisphereLight(0xfff6e8, 0x6b5a48, 1.5);
   grupo.add(hemi);
+  // El sol: luz direccional con sombras que cubren todo el piso (10 × 8 m; 2048 px ≈ 8 mm por texel)
+  const sol = new THREE.DirectionalLight(0xffffff, 0);
+  sol.castShadow = true;
+  sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 60 });
+  sol.shadow.bias = -0.0005;
+  sol.shadow.normalBias = 0.025;
+  sol.target.position.set(5, 0, 4);
+  sol.visible = false;
+  grupo.add(sol, sol.target);
   const luces = [];
   const matBombilla = new THREE.MeshBasicMaterial({ color: 0xd8d3c8 });
   for (const [x, z, i] of [[3, 2.5, 1], [8, 2, 0.7], [8, 6, 0.7], [1.5, 6.5, 0.35], [4.5, 6.5, 0.45]]) {
@@ -221,6 +278,12 @@ export function crearPisoDemo() {
   grupo.add(plantas);
   plantas.traverse((o) => marcar(o, "mueble"));
 
+  grupo.traverse((o) => {
+    if (!o.isMesh || ["ventana", "cielo", "lampara"].includes(o.userData.superficie)) return;
+    o.castShadow = o.receiveShadow = true;
+    if (o.userData.superficie === "techo") o.material.shadowSide = THREE.DoubleSide; // el techo tapa el sol que viene de arriba
+  });
+
   const texturas = new Map();
   const tex = (color, madera) => {
     const k = color + madera;
@@ -228,8 +291,38 @@ export function crearPisoDemo() {
     return texturas.get(k);
   };
 
-  /** Aplica estilo, momento y pintura al modelo (lo usan los panoramas y el modo libre). */
-  function aplicar({ estilo = "original", momento = "dia", pintura = {} } = {}) {
+  const cieloU = cielo.material.uniforms;
+  const bombillaDia = new THREE.Color("#d8d3c8"), bombillaNoche = new THREE.Color("#fff1c9");
+  const srgb = (c, v, k = 1) => c.setRGB(v[0] * k, v[1] * k, v[2] * k, THREE.SRGBColorSpace);
+  /** La luz de un instante de la barra del sol (sol.js → estadoSol): sol, cielo, luz difusa y lámparas. */
+  function luzDelSol(s, ambienteMin = 0) {
+    const L = s.luz, [dx, dy, dz] = s.direccion;
+    hemi.color.setRGB(...L.cielo, THREE.SRGBColorSpace); hemi.groundColor.setRGB(...L.suelo, THREE.SRGBColorSpace);
+    hemi.intensity = Math.max(L.ambiente, ambienteMin);
+    sol.visible = L.fuerza > 0.01 && dy > -0.01;
+    srgb(sol.color, L.sol);
+    sol.intensity = L.fuerza * 1.5;
+    sol.position.set(5 + dx * 30, Math.max(dy, 0.004) * 30, 4 + dz * 30);
+    luces.forEach((l) => (l.intensity = l.userData.base * (1.2 + 7.8 * L.lamparas)));
+    matBombilla.color.lerpColors(bombillaDia, bombillaNoche, L.lamparas);
+    // Cielo: el cénit del color del cielo; el horizonte, más claro de día y encendido hacia el sol al alba y al ocaso
+    cieloU.solDir.value.set(dx, dy, dz).normalize();
+    srgb(cieloU.cenit.value, L.cielo, 0.62 + 0.5 * Math.min(1, L.ambiente));
+    srgb(cieloU.horizonte.value, L.cielo, 0.85 + 0.45 * Math.min(1, L.ambiente)).lerp(new THREE.Color(1, 0.62, 0.38), 0.45 * L.calido * (1 - L.noche));
+    srgb(cieloU.suelo.value, L.suelo, 0.9);
+    srgb(cieloU.solColor.value, L.sol, Math.min(1, L.fuerza));
+  }
+  /** Sin barra del sol: los momentos de siempre (día, atardecer, noche), sin sol directo y con el cielo plano. */
+  function luzDeMomento(m) {
+    hemi.color.setHex(m.hemi[0]); hemi.groundColor.setHex(m.hemi[1]); hemi.intensity = m.hemi[2];
+    sol.visible = false;
+    luces.forEach((l) => (l.intensity = l.userData.base * m.luces));
+    matBombilla.color.set(m.bombilla);
+    cieloU.cenit.value.set(m.fondo); cieloU.horizonte.value.set(m.ventana); cieloU.suelo.value.set(m.fondo).multiplyScalar(0.6); cieloU.solColor.value.setRGB(0, 0, 0);
+  }
+
+  /** Aplica estilo, momento (o el sol de la barra) y pintura al modelo (lo usan los panoramas y el modo libre). */
+  function aplicar({ estilo = "original", momento = "dia", pintura = {}, sol: s = null, ambienteMin = 0 } = {}) {
     const e = ESTILOS[estilo] ?? ESTILOS.original;
     const m = MOMENTOS[momento] ?? MOMENTOS.dia;
     matMuro.color.set(pintura.paredes || e.pared);
@@ -246,10 +339,7 @@ export function crearPisoDemo() {
     }
     alfombras.forEach((a) => (a.visible = !!e.alfombra));
     plantas.visible = !!e.plantas;
-    hemi.color.setHex(m.hemi[0]); hemi.groundColor.setHex(m.hemi[1]); hemi.intensity = m.hemi[2];
-    luces.forEach((l) => (l.intensity = l.userData.base * m.luces));
-    matVentana.color.set(m.ventana);
-    matBombilla.color.set(m.bombilla);
+    if (s) luzDelSol(s, ambienteMin); else luzDeMomento(m);
     return m;
   }
   aplicar();
@@ -266,19 +356,25 @@ export function generarPanoramas(_THREE, renderer, nodos, altura) {
   escena.add(piso.grupo);
   const rtCubo = new THREE.WebGLCubeRenderTarget(1024, { type: THREE.HalfFloatType });
   const cubo = new THREE.CubeCamera(0.05, 60, rtCubo);
-  escena.add(cubo);
+  // Mientras se arrastra la barra del sol, un cubo más pequeño (4 veces menos píxeles); al soltar, el bueno.
+  const rtRapido = new THREE.WebGLCubeRenderTarget(512, { type: THREE.HalfFloatType });
+  const cuboRapido = new THREE.CubeCamera(0.05, 60, rtRapido);
+  escena.add(cubo, cuboRapido);
 
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
-    uniforms: { cubo: { value: rtCubo.texture }, srgb: { value: 0 } },
+    uniforms: { cubo: { value: rtCubo.texture }, srgb: { value: 0 }, curva: { value: 1 } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
     fragmentShader: /* glsl */ `
-      uniform samplerCube cubo; uniform float srgb; varying vec2 vUv;
+      uniform samplerCube cubo; uniform float srgb, curva; varying vec2 vUv;
       const float PI = 3.141592653589793;
       void main() {
         float lon = (vUv.x - 0.5) * 2.0 * PI;
         float lat = (vUv.y - 0.5) * PI;
         vec3 d = vec3(sin(lon) * cos(lat), sin(lat), -cos(lon) * cos(lat));
         vec3 c = textureCube(cubo, d).rgb;
+        // Hombro de las altas luces (como una cámara): las manchas de sol se saturan con suavidad, sin cortes duros.
+        // Las máscaras (curva = 0) no se tocan: sus canales son pesos exactos.
+        if (curva > 0.5) c = mix(c, 0.8 + 0.2 * (1.0 - exp(-(c - 0.8) / 0.2)), step(0.8, c));
         if (srgb > 0.5) c = pow(c, vec3(1.0 / 2.2));
         gl_FragColor = vec4(c, 1.0);
       }`,
@@ -290,13 +386,21 @@ export function generarPanoramas(_THREE, renderer, nodos, altura) {
 
   const matMascara = { pared: new THREE.MeshBasicMaterial({ color: 0xff0000 }), suelo: new THREE.MeshBasicMaterial({ color: 0x00ff00 }), otro: new THREE.MeshBasicMaterial({ color: 0x000000 }) };
 
-  function renderEquirect(n, { ancho = 2048, srgb = false, tipo = THREE.HalfFloatType } = {}) {
-    cubo.position.set(n.x, altura, n.z);
-    cubo.update(renderer, escena);
-    const rt = new THREE.WebGLRenderTarget(ancho, ancho / 2, { type: tipo, generateMipmaps: false, minFilter: THREE.LinearFilter, depthBuffer: false });
+  function renderEquirect(n, { ancho = 2048, srgb = false, tipo = THREE.HalfFloatType, destino = null, rapido = false, curva = true } = {}) {
+    const cam = rapido ? cuboRapido : cubo;
+    cam.position.set(n.x, altura, n.z);
+    // Las sombras del sol se calculan una vez para las 6 caras del cubo (no seis)
+    const auto = renderer.shadowMap.autoUpdate;
+    renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true;
+    cam.update(renderer, escena);
+    renderer.shadowMap.autoUpdate = auto;
+    const rt = destino ?? new THREE.WebGLRenderTarget(ancho, ancho / 2, { type: tipo, generateMipmaps: false, minFilter: THREE.LinearFilter, depthBuffer: false });
     rt.texture.wrapS = THREE.RepeatWrapping;
     rt.texture.userData.rt = rt; // para liberar el render target completo (no solo la textura)
+    quad.material.uniforms.cubo.value = cam.renderTarget.texture;
     quad.material.uniforms.srgb.value = srgb ? 1 : 0;
+    quad.material.uniforms.curva.value = curva ? 1 : 0;
     const previo = renderer.getRenderTarget();
     renderer.setRenderTarget(rt);
     renderer.render(escenaQuad, ortho);
@@ -327,7 +431,7 @@ export function generarPanoramas(_THREE, renderer, nodos, altura) {
       const s = o.userData.superficie;
       o.material = s === "pared" ? matMascara.pared : s === "suelo" ? matMascara.suelo : matMascara.otro;
     });
-    const rt = renderEquirect(n, { ancho: 1024, tipo: THREE.UnsignedByteType });
+    const rt = renderEquirect(n, { ancho: 1024, tipo: THREE.UnsignedByteType, curva: false });
     for (const [o, m] of originales) o.material = m;
     return rt.texture;
   }
@@ -362,6 +466,12 @@ export function generarPanoramas(_THREE, renderer, nodos, altura) {
         n.variantes.push(v);
       }
     }
+    // Barra del sol: el panorama con el sol de un instante (destino: el render target que ya se ve, para no crear otro)
+    n.renderSol = ({ estilo = "original", sol, destino = null, rapido = false } = {}) => {
+      piso.aplicar({ estilo, sol });
+      estado.clave = "";
+      return renderEquirect(n, { destino, rapido }).texture;
+    };
   }
   ambiente("original", "dia");
 }

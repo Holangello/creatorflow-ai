@@ -2,6 +2,8 @@
 // pines de las fotos 360. Usa el modelo real (demo/GLB) si existe o un esquema extruido
 // a partir de los muros del plano (con las estancias coloreadas encima).
 // La vivienda flota sobre el fondo del tema (--c-sup-2: claro en claro, oscuro en oscuro); se repinta con "cre8:tema".
+// Barra del sol: fijarSol() mueve el sol con su posición exacta (sol.js) y los muros echan sombra sobre las estancias; con
+// el modelo de la demo la luz la pone el propio modelo (demo.js).
 import * as THREE from "three";
 import { areaPoligono, puntoEtiqueta } from "./util.js";
 
@@ -47,6 +49,7 @@ export function crearMaqueta(ctx) {
 
   // movida: el visitante ya ha girado o acercado la maqueta (desde entonces no se vuelve a encuadrar al girar la pantalla)
   let escena = null, usaModelo = false, construida = false, activa = false, movida = false, fondoPrevio;
+  let luzSol = null; // { e: estado del sol (sol.js), luz, hemi, sombra, caja } en el esquema
   const etiquetas = [];
   const superficies = [];
   const rayo = new THREE.Raycaster();
@@ -66,11 +69,13 @@ export function crearMaqueta(ctx) {
     escena = usaModelo ? ctx.escenaLibre : new THREE.Scene();
     if (!usaModelo) {
       escena.background = colorFondo();
-      escena.add(new THREE.HemisphereLight(0xffffff, 0x404040, 2.2));
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x404040, 2.2);
+      escena.add(hemi);
       const sol = new THREE.DirectionalLight(0xffffff, 1.4);
       sol.position.set(8, 20, 6);
-      escena.add(sol);
+      escena.add(sol, sol.target);
       const matMuro = new THREE.MeshStandardMaterial({ color: 0xf2efe9, roughness: 0.9 });
+      const caja = new THREE.Box3();
       for (const p of t.plantas ?? []) {
         const y0 = elev(p.id);
         for (const [x1, z1, x2, z2] of p.muros ?? []) {
@@ -78,8 +83,20 @@ export function crearMaqueta(ctx) {
           const m = new THREE.Mesh(new THREE.BoxGeometry(largo, ALTO_MURO, 0.12), matMuro);
           m.position.set((x1 + x2) / 2, y0 + ALTO_MURO / 2, (z1 + z2) / 2);
           m.rotation.y = -Math.atan2(z2 - z1, x2 - x1);
+          m.castShadow = m.receiveShadow = true;
           escena.add(m);
+          caja.expandByObject(m);
         }
+      }
+      // Sombras del sol sobre las estancias (que no se iluminan: llevan su color tal cual): un plano que solo pinta sombra
+      if (!caja.isEmpty()) {
+        const c = caja.getCenter(new THREE.Vector3()), tam = caja.getSize(new THREE.Vector3());
+        const sombra = new THREE.Mesh(new THREE.PlaneGeometry(tam.x + 2, tam.z + 2).rotateX(-Math.PI / 2), new THREE.ShadowMaterial({ opacity: 0.3 }));
+        sombra.position.set(c.x, caja.min.y + 0.02, c.z);
+        sombra.receiveShadow = true;
+        sombra.renderOrder = 1;
+        escena.add(sombra);
+        luzSol = { luz: sol, hemi, sombra, centro: c, radio: Math.max(tam.x, tam.z) / 2 + 1, e: luzSol?.e ?? null };
       }
     }
     // Superficies de estancias (relleno de color en el esquema; capa de resalte en el modelo)
@@ -117,6 +134,7 @@ export function crearMaqueta(ctx) {
       capa.append(b);
       etiquetas.push({ el: b, pos: new THREE.Vector3(n.x, elev(n.planta) + (n.altura_camara ?? t.altura_camara ?? 1.5), n.z), pin: true });
     }
+    if (!usaModelo) aplicarSol();
     encuadrar();
   }
 
@@ -142,6 +160,30 @@ export function crearMaqueta(ctx) {
     }
     camara.position.copy(centro).addScaledVector(DIR, d * 1.1);
     if (controles) { controles.target.copy(centro); controles.update(); }
+  }
+
+  /** El sol de la barra en el esquema: posición exacta, color y fuerza; de noche, las estancias se apagan un poco. */
+  function aplicarSol() {
+    const s = luzSol;
+    if (!s?.luz || !s.e) return;
+    const L = s.e.luz, [dx, dy, dz] = s.e.direccion, r = s.radio;
+    s.luz.castShadow = true;
+    s.luz.shadow.mapSize.set(2048, 2048);
+    Object.assign(s.luz.shadow.camera, { left: -r * 1.2, right: r * 1.2, top: r * 1.2, bottom: -r * 1.2, near: 0.1, far: r * 8 });
+    s.luz.shadow.camera.updateProjectionMatrix();
+    s.luz.shadow.bias = -0.0005;
+    s.luz.target.position.copy(s.centro);
+    s.luz.position.set(s.centro.x + dx * r * 3, s.centro.y + Math.max(dy, 0.004) * r * 3, s.centro.z + dz * r * 3);
+    s.luz.color.setRGB(...L.sol, THREE.SRGBColorSpace);
+    s.luz.intensity = 1.6 * Math.min(1, L.fuerza / 2.5);
+    s.luz.visible = L.fuerza > 0.01 && dy > -0.01;
+    s.hemi.color.setRGB(...L.cielo, THREE.SRGBColorSpace);
+    s.hemi.intensity = 2.2 * Math.min(1, Math.max(0.4, L.ambiente / 1.4));
+    s.sombra.material.opacity = 0.32 * Math.min(1, L.fuerza / 2);
+    for (const x of superficies) {
+      x.userData.colorBase ??= x.material.color.clone();
+      x.material.color.copy(x.userData.colorBase).multiplyScalar(1 - 0.5 * L.noche);
+    }
   }
 
   const v = new THREE.Vector3();
@@ -179,6 +221,8 @@ export function crearMaqueta(ctx) {
     },
     escena: () => escena,
     prepararControles,
+    /** Barra del sol: el estado del sol (sol.js → estadoSol) o null. */
+    fijarSol(e) { luzSol = { ...(luzSol ?? {}), e }; if (construida && !usaModelo) aplicarSol(); },
     acercar,
     activar(si) {
       if (si && !construida) construir();
@@ -202,6 +246,7 @@ export function crearMaqueta(ctx) {
       superficies.forEach((s) => { s.parent?.remove(s); s.geometry.dispose(); s.material.dispose(); });
       if (escena && !usaModelo) escena.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose?.(); } });
       superficies.length = 0;
+      if (luzSol) luzSol = { e: luzSol.e };
       etiquetas.forEach((e) => e.el.remove());
       etiquetas.length = 0;
       construida = false;

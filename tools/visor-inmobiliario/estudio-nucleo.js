@@ -538,6 +538,9 @@ export function tourParaExportar(t = app.tour, { mapaRutas = null, publico = tru
   const reales = new Set(c.panoramas.flatMap((p) => (p.variantes ?? []).map((v) => v.momento)).filter((m) => m && m !== "dia"));
   const momentos = ["dia", ...(reales.has("atardecer") ? ["atardecer"] : []), ...(reales.has("noche") || t._estudio?.nocheSimulada ? ["noche"] : [])];
   if (momentos.length > 1) c.momentos = momentos; else delete c.momentos;
+  // Barra del sol: con la fecha de las fotos (tour.sol) salvo que el agente la apague; sin fecha, solo si la pide (hoy)
+  if (t._estudio?.sinSol) c.sol = false;
+  else if (!c.sol && t._estudio?.conSol) c.sol = {};
   if (urlPublica && /^https?:\/\/[^\s]+$/i.test(urlPublica)) c.url_publica = urlPublica; else delete c.url_publica;
   for (const p of c.panoramas) {
     p.x = redondear(p.x); p.z = redondear(p.z);

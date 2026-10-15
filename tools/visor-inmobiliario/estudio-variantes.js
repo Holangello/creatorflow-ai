@@ -277,7 +277,8 @@ function pintar() {
     luces ?? h("p", { class: "texto-sec", text: "Sin fotos de noche en esta estancia." }),
     h("label", { class: "fila-interruptor", for: "noche-simulada" }, noche,
       h("span", {}, h("b", { text: "Ofrecer vista de noche simulada" }),
-        h("small", { class: "tenue", text: conNoche ? "Para las estancias sin foto de noche, el visor la simula oscureciendo la de día." : "Sin fotos de noche, el visor puede simular la noche oscureciendo la foto de día. El atardecer solo se ofrece con foto." }))));
+        h("small", { class: "tenue", text: conNoche ? "Para las estancias sin foto de noche, el visor la simula oscureciendo la de día." : "Sin fotos de noche, el visor puede simular la noche oscureciendo la foto de día. El atardecer solo se ofrece con foto." }))),
+    bloqueSol(t));
   // Estilos (proyectos)
   const estilos = verEstilos ? h("div", { class: `tarjeta ${VIDRIO}`, "data-campo": "estilos" },
     h("div", { class: "fila cab-tarjeta" },
@@ -346,3 +347,37 @@ export const seccionEstilo = {
   },
 };
 on("mascara", () => pintar());
+
+/**
+ * Barra del sol del visor (amanecer → noche con la posición exacta del sol): la fecha, la hora y el lugar salen del EXIF
+ * de la primera foto (tour.sol, al añadirla); aquí se ven, se corrigen o se apaga la barra.
+ */
+function bloqueSol(t) {
+  const conFecha = !!t.sol?.fecha;
+  const activa = !t._estudio.sinSol && (conFecha || !!t._estudio.conSol);
+  const sw = h("input", { type: "checkbox", class: "c8-interruptor", role: "switch", checked: activa, id: "barra-sol" });
+  sw.onchange = () => cambiar((tt) => {
+    if (sw.checked) { delete tt._estudio.sinSol; if (!tt.sol?.fecha) tt._estudio.conSol = true; }
+    else { tt._estudio.sinSol = true; delete tt._estudio.conSol; }
+  }, { tipo: "datos" });
+  const u = t.inmueble?.ubicacion;
+  const lugar = Number.isFinite(t.sol?.lat) ? ` en ${t.sol.lat.toLocaleString("es-ES")}, ${t.sol.lng.toLocaleString("es-ES")} (GPS de la foto, a ~1 km)`
+    : Number.isFinite(u?.lat) ? " en la ubicación del inmueble" : " (sin ubicación: Madrid)";
+  let resumen = "Las fotos no traen fecha: el visor usará el día de hoy. Indica cuándo se hicieron para que la luz real sea la suya.";
+  if (conFecha) {
+    const dia = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${t.sol.fecha.slice(0, 10)}T12:00:00Z`));
+    resumen = `Fotos del ${dia} a las ${t.sol.fecha.slice(11, 16)}${lugar}. El visor mueve el sol con su posición exacta de ese día; fuera de esa hora la luz es simulada y se avisa con un sello.`;
+  }
+  const fecha = h("input", { type: "datetime-local", id: "sol-fecha", value: conFecha ? t.sol.fecha.slice(0, 16) : "", step: 60 });
+  fecha.onchange = () => cambiar((tt) => {
+    if (!fecha.value) { if (tt.sol) delete tt.sol.fecha; return; }
+    const [d, hm] = fecha.value.split("T"), [a, m, dd] = d.split("-").map(Number), [hh, mi] = hm.split(":").map(Number);
+    const desfase = Number.isFinite(tt.sol?.desfase) ? tt.sol.desfase : -new Date(a, m - 1, dd, hh, mi).getTimezoneOffset() || 0;
+    const dos = (n) => String(Math.floor(Math.abs(n))).padStart(2, "0");
+    tt.sol = { ...(tt.sol ?? {}), fecha: `${fecha.value}:00${desfase < 0 ? "-" : "+"}${dos(desfase / 60)}:${dos(Math.abs(desfase) % 60)}`, desfase };
+  }, { tipo: "datos" });
+  return h("div", { class: "bloque-sol" },
+    h("label", { class: "fila-interruptor", for: "barra-sol" }, sw,
+      h("span", {}, h("b", { text: "Barra del sol: amanecer, día, atardecer y noche" }), h("small", { class: "tenue", text: resumen }))),
+    h("label", { class: "campo", for: "sol-fecha" }, h("span", { class: "texto-sec", text: "Fecha y hora de las fotos" }), fecha));
+}

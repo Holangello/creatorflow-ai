@@ -13,7 +13,7 @@
 // tema.js (cre8eight:*, compartidas con el Estudio y la Guía); el movimiento tiene una sola fuente de verdad; contraste del
 // vidrio en claro y oscuro; sin desplazamiento horizontal; iconos que se dibujan y nada animado con movimiento reducido.
 import { servir, lanzar, contexto, abrir } from "./comun.mjs";
-import { crearInforme, erroresDe, esperar } from "./e2e-util.mjs";
+import { crearInforme, erroresDe, esperar, png } from "./e2e-util.mjs";
 
 const SEL = {
   raiz: ".pn-raiz",
@@ -1094,6 +1094,148 @@ try {
     await q.waitForTimeout(2500);
     const r7 = { mensajes: await q.evaluate(() => window.__mensajes), consola };
     inf.ok(!r7.mensajes && !r7.consola.length, "incrustado en la web de otro origen, no le envía mensajes ni le llena la consola (M7)", r7);
+    const err = erroresDe(p);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
+
+  // ================================================================== 14 · barra del sol
+  // Petición del cliente: «una barra arriba con un punto que se mueva del amanecer al anochecer, con el movimiento exacto
+  // del sol según las fotos de la Osmo 360… amanecer, día soleado, atardecer y noche». La demo dice que sus «fotos» son
+  // del 15-10-2026 a las 18:20 en Madrid (DEMO_TOUR.sol): las horas de abajo salen de sol.js para ese día.
+  await inf.bloque("Núcleo real: barra del sol (teclado, iconos, arrastre, «Reproducir el día», «Estilo y luz» y API)", async () => {
+    const ctx = await contexto(navegador, { ancho: 1280, alto: 800 });
+    inf.cerrarAlFinal.push(ctx);
+    const p = await abrir(ctx, `${base}index.html?demo`);
+    await esperar(p, () => window.visor?.listo === true, null, 90000);
+    if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar);
+    await p.evaluate(() => { window.__sol = []; addEventListener("visor:sol", (e) => window.__sol.push(e.detail)); });
+    const sol = () => p.evaluate(() => ({ ...window.visor.sol, momentoEstado: window.visor.estado.momento, nodo: window.visor.estado.nodo, cabeceo: window.visor.estado.cabeceo,
+      texto: document.querySelector("#sol .pista").getAttribute("aria-valuetext") }));
+    // Espera al aviso «sol» que da la barra al quedarse quieta (al soltar, al acabar la animación hacia una parada…)
+    const conAviso = async (accion) => {
+      const n = await p.evaluate(() => window.__sol.length);
+      await accion();
+      await esperar(p, (n) => window.__sol.length > n, n, 20000).catch(() => {});
+      await p.waitForTimeout(200);
+    };
+    const s0 = await p.evaluate(() => { const b = document.querySelector("#sol"), t = b.querySelector(".pista");
+      return { visible: !b.hidden && b.getBoundingClientRect().height > 0, rol: t.getAttribute("role"), nombre: t.getAttribute("aria-label"), alto: t.getBoundingClientRect().height,
+        marca: !b.querySelector(".foto").hidden, iconos: [...b.querySelectorAll(".paradas svg")].map((s) => s.dataset.m), sol: window.visor.sol }; });
+    inf.ok(s0.visible && s0.rol === "slider" && s0.nombre === "Luz del sol" && s0.alto >= 40, "la barra del sol está arriba, bajo el título: un deslizador «Luz del sol» de 40 px o más", s0);
+    inf.ok(s0.iconos.join() === "amanecer,dia,atardecer,noche", "cuatro iconos: amanecer, día, atardecer y noche", s0.iconos);
+    const P = s0.sol?.paradas ?? {};
+    inf.ok(s0.sol?.hora === "18:20" && s0.sol?.foto === "18:20" && s0.marca && s0.sol?.salida === "08:25" && s0.sol?.puesta === "19:34",
+      "empieza con la luz real de las fotos (18:20, marcada en la pista) y el día exacto de Madrid el 15-10-2026: sale a las 08:25 y se pone a las 19:34", s0.sol);
+    inf.ok(P.amanecer === "08:45" && P.dia === "14:00" && P.atardecer === "18:59" && P.noche === "20:34", "las paradas: amanecer 08:45, día 14:00 (mediodía solar), atardecer 18:59 y noche 20:34", P);
+    // Teclado: ← → 15 min (Mayús, una hora); RePág y AvPág, la parada siguiente o la anterior; ni navegan ni mueven la cámara
+    await p.focus("#sol .pista");
+    await p.keyboard.press("ArrowRight"); await p.waitForTimeout(400);
+    const k1 = await sol();
+    await p.keyboard.press("Shift+ArrowLeft"); await p.waitForTimeout(400);
+    const k2 = await sol();
+    inf.ok(k1.hora === "18:35" && k2.hora === "17:35" && k1.nodo === "salon", "→ suma 15 minutos y Mayús+← resta una hora, sin cambiar de estancia", { k1: k1.hora, k2: k2.hora, nodo: k1.nodo });
+    inf.ok(/17:35, Día, sol a \d+° sobre el horizonte, hacia el (suroeste|oeste)/.test(k2.texto), "el lector oye la hora, el momento y dónde está el sol", k2.texto);
+    await conAviso(() => p.keyboard.press("PageUp"));
+    const k3 = await sol();
+    inf.ok(k3.hora === "18:59" && k3.momento === "atardecer" && k3.momentoEstado === "atardecer" && Math.abs(k3.cabeceo - k2.cabeceo) < 1e-6,
+      "RePág lleva a la parada siguiente (atardecer, 18:59) y el momento del visor pasa a «atardecer»; la cámara no se mueve", { hora: k3.hora, momento: k3.momento });
+    // Tocar un icono: va a su parada (como un pequeño timelapse) y avisa con «sol»
+    const icono = await p.evaluate(() => { const r = document.querySelector("#sol [data-m='noche']").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+    await conAviso(() => p.mouse.click(icono.x, icono.y));
+    const k4 = await sol(), ev = await p.evaluate(() => window.__sol.at(-1));
+    inf.ok(k4.hora === "20:34" && k4.momentoEstado === "noche" && ev?.hora === "20:34" && ev?.momento === "noche", "tocar la luna lleva a la noche (20:34) y emite «sol»", { hora: k4.hora, ev });
+    // Arrastrar el punto hacia la izquierda: el sol vuelve atrás en el día
+    const pomo = await p.evaluate(() => { const r = document.querySelector("#sol .pomo").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+    await p.mouse.move(pomo.x, pomo.y); await p.mouse.down();
+    for (let i = 1; i <= 8; i++) { await p.mouse.move(pomo.x - i * 12, pomo.y); await p.waitForTimeout(30); }
+    await conAviso(() => p.mouse.up());
+    const k5 = await sol();
+    inf.ok(k5.ms < k4.ms && k5.hora !== "20:34" && (await p.evaluate(() => window.__sol.at(-1)?.hora)) === k5.hora, "arrastrar el punto a la izquierda lleva el sol hacia atrás y avisa al soltar", { antes: k4.hora, despues: k5.hora });
+    // «Estilo y luz»: las cuatro paradas, sincronizadas con la barra
+    if (await inf.requiere(p, { "«Estilo y luz»": SEL.personalizar }, "«Estilo y luz» con la barra del sol")) {
+      await p.click(SEL.personalizar);
+      await esperar(p, (s) => document.querySelector(s), SEL.momento("amanecer"), 5000).catch(() => {});
+      const opciones = await p.evaluate(() => [...document.querySelectorAll("[data-k^='momento-']")].map((e) => e.dataset.k.slice(8)));
+      inf.ok(opciones.join() === "amanecer,dia,atardecer,noche", "«Estilo y luz» ofrece las mismas cuatro paradas", opciones);
+      await conAviso(() => p.click(SEL.momento("amanecer")));
+      const k6 = await sol();
+      inf.ok(k6.hora === "08:45" && k6.momento === "amanecer" && /Amanecer/.test(k6.texto), "elegir «Amanecer» en el panel lleva la barra a las 08:45", k6.hora);
+      await p.keyboard.press("Escape");
+    }
+    // «Reproducir el día»: el sol avanza solo; el mismo botón lo para
+    await p.click("#sol .reproducir");
+    const r1 = await p.evaluate(() => ({ pulsado: document.querySelector("#sol .reproducir").getAttribute("aria-pressed"), nombre: document.querySelector("#sol .reproducir").getAttribute("aria-label"), ms: window.visor.sol.ms }));
+    await p.waitForTimeout(1500);
+    await p.click("#sol .reproducir");
+    const r2 = await p.evaluate(() => ({ pulsado: document.querySelector("#sol .reproducir").getAttribute("aria-pressed"), ms: window.visor.sol.ms, rep: window.visor.sol.reproduciendo }));
+    inf.ok(r1.pulsado === "true" && r1.nombre === "Pausar el día" && r2.ms > r1.ms && r2.pulsado === "false" && !r2.rep, "«Reproducir el día» hace avanzar el sol y el mismo botón lo para", { r1, r2 });
+    // API: hora local y paradas por su nombre (también visor.fijarMomento)
+    await p.evaluate(() => window.visor.fijarSol("19:30"));
+    const a1 = await sol();
+    await p.evaluate(() => window.visor.fijarMomento("dia"));
+    const a2 = await sol();
+    inf.ok(a1.hora === "19:30" && a1.momento === "atardecer" && a2.hora === "14:00" && a2.momentoEstado === "dia", "visor.fijarSol(«19:30») y visor.fijarMomento(«dia») mueven la barra", { a1: a1.hora, a2: a2.hora });
+    // Maqueta: la barra sigue (el sol echa sombras); la visita guiada la aparta
+    await p.evaluate(() => window.visor.modo("maqueta")); await p.waitForTimeout(2500);
+    const enMaqueta = await p.evaluate(() => !document.querySelector("#sol").hidden && getComputedStyle(document.querySelector("#sol")).display !== "none");
+    await p.evaluate(() => window.visor.modo("tour")); await p.waitForTimeout(1500);
+    await p.evaluate(() => window.visor.guion.iniciar()); await p.waitForTimeout(800);
+    const enGuion = await p.evaluate(() => getComputedStyle(document.querySelector("#sol")).display);
+    await p.evaluate(() => window.visor.guion.parar());
+    inf.ok(enMaqueta && enGuion === "none", "la barra se ve en la maqueta y se aparta durante la visita guiada", { enMaqueta, enGuion });
+    await p.evaluate(() => window.visor.ayuda(true));
+    inf.ok(await p.evaluate(() => /Barra del sol/.test(document.querySelector("#ayuda").textContent)), "la ayuda explica la barra del sol");
+    const err = erroresDe(p);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
+
+  await inf.bloque("Núcleo real: barra del sol sobre fotos (la luz real a su hora; el sol entra por la ventana al moverla)", async () => {
+    // Una estancia de 6 × 5 m con la cámara en el centro y una ventana al oeste; las «fotos» se hicieron a las 10:00
+    // (con el sol al este, por esa ventana no entra). A las 17:00 el sol, al suroeste, entra por ella y cae en el suelo.
+    const ctx = await contexto(navegador, { ancho: 1280, alto: 800 });
+    inf.cerrarAlFinal.push(ctx);
+    const W = 1024, H = 512;
+    const foto = png(W, H, (x, y) => {
+      const u = x / W, v = 1 - y / H;
+      if (u > 0.15 && u < 0.35 && v > 0.4 && v < 0.6) return [255, 255, 255]; // ventana (quemada, como en una foto)
+      return v > 0.62 ? [232, 230, 226] : v > 0.34 ? [217, 207, 191] : [138, 106, 72]; // techo, pared y suelo
+    });
+    const tour = { titulo: "Prueba del sol", idioma: "es", altura_camara: 1.5, norte: 0, inicio: "salon", momentos: ["dia", "noche"],
+      sol: { lat: 40.42, lng: -3.7, fecha: "2026-10-15T10:00:00+02:00" },
+      plantas: [{ id: "p0", muros: [[0, 0, 6, 0], [6, 0, 6, 5], [6, 5, 0, 5], [0, 5, 0, 0]] }],
+      estancias: [{ id: "salon", nombre: "Salón", planta: "p0", poligono: [[0, 0], [6, 0], [6, 5], [0, 5]], altura_techo: 2.6 }],
+      panoramas: [{ id: "salon", nombre: "Salón", imagen: "sol-prueba/salon.png", x: 3, z: 2.5, yaw: 0 }] };
+    await ctx.route(/\/sol-prueba\/tour\.json(\?|$)/, (r) => r.fulfill({ body: JSON.stringify(tour), contentType: "application/json" }));
+    await ctx.route(/\/sol-prueba\/salon\.png(\?|$)/, (r) => r.fulfill({ body: foto, contentType: "image/png" }));
+    const p = await abrir(ctx, `${base}index.html?tour=sol-prueba/tour.json#v=salon,270,-45,80`);
+    await esperar(p, () => window.visor?.listo === true && window.visor.estado.nodo === "salon", null, 90000);
+    if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar);
+    await p.waitForTimeout(1200);
+    // Luminancia media del centro de la vista (el suelo delante de la ventana), leída del lienzo en el mismo fotograma
+    const luz = () => p.evaluate(() => {
+      window.visor.renderizar();
+      const l = document.querySelector("#lienzo"), c = document.createElement("canvas");
+      c.width = 64; c.height = 64;
+      const g = c.getContext("2d");
+      g.drawImage(l, l.width * 0.4, l.height * 0.45, l.width * 0.2, l.height * 0.2, 0, 0, 64, 64);
+      const d = g.getImageData(0, 0, 64, 64).data;
+      let s = 0;
+      for (let i = 0; i < d.length; i += 4) s += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+      return s / (d.length / 4);
+    });
+    const sello = () => p.evaluate(() => { const s = document.querySelector("#sello-ia"); return s.hidden ? "" : s.textContent; });
+    const s0 = await p.evaluate(() => window.visor.sol);
+    const l10 = await luz(), sello10 = await sello();
+    await p.evaluate(() => window.visor.fijarSol("17:00")); await p.waitForTimeout(400);
+    const l17 = await luz(), sello17 = await sello();
+    await p.evaluate(() => window.visor.fijarSol("noche")); await p.waitForTimeout(400);
+    const lNoche = await luz();
+    await p.evaluate(() => window.visor.fijarSol("10:00")); await p.waitForTimeout(400);
+    const lVuelta = await luz();
+    inf.ok(s0?.hora === "10:00" && s0?.foto === "10:00" && !sello10, "un recorrido con tour.sol empieza a la hora de sus fotos, sin sello de luz simulada", { sol: s0?.hora, sello10 });
+    inf.ok(l17 > l10 * 1.12, "a las 17:00 el sol entra por la ventana del oeste y aclara el suelo de delante (la ventana se reconoce en la foto)", { l10: l10.toFixed(1), l17: l17.toFixed(1) });
+    inf.ok(lNoche < l10 * 0.6 && Math.abs(lVuelta - l10) < 1.5, "de noche la estancia se oscurece; de vuelta a las 10:00, la foto queda como era", { lNoche: lNoche.toFixed(1), lVuelta: lVuelta.toFixed(1) });
+    inf.ok(/simulada/i.test(sello17), "lejos de la hora de las fotos, el sello avisa de que la luz es simulada", sello17);
     const err = erroresDe(p);
     inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
   });

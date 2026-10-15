@@ -153,8 +153,9 @@ export const redondear = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;
 
 // ------------------------------------------------------------------ EXIF / XMP (solo lectura de cabeceras)
 /**
- * Lee los metadatos útiles de un JPEG sin decodificarlo: Make, Model, DateTimeOriginal (EXIF) y el rumbo de brújula
- * del XMP (GPano:PoseHeadingDegrees, drone-dji:FlightYawDegree / GimbalYawDegree, Camera:Yaw). → objeto o null.
+ * Lee los metadatos útiles de un JPEG sin decodificarlo: Make, Model, DateTimeOriginal y OffsetTimeOriginal (EXIF), la
+ * posición GPS (para el sol del visor; se guarda redondeada a ~1 km) y el rumbo de brújula del XMP
+ * (GPano:PoseHeadingDegrees, drone-dji:FlightYawDegree / GimbalYawDegree, Camera:Yaw). → objeto o null.
  */
 export async function leerMetadatos(blob) {
   const r = {};
@@ -198,15 +199,28 @@ function leerExif(t) {
       fn(tag, tipo, cnt, valOff, e);
     }
   };
-  let exifIfd = null;
+  let exifIfd = null, gpsIfd = null;
   ifd(u32(4), (tag, tipo, cnt, vo, e) => {
     if (tag === 0x010f) r.marca = cadena(vo, cnt);
     else if (tag === 0x0110) r.modelo = cadena(vo, cnt);
     else if (tag === 0x8769) exifIfd = u32(e + 8);
+    else if (tag === 0x8825) gpsIfd = u32(e + 8);
   });
   if (exifIfd) ifd(exifIfd, (tag, tipo, cnt, vo) => {
     if (tag === 0x9003) r.fecha = cadena(vo, cnt); // "2025:03:14 10:22:31"
+    else if (tag === 0x9011) r.desfase = cadena(vo, cnt); // "+01:00"
   });
+  if (gpsIfd) {
+    // Grados, minutos y segundos (3 racionales) y su hemisferio (N/S, E/W)
+    const g = {};
+    const racional = (o) => { const d = u32(o + 4); return d ? u32(o) / d : NaN; };
+    ifd(gpsIfd, (tag, tipo, cnt, vo) => {
+      if ((tag === 1 || tag === 3) && tipo === 2) g[tag] = cadena(vo, cnt);
+      else if ((tag === 2 || tag === 4) && tipo === 5 && cnt >= 3 && vo + 24 <= t.length) g[tag] = racional(vo) + racional(vo + 8) / 60 + racional(vo + 16) / 3600;
+    });
+    const lat = g[2] * (g[1] === "S" ? -1 : 1), lng = g[4] * (g[3] === "W" ? -1 : 1);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && (lat || lng)) r.gps = { lat, lng };
+  }
   return r;
 }
 function leerXmp(txt) {
@@ -237,4 +251,22 @@ export function describirCamara(meta, dim) {
 export function fechaExif(s) {
   const m = /^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(s ?? "");
   return m ? Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null;
+}
+/**
+ * El sol del visor (tour.sol) a partir del EXIF de una foto: fecha y hora con su desfase horario (el de la cámara,
+ * OffsetTimeOriginal; si no lo trae, el de este dispositivo en esa fecha) y la posición GPS redondeada a 2 decimales
+ * (~1 km: basta para el sol y no publica la dirección exacta). → { fecha, desfase, lat?, lng? } o null sin fecha.
+ */
+export function solDeExif(exif) {
+  const ms = fechaExif(exif?.fecha);
+  if (ms == null) return null;
+  const d = /^([+-])(\d{2}):?(\d{2})$/.exec(exif.desfase ?? "");
+  const local = new Date(ms); // la hora de la foto, leída como hora de este dispositivo
+  const desfase = d ? (d[1] === "-" ? -1 : 1) * (+d[2] * 60 + +d[3])
+    : -new Date(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate(), local.getUTCHours(), local.getUTCMinutes()).getTimezoneOffset() || 0;
+  const h = (n) => String(Math.floor(Math.abs(n))).padStart(2, "0");
+  const fecha = `${new Date(ms).toISOString().slice(0, 19)}${desfase < 0 ? "-" : "+"}${h(desfase / 60)}:${h(Math.abs(desfase) % 60)}`;
+  const r = { fecha, desfase };
+  if (exif.gps) { r.lat = redondear(exif.gps.lat, 2); r.lng = redondear(exif.gps.lng, 2); }
+  return r;
 }
