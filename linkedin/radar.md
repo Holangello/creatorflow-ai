@@ -40,6 +40,12 @@ red siga igual, un barrido sin candidata se anota en una línea con la fecha y l
 que merece párrafo es un cambio: que un dominio se abra, que entre una candidata, o que el bloqueo deje de
 explicar el vacío.
 
+**Barrido del 15-10, 06:00 · sin candidata.** Reintentados `microsoft.ai`, `tavus.io`,
+`advertising.amazon.com`, `blog.google` y `openai.com`: ninguno se abre. Quinto barrido seguido sin nada
+verificable. Una línea, por la regla de anotación del 14-10. **Y hoy el radar no decide nada:** el viernes
+16 está cubierto con inventario desde el 08-10 y no hay hueco de actualidad por delante hasta el
+miércoles 21, que ya quedó sin red.
+
 **Barrido anterior:** 13-10-2026, 06:00. **Sin candidata verificable, y el motivo es material, no de criterio.**
 Este era el barrido que ancla la fila del miércoles 14, así que el resultado importa más que otros días.
 
