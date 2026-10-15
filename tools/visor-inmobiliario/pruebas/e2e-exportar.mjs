@@ -20,12 +20,14 @@ const SEL = {
   compartir: "[data-k='compartir']",                 // botón Compartir de los paneles
   compartirSinWeb: "[data-k='sh-sin-web']",          // aviso «sin dirección web» del diálogo Compartir
   compartirEnlace: ".pn-dialogo input[readonly], .pn-dialogo input[type=url], .pn-dialogo input[type=text]",
-  qr: ".pn-qr-img svg",
+  qr: ".pn-qr-img svg", cajaQr: ".pn-qr",
   contacto: "[data-k='contacto-dock'], [data-k='contacto-peek']",
-  hacerFoto: "[data-k='hacer-foto']", capturar: "[data-k='capturar']", capturaListo: "[data-k='captura-listo']",
+  hacerFoto: "[data-k='hacer-foto']", capturar: "[data-k='capturar']", capturaListo: "[data-k='captura-listo']", numCaptura: ".pn-bc-num",
   nombre: "[data-k='c-nombre']", telefono: "[data-k='c-telefono']", pregunta: "[data-k='c-pregunta']", privacidad: "[data-k='c-priv']",
   enviar: "[data-k='enviar']", abrirWhatsApp: "[data-k='abrir-wa']",
-  hoja: ".hoja",                                     // dossier imprimible
+  paneles: "#paneles",                               // contenedor de los paneles en index.html
+  // dossier imprimible (documento exportado)
+  hoja: ".hoja", hojaTitulos: ".hoja h2", hojaPrecio: ".precio", hojaQr: ".qr svg", hojaPlano: "img.plano", hojaLogo: "header img",
 };
 
 const inf = crearInforme("e2e · Exportación");
@@ -166,46 +168,52 @@ try {
     // --- sin url_publica: nunca se comparte una ruta file://
     {
       const { p: f, red, wa } = await abrirArchivo(join(TMP, "sin-web.html"));
-      await esperar(f, () => window.visor?.listo === true && document.querySelector("#paneles *"), null, 60000);
+      await esperar(f, (s) => window.visor?.listo === true && document.querySelector(`${s} *`), SEL.paneles, 60000);
       inf.ok(f.errores.length === 0 && f.dialogos.length === 0, "abierto con doble clic (file://) llega a visor.listo sin errores", f.errores.slice(0, 3).join(" | "));
       inf.ok(red.length === 0, "funciona sin conexión: ninguna petición a la red", red.slice(0, 3).join(" | "));
       inf.ok(await f.evaluate(() => window.visor.enlaceVista() === ""), "sin url_publica, visor.enlaceVista() devuelve \"\" (no la ruta del disco)");
-      await f.click(SEL.compartir);
-      await f.waitForSelector(SEL.compartirSinWeb);
-      inf.ok(!(await f.$(SEL.qr)), "Compartir explica que no hay dirección web («sh-sin-web») y no genera QR");
-      // Contacto por WhatsApp con una foto: ningún enlace file:// en el mensaje
-      await f.keyboard.press("Escape");
-      await f.locator(SEL.contacto).first().click();
-      await f.click(SEL.hacerFoto);
-      await f.click(SEL.capturar);
-      await esperar(f, () => document.querySelector(".pn-bc-num")?.textContent?.startsWith("1"), null, 15000).catch(() => {});
-      await f.click(SEL.capturaListo);
-      await f.fill(SEL.nombre, "Lucía Martín"); await f.fill(SEL.telefono, "612 345 678"); await f.fill(SEL.pregunta, "¿Se puede visitar el sábado?");
-      await f.check(SEL.privacidad);
-      await f.click(SEL.enviar);
-      const boton = await f.waitForSelector(SEL.abrirWhatsApp, { timeout: 5000 }).catch(() => null);
-      if (boton) await boton.click();
-      for (let i = 0; i < 50 && !wa.length; i++) await f.waitForTimeout(100); // la ventana de wa.me se intercepta en la red
-      const msg = decodeURIComponent(wa[0] ?? "");
-      if (process.env.E2E_DEPURAR) console.log(msg);
-      inf.ok(wa.length === 1 && msg.includes("Lucía Martín") && !/file:/i.test(msg), "el mensaje de WhatsApp lleva la consulta y ninguna ruta file://", msg.replace(/\n/g, " ⏎ ").slice(0, 200));
-      inf.pendiente(!/\*Vista:\*\s*(\n|$)/.test(msg), "sin dirección web, el mensaje de WhatsApp no deja la línea «Vista:» vacía",
-        "paneles.js mensajeWhatsApp() añade siempre «*Vista:* ${d.url}» (y «Foto N – …: ${c.enlace}») aunque enlaceVista() devuelva \"\"");
-      const fuga = await f.evaluate(() => [...document.querySelectorAll("[href], [src]")].map((e) => e.getAttribute("href") ?? e.getAttribute("src")).filter((u) => /^file:/i.test(u ?? "")).concat(/file:\/\//.test(document.querySelector("#paneles")?.innerText ?? "") ? ["texto de los paneles"] : []));
+      if (await inf.requiere(f, { compartir: SEL.compartir, contacto: SEL.contacto }, "Compartir y contacto en el HTML autónomo sin web")) {
+        await f.click(SEL.compartir);
+        await f.waitForSelector(SEL.compartirSinWeb);
+        inf.ok(!(await f.$(SEL.qr)), "Compartir explica que no hay dirección web («sh-sin-web») y no genera QR");
+        // Contacto por WhatsApp con una foto: ningún enlace file:// en el mensaje
+        await f.keyboard.press("Escape");
+        await f.locator(SEL.contacto).first().click();
+        await f.click(SEL.hacerFoto);
+        await f.click(SEL.capturar);
+        await esperar(f, (s) => document.querySelector(s)?.textContent?.startsWith("1"), SEL.numCaptura, 15000).catch(() => {});
+        await f.click(SEL.capturaListo);
+        await f.fill(SEL.nombre, "Lucía Martín"); await f.fill(SEL.telefono, "612 345 678"); await f.fill(SEL.pregunta, "¿Se puede visitar el sábado?");
+        await f.check(SEL.privacidad);
+        await f.click(SEL.enviar);
+        const boton = await f.waitForSelector(SEL.abrirWhatsApp, { timeout: 5000 }).catch(() => null);
+        if (boton) await boton.click();
+        for (let i = 0; i < 50 && !wa.length; i++) await f.waitForTimeout(100); // la ventana de wa.me se intercepta en la red
+        const msg = decodeURIComponent(wa[0] ?? "");
+        if (process.env.E2E_DEPURAR) console.log(msg);
+        inf.ok(wa.length === 1 && msg.includes("Lucía Martín") && !/file:/i.test(msg), "el mensaje de WhatsApp lleva la consulta y ninguna ruta file://", msg.replace(/\n/g, " ⏎ ").slice(0, 200));
+        // Sin web no hay enlace que poner: las líneas «📷 Foto N – estancia: <enlace>» y «*Vista:* <enlace>» quedan colgando.
+        const vacias = msg.split("\n").map((l) => l.trim()).filter((l) => /^📷.*:$/u.test(l) || /^\*[^*]+:\*$/.test(l));
+        inf.pendiente(wa.length === 1 && !vacias.length, "sin dirección web, el mensaje de WhatsApp no deja líneas sin enlace («Foto 1 – …:» ni «Vista:» vacías)",
+          `${vacias.map((l) => `«${l}»`).join(" y ")}: paneles.js mensajeWhatsApp() (líneas 1360-1361) añade siempre «: \${c.enlace}» y «*Vista:* \${d.url}» aunque enlaceVista() devuelva ""`);
+      }
+      const fuga = await f.evaluate((s) => [...document.querySelectorAll("[href], [src]")].map((e) => e.getAttribute("href") ?? e.getAttribute("src")).filter((u) => /^file:/i.test(u ?? "")).concat(/file:\/\//.test(document.querySelector(s)?.innerText ?? "") ? ["texto de los paneles"] : []), SEL.paneles);
       inf.ok(!fuga.length, "ningún enlace, imagen ni texto de la interfaz contiene una ruta file://", fuga.slice(0, 3).join(" | "));
     }
     // --- con url_publica: los enlaces apuntan a la web publicada
     {
       const { p: f } = await abrirArchivo(join(TMP, "con-web.html"));
-      await esperar(f, () => window.visor?.listo === true && document.querySelector("#paneles *"), null, 60000);
+      await esperar(f, (s) => window.visor?.listo === true && document.querySelector(`${s} *`), SEL.paneles, 60000);
       const enlace = await f.evaluate(() => window.visor.enlaceVista());
       inf.ok(enlace.startsWith("https://ejemplo.com/tour/#v="), `con url_publica el enlace a la vista empieza por esa dirección (${enlace.slice(0, 48)}…)`);
-      await f.click(SEL.compartir);
-      await esperar(f, (s) => [...document.querySelectorAll(s)].some((i) => i.value.includes("https://ejemplo.com/tour/")), SEL.compartirEnlace, 10000);
-      inf.ok(!(await f.$(SEL.compartirSinWeb)), "Compartir ofrece ese enlace para copiar, por WhatsApp o por email");
-      const qr = await esperar(f, (s) => !!document.querySelector(s) || document.querySelector(".pn-qr")?.hidden, SEL.qr, 8000).then(() => f.$(SEL.qr)).then((e) => !!e, () => false);
-      inf.pendiente(qr, "con url_publica, Compartir muestra también el código QR en el HTML autónomo",
-        `paneles.js pintarQR() hace import("./vendor/qr.js") junto al HTML (build.mjs no lo empaqueta): desde file:// falla y el QR se oculta${f.avisos.some((a) => /QR no disponible/.test(a)) ? " (consola: «QR no disponible»)" : ""}`);
+      if (await inf.requiere(f, { compartir: SEL.compartir }, "Compartir con url_publica en el HTML autónomo")) {
+        await f.click(SEL.compartir);
+        await esperar(f, (s) => [...document.querySelectorAll(s)].some((i) => i.value.includes("https://ejemplo.com/tour/")), SEL.compartirEnlace, 10000);
+        inf.ok(!(await f.$(SEL.compartirSinWeb)), "Compartir ofrece ese enlace para copiar, por WhatsApp o por email");
+        const qr = await esperar(f, ([s, caja]) => !!document.querySelector(s) || document.querySelector(caja)?.hidden, [SEL.qr, SEL.cajaQr], 8000).then(() => f.$(SEL.qr)).then((e) => !!e, () => false);
+        inf.pendiente(qr, "con url_publica, Compartir muestra también el código QR en el HTML autónomo",
+          `paneles.js pintarQR() hace import("./vendor/qr.js") junto al HTML (build.mjs no lo empaqueta): desde file:// falla y el QR se oculta${f.avisos.some((a) => /QR no disponible/.test(a)) ? " (consola: «QR no disponible»)" : ""}`);
+      }
     }
   });
 
@@ -217,8 +225,8 @@ try {
       X.abrirFichaImprimible(t, { enlace: "https://www.ejemplo.com/tours/atico/?ref=DEMO-001#salon", idioma: "fr" });
     })]);
     await pop.waitForSelector(SEL.hoja, { timeout: 30000 });
-    const f = await pop.evaluate(() => ({ lang: document.documentElement.lang, h2: [...document.querySelectorAll(".hoja h2")].map((x) => x.textContent),
-      precio: document.querySelector(".precio")?.textContent ?? "", qr: !!document.querySelector(".qr svg"), plano: !!document.querySelector("img.plano"), logo: !!document.querySelector("header img"), titulo: document.title }));
+    const f = await pop.evaluate((S) => ({ lang: document.documentElement.lang, h2: [...document.querySelectorAll(S.hojaTitulos)].map((x) => x.textContent),
+      precio: document.querySelector(S.hojaPrecio)?.textContent ?? "", qr: !!document.querySelector(S.hojaQr), plano: !!document.querySelector(S.hojaPlano), logo: !!document.querySelector(S.hojaLogo), titulo: document.title }), SEL);
     inf.ok(f.lang === "fr" && ["Informations clés", "Certificat énergétique", "Caractéristiques", "Description", "Plan"].every((x) => f.h2.includes(x)), "dossier con todos los rótulos en francés", f.h2);
     inf.ok(!f.h2.some((x) => ["Key facts", "Energy certificate", "Features", "Floor plan"].includes(x)), "ningún rótulo cae al inglés");
     inf.ok(/349/.test(f.precio) && f.qr && f.plano && f.logo && f.titulo.includes("DEMO-001"), "precio, QR del enlace, plano, logo y referencia en el título");

@@ -51,6 +51,8 @@ export const lanzar = () => chromium.launch({
 /** Contexto con jsdelivr → node_modules. opciones: { ancho, alto, movil, escala, esquema } */
 export async function contexto(navegador, { ancho = 1280, alto = 800, movil = false, escala = 1, esquema = "dark" } = {}) {
   const ctx = await navegador.newContext({ viewport: { width: ancho, height: alto }, isMobile: movil, hasTouch: movil, deviceScaleFactor: escala, colorScheme: esquema });
+  // La demo o un HTML autónomo de 6 MB con WebGL por software pueden tardar más de 30 s en cargar si la máquina va justa.
+  ctx.setDefaultNavigationTimeout(120000);
   await ctx.route(/cdn\.jsdelivr\.net\/npm\/(.+?)@[\d.]+\/(.*)/, async (r) => {
     const [, paquete, resto] = r.request().url().match(/cdn\.jsdelivr\.net\/npm\/(.+?)@[\d.]+\/(.*)/);
     const f = join(NM, paquete, resto);

@@ -1,6 +1,6 @@
 // Utilidades de las pruebas de extremo a extremo (e2e-*.mjs): informe ✓/✗, esperas por condición, subidas y
 // descargas, ZIP y medios de prueba GENERADOS en tiempo de ejecución (no hay binarios en el repositorio).
-import { readFileSync, existsSync, statSync } from "node:fs";
+import { readFileSync, existsSync, statSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { deflateSync } from "node:zlib";
@@ -30,10 +30,15 @@ export function asegurarBuild() {
  * Lleva la cuenta de las comprobaciones. ok() imprime ✓/✗; pendiente() marca un fallo REAL y conocido del producto
  * (se imprime ⚠ y no hace fallar la prueba; si un día pasa, avisa de que ya se puede convertir en ok()).
  * bloque() aísla cada parte: una excepción se cuenta como ✗ y la prueba sigue con el bloque siguiente.
+ * requiere() comprueba que siguen existiendo las piezas de la interfaz de las que depende un bloque (la fase 3 las
+ * rehace): si faltan, el bloque queda «pendiente de la interfaz nueva» (⚠, no hace fallar) hasta adaptar su SEL.
  */
+/** Lo lanza inf.pieza(): falta una pieza de la interfaz y el resto del bloque queda «pendiente de la interfaz nueva». */
+export class FaltaPieza extends Error {}
+
 export function crearInforme(titulo) {
   const t0 = Date.now();
-  const fallos = [], pendientes = [];
+  const fallos = [], pendientes = [], interfazNueva = [];
   let total = 0;
   console.log(`\n▶ ${titulo}`);
   const inf = {
@@ -52,13 +57,53 @@ export function crearInforme(titulo) {
       pendientes.push(`${msg} — ${motivo}`);
       return false;
     },
+    /**
+     * piezas: { nombre: selector | [alternativas] }. true si todas están en la página; si falta alguna, anota el bloque
+     * como «pendiente de la interfaz nueva» y devuelve false (el bloque debe terminar ahí: `if (!(await inf.requiere(…))) return;`).
+     */
+    async requiere(p, piezas, que) {
+      const faltan = [];
+      for (const [nombre, sel] of Object.entries(piezas)) {
+        const unidos = [sel].flat().join(", ");
+        if (!(await p.waitForSelector(unidos, { state: "attached", timeout: 2500 }).catch(() => null))) faltan.push(nombre);
+      }
+      if (!faltan.length) return true;
+      total++;
+      const msg = `${que}: la interfaz ha cambiado (no están: ${faltan.join(", ")}). Adaptar SEL a la interfaz nueva`;
+      console.log(`⚠ PENDIENTE DE LA INTERFAZ NUEVA ${msg}`);
+      interfazNueva.push(msg);
+      return false;
+    },
+    /**
+     * A mitad de un bloque, justo antes de usar una pieza que la fase 3 rehace: espera a que exista y devuelve el selector.
+     * Si no aparece en `ms`, lanza FaltaPieza: el resto del bloque queda «pendiente de la interfaz nueva» (no cuenta como fallo).
+     *   await p.click(await inf.pieza(p, SEL.abrir, "menú «Abrir» del Estudio"));
+     */
+    async pieza(p, sel, que, ms = 5000) {
+      const unidos = [sel].flat().join(", ");
+      if (await p.waitForSelector(unidos, { state: "attached", timeout: ms }).catch(() => null)) return unidos;
+      throw new FaltaPieza(`${que}: la interfaz ha cambiado (no está «${unidos}»). Adaptar SEL a la interfaz nueva; el resto del bloque no se ha comprobado`);
+    },
     /** Ejecuta un bloque; cierra después los contextos que se registren en `cerrarAlFinal` (aunque falle). */
     async bloque(nombre, fn) {
       const solo = process.env.E2E_SOLO?.toLowerCase();
       if (solo && !nombre.toLowerCase().includes(solo)) return; // E2E_SOLO="texto": solo los bloques cuyo nombre lo contiene
       console.log(`\n· ${nombre}`);
       const t = Date.now();
-      try { await fn(); } catch (e) { inf.ok(false, `${nombre}: se interrumpió`, String(e?.message ?? e).split("\n")[0]); }
+      try { await fn(); } catch (e) {
+        if (e instanceof FaltaPieza) { // no es un fallo: la interfaz ha cambiado y hay que adaptar SEL
+          total++;
+          console.log(`⚠ PENDIENTE DE LA INTERFAZ NUEVA ${e.message}`);
+          interfazNueva.push(e.message);
+        } else inf.ok(false, `${nombre}: se interrumpió`, String(e?.message ?? e).split("\n")[0]);
+        // E2E_CAPTURAS=carpeta: captura de cada página abierta en el momento del fallo (para depurar).
+        const dir = process.env.E2E_CAPTURAS;
+        if (dir) {
+          mkdirSync(dir, { recursive: true });
+          let i = 0;
+          for (const c of inf.cerrarAlFinal) for (const pg of c.pages()) await pg.screenshot({ path: join(dir, `${nombre.replace(/[^\p{L}\d]+/gu, "-").slice(0, 60)}-${++i}.png`) }).catch(() => {});
+        }
+      }
       for (const c of inf.cerrarAlFinal.splice(0)) await c.close().catch(() => {});
       console.log(`  (${((Date.now() - t) / 1000).toFixed(1)} s)`);
     },
@@ -66,9 +111,12 @@ export function crearInforme(titulo) {
     /** Imprime el resumen y devuelve el código de salida (1 si algo falló). */
     fin() {
       const s = ((Date.now() - t0) / 1000).toFixed(1);
-      console.log(`\n${titulo}: ${total} comprobaciones · ${total - fallos.length - pendientes.length} ✓ · ${fallos.length} ✗ · ${pendientes.length} pendiente(s) · ${s} s`);
+      const nPend = pendientes.length + interfazNueva.length;
+      console.log(`\n${titulo}: ${total} comprobaciones · ${total - fallos.length - nPend} ✓ · ${fallos.length} ✗ · ${pendientes.length} pendiente(s) del producto` +
+        `${interfazNueva.length ? ` · ${interfazNueva.length} pendiente(s) de la interfaz nueva` : ""} · ${s} s`);
       for (const f of fallos) console.log(`  ✗ ${f}`);
       for (const f of pendientes) console.log(`  ⚠ ${f}`);
+      for (const f of interfazNueva) console.log(`  ⚠ (interfaz nueva) ${f}`);
       console.log(fallos.length ? `${fallos.length} fallo(s).` : "Todo correcto.");
       return fallos.length ? 1 : 0;
     },

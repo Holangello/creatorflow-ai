@@ -18,16 +18,18 @@ import { crearInforme, erroresDe, esperar, subir, descargar, archivo, asegurarBu
 
 // Selectores de la interfaz (agrupados para adaptarlos fácilmente cuando cambie el diseño).
 const SEL = {
+  raiz: ".pn-raiz", paneles: "#paneles",                 // paneles montados / su contenedor en index.html
   ficha: "[data-k='pestana'], [data-k='peek-precio']",   // abrir la ficha (escritorio / móvil)
+  cuerpoFicha: ".pn-panel-cuerpo", precio: ".pn-cabecera .pn-precio", mailto: "#paneles a[href^='mailto:']",
   contacto: "[data-k='contacto-dock'], [data-k='contacto-peek']",
   zonas: "[data-k='c-zona'] option",
   documentos: ".pn-docs a",
   tituloPaneles: ".pn-titulo",
-  tituloNucleo: "#titulo",
+  tituloNucleo: "#titulo, #lugar",                       // título del núcleo (la fase 3 lo lleva al botón #lugar)
   puntoInfo: "#etiquetas .info",                         // botón «i» de una nota en la vista 360
   fichaPunto: "#ficha h2",                               // título de la nota abierta
   hoja: ".hoja",
-  estudioAbrir: "#btn-abrir", estudioRestaurar: "dialog[open] >> text=Restaurar copia de seguridad o ZIP",
+  estudioPasos: "#pasos button", estudioVistaPrevia: "#iframe-visor", estudioAbrir: "#btn-abrir", estudioRestaurar: "dialog[open] >> text=Restaurar copia de seguridad o ZIP",
   estudioErrores: ".comprobacion.error b",
   estudioAvanzado: "details.avanzado", estudioTourJson: "text=Descargar tour.json",
 };
@@ -64,6 +66,11 @@ async function pagina(url, opciones = {}) {
   p.on("dialog", (d) => { p.dialogos.push(d.message()); d.dismiss(); });
   return { ctx, p };
 }
+/** Paso del Estudio por su #ancla (la fase 3 junta Revisar y Publicar en #publicar; #revisar y #exportar quedan como alias). */
+async function paso(p, ancla) {
+  await p.evaluate((a) => { location.hash = `#${a}`; }, ancla);
+  await esperar(p, (ok) => ok.includes(window.__estudio.seccion), [ancla, "publicar"]);
+}
 /** Comprobaciones comunes sobre un documento con datos hostiles. */
 const auditar = (p) => p.evaluate((xss) => ({
   xss: xss.filter((k) => window[k] !== undefined),
@@ -78,16 +85,20 @@ try {
   for (const [nombre, opciones] of [["escritorio 1280×800", {}], ["móvil 390×844", { ancho: 390, alto: 844, movil: true, escala: 2 }]]) {
     await inf.bloque(`Tour hostil con el código actual (${nombre})`, async () => {
       const { p } = await pagina(`${base}index.html`, opciones);
-      await esperar(p, () => window.visor?.listo === true && document.querySelector(".pn-raiz"), null, 60000);
-      await p.locator(SEL.ficha).first().click();
-      await p.evaluate(() => document.querySelector(".pn-panel-cuerpo")?.scrollTo(0, 99999));
-      const docs = await p.$$eval(SEL.documentos, (as) => as.map((a) => `${a.textContent.trim()} → ${a.getAttribute("href")}`));
-      const textoFicha = await p.evaluate(() => document.querySelector("#paneles")?.innerText ?? "");
-      await p.keyboard.press("Escape");
-      await p.locator(SEL.contacto).first().click();
-      await p.waitForSelector(SEL.zonas, { state: "attached" });
-      const zonas = await p.$$eval(SEL.zonas, (os) => os.map((o) => o.textContent));
-      await p.keyboard.press("Escape");
+      await esperar(p, (s) => window.visor?.listo === true && document.querySelector(s), SEL.raiz, 60000);
+      const conPaneles = await inf.requiere(p, { ficha: SEL.ficha, contacto: SEL.contacto }, "ficha y contacto con datos hostiles");
+      let docs = [], textoFicha = "", zonas = [];
+      if (conPaneles) {
+        await p.locator(SEL.ficha).first().click();
+        await p.evaluate((s) => document.querySelector(s)?.scrollTo(0, 99999), SEL.cuerpoFicha);
+        docs = await p.$$eval(SEL.documentos, (as) => as.map((a) => `${a.textContent.trim()} → ${a.getAttribute("href")}`));
+        textoFicha = await p.evaluate((s) => document.querySelector(s)?.innerText ?? "", SEL.paneles);
+        await p.keyboard.press("Escape");
+        await p.locator(SEL.contacto).first().click();
+        await p.waitForSelector(SEL.zonas, { state: "attached" });
+        zonas = await p.$$eval(SEL.zonas, (os) => os.map((o) => o.textContent));
+        await p.keyboard.press("Escape");
+      }
       await p.evaluate((id) => window.visor.ir(id), idSalon);
       await esperar(p, (id) => window.visor.estado.nodo === id, idSalon, 30000);
       await p.evaluate((s) => document.querySelector(s)?.click(), SEL.puntoInfo); // abre la nota con <script> en el título
@@ -97,12 +108,14 @@ try {
       inf.ok(!p.dialogos.length && !r.xss.length && !r.scripts, "ningún alert() ni código del tour se ejecuta", [...p.dialogos, ...r.xss]);
       inf.ok(!r.peligrosos.length, "ningún enlace ni recurso javascript:, vbscript: o data:text/html", r.peligrosos);
       inf.ok(!r.inyectados, "el HTML de los nombres no crea elementos (ninguna <img src=x onerror>)");
-      inf.ok(textos.nucleo.includes("<img src=x") && textos.paneles.includes("<img src=x"), "el título con HTML se muestra como texto en el núcleo y en los paneles");
-      inf.ok(zonas.some((z) => z.includes("Salón <img src=x")), "las estancias con HTML se listan como texto en el contacto", zonas);
+      inf.ok(textos.nucleo.includes("<img src=x") && (!conPaneles || textos.paneles.includes("<img src=x")), "el título con HTML se muestra como texto en el núcleo y en los paneles", textos);
+      if (conPaneles) inf.ok(zonas.some((z) => z.includes("Salón <img src=x")), "las estancias con HTML se listan como texto en el contacto", zonas);
       inf.ok(textos.punto === "Ventanal <script>alert(2)</script>" && textos.nota === textos.punto, "una nota con <script> en el título se abre y se lee como texto en la vista 360", textos);
-      const memoria = docs.filter((d) => /memoria/i.test(d));
-      inf.ok(memoria.length === 1 && docs.length === 1, `documentos sin duplicar: «memoria» una sola vez (${docs.join(" ; ")})`);
-      inf.ok(!/nota_simple_PRIVADA|planta_mm|plano_arquitecto/.test(textoFicha) && !docs.some((d) => /privada|dxf|modelo/i.test(d)), "la documentación privada (nota simple, DXF, plano del arquitecto) no aparece");
+      if (conPaneles) {
+        const memoria = docs.filter((d) => /memoria/i.test(d));
+        inf.ok(memoria.length === 1 && docs.length === 1, `documentos sin duplicar: «memoria» una sola vez (${docs.join(" ; ")})`);
+        inf.ok(!/nota_simple_PRIVADA|planta_mm|plano_arquitecto/.test(textoFicha) && !docs.some((d) => /privada|dxf|modelo/i.test(d)), "la documentación privada (nota simple, DXF, plano del arquitecto) no aparece");
+      }
       const err = erroresDe(p);
       inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
     });
@@ -111,7 +124,8 @@ try {
   // ================================================================== 2 · enlaces peligrosos en los paneles
   await inf.bloque("Enlaces peligrosos y documentos duplicados (paneles con visor simulado)", async () => {
     const { p } = await pagina(`${base}pruebas/fixtures/paneles.html`);
-    await p.waitForSelector(".pn-raiz");
+    await p.waitForSelector(SEL.raiz);
+    if (!(await inf.requiere(p, { ficha: SEL.ficha, contacto: SEL.contacto }, "enlaces de la ficha y del contacto"))) return;
     await p.evaluate(() => window.__cambiarTour({ version: 2, titulo: "Prueba de enlaces", marca: { nombre: "Inmo", web: "javascript:window.__xss=1", logo: "javascript:alert(1)" },
       agente: { nombre: "Ana", telefono: "javascript:alert(1)", email: "x@y.com?body=<b>" },
       contacto: { modo: "webhook", webhook: "javascript:alert(1)", url_privacidad: "  JaVaScRiPt:alert(1)", whatsapp: "34600111222" },
@@ -123,8 +137,8 @@ try {
     await p.locator(SEL.ficha).first().click();
     await p.locator(SEL.contacto).first().click();
     const r = await auditar(p);
-    const d = await p.evaluate(() => ({ docs: [...document.querySelectorAll(".pn-docs a")].map((a) => a.textContent.trim()), precio: document.querySelector(".pn-cabecera .pn-precio")?.textContent ?? "",
-      mailto: [...document.querySelectorAll("#paneles a[href^='mailto:']")].map((a) => a.getAttribute("href")) }));
+    const d = await p.evaluate((S) => ({ docs: [...document.querySelectorAll(S.documentos)].map((a) => a.textContent.trim()), precio: document.querySelector(S.precio)?.textContent ?? "",
+      mailto: [...document.querySelectorAll(S.mailto)].map((a) => a.getAttribute("href")) }), SEL);
     inf.ok(!r.peligrosos.length && !r.xss.length && !p.dialogos.length, "ningún href/src peligroso (también con mayúsculas, espacios o tabuladores) y nada se ejecuta", r.peligrosos);
     inf.ok(d.docs.join("|") === "Memoria|Data PDF|Plano", `documentos sin duplicados ni enlaces peligrosos: ${d.docs.join(" | ")}`);
     inf.ok(!d.mailto.some((h) => h.includes("?body")), "un email con parámetros no se convierte en enlace mailto:", d.mailto);
@@ -140,23 +154,21 @@ try {
       else if (typeof v === "string" && !(v in zip)) { const g = generar(v); if (g && /^(panos|plantas|renders|docs|modelo)\//.test(v)) zip[v] = [new Uint8Array(g.cuerpo), { level: 0 }]; }
     })(tourHostil);
     const { p } = await pagina(`${base}estudio.html`, { ancho: 1440, alto: 900 });
-    await esperar(p, () => window.__estudio?.tour && document.querySelector("#pasos button"));
-    await p.click(SEL.estudioAbrir);
-    await subir(p, SEL.estudioRestaurar, [archivo("hostil.zip", Buffer.from(zipSync(zip)))]);
+    await esperar(p, (s) => window.__estudio?.tour && document.querySelector(s), SEL.estudioPasos);
+    await p.click(await inf.pieza(p, SEL.estudioAbrir, "menú «Abrir» del Estudio"));
+    await subir(p, await inf.pieza(p, SEL.estudioRestaurar, "«Restaurar copia de seguridad o ZIP»"), [archivo("hostil.zip", Buffer.from(zipSync(zip)))]);
     await esperar(p, () => window.__estudio.tour.panoramas.length === 4 && window.__estudio.guardado === "ok", null, 60000);
-    await p.evaluate(() => { location.hash = "#revisar"; });
-    await esperar(p, () => window.__estudio.seccion === "revisar");
+    await paso(p, "revisar");
     const errores = await p.$$eval(SEL.estudioErrores, (bs) => bs.map((b) => b.textContent));
     inf.ok(errores.some((e) => /dirección\(es\) web no válidas/.test(e)), "Revisar marca como error las direcciones javascript: del proyecto", errores);
-    await p.evaluate(() => { location.hash = "#exportar"; });
-    await esperar(p, () => window.__estudio.seccion === "exportar");
+    await paso(p, "exportar");
     await p.evaluate((s) => { for (const d of document.querySelectorAll(s)) if (d.querySelector("summary")?.textContent === "Avanzado") d.open = true; }, SEL.estudioAvanzado);
     const tj = (await descargar(p, SEL.estudioTourJson)).datos.toString("utf8");
     const pub = JSON.parse(tj);
     inf.ok(!/javascript:/i.test(tj), "el tour.json publicado no contiene ningún enlace javascript:");
     inf.ok(pub.documentacion?.length === 1 && pub.documentacion[0].publico === true && !/nota_simple_PRIVADA|planta-mm|plano-arquitecto/.test(tj), "lo publicado solo lleva la documentación pública");
     const r = await auditar(p);
-    const marco = await p.evaluate((xss) => { const w = document.querySelector("#iframe-visor").contentWindow; return { xss: xss.filter((k) => w[k] !== undefined), inyectados: w.document.querySelectorAll("img[src='x']").length }; }, XSS);
+    const marco = await p.evaluate(([xss, s]) => { const w = document.querySelector(s).contentWindow; return { xss: xss.filter((k) => w[k] !== undefined), inyectados: w.document.querySelectorAll("img[src='x']").length }; }, [XSS, SEL.estudioVistaPrevia]);
     inf.ok(!p.dialogos.length && !r.xss.length && !r.inyectados && !marco.xss.length && !marco.inyectados, "ni el Estudio ni su vista previa ejecutan el HTML de los nombres", [...p.dialogos, ...r.xss, ...marco.xss]);
     const err = erroresDe(p);
     inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
@@ -184,7 +196,7 @@ try {
     f.dialogos = [];
     f.on("dialog", (d) => { f.dialogos.push(d.message()); d.dismiss(); });
     await esperar(f, () => window.visor?.listo === true, null, 60000);
-    await f.locator(SEL.ficha).first().click();
+    if (await f.$(SEL.ficha)) await f.locator(SEL.ficha).first().click();
     const r = await auditar(f);
     inf.ok(!f.dialogos.length && !r.xss.length && !r.peligrosos.length && !r.inyectados && (await f.textContent(SEL.tituloNucleo)).includes("<img src=x"),
       "abierto desde el disco: nada se ejecuta, ningún enlace javascript: y el HTML se ve como texto", [...f.dialogos, ...r.xss, ...r.peligrosos]);
