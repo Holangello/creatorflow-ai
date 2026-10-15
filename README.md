@@ -25,7 +25,7 @@ CreatorFlow AI centralizes practical AI workflows, reusable prompts, automation 
 - Automation scripts
 - File organization tools
 - Camera setup documentation
-- Real estate 3D tour viewer (360 photo tours + game-style free walk with Gaussian Splatting) — see [`tools/visor-inmobiliario`](tools/visor-inmobiliario/README.md) and the [guide](docs/recorridos-3d-inmobiliaria.md)
+- **cre8eight**, real estate 3D tours from DJI Osmo 360 photos: a viewer (360 tour, game-style free walk, WhatsApp enquiries with photos), a Studio to build and publish tours, and a capture guide, with a light/dark glass UI — see [`tools/visor-inmobiliario`](tools/visor-inmobiliario/README.md) and the [guide](docs/recorridos-3d-inmobiliaria.md)
 
 ## Roadmap
 

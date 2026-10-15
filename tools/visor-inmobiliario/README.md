@@ -1,70 +1,143 @@
-# Visor inmobiliario 3D
+# cre8eight · Recorridos 3D inmobiliarios
 
-Visor web para inmuebles con dos modos:
+cre8eight convierte las fotos 360 de una **DJI Osmo 360** en un recorrido virtual premium para vender o alquilar una
+vivienda. Tiene tres piezas:
 
-- **Recorrido 360**: fotos equirectangulares del DJI Osmo 360 (o renders 360 de Corona, V-Ray o Blender) unidas con
-  flechas en el suelo, plano con posición y cono de visión, galería, fichas de información, zoom y giroscopio.
-- **Modo libre 3D**: caminar como en un videojuego (`WASD` + ratón, joystick táctil en móvil) por un
-  **Gaussian Splat** (`.sog`, `.spz`, `.ply`, `.splat`, `.ksplat`) o un modelo **GLB**, con colisiones.
+- **Visor** (`index.html`). Es lo que ve el comprador: recorrido 360, paseo libre en 3D y maqueta. Incluye contacto por
+  WhatsApp con fotos de la vista, radar y plano, estilos con IA, día y noche, y modo claro u oscuro.
+- **Estudio** (`estudio.html`). Es donde la agencia monta y publica el recorrido en 4 pasos.
+- **Guía Osmo 360** (`asistente-osmo.html`). Explica paso a paso cómo hacer las fotos, con consejos.
 
-Es HTML + JavaScript estático, sin compilación. Usa three.js y [Spark](https://github.com/sparkjsdev/spark) desde CDN.
-Guía completa: [`docs/recorridos-3d-inmobiliaria.md`](../../docs/recorridos-3d-inmobiliaria.md).
+Todo es HTML y JavaScript estático, sin servidor ni suscripciones. three.js y [Spark](https://github.com/sparkjsdev/spark)
+se cargan desde jsDelivr con versiones fijas.
 
-## Probar la demo
+## Probarlo en un minuto
 
 ```bash
 cd tools/visor-inmobiliario
-python3 -m http.server 8000
-# abre http://localhost:8000/?demo
+python3 -m http.server 8765
 ```
 
-La demo genera un piso por código y "fotografía" cada estancia con una cámara 360 virtual, igual que Corona renderiza
-panoramas desde un modelo.
-
-## Crear un tour real
-
-```bash
-pip install pillow
-python3 preparar_panos.py ~/Fotos/mi-piso --salida ../../web/tours/mi-piso
-cp index.html visor.js visor.css demo.js ../../web/tours/mi-piso/
-```
-
-Edita `tour.json` (ver [`tour.ejemplo.json`](tour.ejemplo.json)) y abre `index.html?editar` para orientar cada foto con
-`[` y `]`.
-
-### `tour.json`
-
-| Campo | Descripción |
+| Abre | Para |
 |---|---|
-| `titulo` | Nombre del inmueble |
-| `altura_camara` | Altura del trípode en metros (1.5 por defecto) |
-| `plano` | `{ "imagen", "ancho_m", "alto_m", "origen": [x, z] }`: plano a escala para el minimapa |
-| `muros` | Opcional, `[[x1, z1, x2, z2], …]` en metros, para dibujar el plano sin imagen |
-| `inicio` | `id` del panorama inicial |
-| `radio_enlace_auto` | Distancia en metros para enlazar automáticamente los nodos sin `enlaces` |
-| `panoramas[]` | `id`, `nombre`, `imagen`, `imagen_movil`, `miniatura`, `x`, `z` (metros), `yaw` (grados: hacia dónde mira el centro de la foto en el plano; 0 = arriba del plano), `rumbo_inicial`, `enlaces[]`, `puntos[]` (`yaw`, `pitch`, `titulo`, `texto`) |
-| `libre` | `{ "tipo": "splat" \| "glb", "url", "rotacion": [x, y, z], "posicion", "escala", "colisionador", "inicio": [x, z, rumbo], "limites": [x0, z0, x1, z1] }` |
+| http://localhost:8765/?demo | Visor con un piso de demostración |
+| http://localhost:8765/estudio.html | Estudio: crear un recorrido con tus fotos |
+| http://localhost:8765/asistente-osmo.html | Guía para hacer las fotos con la Osmo 360 |
 
-### Parámetros de URL
+## De la cámara al anuncio
 
-- `?demo`: piso de demostración
-- `?tour=otro.json`: otro archivo de configuración
-- `?modo=libre`: abrir directamente en paseo libre
-- `?editar`: editor de orientación
-- `#cocina`: abrir en una estancia concreta
+1. **Fotos.** Sigue la Guía (o [docs/guia-osmo360.md](../../docs/guia-osmo360.md)): una foto por estancia, a 1,5 m de
+   altura, en el centro.
+2. **Estudio.** El primer día, rellena «Mi inmobiliaria»: marca, WhatsApp y política de privacidad. Después, para cada
+   vivienda:
+   1. **Fotos.** Se optimizan, se les quita la ubicación GPS y se ordenan por hora.
+   2. **Plano** (opcional). Imagen, PDF o DXF, con estancias automáticas.
+   3. **Datos.** Precio, m², certificado energético…
+   4. **Publicar.**
+
+   El proyecto se guarda en el navegador de ese ordenador. Para llevarlo a otro, usa Proyecto ▾ → Copia de seguridad.
+3. **Publicar**, por destino:
+   - **Tu web.**
+     - Descarga el ZIP y súbelo a `/tours/<referencia>/` de tu hosting.
+     - Copia el enlace o el código para incrustarlo (WordPress, Wix…).
+     - Usa el código QR para carteles.
+   - **Portales y redes.**
+     - Fotos 360 de menos de 8 MB, que idealista, Facebook y Google muestran en 360.
+     - Vídeo 16:9, 9:16 o 1:1 con tu marca y música.
+     - Plano con medidas.
+     - idealista y Fotocasa solo aceptan el enlace de un tour de proveedores homologados. Ahí se sube el vídeo, el
+       plano y las fotos 360. La tabla «¿Qué subo a cada portal?» del Estudio lo detalla.
+   - **Para tus clientes.**
+     - Dossier PDF.
+     - Recorrido en un solo archivo HTML, que se abre con doble clic y sin internet.
+     - Código QR.
+
+## Lo que ve el comprador
+
+- **Tres modos:**
+  - **Recorrido** con fotos 360.
+  - **Paseo libre**, como en un videojuego, por un Gaussian Splat (`.sog`, `.spz`, `.ply`, `.splat`, `.ksplat`) o un
+    modelo GLB.
+  - **Maqueta** 3D del plano.
+- **Tarjeta del inmueble.** Precio, datos y ficha completa, con hipoteca, documentos y ubicación.
+- **Contactar.** Pregunta por WhatsApp con fotos de la vista y la estancia elegida, en 4 toques.
+- **Estancias y plano**, más un radar de esquina que se muestra y se oculta.
+- **Estilo y luz:**
+  - 5 estilos con IA, solo en viviendas en proyecto (obra nueva o terreno);
+  - color de paredes y suelo en viviendas construidas;
+  - día, atardecer y noche;
+  - antes y después.
+- **Más.** Visita guiada, medir, compartir con QR, música con volumen, idiomas (es, en, fr, de) y Ajustes.
+- **Apariencia.** Automático, claro u oscuro; tamaño S, M o L; reducir transparencia; reducir movimiento. Se comparte
+  entre el visor, el Estudio y la Guía.
 
 ## Controles
 
-| | Ordenador | Móvil / tablet |
+| | Ordenador | Móvil y tablet |
 |---|---|---|
-| Mirar | arrastrar; en modo libre, clic para capturar el ratón | arrastrar / giroscopio 🧭 |
-| Moverse (360) | `W`/`↑` avanzar, `S`/`↓` volver, `A` `D` girar, clic en flechas o plano | tocar flechas, plano o galería |
-| Moverse (libre) | `WASD`, `Shift` correr, `←` `→` girar, `Espacio`/`C` subir o bajar si no hay suelo | joystick izquierdo |
-| Otros | rueda = zoom, `M` = plano, `Tab` = cambiar modo, `H` = ayuda | pellizcar = zoom |
+| Mirar | Arrastrar. 🎮 o `W` `A` `S` `D`: modo juego con el ratón (`Esc` para salir) | Arrastrar. «Mirar moviendo el móvil» está en «Más» |
+| Ir a otra estancia | Clic en una flecha o en el suelo; `W` `A` `S` `D` o flechas (mantén `W` para seguir) | Tocar una flecha o el suelo |
+| Paseo libre | `W` `A` `S` `D` o flechas; `Shift` para correr | Pulgar izquierdo para caminar, derecha para mirar |
+| Acercar | Rueda | Pellizcar |
+| Teclas | `R` radar · `M` estancias y plano · `H` ayuda · `V` modo · `Q` `E` girar · `RePág` `AvPág` mirar arriba y abajo · `Esc` cerrar | — |
+
+Los atajos de una sola letra se pueden desactivar en Ajustes (WCAG 2.1.4).
+
+## Parámetros de URL
+
+| Parámetro | Efecto |
+|---|---|
+| `?demo` | Piso de demostración |
+| `?tour=otro.json` | Otro archivo de recorrido (por defecto, `tour.json`) |
+| `?modo=libre` · `?modo=maqueta` | Abre en ese modo, si el recorrido lo tiene |
+| `?lang=en` | Idioma de la interfaz |
+| `?tema=claro\|oscuro` · `?talla=s\|m\|l` | Apariencia, solo para esa visita |
+| `?embed` | Vista previa del Estudio: sin portada ni modo juego, y avisa a la página que lo contiene (`postMessage`). Para tu web usa el código del paso «Publicar» |
+| `?dev` | Permite soltar un modelo 3D para probarlo |
+| `#cocina` | Abre en esa estancia (por su `id`) |
+
+El formato de `tour.json`, la API `window.visor` y los eventos están en [ESQUEMA.md](ESQUEMA.md). Hay un ejemplo en
+[tour.ejemplo.json](tour.ejemplo.json).
+
+## Desarrollo
+
+```bash
+npm install            # solo para las pruebas y la compilación
+npm run build          # dist/visor-autonomo.js: lo necesita «Recorrido en un solo archivo»
+npm run prueba:todo    # humo + contraste AA + pruebas de extremo a extremo
+```
+
+| Comando | Qué hace |
+|---|---|
+| `npm run prueba` | Prueba de humo: visor, Estudio y Guía cargan sin errores |
+| `npm run contraste` | Contraste AA de los pares de colores del tema, en claro y en oscuro |
+| `npm run prueba:e2e` | Unas 430 comprobaciones del Estudio, los paneles, la exportación y la seguridad |
+| `npm run medir` | Peso de la carga inicial, tiempo hasta que el visor está listo y cuánta pantalla tapa la interfaz (objetivo en el teléfono: ≤ 15 %) |
+| `node pruebas/capturas.mjs` | Matriz de capturas: páginas × claro/oscuro × S/M/L × tamaños de pantalla |
+
+Detalles de las pruebas en [pruebas/LEEME.md](pruebas/LEEME.md); planes de contingencia en
+[docs/calidad.md](../../docs/calidad.md). `dist/` no se versiona: lo compila el workflow de GitHub Pages
+(`.github/workflows/visor-pages.yml`, que publica desde `main`).
 
 ## Archivos
 
-- `index.html`, `visor.css`, `visor.js`: el visor
-- `demo.js`: piso de demostración
-- `preparar_panos.py`: redimensiona las fotos del Osmo 360, borra el GPS y crea `tour.json`
-- `extraer_fotogramas.py`: vídeo 360 → vistas planas para entrenar Gaussian Splatting (Postshot, Brush, RealityScan)
+| Archivo | Qué es |
+|---|---|
+| `index.html`, `visor.js`, `visor.css` | Núcleo del visor (three.js): recorrido, paseo libre, maqueta, radar, menú «Más», captura |
+| `paneles.js`, `paneles.css`, `i18n.js` | Tarjeta del inmueble, contacto, ficha, compartir, Ajustes e idiomas |
+| `plano.js`, `medicion.js`, `maqueta.js`, `guion.js`, `util.js` | Plano y radar, medir, maqueta, visita guiada y utilidades |
+| `tema.css`, `tema.js`, `vendor/fonts/inter` | Sistema de diseño «minimal liquid glass» ([docs/diseno/sistema.md](../../docs/diseno/sistema.md)) |
+| `estudio.html`, `estudio.css`, `estudio*.js` | Estudio |
+| `asistente-osmo.html` | Guía Osmo 360 |
+| `exportar.js`, `build.mjs` | Exportaciones (ZIP, HTML autónomo, vídeo, fotos 360, plano, dossier) y compilación |
+| `demo.js` | Piso de demostración generado por código |
+| `preparar_panos.py`, `extraer_fotogramas.py` | Scripts opcionales: preparar fotos sin el Estudio y vídeo 360 → fotogramas para Gaussian Splatting |
+| `vendor/` | fflate, pdf.js, QR (Nayuki) y fuente Inter (OFL) |
+
+## Limitaciones conocidas
+
+- idealista y Fotocasa solo enlazan tours de proveedores homologados (ver «Publicar»).
+- El vídeo se graba en WebM en Chromium y en MP4 donde el navegador lo permita.
+- El ZIP no admite más de 4 GB.
+- El Estudio guarda en el navegador: dos pestañas sobre el mismo proyecto no se sincronizan.
+- `file://` no tiene enlace para compartir. Para eso, súbelo a tu web o usa el archivo único.
