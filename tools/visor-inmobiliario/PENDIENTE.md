@@ -109,7 +109,9 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - Utilidades comunes: `urlSegura` está en dos sitios con reglas distintas.
 - [ ] **Fase 4 · Diseño premium «minimal liquid glass»** con tema claro/oscuro y tallas S/M/L (ver «Encargo de la fase 4»).
   - **Plan que manda:** [docs/auditorias/fase4-plan.md](../../docs/auditorias/fase4-plan.md). Decisiones A–J: las recomendadas (el cliente no ha guardado elecciones): champán, tema automático, sin remates, vidrio equilibrado.
-  - [ ] **Aplicación en curso** (iniciada el 15/10 a las 04:58 UTC): tres agentes en paralelo con los paquetes §2.1 (núcleo), §2.2 (paneles) y §2.3 (Estudio). El orquestador hace §2.4 (tema-muestra, dossier, Guía, `pruebas/contraste.mjs`, matriz de capturas).
+  - [x] **Aplicación** (15/10, de 04:58 a 10:12 UTC): tres agentes en paralelo con los paquetes §2.1 (núcleo), §2.2 (paneles) y §2.3 (Estudio). El orquestador hizo §2.4 (tema-muestra, dossier, Guía, `pruebas/contraste.mjs`, `pruebas/medir.mjs`, matriz de capturas).
+    - Terminados e integrados: Estudio 149/149, paneles 204/204 y núcleo con e2e 434/434. Vidrio adaptativo por zonas (0,5–1,1 ms por medida), pintado bajo demanda (0 fotogramas en reposo), shaders precompilados tras la portada. Refracción descartada: 5,4 fps frente a 4,0 sin GPU. Teléfono en reposo: 9,8 % tapado.
+    - Integración final: fuera las diez variables antiguas de `visor.css` y el color de marca de la demo; segmentado dentro de un vidrio con el texto principal (AA); contingencias del núcleo en `docs/calidad.md`.
     - Si un agente muere, relánzalo con su paquete de `fase4-plan.md` y dile qué está hecho (mira `git diff`).
     - 15/10 07:0x UTC: los tres se pararon por el límite de uso (429). Reanudados a las 07:31 con SendMessage; su trabajo estaba en el árbol (instantánea 07:31).
     - El cliente pidió expresamente la apariencia «glass UI» en todo (15/10): está en el contrato del plan (§1.0). Vidrio adaptativo en `tema.css` (`data-luz-max`/`data-luz-min`); lo mide el núcleo.
