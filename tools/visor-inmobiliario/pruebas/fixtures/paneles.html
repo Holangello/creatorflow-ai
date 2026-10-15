@@ -7,10 +7,12 @@
 <!-- Banco de pruebas de paneles.js (e2e-paneles.mjs): un visor SIMULADO que cumple la API de ESQUEMA.md §2, sin WebGL,
      para probar contacto, WhatsApp, fotos, galería, música, teclado… en milisegundos. Parámetros de la URL:
      ?modo=whatsapp|webhook|ambos  ?formato=json  ?op=alquiler  ?obra=proyecto  ?tramite  ?sonido=no  ?lang=fr  ?color=#hex
+     ?sinweb (recorrido sin dirección web)  ?escena=clara|oscura (peor caso para el vidrio: pared blanca o noche)
+     ?tema=claro|oscuro y ?talla=s|m|l (los lee tema.js, como en el visor)
      Expone window.__registro (eventos y llamadas al visor) y window.__cambiarTour(tour) (simula «visor:cargar»).
-     Carga las mismas hojas que index.html (tema, núcleo y paneles) y, como el núcleo, fija el tema oscuro y el color de marca. -->
+     Carga las mismas hojas que index.html (tema, núcleo y paneles) y, como el núcleo, fija el color de marca. El tema
+     lo decide el dispositivo (decisión B de la fase 4: sin tema oscuro fijo) o lo que el visitante elige en Ajustes. -->
 <script src="../../tema.js"></script>
-<script>window.cre8Tema?.porDefecto({ tema: "oscuro" });</script>
 <link rel="stylesheet" href="../../tema.css">
 <link rel="stylesheet" href="../../visor.css">
 <link rel="stylesheet" href="../../paneles.css">
@@ -19,6 +21,11 @@
   #escena { position: fixed; inset: 0; background:
     linear-gradient(180deg, #d9d2c5 0%, #cfc6b6 48%, #8a7458 48.2%, #6f5a42 100%); }
   #escena::before { content: ""; position: absolute; left: 18%; top: 14%; width: 26%; height: 30%; background: linear-gradient(#bfe0ff, #e8f4ff); border: 10px solid #f4f1ea; }
+  /* Peores casos para el vidrio: pared blanca con ventana a contraluz, y la misma estancia de noche */
+  .escena-clara #escena { background: linear-gradient(180deg, #ffffff 0%, #fbfaf7 58%, #e9e4da 58.2%, #ddd5c7 100%); }
+  .escena-clara #escena::before { background: #ffffff; border-color: #ffffff; box-shadow: 0 0 120px 60px #fff; }
+  .escena-oscura #escena { background: linear-gradient(180deg, #050608 0%, #0b0d12 58%, #15110d 58.2%, #0a0806 100%); }
+  .escena-oscura #escena::before { background: linear-gradient(#020309, #0a1020); border-color: #101216; }
   .nucleo { position: fixed; background: rgba(16,19,24,.78); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; color: #ddd; font: 13px system-ui; display: grid; place-items: center; z-index: 10; }
   #n-barra { top: 10px; left: 10px; width: 430px; height: 56px; }
   #n-iconos { top: 10px; right: 10px; width: 152px; height: 44px; }
@@ -38,6 +45,7 @@
 <div id="paneles"></div>
 <script type="module">
 const q = new URLSearchParams(location.search);
+if (q.get("escena")) document.body.classList.add(`escena-${q.get("escena")}`);
 function svg(a, b, t) {
   const s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="g" x2="0" y2="1"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${a}"/></linearGradient></defs><rect width="1200" height="800" fill="url(#g)"/><text x="60" y="740" font-family="Georgia" font-size="64" fill="#fff">${t}</text></svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
@@ -122,9 +130,21 @@ const visor = window.visor = {
   sonido: { activo: true, disponible: q.get("sonido") !== "no", volumen: 0.4,
     alternar() { this.activo = !this.activo; visor.emitir("sonido", { activo: this.activo, volumen: this.volumen }); },
     fijarVolumen(v) { this.volumen = v; if (v > 0 && !this.activo) this.alternar(); else visor.emitir("sonido", { activo: this.activo, volumen: v }); } },
-  enlaceVista() { return location.origin + "/?v=salon,110,0,75#salon"; },
+  enlaceVista() { return q.has("sinweb") ? "" : location.origin + "/?v=salon,110,0,75#salon"; },
   idioma(c) { this.estado.idioma = c; registro.push(["idioma", c]); },
-  ajustes(o) { registro.push(["ajustes", o]); },
+  // Como el núcleo de la fase 4: el movimiento tiene una sola fuente de verdad (cre8Tema); reducirMovimiento es un alias
+  ajustes(o = {}) {
+    registro.push(["ajustes", o]);
+    const { reducirMovimiento, ...resto } = o;
+    Object.assign(this._ajustes, resto);
+    if (typeof reducirMovimiento === "boolean") {
+      if (window.cre8Tema) window.cre8Tema.fijar("movimiento", reducirMovimiento ? "reducido" : "normal");
+      else this._ajustes.reducirMovimiento = reducirMovimiento; // sin tema.js, el núcleo lo guarda él mismo
+    }
+    const ef = window.cre8Tema?.efectivo;
+    return { ...this._ajustes, ...(ef ? { reducirMovimiento: ef.movimiento === "reducido" } : {}) };
+  },
+  _ajustes: { sensibilidad: 1, sensibilidadTactil: 1, atajos: true, modoJuegoWASD: true, capturaConClic: false, reducirMovimiento: false },
 };
 window.__registro = registro;
 // Como el núcleo (visor.js, aplicarMarca): el color de marca válido pasa a los tokens del acento; si el tour no trae, se quita
