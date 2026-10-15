@@ -138,6 +138,8 @@ h2.sub { margin: var(--e-6) 0 var(--e-3); font-size: var(--t-cuerpo); }
 .tarjeta + .tarjeta { margin-top: var(--e-3); }
 .tarjeta > h2.sub:first-child, .tarjeta > .fila:first-child h2.sub { margin-top: 0; }
 .tarjeta h3 { margin: 0 0 var(--e-2); font-size: var(--t-cuerpo); }
+.cab-tarjeta { margin-bottom: var(--e-3); }
+.cab-tarjeta h2.sub { margin: 0; }
 .vacio-grande { display: flex; flex-direction: column; align-items: center; gap: var(--e-3); padding: var(--e-9) var(--e-6); text-align: center;
   border: 1.5px dashed var(--c-borde-2); border-radius: var(--r-5); color: var(--c-texto-2);
   transition: border-color var(--d-2) var(--suave), background-color var(--d-2) var(--suave); }

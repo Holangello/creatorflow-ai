@@ -14,11 +14,10 @@
   --acento-texto: var(--c-sobre-acento, #17130a);
   --radio: 12px;
   --serif: var(--fuente-editorial, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif);
-  /* TODO tema: trazos dibujados directamente sobre la foto (mira de medir, punto del modo juego, línea del comparador,
-     nombres sobre las miniaturas): blanco con halo oscuro en los dos temas, para leerse sobre cualquier imagen.
-     Pedidos como --c-foto-trazo y --c-foto-halo; mientras tanto, estos valores de reserva. */
-  --foto-trazo: var(--c-foto-trazo, #fff);
-  --foto-halo: var(--c-foto-halo, rgba(0, 0, 0, 0.55));
+  /* Trazos y texto dibujados directamente sobre la foto (mira de medir, punto del modo juego, línea del comparador,
+     nombres de las miniaturas): blanco con velo oscuro en los dos temas, para leerse sobre cualquier imagen. */
+  --foto-trazo: var(--c-sobre-foto, #fff);
+  --foto-halo: var(--velo-foto, rgba(0, 0, 0, 0.62));
   /* HUD */
   --seg-sup: env(safe-area-inset-top, 0px);
   --seg-inf: env(safe-area-inset-bottom, 0px);
@@ -158,9 +157,9 @@ body.con-portada #barra-vista .c8-icono * { animation-play-state: paused; }
   border-radius: calc(var(--r-4) - var(--e-2)); background: var(--c-sup-3); transition: border-color var(--d-1) var(--suave), transform var(--d-3) var(--muelle); }
 #galeria .estancia:hover { transform: translateY(-0.125rem); }
 #galeria .estancia img { display: block; width: 100%; height: 100%; object-fit: cover; }
-/* Nombre sobre la miniatura: blanco sobre un degradado que oscurece la foto (igual en los dos temas) */
-#galeria .estancia span { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.125rem 0.3125rem; font-size: var(--t-pie); text-align: left; color: var(--foto-trazo);
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.88) 55%); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Nombre sobre la miniatura: blanco sobre el velo de la foto (6,2:1 incluso sobre una foto blanca), igual en los dos temas */
+#galeria .estancia span { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.375rem 0.3125rem 0.125rem; font-size: var(--t-pie); text-align: left; color: var(--foto-trazo);
+  background: linear-gradient(transparent, var(--foto-halo) 45%); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #galeria .estancia[aria-current="true"] { border-color: var(--c-acento); }
 #galeria .guiada { display: none; flex: none; align-self: stretch; height: auto; }
 body.guion-activo #galeria { opacity: 0.4; }

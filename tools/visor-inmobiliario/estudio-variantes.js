@@ -5,7 +5,7 @@
 //   «Mostrar todo» para casos mixtos (el visor ofrece lo que haya). Aviso legal de las imágenes: un solo campo.
 import { dimensiones } from "./estudio-util.js";
 import { app, h, icono, cambiar, emitir, on, toast, confirmar, pedir, guardarArchivo, urlDe, rutaLibre, elegirArchivos, dialogo,
-  textoDe, pano, ESTILOS_IA, MOMENTOS, PAREDES_DEF, SUELOS_DEF } from "./estudio-nucleo.js";
+  textoDe, pano, ESTILOS_IA, MOMENTOS, PAREDES_DEF, SUELOS_DEF, VIDRIO } from "./estudio-nucleo.js";
 import { procesar } from "./estudio-fotos.js";
 import { campoTexto } from "./estudio-campos.js";
 
@@ -53,10 +53,11 @@ export async function subirVariantes(pid, archivos, { estilo: estiloFijo, moment
   const dBase = base ? await dimensiones(base) : null;
   const dMovil = app.archivos.get(p.imagen_movil) ? await dimensiones(app.archivos.get(p.imagen_movil)) : null;
   const tamanos = [dBase?.w ?? 8192, dMovil?.w ?? 4096];
-  const capa = h("div", { class: "cargando-global" });
+  const capa = h("div", { class: "cargando-global", role: "status" });
   const txt = h("span"), barra = h("div");
-  capa.append(h("div", {}, txt, h("div", { class: "progreso" }, barra)));
+  capa.append(h("div", { class: "c8-vidrio c8-vidrio--denso" }, txt, h("div", { class: "progreso" }, barra)));
   document.body.append(capa);
+  app.procesandoVariantes = (app.procesandoVariantes ?? 0) + 1; // mientras tanto, cerrar la pestaña pregunta antes
   try {
     for (let i = 0; i < fotos.length; i++) {
       const f = fotos[i];
@@ -87,7 +88,7 @@ export async function subirVariantes(pid, archivos, { estilo: estiloFijo, moment
     toast(fotos.length === 1 ? "Versión añadida. Revisa su estilo y su luz." : `${fotos.length} versiones añadidas. Revisa sus etiquetas.`, "ok");
   } catch (e) {
     console.error(e); toast(`Error al procesar: ${e.message}`, "error", 6000);
-  } finally { capa.remove(); }
+  } finally { capa.remove(); app.procesandoVariantes--; }
 }
 
 async function subirMascara(pid, vi = null) {
@@ -160,19 +161,19 @@ function tarjetaVariante(p, v, j, { conEstilo, conMascara }) {
     h("div", { class: "cuerpo" },
       h("div", { class: "fila" }, conEstilo ? selE : null, selM),
       h("label", { class: "campo" }, h("span", { text: "Origen" }), selO),
-      h("div", { class: "fila", style: { flexWrap: "wrap", gap: "6px" } },
+      h("div", { class: "fila envolver" },
         prob ? h("span", { class: `chip ${prob.nivel}`, text: prob.corto, title: `${prob.texto} ${prob.detalle}` }) : h("span", { class: "chip ok", text: "Encaja con la original" }),
         repetida ? h("span", { class: "chip aviso", text: "Repetida" }) : null,
         conMascara && esEstilo(v) ? (v.mascara ? h("span", { class: "chip ok", text: "Zonas de color propias" }) : h("span", { class: "chip aviso", text: "Sin zonas de color", title: "Un estilo con otro mobiliario necesita sus propias zonas de color" })) : null),
       prob ? h("small", { class: prob.nivel === "error" ? "error-campo" : "suave", text: prob.texto }) : null,
       conMascara && esEstilo(v) ? h("div", { class: "fila" },
-        h("button", { class: "btn peq", onclick: async () => { const { abrirEditorMascara } = await import("./estudio-mascara.js"); abrirEditorMascara(p.id, j); } }, icono("varita", 14), v.mascara ? "Editar zonas de color" : "Marcar zonas de color"),
-        h("button", { class: "btn peq fantasma", title: "Subir una máscara PNG hecha por tu renderista (rojo = paredes, verde = suelo)", onclick: () => subirMascara(p.id, j) }, "Máscara PNG"),
-        v.mascara ? h("button", { class: "btn peq fantasma", onclick: () => cambiar(() => { delete pano(p.id).variantes[j].mascara; }) }, "Quitar") : null) : null,
+        h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: async () => { const { abrirEditorMascara } = await import("./estudio-mascara.js"); abrirEditorMascara(p.id, j); } }, icono("varita", 14), v.mascara ? "Editar zonas de color" : "Marcar zonas de color"),
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", title: "Subir una máscara PNG hecha por tu renderista (rojo = paredes, verde = suelo)", onclick: () => subirMascara(p.id, j) }, "Máscara PNG"),
+        v.mascara ? h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: () => cambiar(() => { delete pano(p.id).variantes[j].mascara; }) }, "Quitar") : null) : null,
       h("div", { class: "fila" },
-        h("button", { class: "btn peq", onclick: () => probarEnVista(v) }, icono("ojo", 14), "Ver en la vista previa"),
-        h("div", { style: { flex: 1 } }),
-        h("button", { class: "btn peq fantasma icono-btn", title: "Eliminar", "aria-label": "Eliminar esta versión", onclick: async () => {
+        h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => probarEnVista(v) }, icono("ojo", 14), "Ver en la vista previa"),
+        h("div", { class: "relleno" }),
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s", title: "Eliminar", "aria-label": "Eliminar esta versión", onclick: async () => {
           if (await confirmar("Eliminar versión", "¿Quitar esta imagen alternativa?")) cambiar(() => { pano(p.id).variantes.splice(j, 1); });
         } }, icono("basura", 15)))));
 }
@@ -186,42 +187,42 @@ function paleta(clave, titulo, defecto) {
       const col = h("input", { type: "color", value: c.color, "aria-label": `Color ${textoDe(c.nombre)}` });
       col.oninput = () => cambiar(() => { lista()[i].color = col.value; }, { clave: `pal-${clave}-${i}`, tipo: "datos", render: false });
       return h("div", { class: "fila" }, col,
-        h("div", { style: { flex: 1, minWidth: 0 } }, campoTexto(() => lista()[i], "nombre", { etiqueta: "Nombre del color", compacto: true, tipo: "datos" })),
-        h("button", { class: "btn fantasma icono-btn", "aria-label": "Quitar color", onclick: () => { cambiar(() => { lista().splice(i, 1); }, { tipo: "datos", render: false }); pintarP(); } }, icono("basura", 15)));
+        h("div", { class: "estirar" }, campoTexto(() => lista()[i], "nombre", { etiqueta: "Nombre del color", compacto: true, tipo: "datos" })),
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s", "aria-label": "Quitar color", onclick: () => { cambiar(() => { lista().splice(i, 1); }, { tipo: "datos", render: false }); pintarP(); } }, icono("basura", 15)));
     }),
     h("div", { class: "fila" },
-      h("button", { class: "btn peq", onclick: () => { cambiar(() => { lista().push({ nombre: { es: "Nuevo color" }, color: "#cccccc" }); }, { tipo: "datos", render: false }); pintarP(); } }, icono("mas", 14), "Añadir color"),
-      h("button", { class: "btn peq fantasma", onclick: async () => { if (await confirmar("Restaurar paleta", `Se recuperarán los ${defecto.length} colores por defecto.`, "Restaurar")) { cambiar((t) => { t.personalizacion[clave] = structuredClone(defecto); }, { tipo: "datos", render: false }); pintarP(); } } }, "Restaurar por defecto")));
+      h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => { cambiar(() => { lista().push({ nombre: { es: "Nuevo color" }, color: "#cccccc" }); }, { tipo: "datos", render: false }); pintarP(); } }, icono("mas", 14), "Añadir color"),
+      h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: async () => { if (await confirmar("Restaurar paleta", `Se recuperarán los ${defecto.length} colores por defecto.`, "Restaurar")) { cambiar((t) => { t.personalizacion[clave] = structuredClone(defecto); }, { tipo: "datos", render: false }); pintarP(); } } }, "Restaurar por defecto")));
   };
   pintarP();
-  return h("div", { class: "tarjeta" }, h("h3", { style: { margin: "0 0 10px", fontSize: "14px" }, text: titulo }), cont);
+  return h("div", { class: "subtarjeta" }, h("h3", { text: titulo }), cont);
 }
 function nombresEstilos() {
   const t = app.tour;
-  const cont = h("div", { class: "tarjeta" });
+  const cont = h("div", { class: "nombres-estilos pila" });
   const pintarE = () => {
     const usados = new Set(t.panoramas.flatMap((p) => (p.variantes ?? []).map((v) => v.estilo)));
     cont.replaceChildren(
-      h("p", { class: "suave", style: { marginTop: 0 }, text: "Los nombres que verá el cliente. Solo se publican los estilos con imágenes en alguna estancia." }),
-      ...(app.tour.estilos ?? []).map((e, i) => e.id === "original" ? null : h("div", { class: "fila", style: { marginBottom: "6px", flexWrap: "nowrap" } },
-        h("span", { class: `chip ${usados.has(e.id) ? "ok" : ""}`, style: { width: "120px", justifyContent: "center" }, text: usados.has(e.id) ? "con imágenes" : "sin imágenes" }),
-        h("div", { style: { flex: 1, minWidth: 0 } }, campoTexto(() => app.tour.estilos[i], "nombre", { etiqueta: "Nombre del estilo", compacto: true, tipo: "datos" })),
-        h("button", { class: "btn fantasma icono-btn", "aria-label": "Quitar estilo", onclick: () => { cambiar(() => { app.tour.estilos.splice(i, 1); }, { tipo: "datos", render: false }); pintarE(); } }, icono("basura", 15)))),
-      h("button", { class: "btn peq fantasma", onclick: () => { cambiar((tt) => { for (const e of ESTILOS_IA) if (!tt.estilos.some((x) => x.id === e.id)) tt.estilos.push(structuredClone(e)); }, { tipo: "datos", render: false }); pintarE(); } }, "Restaurar los 5 estilos"));
+      h("p", { class: "texto-sec", text: "Los nombres que verá el cliente. Solo se publican los estilos con imágenes en alguna estancia." }),
+      ...(app.tour.estilos ?? []).map((e, i) => e.id === "original" ? null : h("div", { class: "fila sin-salto" },
+        h("span", { class: `chip ${usados.has(e.id) ? "ok" : ""}`, text: usados.has(e.id) ? "con imágenes" : "sin imágenes" }),
+        h("div", { class: "estirar" }, campoTexto(() => app.tour.estilos[i], "nombre", { etiqueta: "Nombre del estilo", compacto: true, tipo: "datos" })),
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s", "aria-label": "Quitar estilo", onclick: () => { cambiar(() => { app.tour.estilos.splice(i, 1); }, { tipo: "datos", render: false }); pintarE(); } }, icono("basura", 15)))),
+      h("div", {}, h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: () => { cambiar((tt) => { for (const e of ESTILOS_IA) if (!tt.estilos.some((x) => x.id === e.id)) tt.estilos.push(structuredClone(e)); }, { tipo: "datos", render: false }); pintarE(); } }, "Restaurar los 5 estilos")));
   };
   pintarE();
   return cont;
 }
 function avisoLegal() {
   const I = () => (app.tour.inmueble ??= {});
-  return h("div", { class: "tarjeta" },
+  return h("div", { class: "pila" },
     campoTexto(I, "aviso_legal", { etiqueta: "Aviso que acompaña a los renders y a los estilos (IA)", tipo: "datos", multilinea: true,
       placeholder: "Imágenes no contractuales. Los renders y los estilos generados con IA son orientativos; el mobiliario no está incluido." }),
-    h("button", { class: "btn peq fantasma", style: { marginTop: "8px" }, onclick: () => { cambiar(() => { I().aviso_legal = structuredClone(AVISO_RECOMENDADO); }, { tipo: "datos" }); pintar(); } }, "Usar texto recomendado"));
+    h("div", {}, h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: () => { cambiar(() => { I().aviso_legal = structuredClone(AVISO_RECOMENDADO); }, { tipo: "datos" }); pintar(); } }, "Usar texto recomendado")));
 }
-/** Plegable recordado dentro de la sección. */
+/** Plegable recordado dentro de la sección: un vidrio con su contenido (dentro, rellenos). */
 function plegable(id, titulo, cuerpo, campo) {
-  const d = h("details", { class: "avanzado", open: abiertos.has(id), "data-campo": campo ?? id, style: { marginTop: "10px" } }, h("summary", { text: titulo }), h("div", { class: "contenido" }, cuerpo));
+  const d = h("details", { class: `avanzado plegable-estilo ${VIDRIO}`, open: abiertos.has(id), "data-campo": campo ?? id }, h("summary", { text: titulo }), h("div", { class: "contenido" }, cuerpo));
   d.addEventListener("toggle", () => { if (d.open) abiertos.add(id); else abiertos.delete(id); });
   return d;
 }
@@ -240,23 +241,23 @@ function pintar() {
   const todoInput = h("input", { type: "checkbox", class: "c8-interruptor", role: "switch", checked: todo, id: "estilo-todo" });
   todoInput.onchange = () => cambiar((tt) => { if (todoInput.checked) tt._estudio.estiloTodo = true; else delete tt._estudio.estiloTodo; }, { tipo: "local" });
   const ocultos = proyecto ? (!todo && nMascaras ? `${nMascaras} zonas de color` : "") : (!todo && nEstilos ? `${nEstilos} estilos IA` : "");
-  const tipo = h("div", { class: "tarjeta tipo-vivienda", "data-campo": "estado_obra" },
-    h("div", { class: "fila", style: { alignItems: "flex-start" } },
-      h("div", { style: { flex: 1, minWidth: "220px" } },
+  const tipo = h("div", { class: `tarjeta ${VIDRIO} tipo-vivienda`, "data-campo": "estado_obra" },
+    h("div", { class: "fila arriba" },
+      h("div", { class: "estirar" },
         h("b", { text: proyecto ? "Obra nueva o proyecto: estilos de decoración (IA)" : "Vivienda construida: colores de paredes y suelo" }),
-        h("div", { class: "suave", style: { fontSize: "13px", marginTop: "2px" } }, "Según «Situación» en Datos. ",
-          h("button", { class: "enlace", onclick: () => emitir("ir", { seccion: "datos", campo: "estado_obra" }) }, "Cambiar"))),
-      h("label", { class: "check-c8", for: "estilo-todo" }, todoInput, h("span", { text: "Mostrar todo (estilos y colores)" }))),
+        h("div", { class: "texto-sec" }, "Según «Situación» en Datos. ",
+          h("button", { type: "button", class: "enlace", onclick: () => emitir("ir", { seccion: "datos", campo: "estado_obra" }) }, "Cambiar"))),
+      h("label", { class: "check", for: "estilo-todo" }, todoInput, h("span", { text: "Mostrar todo (estilos y colores)" }))),
     ocultos ? h("p", { class: "nota-c8", role: "note", text: `Este proyecto tiene ${ocultos} que aquí no se muestran. El visor ofrece todo lo que haya: actívalo con «Mostrar todo» para revisarlo.` }) : null,
-    todo && nEstilos && nMascaras ? h("p", { class: "c8-sec", style: { margin: "8px 0 0" }, text: "Hay estilos y zonas de color: el visor ofrecerá las dos cosas." }) : null);
+    todo && nEstilos && nMascaras ? h("p", { class: "nota-c8", text: "Hay estilos y zonas de color: el visor ofrecerá las dos cosas." }) : null);
   if (!p) {
-    raiz.replaceChildren(cab, tipo, h("div", { class: "vacio-grande" }, icono("luz", 40), h("h3", { text: "Primero añade fotos" }),
-      h("button", { class: "btn primario", onclick: () => emitir("ir", { seccion: "fotos" }) }, "Ir a Fotos 360")));
+    raiz.replaceChildren(cab, tipo, h("div", { class: `vacio-grande ${VIDRIO}` }, icono("luz", 40), h("h3", { text: "Primero añade fotos" }),
+      h("button", { type: "button", class: "c8-boton c8-boton--primario", onclick: () => emitir("ir", { seccion: "fotos" }) }, "Ir a Fotos 360")));
     return;
   }
   const selector = h("div", { class: "selector-nodos", role: "group", "aria-label": "Estancia" }, t.panoramas.map((q) => h("button", {
     "aria-pressed": String(q.id === p.id), onclick: () => { app.nodo = q.id; emitir("nodo", {}); },
-  }, h("img", { src: urlDe(q.miniatura), alt: "" }), h("span", {}, h("span", { text: nombreDe(q), style: { overflow: "hidden", textOverflow: "ellipsis" } }),
+  }, h("img", { src: urlDe(q.miniatura), alt: "" }), h("span", {}, h("span", { text: nombreDe(q) }),
     h("span", { class: "tenue", text: `${q.variantes?.length ?? 0}${q.mascara ? " · M" : ""}` })))));
   const elegirImgs = () => elegirArchivos({ aceptar: "image/jpeg,image/png,image/webp", multiple: true });
   const lista = (filtro, opciones) => {
@@ -268,22 +269,22 @@ function pintar() {
   noche.onchange = () => cambiar((tt) => { tt._estudio.nocheSimulada = noche.checked; }, { tipo: "datos" });
   const conNoche = t.panoramas.some((q) => (q.variantes ?? []).some((v) => v.momento === "noche"));
   const luces = lista((v) => !esEstilo(v), { conEstilo: false, conMascara: false });
-  const luz = h("div", { class: "tarjeta", "data-campo": "luz" },
-    h("div", { class: "fila", style: { marginBottom: "10px" } },
-      h("div", { style: { flex: 1 } }, h("h2", { class: "sub", style: { margin: 0 }, text: `Luz · ${nombreDe(p)}` }),
-        h("div", { class: "tenue", style: { fontSize: "12.5px", marginTop: "4px" }, text: "Fotos de noche (con las luces encendidas) o de atardecer, desde el mismo punto y con la misma orientación que la de día." })),
-      h("button", { class: "btn", onclick: async () => subirVariantes(p.id, await elegirImgs(), { estilo: null, momentoDefecto: "noche" }) }, icono("subir", 16), "Subir foto de noche o atardecer")),
-    luces ?? h("p", { class: "suave", style: { margin: "0 0 10px", fontSize: "13px" }, text: "Sin fotos de noche en esta estancia." }),
+  const luz = h("div", { class: `tarjeta ${VIDRIO}`, "data-campo": "luz" },
+    h("div", { class: "fila cab-tarjeta" },
+      h("div", { class: "estirar" }, h("h2", { class: "sub", text: `Luz · ${nombreDe(p)}` }),
+        h("div", { class: "texto-sec", text: "Fotos de noche (con las luces encendidas) o de atardecer, desde el mismo punto y con la misma orientación que la de día." })),
+      h("button", { type: "button", class: "c8-boton c8-boton--secundario", onclick: async () => subirVariantes(p.id, await elegirImgs(), { estilo: null, momentoDefecto: "noche" }) }, icono("subir", 16), "Subir foto de noche o atardecer")),
+    luces ?? h("p", { class: "texto-sec", text: "Sin fotos de noche en esta estancia." }),
     h("label", { class: "fila-interruptor", for: "noche-simulada" }, noche,
       h("span", {}, h("b", { text: "Ofrecer vista de noche simulada" }),
         h("small", { class: "tenue", text: conNoche ? "Para las estancias sin foto de noche, el visor la simula oscureciendo la de día." : "Sin fotos de noche, el visor puede simular la noche oscureciendo la foto de día. El atardecer solo se ofrece con foto." }))));
   // Estilos (proyectos)
-  const estilos = verEstilos ? h("div", { class: "tarjeta", "data-campo": "estilos" },
-    h("div", { class: "fila", style: { marginBottom: "10px" } },
-      h("div", { style: { flex: 1 } }, h("h2", { class: "sub", style: { margin: 0 }, text: `Estilos de decoración (IA) · ${nombreDe(p)}` }),
-        h("div", { class: "tenue", style: { fontSize: "12.5px", marginTop: "4px" }, text: "Genera fuera (con IA) los estilos Nórdico, Mediterráneo, Industrial, Contemporáneo minimalista y Clásico con el mismo encuadre y súbelos aquí. El estilo se deduce del nombre del archivo (salon-nordico.jpg)." })),
-      h("button", { class: "btn primario", onclick: async () => subirVariantes(p.id, await elegirImgs()) }, icono("subir", 16), "Subir estilos")),
-    lista(esEstilo, { conEstilo: true, conMascara: verColores }) ?? h("p", { class: "suave", style: { margin: 0, fontSize: "13px" }, text: "Sin estilos en esta estancia." })) : null;
+  const estilos = verEstilos ? h("div", { class: `tarjeta ${VIDRIO}`, "data-campo": "estilos" },
+    h("div", { class: "fila cab-tarjeta" },
+      h("div", { class: "estirar" }, h("h2", { class: "sub", text: `Estilos de decoración (IA) · ${nombreDe(p)}` }),
+        h("div", { class: "texto-sec", text: "Genera fuera (con IA) los estilos Nórdico, Mediterráneo, Industrial, Contemporáneo minimalista y Clásico con el mismo encuadre y súbelos aquí. El estilo se deduce del nombre del archivo (salon-nordico.jpg)." })),
+      h("button", { type: "button", class: "c8-boton c8-boton--primario", onclick: async () => subirVariantes(p.id, await elegirImgs()) }, icono("subir", 16), "Subir estilos")),
+    lista(esEstilo, { conEstilo: true, conMascara: verColores }) ?? h("p", { class: "texto-sec", text: "Sin estilos en esta estancia." })) : null;
   // Zonas de color (construidas)
   let zonas = null;
   if (verColores) {
@@ -304,18 +305,18 @@ function pintar() {
       };
       im.src = urlDe(p.mascara);
     }
-    zonas = h("div", { class: "tarjeta", "data-campo": "zonas-color" },
-      h("h2", { class: "sub", style: { marginTop: 0 }, text: `Zonas de color · ${nombreDe(p)}` }),
-      h("p", { class: "suave", style: { marginTop: 0 } }, "Marca qué es pared y qué es suelo: en el visor, el cliente probará los colores de tus paletas. ", h("span", { class: "tenue", text: "Rojo = paredes, verde = suelo." })),
+    zonas = h("div", { class: `tarjeta ${VIDRIO} pila`, "data-campo": "zonas-color" },
+      h("h2", { class: "sub", text: `Zonas de color · ${nombreDe(p)}` }),
+      h("p", { class: "texto-sec" }, "Marca qué es pared y qué es suelo: en el visor, el cliente probará los colores de tus paletas. Rojo = paredes, verde = suelo."),
       prev,
-      h("div", { class: "fila", style: { marginTop: "12px" } },
-        h("button", { class: "btn primario", onclick: async () => { const { abrirEditorMascara } = await import("./estudio-mascara.js"); abrirEditorMascara(p.id); } },
+      h("div", { class: "fila" },
+        h("button", { type: "button", class: "c8-boton c8-boton--primario", onclick: async () => { const { abrirEditorMascara } = await import("./estudio-mascara.js"); abrirEditorMascara(p.id); } },
           icono("varita", 16), p.mascara ? "Editar zonas de color" : "Marcar zonas de color"),
-        p.mascara ? h("button", { class: "btn fantasma", onclick: async () => { if (await confirmar("Quitar zonas de color", "Se quitarán las zonas de color de esta estancia.", "Quitar")) cambiar(() => { delete pano(p.id).mascara; }); } }, "Quitar") : null),
-      h("details", { class: "avanzado", style: { marginTop: "12px" } }, h("summary", { text: "Avanzado: máscara PNG" }),
-        h("div", { class: "contenido" },
-          h("p", { class: "suave", style: { margin: "0 0 8px", fontSize: "13px" }, text: "Si tu renderista te da una máscara del mismo tamaño que la foto (rojo = paredes, verde = suelo), súbela en lugar de marcarla." }),
-          h("button", { class: "btn", onclick: () => subirMascara(p.id) }, icono("subir", 16), "Subir máscara PNG"))));
+        p.mascara ? h("button", { type: "button", class: "c8-boton c8-boton--fantasma", onclick: async () => { if (await confirmar("Quitar zonas de color", "Se quitarán las zonas de color de esta estancia.", "Quitar")) cambiar(() => { delete pano(p.id).mascara; }); } }, "Quitar") : null),
+      h("details", { class: "avanzado" }, h("summary", { text: "Avanzado: máscara PNG" }),
+        h("div", { class: "contenido pila" },
+          h("p", { class: "texto-sec", text: "Si tu renderista te da una máscara del mismo tamaño que la foto (rojo = paredes, verde = suelo), súbela en lugar de marcarla." }),
+          h("div", {}, h("button", { type: "button", class: "c8-boton c8-boton--secundario", onclick: () => subirMascara(p.id) }, icono("subir", 16), "Subir máscara PNG")))));
   }
   const ajustes = [
     verColores ? plegable("paletas", "Paletas de colores (paredes y suelos)", h("div", { class: "rejilla-paletas" }, paleta("paredes", "Colores de pared", PAREDES_DEF), paleta("suelos", "Tonos de suelo", SUELOS_DEF))) : null,

@@ -657,6 +657,7 @@ const ICONOS = {
   inmobiliaria: '<path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6M3 21h18"/>',
   abajo: '<path d="M6 9l6 6 6-6"/>',
   derecha: '<path d="M9 6l6 6-6 6"/>',
+  izquierda: '<path d="M15 6l-6 6 6 6"/>',
   luz: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/>',
   extras: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18"/>',
   guia: '<path d="M5 4.5A1.5 1.5 0 016.5 3H19v15H6.5A1.5 1.5 0 005 19.5z"/><path d="M5 19.5A1.5 1.5 0 006.5 21H19v-3M9 7h6"/>',
@@ -773,6 +774,8 @@ export function coloresTema(tokens) {
   }
   return r;
 }
+/** Color hexadecimal con transparencia (degradados de los lienzos); los tokens de color base son hexadecimales. */
+export const conAlfa = (color, a) => (/^#[0-9a-f]{6}$/i.test(color) ? `rgba(${[1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16)).join(", ")}, ${a})` : color);
 /** Tipografía de la interfaz para un lienzo, en rem (sigue a la pantalla y a la talla S/M/L): fuenteLienzo(600, 0.8). */
 export function fuenteLienzo(peso, rem) {
   const raiz = getComputedStyle(document.documentElement);

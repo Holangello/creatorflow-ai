@@ -2,7 +2,7 @@
 // Alinear funciona también sin plano (E7): usa la posición que tendrá cada foto en el recorrido publicado (en fila).
 import { redondear, norm180, norm360, rumboDe } from "./estudio-util.js";
 import { app, h, icono, cambiar, emitir, on, toast, confirmar, guardarArchivo, urlDe, rutaLibre, elegirArchivos,
-  textoDe, pano, calcularEnlaces, posiciones } from "./estudio-nucleo.js";
+  textoDe, pano, calcularEnlaces, posiciones, VIDRIO, coloresTema, fuenteLienzo, alCambiarTema, deslizador, conAlfa } from "./estudio-nucleo.js";
 import { campoTexto, campo } from "./estudio-campos.js";
 
 const S = { objetivo: null, modoPunto: false, abierto: null };
@@ -57,7 +57,7 @@ function alternarModoPunto(forzar) {
   const m = document.getElementById("vista-modo");
   if (m) { m.hidden = !S.modoPunto; m.textContent = "Toca la vista previa donde quieras la nota · Esc para cancelar"; }
   pintarPie();
-  raiz?.querySelector("#btn-punto")?.classList.toggle("activo", S.modoPunto);
+  raiz?.querySelector("#btn-punto")?.setAttribute("aria-pressed", String(S.modoPunto));
 }
 on("clic", (d) => {
   if (!S.modoPunto || app.seccion !== "orientacion") return;
@@ -85,8 +85,8 @@ function pintar() {
   const t = app.tour, p = actual();
   if (!p) {
     raiz.replaceChildren(h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Orientación y notas" }))),
-      h("div", { class: "vacio-grande" }, icono("orientar", 40), h("h3", { text: "Primero añade fotos" }), h("p", { text: "Cuando tengas fotos podrás ajustar hacia dónde mira cada una y añadir notas sobre la vista previa." }),
-        h("button", { class: "btn primario", onclick: () => emitir("ir", { seccion: "fotos" }) }, "Ir a Fotos 360")));
+      h("div", { class: `vacio-grande ${VIDRIO}` }, icono("orientar", 40), h("h3", { text: "Primero añade fotos" }), h("p", { text: "Cuando tengas fotos podrás ajustar hacia dónde mira cada una y añadir notas sobre la vista previa." }),
+        h("button", { type: "button", class: "c8-boton c8-boton--primario", onclick: () => emitir("ir", { seccion: "fotos" }) }, "Ir a Fotos 360")));
     return;
   }
   const i = t.panoramas.indexOf(p);
@@ -95,52 +95,50 @@ function pintar() {
   if (!cand.some((x) => x.id === S.objetivo)) S.objetivo = cand[0]?.id ?? null;
   const objetivo = pano(S.objetivo);
 
-  const nav = h("div", { class: "tarjeta nodo-actual" },
-    h("button", { class: "btn icono-btn", title: "Anterior (B)", "aria-label": "Estancia anterior", onclick: () => saltar(-1) }, h("span", { text: "‹", style: { fontSize: "20px" } })),
+  const nav = h("div", { class: `tarjeta ${VIDRIO} nodo-actual` },
+    h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--icono", title: "Anterior (B)", "aria-label": "Estancia anterior", onclick: () => saltar(-1) }, icono("izquierda", 18)),
     h("img", { src: urlDe(p.miniatura), alt: "" }),
-    h("div", { style: { flex: 1, minWidth: 0 } }, h("div", { class: "tenue", text: `Estancia ${i + 1} de ${t.panoramas.length}` }), h("b", { text: nombreDe(p), style: { fontSize: "16px" } })),
-    h("button", { class: "btn icono-btn", title: "Siguiente (N)", "aria-label": "Estancia siguiente", onclick: () => saltar(1) }, h("span", { text: "›", style: { fontSize: "20px" } })));
+    h("div", { class: "estirar" }, h("div", { class: "texto-sec", text: `Estancia ${i + 1} de ${t.panoramas.length}` }), h("b", { text: nombreDe(p) })),
+    h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--icono", title: "Siguiente (N)", "aria-label": "Estancia siguiente", onclick: () => saltar(1) }, icono("derecha", 18)));
 
-  const slider = h("input", { type: "range", min: -180, max: 180, step: 1, value: p.yaw ?? 0, "aria-label": "Girar la foto", "aria-valuetext": `${Math.round(p.yaw ?? 0)} grados`, id: "yaw-slider" });
+  const slider = deslizador({ min: -180, max: 180, step: 1, value: p.yaw ?? 0, "aria-label": "Girar la foto", "aria-valuetext": `${Math.round(p.yaw ?? 0)} grados`, id: "yaw-slider" });
   slider.oninput = () => fijarYaw(Number(slider.value));
-  const orient = h("div", { class: "tarjeta" },
-    h("h2", { class: "sub", style: { marginTop: 0 }, text: "Girar la foto" }),
-    h("p", { class: "suave", style: { marginTop: 0 }, text: "Las flechas del suelo (y el radar) tienen que coincidir con las puertas reales. Lo más fácil es «Alinear con una puerta», abajo; si no, gira la foto a mano." }),
+  const orient = h("div", { class: `tarjeta ${VIDRIO}` },
+    h("h2", { class: "sub", text: "Girar la foto" }),
+    h("p", { class: "texto-sec", text: "Las flechas del suelo (y el radar) tienen que coincidir con las puertas reales. Lo más fácil es «Alinear con una puerta», abajo; si no, gira la foto a mano." }),
     h("div", { class: "yaw-ctl" },
-      h("button", { class: "btn", onclick: () => girar(-10), title: "Shift + [" }, "−10°"),
-      h("button", { class: "btn", onclick: () => girar(-1), title: "[" }, "−1°"),
+      ...[[-10, "Shift + ["], [-1, "["]].map(([d, k]) => h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => girar(d), title: k }, `${d < 0 ? "−" : "+"}${Math.abs(d)}°`)),
       h("span", { class: "yaw-valor", id: "yaw-valor", text: `${Math.round(p.yaw ?? 0)}°` }),
-      h("button", { class: "btn", onclick: () => girar(1), title: "]" }, "+1°"),
-      h("button", { class: "btn", onclick: () => girar(10), title: "Shift + ]" }, "+10°")),
-    h("div", { style: { marginTop: "10px" } }, slider),
-    h("div", { class: "tenue", style: { fontSize: "12.5px", marginTop: "4px" } }, "Con el teclado: 1° con ", h("kbd", { text: "[" }), h("kbd", { text: "]" }), ", 10° con ", h("kbd", { text: "Shift" }), "."));
+      ...[[1, "]"], [10, "Shift + ]"]].map(([d, k]) => h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => girar(d), title: k }, `+${d}°`))),
+    h("div", { class: "pila" }, slider,
+      h("div", { class: "texto-pie" }, "Con el teclado: 1° con ", h("kbd", { text: "[" }), h("kbd", { text: "]" }), ", 10° con ", h("kbd", { text: "Shift" }), ".")));
 
   const sel = h("select", { "aria-label": "Estancia hacia la que miras", disabled: !cand.length },
     ...(cand.length ? cand.map((x) => h("option", { value: x.id, text: nombreDe(x), selected: x.id === S.objetivo })) : [h("option", { text: "No hay estancias conectadas" })]));
   sel.onchange = () => { S.objetivo = sel.value; dibujarMini(); actualizarAlinear(); };
-  const asistente = h("div", { class: "tarjeta" },
-    h("h2", { class: "sub", style: { marginTop: 0 }, text: "Alinear con una puerta" }),
+  const asistente = h("div", { class: `tarjeta ${VIDRIO}` },
+    h("h2", { class: "sub", text: "Alinear con una puerta" }),
     h("ol", { class: "pasos-asistente" },
       h("li", {}, h("div", { class: "campo" }, h("span", { text: "¿Hacia qué estancia vas a mirar?" }), sel)),
       h("li", {}, h("div", {}, "En la vista previa, gira la cámara hasta que la ", h("b", { text: `puerta o el paso hacia ${objetivo ? nombreDe(objetivo) : "esa estancia"}` }), " quede justo en el centro.")),
       h("li", {}, h("div", { class: "fila" },
-        h("button", { class: "btn primario", id: "btn-alinear", onclick: alinear }, icono("orientar", 16), "Alinear", app.atajos ? h("kbd", { text: "A" }) : null),
-        h("span", { class: "tenue", style: { fontSize: "12.5px" }, id: "info-alinear", role: "status" })))),
-    h("canvas", { id: "mini-orientar", width: 520, height: 220, style: { width: "100%", height: "auto", marginTop: "12px", borderRadius: "8px", background: "var(--campo)", display: cand.length ? "block" : "none" } }));
+        h("button", { type: "button", class: "c8-boton c8-boton--primario", id: "btn-alinear", onclick: alinear }, icono("orientar", 16), "Alinear", app.atajos ? h("kbd", { text: "A" }) : null),
+        h("span", { class: "texto-pie", id: "info-alinear", role: "status" })))),
+    h("canvas", { id: "mini-orientar", class: "mini-orientar", width: 520, height: 220, hidden: !cand.length, "aria-hidden": "true" }));
 
-  const inicial = h("div", { class: "tarjeta" },
-    h("h2", { class: "sub", style: { marginTop: 0 }, text: "Vista inicial" }),
+  const inicial = h("div", { class: `tarjeta ${VIDRIO}` },
+    h("h2", { class: "sub", text: "Vista inicial" }),
     h("div", { class: "fila" },
-      h("span", { class: "suave", style: { flex: 1 } }, p.rumbo_inicial != null ? "Al entrar en esta estancia se verá la vista que guardaste." : "Al entrar se mira hacia donde venía el visitante (o al centro de la foto)."),
-      h("button", { class: "btn", onclick: usarVistaInicial }, icono("ojo", 16), "Usar la vista actual"),
-      p.rumbo_inicial != null ? h("button", { class: "btn fantasma", onclick: () => { cambiar(() => { delete pano(p.id).rumbo_inicial; }, { tipo: "local" }); pintar(); } }, "Quitar") : null));
+      h("span", { class: "suave estirar" }, p.rumbo_inicial != null ? "Al entrar en esta estancia se verá la vista que guardaste." : "Al entrar se mira hacia donde venía el visitante (o al centro de la foto)."),
+      h("button", { type: "button", class: "c8-boton c8-boton--secundario", onclick: usarVistaInicial }, icono("ojo", 16), "Usar la vista actual"),
+      p.rumbo_inicial != null ? h("button", { type: "button", class: "c8-boton c8-boton--fantasma", onclick: () => { cambiar(() => { delete pano(p.id).rumbo_inicial; }, { tipo: "local" }); pintar(); } }, "Quitar") : null));
 
-  const puntos = h("div", { class: "tarjeta" },
-    h("div", { class: "fila", style: { marginBottom: "10px" } },
-      h("h2", { class: "sub", style: { margin: 0, flex: 1 }, text: `Notas (${p.puntos?.length ?? 0})` }),
-      h("button", { class: `btn ${S.modoPunto ? "activo" : "primario"}`, id: "btn-punto", onclick: () => alternarModoPunto() }, icono("info", 16), S.modoPunto ? "Toca la vista previa…" : "Añadir nota", app.atajos ? h("kbd", { text: "P" }) : null)),
+  const puntos = h("div", { class: `tarjeta ${VIDRIO}` },
+    h("div", { class: "fila cab-tarjeta" },
+      h("h2", { class: "sub estirar", text: `Notas (${p.puntos?.length ?? 0})` }),
+      h("button", { type: "button", class: `c8-boton ${S.modoPunto ? "c8-boton--secundario" : "c8-boton--primario"}`, "aria-pressed": String(S.modoPunto), id: "btn-punto", onclick: () => alternarModoPunto() }, icono("info", 16), S.modoPunto ? "Toca la vista previa…" : "Añadir nota", app.atajos ? h("kbd", { text: "P" }) : null)),
     p.puntos?.length ? h("div", { class: "lista-puntos" }, p.puntos.map((pt, j) => fichaPunto(p.id, j))) :
-      h("p", { class: "suave", style: { margin: 0 }, text: "Destaca lo que vende: ventanales, calidades, electrodomésticos, vistas… Pulsa «Añadir nota» y toca ese lugar en la vista previa." }));
+      h("p", { class: "suave", text: "Destaca lo que vende: ventanales, calidades, electrodomésticos, vistas… Pulsa «Añadir nota» y toca ese lugar en la vista previa." }));
 
   raiz.replaceChildren(
     h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Orientación y notas" }), h("p", { text: "Que las flechas del suelo coincidan con las puertas, la vista con la que se entra en cada estancia y notas sobre lo que vende." }))),
@@ -166,13 +164,24 @@ function actualizarAlinear() {
 function pintarYaw() {
   const p = actual(); if (!p || !raiz) return;
   const v = raiz.querySelector("#yaw-valor"); if (v) v.textContent = `${Math.round(p.yaw ?? 0)}°`;
-  const s = raiz.querySelector("#yaw-slider"); if (s) { if (document.activeElement !== s) s.value = p.yaw ?? 0; s.setAttribute("aria-valuetext", `${Math.round(p.yaw ?? 0)} grados`); }
+  const s = raiz.querySelector("#yaw-slider"); if (s) { if (document.activeElement !== s) s.value = p.yaw ?? 0; s.setAttribute("aria-valuetext", `${Math.round(p.yaw ?? 0)} grados`); window.cre8Tema?.deslizador(s); }
   dibujarMini(); pintarPie();
 }
+// Colores del mini-plano: tokens de tema.css, releídos al cambiar de tema o de talla («cre8:tema»).
+let PAL = null;
+function pal() {
+  if (PAL) return PAL;
+  PAL = coloresTema({ acento: "--c-acento", acentoTexto: "--c-acento-texto", texto: "--c-texto", texto2: "--c-texto-2", texto3: "--c-texto-3", borde: "--c-borde-2", info: "--c-info" });
+  PAL.claro = document.documentElement.dataset.tema === "claro";
+  PAL.f = { rotulo: fuenteLienzo(600, 0.8), pie: fuenteLienzo(400, 0.75) };
+  return PAL;
+}
+alCambiarTema(() => { PAL = null; dibujarMini(); });
 function dibujarMini() {
   const c = raiz?.querySelector("#mini-orientar");
   const p = actual();
   if (!c || !p) return;
+  const P = pal(), linea = P.claro ? P.acentoTexto : P.acento;
   const g = c.getContext("2d");
   const W = c.width, H = c.height;
   g.clearRect(0, 0, W, H);
@@ -183,29 +192,29 @@ function dibujarMini() {
   const R = Math.max(2, ...vs.map((x) => Math.hypot(pos.get(x.id)[0] - px, pos.get(x.id)[1] - pz)));
   const esc = (Math.min(W, H) / 2 - 34) / R;
   const cx = W / 2, cy = H / 2;
-  const P = (x, z) => [cx + (x - px) * esc, cy + (z - pz) * esc];
-  g.font = "600 13px system-ui"; g.textAlign = "center"; g.textBaseline = "middle";
+  const Pp = (x, z) => [cx + (x - px) * esc, cy + (z - pz) * esc];
+  g.font = P.f.rotulo; g.textAlign = "center"; g.textBaseline = "middle";
   for (const v of vs) {
-    const [x, y] = P(...pos.get(v.id));
+    const [x, y] = Pp(...pos.get(v.id));
     const obj = v.id === S.objetivo;
-    g.strokeStyle = obj ? "#ffb547" : "rgba(255,255,255,.25)"; g.lineWidth = obj ? 2.5 : 1.5; g.setLineDash(obj ? [] : [5, 4]);
+    g.strokeStyle = obj ? linea : P.borde; g.lineWidth = obj ? 2.5 : 1.5; g.setLineDash(obj ? [] : [5, 4]);
     g.beginPath(); g.moveTo(cx, cy); g.lineTo(x, y); g.stroke(); g.setLineDash([]);
-    g.fillStyle = obj ? "#ffb547" : "#39414b"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill();
-    g.fillStyle = obj ? "#ffb547" : "#c9ced6"; g.fillText(nombreDe(v), x, y - 16);
+    g.fillStyle = obj ? P.acento : P.texto3; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill();
+    g.fillStyle = obj ? P.acentoTexto : P.texto2; g.fillText(nombreDe(v), x, y - 16);
   }
   // vista actual (cono) y centro de la foto (yaw)
   const yl = yawLocalVista();
   if (yl != null) {
     const r = ((yl + (p.yaw ?? 0)) * Math.PI) / 180, ap = ((app.vista?.fov ?? 75) * Math.PI) / 360;
     const grad = g.createRadialGradient(cx, cy, 4, cx, cy, 70);
-    grad.addColorStop(0, "rgba(106,168,255,.55)"); grad.addColorStop(1, "rgba(106,168,255,0)");
+    grad.addColorStop(0, conAlfa(P.info, 0.55)); grad.addColorStop(1, conAlfa(P.info, 0));
     g.fillStyle = grad; g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, 70, r - Math.PI / 2 - ap, r - Math.PI / 2 + ap); g.closePath(); g.fill();
   }
   const yaw = ((p.yaw ?? 0) * Math.PI) / 180;
-  g.strokeStyle = "#fff"; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.sin(yaw) * 26, cy - Math.cos(yaw) * 26); g.stroke();
-  g.fillStyle = "#ffb547"; g.beginPath(); g.arc(cx, cy, 9, 0, 7); g.fill();
-  g.textAlign = "left"; g.fillStyle = "#8b929c"; g.font = "12px system-ui";
-  g.fillText("Azul: lo que ves ahora · Blanco: centro de la foto", 10, H - 12);
+  g.strokeStyle = P.texto; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.sin(yaw) * 26, cy - Math.cos(yaw) * 26); g.stroke();
+  g.fillStyle = P.acento; g.beginPath(); g.arc(cx, cy, 9, 0, 7); g.fill();
+  g.textAlign = "left"; g.fillStyle = P.texto2; g.font = P.f.pie;
+  g.fillText("Azul: lo que ves ahora · Línea: centro de la foto", 10, H - 12);
 }
 
 function fichaPunto(id, j) {
@@ -232,7 +241,7 @@ function fichaPunto(id, j) {
   };
   det.append(
     h("summary", {}, h("span", { class: "i", text: "i" }), h("span", { class: "nom", text: textoDe(pt.titulo) || "Sin título" }),
-      h("span", { class: "tenue", style: { fontSize: "12px" }, text: `${Math.round(pt.yaw)}° · ${Math.round(pt.pitch ?? 0)}°` })),
+      h("span", { class: "texto-pie", text: `${Math.round(pt.yaw)}° · ${Math.round(pt.pitch ?? 0)}°` })),
     h("div", { class: "cuerpo" },
       campoTexto(get, "titulo", { etiqueta: "Título", tipo: "datos", alCambiar: (v) => { det.querySelector("summary .nom").textContent = v || "Sin título"; } }),
       campoTexto(get, "texto", { etiqueta: "Texto", multilinea: true, tipo: "datos", placeholder: "Ej.: Ventanal orientado al sur con carpintería de aluminio y rotura de puente térmico." }),
@@ -240,11 +249,11 @@ function fichaPunto(id, j) {
         campo(get, "enlace", { etiqueta: "Enlace (opcional)", tipo: "url", placeholder: "https://…" }),
         campo(get, "video", { etiqueta: "Vídeo (opcional)", tipo: "url", placeholder: "https://youtube.com/…" })),
       h("div", { class: "fila" },
-        pt.imagen ? h("img", { src: urlDe(pt.imagen), alt: "", style: { width: "96px", height: "64px", objectFit: "cover", borderRadius: "6px" } }) : null,
-        h("button", { class: "btn peq", onclick: subirImg }, icono("subir", 14), pt.imagen ? "Cambiar imagen" : "Añadir imagen"),
-        pt.imagen ? h("button", { class: "btn peq fantasma", onclick: () => { cambiar(() => { delete get().imagen; }); S.abierto = clave; pintar(); } }, "Quitar imagen") : null,
-        h("div", { style: { flex: 1 } }),
-        h("button", { class: "btn peq peligro", onclick: async () => {
+        pt.imagen ? h("img", { src: urlDe(pt.imagen), alt: "" }) : null,
+        h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: subirImg }, icono("subir", 14), pt.imagen ? "Cambiar imagen" : "Añadir imagen"),
+        pt.imagen ? h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: () => { cambiar(() => { delete get().imagen; }); S.abierto = clave; pintar(); } }, "Quitar imagen") : null,
+        h("div", { class: "relleno" }),
+        h("button", { type: "button", class: "c8-boton c8-boton--peligro c8-boton--s", onclick: async () => {
           if (await confirmar("Eliminar nota", "¿Eliminar esta nota?")) { cambiar(() => { pano(id).puntos.splice(j, 1); }); pintar(); }
         } }, icono("basura", 14), "Eliminar"))));
   return det;
@@ -257,9 +266,9 @@ function pintarPie() {
   const p = actual();
   if (!p) { pie.replaceChildren(); return; }
   pie.replaceChildren(
-    h("span", {}, `${nombreDe(p)} · girada `, h("b", { text: `${Math.round(p.yaw ?? 0)}°`, style: { color: "var(--texto)" } })),
-    h("div", { style: { flex: 1 } }),
-    h("button", { class: `btn peq ${S.modoPunto ? "activo" : ""}`, onclick: () => alternarModoPunto() }, icono("info", 14), S.modoPunto ? "Cancelar nota" : "Nota aquí"));
+    h("span", {}, `${nombreDe(p)} · girada `, h("b", { text: `${Math.round(p.yaw ?? 0)}°` })),
+    h("div", { class: "relleno" }),
+    h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", "aria-pressed": String(S.modoPunto), onclick: () => alternarModoPunto() }, icono("info", 14), S.modoPunto ? "Cancelar nota" : "Nota aquí"));
 }
 function saltar(d) {
   const ps = app.tour.panoramas;

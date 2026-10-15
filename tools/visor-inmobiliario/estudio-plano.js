@@ -4,7 +4,7 @@
 import { area, centroide, dentro, redondear, norm360, rumboDe, dimensiones } from "./estudio-util.js";
 import { app, h, $, icono, cambiar, emitir, on, toast, pedir, confirmar, dialogo, guardarArchivo, guardarDocumento, urlDe, rutaLibre, idLibre,
   elegirArchivos, cargando, textoDe, fijarTexto, colocado, pano, calcularEnlaces, alternarEnlace, claveEnlace, fmtM2, zonasSugeridas, zonasPublicadas, modoZonas,
-  coloresTema, fuenteLienzo, alCambiarTema, deslizador, VIDRIO } from "./estudio-nucleo.js";
+  coloresTema, fuenteLienzo, alCambiarTema, deslizador, conAlfa, VIDRIO } from "./estudio-nucleo.js";
 import { campoTexto, campo } from "./estudio-campos.js";
 import { leerDxf, sugerirUnidades, extension, aMetros, renderizar, FACTOR } from "./estudio-dxf.js";
 
@@ -583,8 +583,6 @@ function pal() {
 alCambiarTema(() => { PAL = null; if (raiz) { pintarLado(); marcar(); } });
 /** Papel y tinta del plano del arquitecto (datos: el dibujo es negro sobre blanco), bajo la imagen por si es transparente. */
 const PAPEL = "#ffffff", TINTA = "#14161a", TINTA_SUAVE = "#c5c9cf";
-/** Color con transparencia (para los degradados); los tokens del acento son hexadecimales. */
-const alfa = (color, a) => (/^#[0-9a-f]{6}$/i.test(color) ? `rgba(${[1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16)).join(", ")}, ${a})` : color);
 /** Trazo con halo: legible sobre el papel claro y sobre el fondo oscuro. */
 function trazoConHalo(g, color, ancho, dibujarTrazo) {
   const P = pal();
@@ -686,7 +684,7 @@ function dibujar() {
     if (actual && app.vista && app.vista.nodo === p.id && Number.isFinite(app.vista.rumbo)) {
       const r = (app.vista.rumbo * Math.PI) / 180, ap = ((app.vista.fov ?? 75) * Math.PI) / 360;
       const grad = g.createRadialGradient(sx, sy, 4, sx, sy, 60);
-      grad.addColorStop(0, alfa(P.acento, 0.55)); grad.addColorStop(1, alfa(P.acento, 0));
+      grad.addColorStop(0, conAlfa(P.acento, 0.55)); grad.addColorStop(1, conAlfa(P.acento, 0));
       g.fillStyle = grad; g.beginPath(); g.moveTo(sx, sy);
       g.arc(sx, sy, 60, r - Math.PI / 2 - ap, r - Math.PI / 2 + ap); g.closePath(); g.fill();
     }
