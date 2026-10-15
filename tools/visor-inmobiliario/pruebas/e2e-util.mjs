@@ -1,8 +1,29 @@
 // Utilidades de las pruebas de extremo a extremo (e2e-*.mjs): informe ✓/✗, esperas por condición, subidas y
 // descargas, ZIP y medios de prueba GENERADOS en tiempo de ejecución (no hay binarios en el repositorio).
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import { deflateSync } from "node:zlib";
 import { unzipSync, strFromU8 } from "fflate";
+import { RAIZ } from "./comun.mjs";
+
+/**
+ * El HTML autónomo incrusta dist/visor-autonomo.js (npm run build, carpeta ignorada por git). Si falta o es más antiguo
+ * que el código del visor, se recompila para probar el código ACTUAL. → { ok, recompilado, error }
+ */
+export function asegurarBuild() {
+  const dist = join(RAIZ, "dist", "visor-autonomo.js");
+  let fuentes = ["index.html", "build.mjs", "visor.js", "visor.css", "paneles.js", "paneles.css", "i18n.js"];
+  try {
+    const m = JSON.parse(readFileSync(join(RAIZ, "dist", "visor-autonomo.json"), "utf8"));
+    fuentes = [...new Set([...fuentes, ...(m.modulos_locales ?? []), ...(m.hojas ?? [])])];
+  } catch { /* sin build previo */ }
+  const ligero = join(RAIZ, "dist", "visor-autonomo-ligero.js");
+  const t = existsSync(dist) && existsSync(ligero) ? Math.min(statSync(dist).mtimeMs, statSync(ligero).mtimeMs) : 0;
+  if (t && !fuentes.some((f) => existsSync(join(RAIZ, f)) && statSync(join(RAIZ, f)).mtimeMs > t)) return { ok: true, recompilado: false };
+  const r = spawnSync(process.execPath, [join(RAIZ, "build.mjs")], { cwd: RAIZ, encoding: "utf8" });
+  return { ok: r.status === 0, recompilado: true, error: r.status === 0 ? null : `${r.stderr || r.stdout}`.slice(-400) };
+}
 
 // ------------------------------------------------------------------ informe
 /**
@@ -31,10 +52,15 @@ export function crearInforme(titulo) {
       pendientes.push(`${msg} — ${motivo}`);
       return false;
     },
+    /** Ejecuta un bloque; cierra después los contextos que se registren en `cerrarAlFinal` (aunque falle). */
     async bloque(nombre, fn) {
       console.log(`\n· ${nombre}`);
+      const t = Date.now();
       try { await fn(); } catch (e) { inf.ok(false, `${nombre}: se interrumpió`, String(e?.message ?? e).split("\n")[0]); }
+      for (const c of inf.cerrarAlFinal.splice(0)) await c.close().catch(() => {});
+      console.log(`  (${((Date.now() - t) / 1000).toFixed(1)} s)`);
     },
+    cerrarAlFinal: [],
     /** Imprime el resumen y devuelve el código de salida (1 si algo falló). */
     fin() {
       const s = ((Date.now() - t0) / 1000).toFixed(1);
