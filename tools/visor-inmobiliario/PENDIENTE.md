@@ -86,7 +86,13 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
   - [x] Informe B recibido (`docs/auditorias/fase3-organizacion.md`). Plan conciliado, que **manda**: [docs/auditorias/fase3-plan.md](../../docs/auditorias/fase3-plan.md). Incluye las decisiones, la ronda 2 del cliente y el contrato núcleo↔paneles.
   - [ ] **Aplicación en curso**: tres agentes en paralelo con los paquetes §4.1 (núcleo), §4.2 (paneles) y §4.3 (Estudio) del plan. La Guía (§4.4) la hace el orquestador.
     - Si un agente muere, relánzalo con su paquete y dile qué está hecho (mira `git diff`).
-    - Al terminar: integrar las claves i18n del núcleo en `i18n.js`, conectar `urlSegura` común en `visor.js`, adaptar las pruebas e2e a la interfaz nueva, medir, compactar y hacer commit.
+    - [x] Núcleo §4.1 terminado e integrado (commit 504a65d): modo juego D+E, barra de vista y menú «Más», «Estancias y plano», radar arriba a la izquierda, portada, ayuda contextual, teclas R/M, música solo silencia y visita guiada con un solo control.
+      - Integrado: las 50 claves i18n en `i18n.js`; tema.* y fuentes en el ZIP; tema.js en línea en el HTML autónomo; fuentes incrustadas una sola vez (CSS de 640 a 357 KB).
+      - Medido en el teléfono: la interfaz en reposo tapa el 10,3 % de la pantalla (objetivo ≤ 15 %).
+      - Desviación para enseñar al cliente: la barra de la visita guiada va abajo, en el sitio de los modos; arriba no cabe junto al título y la barra de vista.
+      - Pendiente para la fase 4: `#ficha`, la barra de medir, las etiquetas 3D, la cortinilla, los subtítulos y la carga siguen en oscuro fijo. N-14 (precio en el modo juego) no estaba en el paquete.
+    - [ ] Paneles §4.2 y Estudio §4.3: en curso.
+    - Al terminar: conectar `urlSegura` común en `visor.js` (lo deja el ingeniero de paneles en `util.js`), `npm run prueba:todo`, `npm run medir`, compactar, contingencias, commit y enseñar el resultado al cliente.
     - Después, la fase 4.
   - Pendientes que tenía la conciliación (ya repartidos en el plan):
     - Núcleo: N4 (radar oculto sin plano), N5 (modo juego, ronda 2 de decisiones), N7–N9 y N12.
