@@ -912,6 +912,184 @@ try {
       await ctx.close();
     }
   });
+
+  // ================================================================== 14 · núcleo real: cierre de la fase 4 (fase4-cierre.md §2.1)
+  await inf.bloque("Núcleo real: portada, marca de color extremo, nombres, foco, vidrio y captura sin flechas (cierre de la fase 4)", async () => {
+    const ctx = await contexto(navegador, { ancho: 1280, alto: 800 });
+    inf.cerrarAlFinal.push(ctx);
+    const p = await abrir(ctx, `${base}index.html?demo`);
+    await esperar(p, () => window.visor?.listo === true, null, 90000);
+    // M12: con el título automático del Estudio, que ya dice la superficie, la portada no repite los datos
+    const portada = await p.evaluate(() => {
+      const v = window.visor, datos = () => !document.querySelector("#portada .datos").hidden, titulo = v.tour.titulo;
+      const antes = datos();
+      v.tour.titulo = "Piso en venta · 2 hab. · 92 m²"; v.idioma(v.estado.idioma);
+      const despues = datos();
+      v.tour.titulo = titulo; v.idioma(v.estado.idioma);
+      return { antes, despues };
+    });
+    inf.ok(portada.antes && !portada.despues, "la portada no repite «2 habitaciones · 1 baño · 92 m²» si el título ya dice la superficie (M12)", portada);
+    if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar);
+    // M3: las ondas de la música laten al empezar y se quedan quietas (sin fin, recomponían el vidrio en cada fotograma)
+    await esperar(p, () => document.querySelector("#btn-sonido.sonando"), null, 15000).catch(() => {});
+    const infinitas = await p.evaluate(() => document.getAnimations().filter((a) => a.effect?.target?.closest?.("#barra-vista") && a.effect.getComputedTiming().iterations === Infinity).map((a) => a.animationName));
+    inf.ok(!infinitas.length, "nada infinito en la barra de vista: las ondas de la música no laten sin fin (M3)", infinitas);
+    // M5: un color de marca extremo se acota por tema, con su texto recalculado; sin marca vuelve el champán
+    const marca = await p.evaluate(() => {
+      const Y = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }).reduce((s, x, i) => s + x * [0.2126, 0.7152, 0.0722][i], 0); };
+      const leer = () => { const cs = getComputedStyle(document.documentElement), a = cs.getPropertyValue("--c-acento").trim(), s = cs.getPropertyValue("--c-sobre-acento").trim();
+        const [x, y] = [Y(a), Y(s)].sort((m, n) => n - m); return { a, Y: +Y(a).toFixed(3), texto: +((x + 0.05) / (y + 0.05)).toFixed(1) }; };
+      const poner = (color) => { window.visor.tour.marca.color = color; window.visor.idioma(window.visor.estado.idioma); };
+      window.cre8Tema.fijar("tema", "claro"); poner("#ffffff"); const blancoClaro = leer();
+      window.cre8Tema.fijar("tema", "oscuro"); const blancoOscuro = leer();
+      poner("#000000"); const negroOscuro = leer();
+      poner(undefined);
+      return { blancoClaro, blancoOscuro, negroOscuro, sinMarca: document.documentElement.style.getPropertyValue("--c-acento") };
+    });
+    inf.ok(marca.blancoClaro.Y <= 0.56 && marca.blancoOscuro.a === "#ffffff" && marca.negroOscuro.Y >= 0.059 && marca.blancoClaro.texto >= 4.5 && marca.negroOscuro.texto >= 4.5 && !marca.sinMarca,
+      "marca blanca o negra: el relleno del acento se acota por tema (blanco → gris en claro, negro → gris oscuro en oscuro), con texto ≥ 4,5:1, al cambiar de tema y sin marca vuelve el champán (M5)", marca);
+    // A13, A16, A18, A21, V8, V9 y V14: nombres, regiones, tamaños y material
+    const dom = await p.evaluate(() => {
+      const cs = (s) => getComputedStyle(document.querySelector(s)), lugar = document.querySelector("#lugar"), titulo = document.querySelector("#titulo").textContent;
+      return {
+        lugar: !lugar.hasAttribute("aria-label") && lugar.textContent.includes(titulo) && lugar.textContent.trim().endsWith(window.visor.tr("ep.titulo")),
+        h1: document.querySelector("h1#titulo-recorrido")?.textContent === titulo,
+        modos: [...document.querySelectorAll("#modos label > span")].every((s) => s.getAttribute("aria-hidden") === "true"),
+        avisos: document.querySelector("#avisos")?.getAttribute("role") === "status" && ["pista", "aviso", "aviso-juego"].every((id) => document.getElementById(id).parentElement.id === "avisos"),
+        ampliar: Math.round(document.querySelector("#btn-ampliar").getBoundingClientRect().width),
+        material: cs("#barra-vista").backgroundColor === cs("#lugar").backgroundColor,
+        cortinilla: +cs("#cortinilla").zIndex < +cs("#barra-vista").zIndex,
+        estancia: document.querySelector("#estancia").textContent,
+      };
+    });
+    inf.ok(dom.lugar && dom.h1 && dom.modos && dom.avisos, "nombres y regiones: #lugar se llama como lo que se ve (A13), h1 oculto con el título y modos sin texto repetido (A18), avisos en una región viva fija (A16)", dom);
+    inf.ok(dom.ampliar >= 36 && dom.material && dom.cortinilla && /\d m²$/.test(dom.estancia) && !/[.,]\d+ m²/.test(dom.estancia),
+      "«Ampliar» ≥ 36 px (A21), barra de vista del material del título (V8), comparador bajo el HUD (V9) y superficie sin decimales (V14)", dom);
+    // V12: la foto de la vista que recibe la agencia no lleva los aros del suelo; la pantalla los conserva
+    await p.evaluate(() => { const v = window.visor, n = v.tour.panoramas.find((x) => x.id === v.estado.nodo), d = n.vecinos[0]; v.estado.rumbo = Math.atan2(d.x - n.x, -(d.z - n.z)); v.estado.cabeceo = -0.45; });
+    await p.waitForTimeout(500);
+    const v12 = await p.evaluate(async () => {
+      const v = window.visor, W = 320, H = 200;
+      const pixeles = (fuente) => { const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d"); g.drawImage(fuente, 0, 0, W, H); return g.getImageData(0, 0, W, H).data; };
+      const pantalla = () => { v.renderizar(); return pixeles(v.lienzo); };
+      const distintos = (a, b) => { let n = 0; for (let i = 0; i < a.length; i += 4) if (Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]) > 30) n++; return n; };
+      const antes = pantalla();
+      const foto = pixeles(await createImageBitmap((await v.capturar({ ancho: W, marca: false, tipo: "image/png" })).blob));
+      return { sinFlechas: distintos(antes, foto), pantalla: distintos(antes, pantalla()) };
+    });
+    inf.ok(v12.sinFlechas > 100 && v12.pantalla === 0, "«Foto de la vista» sin las flechas del suelo, y la pantalla las conserva (V12)", v12);
+    // A6 y A10: con el teclado, anillo de foco doble sobre la foto; Intro en una etiqueta 3D lleva a esa estancia y el foco
+    // queda en el lienzo (antes se perdía en <body>)
+    await p.keyboard.press("Tab");
+    const etq = await p.evaluate(() => {
+      const e = [...document.querySelectorAll(".etq")].find((x) => x.style.display !== "none");
+      if (!e) return null;
+      e.focus();
+      const cs = getComputedStyle(e);
+      return { nodo: window.visor.estado.nodo, anillo: e.matches(":focus-visible") && cs.outlineStyle === "solid" && /\b6px\b/.test(cs.boxShadow) };
+    });
+    await p.keyboard.press("Enter");
+    const llega = await esperar(p, (n) => window.visor.estado.nodo !== n, etq?.nodo, 30000).then(() => true, () => false);
+    await p.waitForTimeout(500);
+    const foco = await p.evaluate(() => document.activeElement?.id);
+    inf.ok(etq?.anillo && llega && foco === "lienzo", "anillo de foco doble sobre la foto (A6); Intro en una etiqueta 3D va a la estancia y el foco queda en el lienzo (A10)", { etq, llega, foco });
+    // A23: un diálogo de los paneles es vidrio nuevo sobre la foto: el vidrio adaptativo vuelve a medir sin mover la vista
+    const medidas = () => p.evaluate(() => window.visor._debug.luz.n);
+    let n0 = -1;
+    for (let i = 0; i < 12; i++) { const n = await medidas(); if (n === n0) break; n0 = n; await p.waitForTimeout(700); }
+    await pulsar(p, SEL.contacto); await p.waitForSelector(SEL.dialogo);
+    inf.ok(await esperar(p, (n) => window.visor._debug.luz.n > n, n0, 6000).then(() => true, () => false), "al abrir un diálogo de los paneles, el vidrio adaptativo vuelve a medir (A23)");
+    const err = erroresDe(p);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
+
+  await inf.bloque("Núcleo real: una sola foto, agencia de nombre larguísimo, «Reintentar» que espera y maqueta en vertical (cierre de la fase 4)", async () => {
+    const { panoramaPNG } = await import("./e2e-util.mjs");
+    const foto = panoramaPNG(512);
+    const ctx = await contexto(navegador, { ancho: 390, alto: 844, movil: true, escala: 2 });
+    inf.cerrarAlFinal.push(ctx);
+    const tours = {
+      una: { version: 2, titulo: "Estudio en el centro", marca: { nombre: "InmobiliariaConUnNombreLarguisimoSinEspaciosQueNoCabeEnLaPantallaDelMovil" },
+        inmueble: { precio: 150000, operacion: "venta", superficie_construida: 40 }, contacto: { modo: "whatsapp", whatsapp: "34600111222" },
+        panoramas: [{ id: "a", nombre: "Estudio", x: 0, z: 0, imagen: "foto.png" }] },
+      rota: { version: 2, titulo: "Dos estancias", portada: false,
+        panoramas: [{ id: "a", nombre: "Entrada", x: 0, z: 0, imagen: "foto.png", enlaces: ["b"] }, { id: "b", nombre: "Salón", x: 3, z: 0, imagen: "no-existe.png", enlaces: ["a"] }] },
+    };
+    await ctx.route(/\/tour-(una|rota)\.json$/, (r) => r.fulfill({ contentType: "application/json", body: JSON.stringify(tours[r.request().url().match(/tour-(\w+)\.json$/)[1]]) }));
+    await ctx.route(/\/foto\.png$/, (r) => r.fulfill({ contentType: "image/png", body: foto }));
+    const p = await abrir(ctx, `${base}index.html?tour=tour-una.json`);
+    await esperar(p, () => window.visor?.listo === true, null, 60000);
+    const tarjeta = await p.evaluate(() => { const r = document.querySelector("#portada .contenido").getBoundingClientRect(); return { izq: Math.round(r.left), der: Math.round(r.right), ancho: innerWidth }; });
+    inf.ok(tarjeta.izq >= 0 && tarjeta.der <= tarjeta.ancho, "390×844: un nombre de agencia larguísimo sin espacios no saca la tarjeta de la portada (M10)", tarjeta);
+    await p.click(SEL.portadaEmpezar);
+    const pista = await esperar(p, () => !document.querySelector("#pista").hidden, null, 8000).then(() => p.evaluate(() => document.querySelector("#pista").textContent), () => null);
+    inf.ok(pista === (await p.evaluate(() => window.visor.tr("aviso.arrastra"))), "con una sola foto la pista dice solo «Arrastra para mirar», sin «moverte» (M11)", pista);
+    await abrirHoja(p);
+    const tapada = await p.evaluate(() => { const e = document.querySelector("#pista"), oculta = e.hidden; e.hidden = false; const d = getComputedStyle(e).display; e.hidden = oculta; return d; });
+    inf.ok(tapada === "none", "con la hoja de la ficha abierta, la pista no asoma por detrás (M11)", tapada);
+    // A17: el aviso de una foto que no carga no se va mientras «Reintentar» tiene el foco; al salir, sí
+    await p.goto(`${base}index.html?tour=tour-rota.json`);
+    await esperar(p, () => window.visor?.listo === true, null, 60000);
+    await p.evaluate(() => window.visor.ir("b"));
+    await p.waitForSelector("#aviso:not([hidden]) button", { timeout: 20000 });
+    await p.focus("#aviso button");
+    await p.waitForTimeout(7000); // un aviso de error dura 6 s
+    const conFoco = await p.evaluate(() => !document.querySelector("#aviso").hidden);
+    await p.focus("#lienzo");
+    const seVa = await esperar(p, () => document.querySelector("#aviso").hidden, null, 9000).then(() => true, () => false);
+    inf.ok(conFoco && seVa, "«Reintentar» no se va con el foco encima, y el aviso se oculta al salir (A17)", { conFoco, seVa });
+    // V4 y A21: en el teléfono, «Ampliar» de 44 px y la maqueta entera en vertical y al girar
+    await p.goto(`${base}index.html?demo`);
+    await esperar(p, () => window.visor?.listo === true, null, 90000);
+    if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar);
+    inf.ok(await p.evaluate(() => document.querySelector("#btn-ampliar").getBoundingClientRect().width >= 43.5), "en táctil, «Ampliar» del radar mide 44 px (A21)");
+    await p.evaluate(() => window.visor.modo("maqueta"));
+    await esperar(p, () => document.querySelectorAll(".maq-estancia").length > 0, null, 30000);
+    const dentro = () => p.evaluate(() => [...document.querySelectorAll(".maq-estancia, .maq-pin")].filter((e) => { const r = e.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth || r.top < 0 || r.bottom > innerHeight; }).map((e) => e.textContent));
+    await p.waitForTimeout(1200);
+    const vertical = await dentro();
+    await p.setViewportSize({ width: 844, height: 390 });
+    await p.waitForTimeout(1200);
+    const girado = await dentro();
+    inf.ok(!vertical.length && !girado.length, "maqueta: la casa entera en vertical (antes salía cortada) y otra vez encuadrada al girar el teléfono (V4)", { vertical, girado });
+    const err = erroresDe(p);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
+
+  await inf.bloque("Núcleo real: letra del navegador al 200 % y recorrido incrustado en la web de otro (cierre de la fase 4)", async () => {
+    const ctx = await contexto(navegador, { ancho: 1280, alto: 800 });
+    inf.cerrarAlFinal.push(ctx);
+    const p = await ctx.newPage();
+    p.errores = [];
+    p.on("pageerror", (e) => p.errores.push(e.message));
+    const cdp = await ctx.newCDPSession(p);
+    await cdp.send("Page.enable");
+    await cdp.send("Page.setFontSizes", { fontSizes: { standard: 32, fixed: 26 } });
+    await p.goto(`${base}index.html?demo`);
+    await esperar(p, () => window.visor?.listo === true, null, 90000);
+    if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar);
+    const fila = await p.evaluate(() => {
+      const r = (s) => document.querySelector(s).getBoundingClientRect(), m = r("#modos"), b = r("#barra-vista"), l = r("#lugar");
+      const cruza = (a, c) => a.left < c.right && c.left < a.right && a.top < c.bottom && c.top < a.bottom;
+      return { raiz: parseFloat(getComputedStyle(document.documentElement).fontSize), modosBarra: cruza(m, b), lugarBarra: cruza(l, b), modosAbajo: m.top > innerHeight / 2 };
+    });
+    inf.ok(fila.raiz > 20 && !fila.modosBarra && !fila.lugarBarra && fila.modosAbajo, "con la letra del navegador al 200 %, los modos bajan y no se montan con la barra de vista (A12)", fila);
+    // M7: incrustado en la web de otro origen (la de la agencia), el visor no le manda mensajes: su consola se llenaba de
+    // avisos de «target origin»
+    const q = await ctx.newPage();
+    const consola = [];
+    q.on("console", (m) => { if (/postMessage|target origin/i.test(m.text())) consola.push(m.text()); });
+    await q.goto(`${base.replace("localhost", "127.0.0.1")}pruebas/fixtures/paneles.html`);
+    await q.evaluate((src) => { window.__mensajes = 0; addEventListener("message", () => window.__mensajes++); document.body.innerHTML = `<iframe src="${src}" style="width:800px;height:500px"></iframe>`; }, `${base}index.html?demo&embed`);
+    const marco = await (await q.waitForSelector("iframe")).contentFrame();
+    await marco.waitForFunction(() => window.visor?.listo === true, null, { timeout: 90000 });
+    await marco.evaluate(() => window.visor.ir("cocina"));
+    await q.waitForTimeout(2500);
+    const r7 = { mensajes: await q.evaluate(() => window.__mensajes), consola };
+    inf.ok(!r7.mensajes && !r7.consola.length, "incrustado en la web de otro origen, no le envía mensajes ni le llena la consola (M7)", r7);
+    const err = erroresDe(p);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
 } catch (e) {
   inf.ok(false, "excepción no controlada", e.message);
 } finally {
