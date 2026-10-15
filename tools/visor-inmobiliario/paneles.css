@@ -194,6 +194,13 @@ body.ui-inactiva .pn-raiz.pn-disp-lateral:not(.pn-con-dialogo):not(.pn-con-menu)
 body.ui-inactiva .pn-raiz.pn-disp-lateral:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) .pn-t-precio { font-size: var(--t-titulo, 1.375rem); }
 body.ui-inactiva .pn-raiz.pn-disp-lateral:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) .pn-t-contactar { width: auto; }
 body.ui-inactiva .pn-raiz.pn-disp-compacta:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) { width: auto; max-width: min(26rem, 58vw); }
+/* Hoja del móvil en reposo: la misma píldora a la derecha que en el paseo libre («349.000 € · Contactar»), que deja ver la foto a lo ancho */
+body.ui-inactiva .pn-raiz.pn-disp-hoja:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) {
+  left: auto; right: calc(var(--pn-margen) + var(--pn-der)); bottom: calc(var(--pn-margen) + var(--pn-inf)); width: auto; height: auto;
+  max-width: calc(100vw - 2 * var(--pn-margen)); margin: 0; transform: none; transition: none; border-radius: var(--r-5, 1.75rem); border-bottom-width: 1px; }
+body.ui-inactiva .pn-raiz.pn-disp-hoja:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) .pn-t-cab {
+  padding: var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-4, 1rem); }
+body.ui-inactiva .pn-raiz.pn-disp-hoja:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) :is(.pn-asa, .pn-panel) { display: none; }
 
 /* Paseo libre en el móvil: una píldora a la derecha («349.000 € · Contactar») que no roba toques al joystick */
 .pn-disp-hoja.pn-libre .pn-tarjeta { left: auto; right: calc(var(--pn-margen) + var(--pn-der)); bottom: calc(var(--pn-margen) + var(--pn-inf)); width: auto; height: auto;

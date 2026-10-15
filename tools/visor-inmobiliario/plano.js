@@ -194,7 +194,9 @@ export function crearPlano(canvas, ctx) {
     g.stroke(); g.setLineDash([]);
 
     // Etiquetas de estancias cuando hay espacio: nombre y m² en el plano; en el radar solo el nombre, y solo si es grande.
-    if (T.radar ? Math.min(W, H) >= 130 : grande || T.esc > 22) {
+    const rotulos = T.radar ? Math.min(W, H) >= 130 : grande || T.esc > 22;
+    if (T.radar) canvas.parentElement?.toggleAttribute("data-sin-rotulos", !rotulos); // visor.css: sin rótulos, vidrio de icono
+    if (rotulos) {
       g.textAlign = "center"; g.textBaseline = "middle";
       // Halo del color de fondo: el rótulo se lee aunque lo crucen un enlace o un muro
       g.lineJoin = "round"; g.lineWidth = 3; g.strokeStyle = css(C.contorno, 0.75);

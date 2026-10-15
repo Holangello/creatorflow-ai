@@ -438,18 +438,25 @@ function asignar(slot, s) {
 }
 
 // ------------------------------------------------------------------ puntos de salto (auto hotspots)
-const geoAro = new THREE.RingGeometry(0.32, 0.42, 48).rotateX(-Math.PI / 2);
+// Flecha del suelo (fase 4, transparencias): aro fino y translúcido con un contorno oscuro fino a los dos lados; la flecha
+// central lleva su propio contorno. Aro frente a su contorno ≥ 3:1 en cualquier suelo (blanco puro: 3,17:1). Las opacidades
+// cambian con el estado de la interfaz (opacidadFlechas) y el tamaño con la distancia y la pantalla (escalarFlecha).
+const OPACIDAD_FLECHAS = { aro: 0.75, contorno: 0.52, contornoResalte: 0.65, reposo: 0.5 };
+const geoAro = new THREE.RingGeometry(0.3, 0.355, 64).rotateX(-Math.PI / 2);
 const geoDisco = new THREE.CircleGeometry(0.6, 32).rotateX(-Math.PI / 2);
-const geoHalo = new THREE.RingGeometry(0.28, 0.47, 48).rotateX(-Math.PI / 2); // contorno oscuro: contraste ≥ 3:1 sobre suelos claros
-const matHalo = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.45, depthTest: false });
-const geoFlecha = (() => {
+const geoHalo = new THREE.RingGeometry(0.275, 0.38, 64).rotateX(-Math.PI / 2);
+const formaFlecha = (() => {
   const s = new THREE.Shape();
   s.moveTo(0, -0.2); s.lineTo(0.16, 0.06); s.lineTo(0.06, 0.06); s.lineTo(0.06, 0.2);
   s.lineTo(-0.06, 0.2); s.lineTo(-0.06, 0.06); s.lineTo(-0.16, 0.06); s.closePath();
-  return new THREE.ShapeGeometry(s).rotateX(-Math.PI / 2);
+  return s;
 })();
-const matAro = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthTest: false });
-const matAroHover = new THREE.MeshBasicMaterial({ color: 0xcfad66, transparent: true, opacity: 1, depthTest: false }); // color: --c-acento (colorearTema)
+const geoFlecha = new THREE.ShapeGeometry(formaFlecha).scale(0.72, 0.72, 1).rotateX(-Math.PI / 2);
+const geoFlechaHalo = new THREE.ShapeGeometry(formaFlecha).scale(0.95, 0.95, 1).rotateX(-Math.PI / 2); // contorno de la flecha
+const matHalo = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: OPACIDAD_FLECHAS.contorno, depthTest: false });
+const matHaloHover = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: OPACIDAD_FLECHAS.contornoResalte, depthTest: false });
+const matAro = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: OPACIDAD_FLECHAS.aro, depthTest: false });
+const matAroHover = new THREE.MeshBasicMaterial({ color: 0xcfad66, transparent: true, opacity: 1, depthTest: false }); // color: --c-acento (colorResalte)
 const matInvisible = new THREE.MeshBasicMaterial({ visible: false });
 
 const etiquetas = $("#etiquetas");
@@ -480,14 +487,15 @@ function construirPuntos() {
     g.position.set((dx / dist) * r, -alt, (dz / dist) * r);
     g.rotation.y = -rumbo(dx, dz) + Math.PI;
     const halo = new THREE.Mesh(geoHalo, matHalo);
-    halo.renderOrder = 1;
-    g.add(halo);
+    const flechaHalo = new THREE.Mesh(geoFlechaHalo, matHalo);
+    halo.renderOrder = flechaHalo.renderOrder = 1;
+    g.add(halo, flechaHalo);
     const aro = new THREE.Mesh(geoAro, matAro);
     const flecha = new THREE.Mesh(geoFlecha, matAro);
     const hit = new THREE.Mesh(geoDisco, matInvisible);
     aro.renderOrder = flecha.renderOrder = 2;
     g.add(aro, flecha, hit);
-    g.userData = { destino, partes: [aro, flecha] };
+    g.userData = { destino, partes: [aro, flecha], halos: [halo, flechaHalo], hit, dist: Math.hypot(r, alt) };
     grupoFlechas.add(g);
     const etq = document.createElement("button");
     etq.type = "button";
@@ -496,6 +504,12 @@ function construirPuntos() {
     etq.textContent = texto(destino.nombre) + otraPlanta;
     etq.setAttribute("aria-label", vertical ? tr("nav.ir_a", { x: texto(destino.nombre) + otraPlanta }) : `${tr("nav.ir_a", { x: texto(destino.nombre) })}, ${tr("nav.metros", { x: metros(dist) })}`);
     etq.onclick = () => irA(destino);
+    g.userData.etq = etq;
+    etq.addEventListener("pointerenter", () => resaltarFlecha(g));
+    etq.addEventListener("pointerleave", () => resaltarFlecha(null));
+    etq.addEventListener("focus", () => resaltarFlecha(g));
+    etq.addEventListener("blur", () => resaltarFlecha(null));
+    escalarFlecha(g);
     etiquetas.append(etq);
     etiquetasActivas.push({ el: etq, pos: new THREE.Vector3(g.position.x, g.position.y + 0.35, g.position.z) });
   }
@@ -995,7 +1009,7 @@ function interaccion(ev) {
   // Primer gesto real (no un simple movimiento): ya se puede reproducir sonido. Con portada, lo arranca «Empezar visita».
   if (!int.portada && !sonido.iniciado && sonido.activo && sonido.el && ev && ev.type !== "pointermove" && ev.type !== "wheel"
       && int.tour?.audio?.musica?.autoplay !== false && !(ev.target instanceof Node && btnSonido.contains(ev.target))) arrancarSonido(); // el destino puede ser window
-  if (document.body.classList.contains("ui-inactiva")) document.body.classList.remove("ui-inactiva");
+  if (document.body.classList.contains("ui-inactiva")) { document.body.classList.remove("ui-inactiva"); opacidadFlechas(); }
 }
 ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) => addEventListener(ev, interaccion, { passive: true }));
 // El marco de foco del lienzo solo se enciende al llegar con el tabulador.
@@ -1119,11 +1133,69 @@ function hover(e) {
   if (e.pointerType === "touch" || estado.midiendo) return;
   const g = apuntar(e);
   if (g === hoverActual) return;
-  hoverActual?.userData.partes.forEach((m) => (m.material = matAro));
-  g?.userData.partes.forEach((m) => (m.material = matAroHover));
-  hoverActual = g;
-  tocarEscena();
+  resaltarFlecha(g);
   lienzo.style.cursor = g ? "pointer" : "";
+}
+
+/** Tamaño de la flecha: la perspectiva ya agranda las cercanas, así que encogen (hasta el 62 %); en una pantalla estrecha
+    (vertical: campo de visión horizontal corto) todas al 78 %; la resaltada, +12 %. El disco de toque no baja del 75 %. */
+function escalarFlecha(g) {
+  const k = THREE.MathUtils.clamp(g.userData.dist / 3.4, 0.62, 1) * (camara.aspect < 0.8 ? 0.78 : 1);
+  const kv = k * (g === hoverActual ? 1.12 : 1);
+  for (const m of [...g.userData.halos, ...g.userData.partes]) m.scale.setScalar(kv);
+  g.userData.hit.scale.setScalar(Math.max(k, 0.75));
+}
+/** Resalte (ratón sobre el aro o su rótulo, o foco de teclado en el rótulo): aro y flecha en el acento, contorno más
+    oscuro, +12 % y el rótulo en acento. Una sola flecha resaltada a la vez. */
+function resaltarFlecha(g) {
+  g ??= null; // apuntar() devuelve undefined fuera de las flechas
+  if (g === hoverActual) return;
+  const previo = hoverActual;
+  hoverActual = g;
+  if (previo) {
+    previo.userData.partes.forEach((m) => (m.material = matAro));
+    previo.userData.halos.forEach((m) => (m.material = matHalo));
+    previo.userData.etq.classList.remove("resaltada");
+    escalarFlecha(previo);
+  }
+  if (g) {
+    g.userData.partes.forEach((m) => (m.material = matAroHover));
+    g.userData.halos.forEach((m) => (m.material = matHaloHover));
+    g.userData.etq.classList.add("resaltada");
+    escalarFlecha(g);
+  }
+  tocarEscena();
+}
+/** Opacidad según el estado: despierta 0,75 / 0,52; con la interfaz en reposo (ui-inactiva), la mitad, con un fundido
+    de 380 ms (--d-3); con «Reducir transparencia», opacas y sin atenuar; con «Reducir movimiento», sin fundido. */
+let fundidoFlechas = 0;
+function opacidadFlechas() {
+  const opacas = transparenciaReducida();
+  const f = !opacas && document.body.classList.contains("ui-inactiva") ? OPACIDAD_FLECHAS.reposo : 1;
+  const fin = { aro: opacas ? 1 : OPACIDAD_FLECHAS.aro * f, halo: opacas ? 1 : OPACIDAD_FLECHAS.contorno * f };
+  matHaloHover.opacity = opacas ? 1 : OPACIDAD_FLECHAS.contornoResalte;
+  cancelAnimationFrame(fundidoFlechas);
+  const ini = { aro: matAro.opacity, halo: matHalo.opacity }, t0 = performance.now(), dur = reducido() ? 0 : 380;
+  const paso = (ahora) => {
+    const x = dur ? Math.min(1, (ahora - t0) / dur) : 1, e = x * (2 - x);
+    matAro.opacity = ini.aro + (fin.aro - ini.aro) * e;
+    matHalo.opacity = ini.halo + (fin.halo - ini.halo) * e;
+    tocarEscena();
+    if (x < 1) fundidoFlechas = requestAnimationFrame(paso);
+  };
+  fundidoFlechas = requestAnimationFrame(paso);
+}
+/** Color del resalte: el acento de la marca con su tono y su saturación; solo cambia la luminosidad si hace falta: más
+    clara para leerse sobre su contorno (luminancia ≥ 0,42: ≥ 3:1 incluso sobre un suelo blanco), más oscura si es casi
+    blanco, para distinguirse del aro en reposo (≤ 0,75). El champán por defecto (0,44) no cambia. */
+const hslResalte = { h: 0, s: 0, l: 0 };
+function colorResalte(acento) {
+  const c = matAroHover.color.set(acento); // canales lineales (three r152+): la luminancia relativa es su media ponderada
+  const lum = () => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+  c.getHSL(hslResalte, THREE.SRGBColorSpace);
+  const paso = (d) => c.setHSL(hslResalte.h, hslResalte.s, (hslResalte.l = THREE.MathUtils.clamp(hslResalte.l + d, 0, 1)), THREE.SRGBColorSpace);
+  for (let i = 0; i < 50 && lum() < 0.42; i++) paso(0.02);
+  for (let i = 0; i < 50 && lum() > 0.75; i++) paso(-0.02);
 }
 // ---- modo juego (ratón capturado, como en Minecraft): W A S D, el botón 🎮 o un clic en el paseo libre.
 // Contingencia: si el navegador no deja capturar el ratón, se sigue mirando arrastrando (sin aviso de error).
@@ -1503,14 +1575,16 @@ function colorearTema() {
   const cs = getComputedStyle(document.documentElement);
   const hex = (v) => { const x = cs.getPropertyValue(v).trim(); return /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(x) ? x : null; };
   const acento = hex("--c-acento"), fondo = hex("--c-fondo");
-  if (acento) matAroHover.color.set(acento);
+  if (acento) colorResalte(acento);
   if (fondo) renderer?.setClearColor(fondo);
 }
 document.addEventListener("cre8:tema", () => {
   pintarAcento(); // el relleno del color de marca depende del tema
   dibujarMapa();
   if (transparenciaReducida()) quitarLuz(); else luz.pendiente = true;
+  opacidadFlechas(); // «Reducir transparencia»: flechas opacas
 });
+opacidadFlechas();
 
 // Vidrio adaptativo (tema.css, «Vidrio adaptativo»): el vidrio se vuelve más transparente cuando la foto lo permite.
 // En el recorrido 360, tras cada cambio de estancia, estilo o momento, y como mucho una vez por segundo si la vista se
@@ -2842,6 +2916,7 @@ function redimensionar() {
   if (!int.transicion) camara.fov = int.fovBase * (estado.modo === "tour" ? int.zoom : 1);
   camara.updateProjectionMatrix();
   maqueta?.redimensionar(w / h);
+  grupoFlechas.children.forEach(escalarFlecha); // la escala de las flechas depende de la proporción (escalarFlecha)
   const pr = renderer?.getPixelRatio() ?? 1;
   U.resolucion.value.set(w * pr, h * pr);
   dibujarMapa();
@@ -2932,7 +3007,7 @@ function bucle() {
   const inactiva = !!int.yaInteractuo && !int.portada && performance.now() - int.ultimaInteraccion > 3500 && estado.modo !== "maqueta" && !estado.midiendo && !EMBED
     && $("#menu-mas").hidden && !document.querySelector("dialog[open], #paneles [aria-expanded=true], #paneles .pn-abierto")
     && !document.activeElement?.closest?.("#esquina, #modos, #barra-vista, #galeria, #paneles, #guion-barra");
-  if (inactiva !== document.body.classList.contains("ui-inactiva")) document.body.classList.toggle("ui-inactiva", inactiva);
+  if (inactiva !== document.body.classList.contains("ui-inactiva")) { document.body.classList.toggle("ui-inactiva", inactiva); opacidadFlechas(); }
   // Calidad adaptativa: si los FPS caen por debajo de 28, se baja la resolución interna.
   fps.t += dt; fps.n++;
   if (fps.t > 2) {
@@ -2992,3 +3067,4 @@ if (params.has("dev")) addEventListener("drop", async (e) => {
   await cambiarModo("libre");
   aviso(`${f.name} ✓`);
 });
+

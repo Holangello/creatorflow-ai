@@ -68,6 +68,11 @@ body.raton-capturado #lienzo { cursor: none; }
 
 #radar { position: relative; width: var(--radar); aspect-ratio: 1; flex: none; }
 #radar .disco { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border-color: color-mix(in srgb, var(--c-acento) 45%, var(--vidrio-borde)); }
+/* Sin rótulos (radar de menos de 130 px: plano.js pone data-sin-rotulos) solo lleva trazos y la «N»: vidrio de icono (≥ 3:1).
+   Sin backdrop-filter, todo el vidrio pasa a --vidrio-denso (tema.css): esta regla no entra. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  #radar .disco.c8-vidrio[data-sin-rotulos] { background: var(--vidrio); }
+}
 #mapa { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
 /* «Ampliar»: 36 px como mínimo y 44 en táctil, el --alto-control-s de tema.css (A21) */
 #btn-ampliar { position: absolute; right: -0.25rem; bottom: -0.25rem; }
@@ -196,7 +201,7 @@ body:is(.modo-libre, .modo-maqueta, .midiendo) #galeria { display: none; }
 #pista, #tarjeta-juego { position: absolute; z-index: calc(var(--z-hud) + 2); inset-inline: 0; top: 50%; translate: 0 -50%; width: fit-content; margin-inline: auto;
   max-width: min(30rem, calc(100vw - 2 * var(--hud)));
   padding: var(--e-3) var(--e-5); border-radius: var(--r-5); text-align: center; font: var(--peso-medio) var(--t-cuerpo) / 1.35 var(--fuente); color: var(--c-texto); text-wrap: balance; }
-#pista { pointer-events: none; animation: pista 2.2s var(--suave) 2; }
+#pista { pointer-events: none; animation: pista 2.2s var(--suave) 2; padding: var(--e-2) var(--e-4); border-radius: var(--r-pastilla); font: var(--peso-medio) var(--t-ui) / 1.3 var(--fuente); }
 @keyframes pista { 50% { scale: 1.04; } }
 /* No asoma detrás de un diálogo, la nota de un «i» ni lo que abren los paneles: la hoja de la ficha, sus diálogos (M11) */
 body:has(dialog[open], #ficha:not([hidden]), #paneles .pn-abierto) #pista { display: none; }
@@ -280,18 +285,21 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
 #etiquetas { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .etq { position: absolute; translate: -50% -100%; display: inline-flex; align-items: center; min-height: 1.875rem; padding: 0 var(--e-3); border-radius: var(--r-pastilla);
   color: var(--c-texto); font: var(--peso-medio) var(--t-sec) / 1 var(--fuente); white-space: nowrap; pointer-events: auto;
-  transition: background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), scale var(--d-3) var(--muelle-rebote); }
-.etq.c8-vidrio:is(:hover, :focus-visible) { background: var(--c-acento); color: var(--c-sobre-acento); border-color: transparent; }
+  transition: opacity var(--d-3) var(--suave), background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), scale var(--d-3) var(--muelle-rebote); }
+.etq.c8-vidrio:is(:hover, :focus-visible, .resaltada) { background: var(--c-acento); color: var(--c-sobre-acento); border-color: transparent; }
 .etq:active { scale: 0.95; }
 .etq::after { content: ""; position: absolute; inset: -0.625rem; } /* área táctil ampliada */
 /* Punto de interés: vidrio redondo con la «i» de acento y un aro de acento para que se descubra; se llena al señalarlo */
 .info { position: absolute; width: 2.25rem; height: 2.25rem; translate: -50% -50%; display: grid; place-items: center; padding: 0; border-radius: 50%;
   color: var(--c-acento-texto); font: var(--peso-fuerte) var(--t-cuerpo) / 1 var(--fuente-titular); pointer-events: auto;
-  transition: background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), scale var(--d-3) var(--muelle-rebote); }
+  transition: opacity var(--d-3) var(--suave), background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), scale var(--d-3) var(--muelle-rebote); }
 .info.c8-vidrio { border-color: color-mix(in srgb, var(--c-acento) 60%, var(--vidrio-borde)); box-shadow: 0 0 0 0.3125rem var(--c-acento-suave), var(--sombra-2), inset 0 1px 0 var(--vidrio-brillo); }
 .info.c8-vidrio:is(:hover, :focus-visible) { background: var(--c-acento); color: var(--c-sobre-acento); scale: 1.08; }
 .info:active { scale: 0.94; }
 .info::after { content: ""; position: absolute; inset: -0.375rem; }
+/* En reposo (body.ui-inactiva) los rótulos de las flechas y los puntos «i» se apartan como la interfaz; las flechas quedan a
+   media opacidad (visor.js, opacidadFlechas). Con el foco de teclado, el rótulo sigue a la vista. */
+body.ui-inactiva #etiquetas :is(.etq, .info):not(:focus-visible) { opacity: 0; pointer-events: none; }
 /* Foco de lo que flota sobre la foto: anillo doble (técnica C40), el del foco entre dos bandas del color del fondo; con
    cualquier foto detrás se ve (A6). Va después de las sombras del vidrio, que sustituye mientras dura el foco. */
 :is(#lugar, #btn-ampliar, .etq, .info, #cortinilla button, #tarjeta-juego):focus-visible {
