@@ -35,7 +35,7 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Se pierde el contexto gráfico (GPU) | Aviso con «Reintentar» (recarga) |
 | `tour.json` no existe o está mal | Pantalla de error con la marca; nunca se muestra la demo por error |
 | Una foto 360 no carga | Aviso con «Reintentar»; si era un estilo o un momento, se vuelve al anterior para que lo que se ve coincida con lo elegido |
-| Poca memoria gráfica (móviles) | Caché de texturas limitada (4 en táctil, 14 en escritorio) y versiones de 4096 px para móvil |
+| Poca memoria gráfica (móviles) | Caché de texturas limitada (4 en táctil, 8 en escritorio) y versiones de 4096 px para móvil |
 | La música no carga o el formato no es compatible | El botón de sonido desaparece y el recorrido sigue; se reintenta si el tour se recarga |
 | El navegador bloquea el sonido automático | La música empieza con «Empezar visita» de la portada, o con el primer toque o clic si no hay portada |
 | No se puede capturar el ratón (modo juego) | Se mira arrastrando |
@@ -45,6 +45,15 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | El tour no tiene plano | El radar empieza oculto y se puede mostrar con R o con su botón |
 | Un toque cuando la interfaz está oculta | Solo la despierta: nunca navega por sorpresa |
 | Un icono SVG con scripts en el menú «Más» | Se descarta |
+| Recorrido incrustado en una web de otro dominio | El visor no le envía mensajes (ni errores en su consola) |
+| Suena la música con la interfaz en reposo | Ondas quietas: nada se anima sin fin sobre el vidrio |
+| El navegador no tiene `:has()` | La pista se va sola a los 6 s y el lienzo conserva un marco de foco simple |
+| Letra al 200 % o talla L sin sitio arriba | Los modos bajan junto a la tarjeta |
+| Se gira el teléfono en la maqueta | Se vuelve a encuadrar mientras el visitante no la haya movido |
+| Desaparece la etiqueta 3D que tenía el foco | El foco pasa al lienzo y la estancia se anuncia |
+| Aparece un diálogo o el menú «Más» | El vidrio adaptativo vuelve a medir |
+| Gráfica integrada con poca memoria | Caché de texturas de 8 en escritorio (antes 14) |
+| Un nombre de agencia sin espacios | Se parte en la portada |
 | El navegador no admite `inert` (hojas del teléfono) | La hoja sigue siendo modal y con velo; el Tab podría llegar a lo de detrás, sin errores |
 | Se cierra la hoja, cambia la disposición o llega otro tour | No queda nada inerte |
 | El lector de pantalla no anuncia una región recién creada | La confirmación del contacto recibe el foco y se lee |

@@ -73,7 +73,7 @@ La talla multiplica la base: **S** 0,875, **M** 1, **L** 1,18. En pantallas tác
 - `--alto-control` y `--alto-control-s` valen 44 px como mínimo.
 - Cada opción del segmentado alcanza el relleno del control con un `::before` invisible, sin cambiar el dibujo.
 - El deslizador mide 44 px de alto, con la misma pista y el mismo tirador.
-- Única excepción: el botón «Ampliar» del radar se queda en 36 px para no tapar el radar, que también se toca para ir a una estancia.
+- «Ampliar» del radar: 36 px con ratón y 44 px en táctil (ocupa el cuarto trasero derecho del radar, que también se toca para ir a una estancia).
 
 ### Color
 
@@ -87,7 +87,7 @@ La talla multiplica la base: **S** 0,875, **M** 1, **L** 1,18. En pantallas tác
 | `--c-acento` | `#cfad66` | `#c9a55a` | relleno de botones principales, estados activos |
 | `--c-sobre-acento` | `#15110a` (8,8:1) | `#1a1408` (7,9:1) | texto **sobre** el acento |
 | `--c-acento-texto` | acento con luminosidad OKLCH ≥ 0,8 | acento con luminosidad OKLCH ≤ 0,44 | texto **de color** acento (enlaces) y anillo de foco (`--c-foco`). Con cualquier color de marca cumple AA sobre el fondo y sobre el vidrio en el peor caso (`npm run contraste`) |
-| `--c-foco` | acento | acento oscuro | anillo de foco (≥3:1) |
+| `--c-foco` | acento | acento oscuro | anillo de foco (≥3:1). Sobre la foto (título, «Ampliar», etiquetas, «i», lienzo) el anillo es doble: `--c-foco` y un borde de `--c-fondo`, para que se vea sobre cualquier imagen (técnica C40 de WCAG) |
 | `--c-ok` · `--c-aviso` · `--c-error` · `--c-info` | — | — | estados AA en ambos temas |
 | `--c-whatsapp` | `#15803d` | `#15803d` | botón de WhatsApp (5:1 con texto blanco) |
 | `--c-capa-hover` · `--c-capa-activa` | — | — | rellenos al pasar el ratón y al pulsar |
@@ -211,7 +211,7 @@ La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el
 
 ### Iconos animados (patrón)
 
-- **Sonido:** ondas quietas mientras suena (un latido corto al empezar y al pasar el ratón); tachado cuando está silenciado.
+- **Sonido:** ondas quietas mientras suena (dos latidos al empezar a sonar y al pasar el ratón); tachado cuando está silenciado.
 - **Nada infinito sobre el vidrio:** una animación que no acaba obliga a recomponer cada `backdrop-filter` 60 veces por segundo aunque nadie toque nada (batería y calor en el móvil). Solo los indicadores de carga giran sin fin, y mientras cargan.
 - **Pantalla completa:** las esquinas se separan al pasar el ratón.
 - **Apariencia (claro u oscuro de la interfaz):** un círculo que se llena ¼ en Claro, ½ en Automático y ¾ en Oscuro, con un muelle. **Nunca sol ni luna**, que se confundirían con la luz de la vivienda (día, atardecer, noche).
@@ -253,6 +253,7 @@ La ruta más rápida es **apuntar las variables antiguas a los tokens nuevos** a
 
 Pendiente para el rediseño (fase 4):
 
-- **Color de marca:** `visor.js` fija `--c-acento` con `marca.color` y calcula `--c-sobre-acento` según su luminancia. `--c-acento-texto` y `--c-foco` salen de `--c-acento` con color relativo (`oklch(from …)`), acotando la luminosidad para que cualquier marca se lea; sin color relativo, con `color-mix()`.
+- **Superficies:** sin decimales en el plano, la maqueta, el título y la lista («30 m²»); las medidas de la herramienta de medir sí llevan dos.
+- **Color de marca:** `visor.js` fija `--c-acento` con `marca.color`, acotado para el tema vigente (luminancia ≤ 0,55 en claro y ≥ 0,06 en oscuro: una marca blanca o negra no desaparece sobre el vidrio), y calcula `--c-sobre-acento` para ese relleno; se recalcula al cambiar de tema. El dossier, el plano y el vídeo exportados usan los mismos topes. El champán por defecto no cambia. `--c-acento-texto` y `--c-foco` salen de `--c-acento` con color relativo (`oklch(from …)`), acotando la luminosidad para que cualquier marca se lea; sin color relativo, con `color-mix()`.
 - **Empaquetado:** el HTML autónomo (`build.mjs`) debe incrustar las fuentes de `vendor/fonts/` (cargador `dataurl` de esbuild para `.woff2`), y el ZIP web debe incluirlas.
 - **Vidrio adaptativo (opcional):** muestrear el brillo medio de la vista (un lienzo pequeño cada ~500 ms) y ajustar el tinte del HUD, como hace Apple.

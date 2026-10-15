@@ -23,16 +23,26 @@ const fuenteInter = (sub) => new URL(`vendor/fonts/inter/inter-${sub}-opsz-norma
 const CHAMPAN_CLARO = "#c9a55a", CHAMPAN_OSCURO = "#cfad66";
 const esHex = (c) => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c ?? "");
 const luminancia = (hex) => { const l = hexALineal(hex); return l ? 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2] : 0.5; };
-/** Variante del color de acento que se lee (≥ 4,5:1) sobre `fondo`: lo mezcla con negro o con blanco lo justo. */
-function acentoLegible(hex, fondo) {
-  const contraste = (a) => { const [x, y] = [luminancia(a), luminancia(fondo)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+/** Mezcla `hex` con negro (fondo claro) o con blanco (fondo oscuro) lo justo para que cumpla `ok(color)`. */
+function mezclarHasta(hex, fondo, ok) {
   const h = hex.length === 4 ? hex.replace(/[0-9a-f]/gi, (c) => c + c) : hex;
   const rgb = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)), destino = luminancia(fondo) > 0.5 ? 0 : 255;
   for (let t = 0; t <= 1; t += 0.05) {
     const c = "#" + rgb.map((v) => Math.round(v + (destino - v) * t).toString(16).padStart(2, "0")).join("");
-    if (contraste(c) >= 4.5) return c;
+    if (ok(c)) return c;
   }
   return destino ? "#ffffff" : "#000000";
+}
+/** Variante del color de acento que se lee (≥ 4,5:1) sobre `fondo`. */
+function acentoLegible(hex, fondo) {
+  const contraste = (a) => { const [x, y] = [luminancia(a), luminancia(fondo)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+  return mezclarHasta(hex, fondo, (c) => contraste(c) >= 4.5);
+}
+/** Relleno de acento que se ve sobre `fondo`, con los mismos topes que aplicarMarca() del visor: una marca blanca no se
+ *  pierde en el papel (luminancia ≤ 0,55) ni una negra en el vídeo (≥ 0,06). El champán no cambia. */
+function acentoRelleno(hex, fondo) {
+  const claro = luminancia(fondo) > 0.5;
+  return mezclarHasta(hex, fondo, (c) => (claro ? luminancia(c) <= 0.55 : luminancia(c) >= 0.06));
 }
 const MB = 1024 * 1024;
 
@@ -673,7 +683,7 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   const tour = visor.tour ?? {};
   const idioma = visor.estado?.idioma ?? tour.idioma ?? "es";
   const t = (v) => (typeof visor.t === "function" ? visor.t(v) : texto(v, idioma));
-  const acento = esHex(tour.marca?.color) ? tour.marca.color : CHAMPAN_OSCURO;
+  const acento = acentoRelleno(esHex(tour.marca?.color) ? tour.marca.color : CHAMPAN_OSCURO, "#000000");
   const acentoTexto = acentoLegible(acento, "#000000"); // el texto de color va sobre franjas oscuras
   const titulo = t(tour.titulo);
   const precio = precioTexto(tour, idioma);
@@ -1021,8 +1031,9 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
   idioma ??= t.idioma ?? "es";
   const tx = (v) => texto(v, idioma);
   const { planta, plantas, plano, muros, estancias, fotos: puntos } = plantaDe(t, plantaId);
-  const acento = esHex(t.marca?.color) ? t.marca.color : CHAMPAN_CLARO;
-  const acentoTexto = acentoLegible(acento, fondo === "transparent" || !esHex(fondo) ? "#ffffff" : fondo);
+  const papel = fondo === "transparent" || !esHex(fondo) ? "#ffffff" : fondo;
+  const acento = acentoRelleno(esHex(t.marca?.color) ? t.marca.color : CHAMPAN_CLARO, papel);
+  const acentoTexto = acentoLegible(acento, papel);
   const [imgPlano, imgLogo] = await Promise.all([
     plano?.imagen ? cargarImagen(plano.imagen, { base, archivos }).catch(() => null) : null,
     t.marca?.logo ? cargarImagen(t.marca.logo, { base, archivos }).catch(() => null) : null,
@@ -1330,7 +1341,7 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
   (async () => {
     const i = t.inmueble ?? {};
     // Champán del tema claro, o el color de la marca; el texto del botón, el de más contraste (negro cálido o blanco).
-    const acento = esHex(t.marca?.color) ? t.marca.color : CHAMPAN_CLARO;
+    const acento = acentoRelleno(esHex(t.marca?.color) ? t.marca.color : CHAMPAN_CLARO, "#ffffff");
     const sobreAcento = (luminancia(acento) + 0.05) / (luminancia("#1a1408") + 0.05) >= 1.05 / (luminancia(acento) + 0.05) ? "#1a1408" : "#ffffff";
     let planoURL = null;
     const plantas = t.plantas?.length ? t.plantas : [{ id: undefined }];

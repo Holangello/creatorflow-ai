@@ -173,7 +173,8 @@ visor.idioma(cod)               // cambia idioma de la interfaz
 visor.t(texto)  visor.tr(clave, vars)   // resuelve un Texto ({es,en} | cadena) / un texto de la interfaz
 visor.lienzo                    // <canvas> WebGL (para grabar vídeo)
 visor.capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.88, marca = true } = {})
-                                // Promise<{ blob, nodo, estancia, enlace, vista }> captura de la vista actual (sin interfaz)
+                                // Promise<{ blob, nodo, estancia, enlace, vista }> captura de la vista actual (sin interfaz
+                                //   ni flechas del suelo)
                                 //   estancia = { id, nombre } de la foto que se ve (el nombre del título) en el recorrido,
                                 //   o de la estancia del plano en el paseo libre
 visor.sonido                    // { activo, disponible, volumen, alternar(), fijarVolumen(v 0-1) }
@@ -258,6 +259,18 @@ los elementos. Sin elementos visibles, el botón no se ve. Cada elemento se pint
   para volver». No existe en táctil ni con `?embed`.
 - **Paseo libre:** W A S D o flechas caminar, Shift correr, Espacio saltar (con suelo) o subir (sin suelo), C bajar, Q/E girar;
   en táctil, pulgar izquierdo (joystick) para caminar y arrastrar a la derecha para mirar.
+- **Maqueta:** arrastrar gira; con el foco en el lienzo, ← → giran, ↑ ↓ inclinan y + − acercan. En táctil, también «Acercar» y
+  «Alejar» en «Más» (como en el recorrido). Se vuelve a encuadrar al girar la pantalla mientras no se haya movido.
+- **Atajos de una letra apagados** (`visor.ajustes({ atajos: false })`, WCAG 2.1.4): las letras solo actúan con el foco en el
+  lienzo (`role="application"`) o en el modo juego.
+
+**Interfaz y accesibilidad (fase 4).**
+- `#avisos` es la región viva fija que contiene `#pista`, `#aviso-juego` y `#aviso`: los avisos cambian su texto, nunca se crea
+  una región nueva. Un aviso con acción («Reintentar») espera mientras tiene el foco o el puntero encima.
+- `#lugar` se nombra con su texto visible más «· Estancias y plano» (`#lugar-abre`, oculto a la vista); hay un
+  `h1#titulo-recorrido` oculto con el título del recorrido.
+- Los modos bajan junto a la tarjeta cuando no caben arriba (letra grande o talla L), también en horizontal.
+- El relleno del color de marca se acota según el tema (ver `docs/diseno/sistema.md`).
 - **Teclas globales** (con los atajos activos; no con el foco en un campo de texto, un diálogo o un menú):
   **R** muestra u oculta el radar · **M** abre o cierra «Estancias y plano» · **V** cambia de modo · **H** o **?** ayuda ·
   **Esc** cierra la nota abierta o la medición. Con un diálogo abierto, su misma tecla (M o H) lo cierra.
@@ -308,7 +321,8 @@ Estudio → visor:
 - `{ tipo: "visor:ir", nodo }`
 - `{ tipo: "visor:yaw", nodo, yaw }`: cambia el yaw de un nodo en caliente
 
-Visor → Estudio (`window.parent`):
+Visor → Estudio (`window.parent`), solo si la página que lo contiene es del mismo origen (una web de otro dominio que
+incrusta el recorrido no recibe nada ni ve errores en su consola):
 - `{ tipo: "visor:listo" }`
 - `{ tipo: "visor:vista", nodo, rumbo, cabeceo, fov, yawLocal, pitchLocal }` (rumbo/cabeceo de mundo; yawLocal/pitchLocal
   relativos a la imagen, para colocar `puntos`). No se envía mientras se va a otra estancia (llega al terminar el viaje)
