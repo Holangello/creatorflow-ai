@@ -152,6 +152,10 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
   - Sin soporte de `linear()`, los muelles pasan a curvas cúbicas.
 - **Capas:** `--z-hud` < `--z-panel` < `--z-menu` < `--z-dialogo` < `--z-aviso` < `--z-carga`.
 
+## Texto sobre una foto
+
+Para un nombre sobre una miniatura: `--c-sobre-foto` (blanco en los dos temas) sobre `--degradado-foto`, un degradado que oscurece la parte de abajo con `--velo-foto`. El texto va abajo, donde el velo es más fuerte: 6,2:1 incluso sobre una foto blanca.
+
 ## Vidrio adaptativo («liquid glass»)
 
 La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el cliente.
