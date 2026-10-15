@@ -92,22 +92,22 @@ terraza. **C** para obra nueva y para enseñar el "después" de una reforma.
 
 ### 3.3 Preparar y montar el tour
 
-```bash
-pip install pillow
-python3 tools/visor-inmobiliario/preparar_panos.py ~/Fotos/calle-mayor-12 --salida web/tours/calle-mayor-12
-cp tools/visor-inmobiliario/{index.html,visor.js,visor.css,demo.js} web/tours/calle-mayor-12/
-```
+Todo se hace en el **Estudio** (`tools/visor-inmobiliario/estudio.html`), en 4 pasos:
 
-El script genera tres tamaños de cada foto (8192 px para escritorio, 4096 px para móvil y 512 px de miniatura), borra el
-EXIF y el GPS, y crea un `tour.json`. Luego:
+1. **Fotos.** Arrastra las fotos de la Osmo 360. Se optimizan (8192 px para escritorio, 4096 px para móvil y 512 px de
+   miniatura), se les quita la ubicación GPS y se ordenan por hora de disparo.
+2. **Plano** (opcional). Una imagen, un PDF o un DXF del arquitecto. Se calibra con una medida conocida, se colocan las
+   fotos y se crean las estancias automáticamente. Sin plano, las fotos se conectan en el orden de la visita.
+3. **Datos.** Precio, superficies, certificado energético, descripción… Lo que no cambia de un inmueble a otro (marca,
+   WhatsApp, política de privacidad) se escribe una sola vez en «Mi inmobiliaria».
+4. **Publicar.** Antes de descargar, «Antes de publicar» señala lo que falta. Ver el apartado 6.
 
-1. Pon en `x`/`z` la posición de cada foto **en metros** sobre el plano. Basta con medirla en el plano del catastro o de la
-   agencia.
-2. Añade el plano (`"plano": {"imagen": "plano.png", "ancho_m": 12, "alto_m": 9}`).
-3. Abre `index.html?editar` y gira cada foto con `[` y `]` hasta que las flechas apunten a las puertas reales. Después
-   pulsa **Copiar tour.json**.
-4. Si no declaras `enlaces`, el visor **conecta automáticamente** las estancias a menos de `radio_enlace_auto` metros,
-   igual que los *Auto Hotspots* de Chaos. Si una pared separa dos puntos cercanos, declara los `enlaces` a mano.
+Si la cámara guarda la brújula, las flechas del suelo se orientan solas; si alguna no coincide con su puerta, «Alinear
+con una puerta» la corrige. Si no se declaran enlaces, el visor **conecta automáticamente** las estancias
+cercanas, igual que los *Auto Hotspots* de Chaos.
+
+Para técnicos, sin el Estudio: `preparar_panos.py` genera los tamaños y un `tour.json` de partida (formato en
+`tools/visor-inmobiliario/ESQUEMA.md`).
 
 ---
 
@@ -189,61 +189,63 @@ Los prompts listos para usar están en [`prompts/recorridos-3d.md`](../prompts/r
 
 ## 6. Publicación
 
-### 6.1 Idealista
+El paso «Publicar» del Estudio lo organiza por destino.
 
-Lo que se ha podido verificar (conviene **confirmarlo con el comercial de idealista**, porque las condiciones cambian):
+### 6.1 Portales: idealista, Fotocasa, habitaclia
 
-- Idealista tiene un **filtro de "visita virtual"** y muestra los tours en una sección propia del anuncio.
-- Los tours externos se admiten **solo de proveedores aprobados** y con un **patrón de enlace concreto**. Por ejemplo,
-  **Kuula** se anunció como proveedor oficial y ofrece un conversor de enlaces. Idealista no admite audio, autorrotación ni
-  logotipo propio en ese tour.
-- En Italia, idealista lanzó un **Virtual Tour Creator propio y gratuito** para clientes con cámara 360. No hay
-  confirmación de que exista en España.
-
-**Estrategia recomendada**
-
-1. **Idealista**: sube las fotos 360 del Osmo al creador de tours de idealista si lo tienes disponible, o a un proveedor
-   aprobado (por ejemplo, Kuula) y pega su enlace. Sube también 2 o 3 encuadres planos sacados de las 360 como fotos
-   normales.
-2. **Web propia**: el **visor completo** (tour 360 + paseo libre + plano). Es la experiencia premium y genera tráfico y
-   contactos directos sin pasar por el portal.
+- **El enlace del recorrido solo se admite de proveedores homologados.** Idealista y Fotocasa aceptan en «visita virtual»
+  enlaces de proveedores aprobados (Matterport, Kuula, Floorfy…), con un patrón concreto. Conviene confirmarlo con el
+  comercial del portal, porque las condiciones cambian. Ser proveedor homologado es un paso comercial pendiente (hoja de
+  ruta).
+- **Lo que sí se sube siempre:**
+  - el **vídeo** de la visita guiada en 16:9 (y 9:16 para Reels, TikTok y Shorts), con la marca y la música;
+  - las **fotos 360** en JPG con metadatos GPano y menos de 7,5 MB, que idealista, Facebook y Google muestran en 360;
+  - el **plano con medidas** y el **dossier en PDF**.
+- La tabla «¿Qué subo a cada portal?» del Estudio lo resume.
 
 ### 6.2 Web propia
 
-El visor son **archivos estáticos**: sirve cualquier hosting (el tuyo, Netlify, Cloudflare Pages, GitHub Pages…). Para
-insertarlo en la ficha del inmueble:
+1. «Descargar mi recorrido (ZIP)»: una carpeta con todo, también three.js (no depende de ningún CDN).
+2. Subirla a la dirección que indica el Estudio (por defecto `https://tu-web/tours/<referencia>/`; se puede cambiar si se
+   aloja en otro sitio). Esa dirección va dentro del enlace de cada consulta, del QR y del dossier: si se sube a otra, hay
+   que cambiarla en el Estudio y volver a descargar.
+3. Compartir el enlace o insertarlo en la ficha del inmueble con el código que da el Estudio:
 
 ```html
-<iframe src="/tours/calle-mayor-12/"
-        style="width:100%;aspect-ratio:16/9;border:0;border-radius:12px"
-        allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking"
+<iframe src="https://tu-web/tours/calle-mayor-12/" width="100%" height="600" style="border:0;border-radius:12px"
+        allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking; clipboard-write; web-share"
         allowfullscreen loading="lazy" title="Recorrido virtual"></iframe>
 ```
 
-- Es obligatorio **HTTPS**: el giroscopio del móvil y la captura del ratón no funcionan sin él.
-- Para enlazar directamente a una estancia: `/tours/calle-mayor-12/#cocina`. Para abrir en modo libre: `?modo=libre`.
+- Es obligatorio **HTTPS**: el giroscopio del móvil, la pantalla completa y copiar la foto de la consulta lo necesitan.
+- Para abrir en una estancia: `…/#cocina`. Para abrir en el paseo libre: `?modo=libre`.
+- Para enviarlo a un cliente sin web, «Recorrido en un solo archivo»: un HTML que se abre con doble clic y sin internet.
 
 ---
 
 ## 7. Controles del visor (ordenador, tablet y móvil)
 
-| Acción | Ordenador | Móvil / tablet |
+| Acción | Ordenador | Móvil y tablet |
 |---|---|---|
-| Mirar | Arrastrar con el ratón (o capturarlo con clic en modo libre) | Arrastrar con el dedo / giroscopio 🧭 |
-| Avanzar a otra estancia (360) | `W` / `↑`, clic en la flecha del suelo, clic en el plano | Tocar la flecha, el plano o la galería |
-| Caminar (modo libre) | `W A S D`, `Shift` para correr, `←` `→` para girar | Joystick virtual a la izquierda |
-| Zoom (360) | Rueda, `+` `-` | Pellizcar |
-| Plano grande | `M` | Botón ⤢ |
-| Cambiar de modo | `Tab` | Pestañas superiores |
+| Mirar | Arrastrar con el ratón. 🎮 o `W` `A` `S` `D`: modo juego con el ratón capturado (`Esc` para salir) | Arrastrar con el dedo. «Mirar moviendo el móvil» está en «Más» |
+| Ir a otra estancia | Clic en una flecha del suelo o en el suelo; `W` `A` `S` `D` o flechas; la tira de estancias | Tocar una flecha, el suelo o la tira de estancias |
+| Caminar (paseo libre) | `W` `A` `S` `D` o flechas, `Shift` para correr | Pulgar izquierdo para caminar, derecha para mirar |
+| Acercar | Rueda, `+` `−` | Pellizcar, o «Acercar» y «Alejar» en «Más» |
+| Maqueta | Arrastrar; flechas para girar y `+` `−` para acercar | Arrastrar y pellizcar |
+| Radar · estancias y plano · ayuda · modo | `R` · `M` · `H` · `V` | Botones de la barra |
+
+Los atajos de una sola letra se pueden desactivar en Ajustes (WCAG 2.1.4); entonces solo actúan con el foco en la
+escena.
 
 ---
 
 ## 8. Hoja de ruta sugerida
 
-1. **Semana 1**: 3 inmuebles con la vía A. Medir en la web el tiempo de permanencia y los contactos.
-2. **Semana 2 a 4**: probar la vía B en un inmueble grande (Postshot o Brush) y ajustar el colisionador.
-3. **Después**: plantilla de ficha de inmueble con el iframe, página índice de tours, analítica de eventos (estancias
-   vistas, uso del modo libre) y un formulario de "pedir visita" dentro del visor.
+1. **Ya hecho:** vía A completa (Guía, Estudio, visor y publicación), paseo libre con splat o GLB, maqueta, estilos con
+   IA, día y noche, contacto por WhatsApp con fotos, claro y oscuro, tallas S, M y L.
+2. **Siguiente:** publicar con un clic (Netlify o Cloudflare Pages con el token de la agencia), estadísticas para el
+   propietario (visitas y consultas, sin cookies) y solicitar ser proveedor homologado de idealista y Adevinta.
+3. **Después:** demo pública con fotos reales de la Osmo 360 y marca blanca como opción comercial.
 
 ---
 
