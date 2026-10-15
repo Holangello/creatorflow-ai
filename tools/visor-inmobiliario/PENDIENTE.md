@@ -81,7 +81,12 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - HTML autónomo con el bundle ligero: 1,04 MB frente a más de 6 MB.
     - Nunca se comparten enlaces `file://`.
     - `url_publica` documentada.
-  - [ ] Esperando el informe B (organización) para conciliar el resto. Pendientes:
+  - [x] Informe B recibido (`docs/auditorias/fase3-organizacion.md`). Plan conciliado, que **manda**: [docs/auditorias/fase3-plan.md](../../docs/auditorias/fase3-plan.md). Incluye las decisiones, la ronda 2 del cliente y el contrato núcleo↔paneles.
+  - [ ] **Aplicación en curso**: tres agentes en paralelo con los paquetes §4.1 (núcleo), §4.2 (paneles) y §4.3 (Estudio) del plan. La Guía (§4.4) la hace el orquestador.
+    - Si un agente muere, relánzalo con su paquete y dile qué está hecho (mira `git diff`).
+    - Al terminar: integrar las claves i18n del núcleo en `i18n.js`, conectar `urlSegura` común en `visor.js`, adaptar las pruebas e2e a la interfaz nueva, medir, compactar y hacer commit.
+    - Después, la fase 4.
+  - Pendientes que tenía la conciliación (ya repartidos en el plan):
     - Núcleo: N4 (radar oculto sin plano), N5 (modo juego, ronda 2 de decisiones), N7–N9 y N12.
     - Paneles: PA1–PA11.
     - Estudio: E1–E18.
