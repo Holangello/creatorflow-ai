@@ -55,11 +55,30 @@ Este archivo es la **fuente de verdad** para retomar el trabajo si se corta la s
     - `tema.js`: preferencias compartidas, `?tema=` y `?talla=` en la URL, transparencia y movimiento reducidos.
     - Inter Variable en `vendor/fonts/inter` (OFL).
     - `tema-muestra.html`: muestra viva.
-  - [ ] Aplicarlo a `visor.css` + `index.html`, `paneles.css`, `estudio.css` y `asistente-osmo.html`.
-  - [ ] Ajustes «Apariencia» y «Tamaño».
-  - [ ] `marca.color` → `--c-sobre-acento`.
-  - [ ] Fuentes en el HTML autónomo y en el ZIP.
-  - [ ] Matriz de capturas y auditorías.
+  - [x] `marca.color` → `--c-sobre-acento` (y `--acento-texto`) calculado por contraste en `visor.js` (commit 0b978dd).
+  - [ ] Plan de aplicación, después de conciliar la fase 3:
+    1. **Núcleo (yo).**
+       - `index.html` carga `tema.js` (síncrono en `<head>`) y `tema.css`.
+       - `visor.css` apunta las variables antiguas a los tokens (tabla de `docs/diseno/sistema.md`), pasa `px` → `rem` y usa `.c8-vidrio` y `c8-*` en el HUD.
+       - Distribución móvil según la fase 3 (referencia: HUD de `tema-muestra.html`) e iconos animados.
+       - Opcional: vidrio adaptativo (brillo medio de la vista → tinte).
+    2. **Agente de paneles.**
+       - `--pn-*` → tokens, `rem` y componentes `c8-*`.
+       - En Ajustes: «Apariencia» (Automático/Claro/Oscuro), «Tamaño» (S/M/L) y «Reducir transparencia» con `cre8Tema.fijar`.
+    3. **Agente del Estudio.**
+       - `estudio.html` con `tema.js` y `tema.css`; `estudio.css` → tokens, con el acento unificado en champán.
+       - El lienzo del plano y el editor de máscara leen los colores de las variables CSS (`getComputedStyle`) y se repintan con `cre8:tema`.
+       - Apariencia y Tamaño en el Estudio.
+    4. **Asistente.** `asistente-osmo.html` con `tema.*`.
+    5. **Exportación.**
+       - `build.mjs` solo empaqueta scripts `type=module`: `tema.js` (clásico) debe ir en línea en el `<head>` del HTML autónomo (`exportarHTMLAutonomo`).
+       - `ARCHIVOS_VISOR` del ZIP debe incluir `tema.js`, `tema.css` y `vendor/fonts/inter/*`.
+       - Las fuentes del CSS ya se incrustan (cargador `dataurl` para `.woff2`).
+    6. **Pruebas.**
+       - Matriz de capturas (claro/oscuro × S/M/L × resoluciones de 360×640 a 3840×2160 y 3440×1440).
+       - Script de contraste.
+       - `npm run prueba`.
+    7. **Auditorías.** Visual/UI, accesibilidad (skill `design:accessibility-review`) y Maverick, con sus correcciones.
 - [ ] **Fase 5 · Entrega** (ver «Pasos de la fase 5»).
 
 ## Requisitos del cliente (no se pueden eliminar, solo refinar)
