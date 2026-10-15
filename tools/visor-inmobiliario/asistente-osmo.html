@@ -10,9 +10,11 @@
 <style>
   /* Guía Osmo 360: pensada para el móvil durante la sesión de fotos. Todo el aspecto sale de tema.css. */
   body { min-height: 100dvh; }
+  /* Fondo de ambiente, como el Estudio: fijo detrás del contenido para que la cabecera y el pie de vidrio tomen su color */
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--ambiente); pointer-events: none; }
   .marco { box-sizing: border-box; width: min(46rem, 100%); margin: 0 auto; padding: 0 max(var(--e-4), env(safe-area-inset-right, 0px)) calc(7rem + env(safe-area-inset-bottom, 0px)) max(var(--e-4), env(safe-area-inset-left, 0px)); }
   .cabecera { position: sticky; top: 0; z-index: var(--z-panel); display: flex; align-items: center; gap: var(--e-2);
-    margin: 0 0 var(--e-5); padding: calc(var(--e-2) + env(safe-area-inset-top, 0px)) max(var(--e-4), calc(50vw - 23rem)) var(--e-2);
+    margin: 0 0 var(--e-5); padding: calc(var(--e-2) + env(safe-area-inset-top, 0px)) max(var(--e-4), 50% - 23rem + var(--e-4)) var(--e-2);
     border-width: 0 0 1px; border-radius: 0; }
   .marca { font: var(--peso-semi) var(--t-destacado) / 1 var(--fuente-titular); letter-spacing: -0.02em; margin-right: auto; display: flex; align-items: baseline; gap: var(--e-2); white-space: nowrap; }
   .marca b { color: var(--c-acento-texto); font-weight: var(--peso-fuerte); }
@@ -31,6 +33,7 @@
   .menu-pasos [aria-current="step"] { color: var(--c-acento-texto); font-weight: var(--peso-semi); }
   section.paso { display: grid; gap: var(--e-4); }
   section.paso[hidden] { display: none; }
+  section.paso h1:focus { outline: none; }
   .fase { font: var(--peso-semi) var(--t-micro) / 1 var(--fuente); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-acento-texto); }
   h1 { margin: 0; font-size: var(--t-titulo-g); }
   h2 { margin: var(--e-3) 0 0; font-size: var(--t-titulo); }
@@ -38,7 +41,7 @@
   ol.ciclo, ul.reglas { margin: 0; padding-left: 1.25rem; display: grid; gap: var(--e-2); }
   ul.check { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-2); }
   ul.check label { display: flex; gap: var(--e-3); align-items: flex-start; padding: var(--e-3) var(--e-4); border-radius: var(--r-3); background: var(--c-capa-hover); cursor: pointer; }
-  ul.check input { appearance: none; flex: none; width: 1.375rem; height: 1.375rem; margin: 0.1rem 0 0; border-radius: 0.4rem; border: 1.5px solid var(--c-borde-2); display: grid; place-items: center; cursor: pointer; transition: background-color var(--d-1); }
+  ul.check input { appearance: none; flex: none; width: 1.375rem; height: 1.375rem; margin: 0.1rem 0 0; border-radius: 0.4rem; border: 1.5px solid var(--c-borde-campo); display: grid; place-items: center; cursor: pointer; transition: background-color var(--d-1); }
   ul.check input:checked { background: var(--c-acento); border-color: var(--c-acento); }
   ul.check input:checked::after { content: ""; width: 0.35rem; height: 0.7rem; border: solid var(--c-sobre-acento); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) translate(-1px, -1px); }
   ul.check input:focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; }
@@ -73,7 +76,7 @@
   .estudio-pasos { margin: 0; padding-left: 1.25rem; display: grid; gap: var(--e-2); }
   .pie { position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-panel); border-width: 1px 0 0; border-radius: 0;
     padding: var(--e-3) max(var(--e-4), env(safe-area-inset-right, 0px)) calc(var(--e-3) + env(safe-area-inset-bottom, 0px)) max(var(--e-4), env(safe-area-inset-left, 0px)); }
-  .pie .dentro { width: min(46rem, 100%); margin: 0 auto; display: flex; justify-content: space-between; gap: var(--e-3); }
+  .pie .dentro { width: min(46rem - 2 * var(--e-4), 100%); margin: 0 auto; display: flex; justify-content: space-between; gap: var(--e-3); }
   .pie .c8-boton { flex: 1; max-width: 14rem; }
   .solo-grande { display: none; }
   @media (min-width: 760px) { .solo-grande { display: inline-flex; } .solo-movil { display: none; } }
@@ -86,12 +89,15 @@
     <symbol id="i-aviso" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.5h.01"/></symbol>
     <symbol id="i-flecha" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
     <symbol id="i-enviar" viewBox="0 0 24 24"><path d="M4 12 20 4l-4 16-4.5-6.5z"/><path d="M11.5 13.5 20 4"/></symbol>
+    <symbol id="i-ayuda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17h.01"/></symbol>
+    <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   </defs>
 </svg>
 
 <header class="cabecera c8-vidrio c8-vidrio--texto c8-vidrio--barra">
+  <span class="logo-e" aria-hidden="true">c8</span>
   <span class="marca"><span>cre<b>8</b>eight</span> <small>Guía Osmo 360</small></span>
-  <a class="c8-boton c8-boton--fantasma c8-boton--s" href="#problemas" id="ir-problemas" aria-label="Problemas frecuentes">?</a>
+  <a class="c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s" href="#problemas" id="ir-problemas" aria-label="Problemas frecuentes" title="Problemas frecuentes"><svg class="c8-icono" aria-hidden="true"><use href="#i-ayuda"/></svg></a>
   <a class="c8-boton c8-boton--secundario c8-boton--s solo-grande" href="estudio.html#fotos" data-accion="estudio-cabecera">Abrir el Estudio</a>
 </header>
 
@@ -304,7 +310,7 @@
 <dialog class="c8-dialogo c8-vidrio c8-vidrio--denso menu-pasos" id="menu-pasos" aria-labelledby="menu-pasos-titulo">
   <div class="fila" style="justify-content: space-between">
     <h2 class="c8-panel-titulo" id="menu-pasos-titulo" style="margin: 0">Pasos</h2>
-    <button class="c8-boton c8-boton--fantasma c8-boton--s" type="button" data-cerrar aria-label="Cerrar">✕</button>
+    <button class="c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s" type="button" data-cerrar aria-label="Cerrar"><svg class="c8-icono" aria-hidden="true"><use href="#i-cerrar"/></svg></button>
   </div>
   <div id="lista-pasos"></div>
   <div class="fila" style="margin-top: var(--e-5)"><button class="c8-boton c8-boton--peligro c8-boton--s" type="button" data-accion="nuevo">Nuevo inmueble</button></div>
@@ -344,6 +350,7 @@
   };
   const $ = (s, r = document) => r.querySelector(s);
   const secciones = [...document.querySelectorAll("#pasos > section.paso")];
+  for (const s of secciones) s.querySelector("h1").tabIndex = -1; // se enfoca al cambiar de paso (A19)
   const principales = secciones.filter((s) => !s.hasAttribute("data-apendice"));
   const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   let temporizadorAviso = 0;
@@ -402,7 +409,7 @@
     $("#siguiente").textContent = ultimo ? "Volver al inicio" : "Siguiente →";
     if (location.hash.slice(1) !== s.dataset.ancla) history.replaceState(null, "", `#${s.dataset.ancla}`);
     progreso(); guardar();
-    if (desplazar) scrollTo({ top: 0, behavior: reducido() ? "auto" : "smooth" });
+    if (desplazar) { scrollTo({ top: 0, behavior: reducido() ? "auto" : "smooth" }); s.querySelector("h1").focus({ preventScroll: true }); }
   }
   $("#anterior").onclick = () => ir(est.paso - 1);
   $("#siguiente").onclick = () => {
@@ -434,6 +441,8 @@
     b.onclick = accion;
     return b;
   }
+  const icono = (id) => { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("class", "c8-icono"); s.setAttribute("aria-hidden", "true");
+    const u = document.createElementNS("http://www.w3.org/2000/svg", "use"); u.setAttribute("href", `#${id}`); s.append(u); return s; };
   function pintarEstancias() {
     const lista = $("#lista-estancias"), control = $("#control-tomas");
     lista.replaceChildren(); control.replaceChildren();
@@ -442,7 +451,8 @@
       const t = document.createElement("span"); t.className = "c8-fila-texto"; t.textContent = `${i + 1}. ${nombre}`;
       const subir = boton("↑", "c8-boton--fantasma c8-boton--icono", `Subir ${nombre}`, () => { [est.estancias[i - 1], est.estancias[i]] = [est.estancias[i], est.estancias[i - 1]]; guardar(); pintarEstancias(); });
       subir.disabled = i === 0;
-      const quitar = boton("✕", "c8-boton--fantasma c8-boton--icono", `Quitar ${nombre}`, () => { est.estancias.splice(i, 1); guardar(); pintarEstancias(); });
+      const quitar = boton("", "c8-boton--fantasma c8-boton--icono", `Quitar ${nombre}`, () => { est.estancias.splice(i, 1); guardar(); pintarEstancias(); });
+      quitar.append(icono("i-cerrar"));
       fila.append(t, subir, quitar); lista.append(fila);
 
       const n = est.tomas[nombre] ?? 0;

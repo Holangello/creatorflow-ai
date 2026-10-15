@@ -21,6 +21,9 @@
 //    pestaña solo mientras se importan fotos y traducciones automáticas que se borran al renombrar.
 // 8. Proyectos y perfiles antiguos (modos, idiomas, momentos, documentos, color de marca #c8a24a → champán del tema),
 //    traducciones de Mi inmobiliaria (pie legal, privacidad) y la lista de la Guía por enlace (#fotos&estancias=…).
+// 9. Cierre de la fase 4 (iPad vertical): el cajón cerrado de la vista previa no recibe el foco; las plantas son pestañas
+//    (tablist, flechas); la «Dirección final del recorrido» manda en url_publica, el QR y el código para incrustar (sin
+//    ?embed); y el título automático usa la zona.
 // Las imágenes, PDF, DXF, GLB y WAV se generan al vuelo (e2e-util.mjs). Sale con código 1 si algo falla.
 import { servir, lanzar, contexto, abrir } from "./comun.mjs";
 import { crearInforme, FaltaPieza, erroresDe, esperar, subir, descargar, leerZip, jsonDe, archivo, mediosEstudio, asegurarBuild } from "./e2e-util.mjs";
@@ -86,6 +89,9 @@ const SEL = {
   traduccion: (etiqueta) => `.fila-trad:has(.original small:text-is("${etiqueta}")) :is(input, textarea)`,
   muestraTema: "dialog[open] [data-campo=color] .muestra.tema", muestraColor: (c) => `dialog[open] [data-campo=color] .muestra[data-color="${c}"]`,
   comprobacionesError: ".antes-publicar .comprobacion.error b",
+  // cierre de la fase 4: dirección final del recorrido, código para incrustar, QR de Publicar y pestañas de planta
+  urlFinal: "#url-final", errorUrlFinal: "#url-final-err", pasoSubir: ".pasos-web > li:nth-child(2) code", codigoIncrustar: ".codigo-incrustar code",
+  qrPublicar: ".pasos-web .qr", pestanasPlanta: "#barra-plantas [role=tablist]", pestanaElegida: "#barra-plantas [role=tab][aria-selected=true]",
 };
 const SD = JSON.parse(JSON.stringify(SEL)); // sin las funciones: es lo que se inyecta en la página como __SEL
 // Pasos por su #ancla. La fase 3 junta Revisar y Publicar en «#publicar» (con #revisar y #exportar como alias) y convierte
@@ -1004,6 +1010,87 @@ try {
     await p.click(SEL.noUsarGuia);
     await esperar(p, () => !document.querySelector(__SEL.ofertaGuia) && location.hash === "#fotos");
     inf.ok(/Cocina/.test(roto) && !/%E0/.test(roto), "un enlace con datos rotos se queda con lo válido; «No usar» también limpia el enlace", roto);
+    const err = erroresDe(p, IGNORAR);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
+
+  // ================================================================== 9 · cierre de la fase 4
+  await inf.bloque("Cierre de la fase 4 (iPad): cajón de la vista previa sin foco, plantas en pestañas, dirección final y título con la zona", async () => {
+    const { p } = await estudio({ ancho: 820, alto: 1180, movil: true });
+    await fotos(p, ["salon.jpg", "cocina.jpg"], 2);
+
+    // A9 · El cajón cerrado no recibe el foco: ni con el tabulador desde el último control del trabajo ni con focus()
+    const enfocables = () => p.evaluate(() => [...document.querySelectorAll(`${__SEL.vista} :is(button, select, input, iframe)`)]
+      .filter((x) => { x.focus(); return document.activeElement === x; }).length);
+    await p.evaluate(() => [...document.querySelectorAll(`${__SEL.trabajo} :is(a[href], button, input, select)`)].filter((x) => x.offsetParent && !x.disabled).at(-1).focus());
+    const paradas = [];
+    for (let i = 0; i < 3; i++) { await p.keyboard.press("Tab"); paradas.push(await p.evaluate(() => document.activeElement?.closest(__SEL.vista) ? document.activeElement.id || document.activeElement.tagName : null)); }
+    const cerrado = await enfocables();
+    await p.tap(SEL.botonVista);
+    await esperar(p, () => document.body.classList.contains("vista-abierta") && getComputedStyle(document.querySelector(__SEL.vista)).visibility === "visible");
+    const abierto = await enfocables();
+    inf.ok(!paradas.some(Boolean) && cerrado === 0 && abierto > 0, "A9 · el cajón cerrado de la vista previa no recibe el foco; abierto, sí", { paradas, cerrado, abierto });
+    await p.tap(SEL.botonVista);
+    await esperar(p, () => getComputedStyle(document.querySelector(__SEL.vista)).visibility === "hidden");
+
+    // A15 · Plantas: tablist con una sola parada en el tabulador; las flechas, Inicio y Fin cambian de planta y el foco la sigue
+    await ir(p, "plano");
+    await p.click(SEL.anadirPlanta);
+    await p.waitForSelector(SEL.dialogoCampo);
+    await p.fill(SEL.dialogoCampo, "Planta primera");
+    await p.keyboard.press("Enter");
+    await esperar(p, () => window.__estudio.tour.plantas.length === 2 && !document.querySelector(__SEL.dialogo));
+    const pestanas = () => p.evaluate(() => {
+      const l = document.querySelector(__SEL.pestanasPlanta), ts = [...(l?.children ?? [])], f = document.activeElement;
+      return { nombre: l?.getAttribute("aria-label"), roles: ts.map((x) => x.getAttribute("role")).join(), paradas: ts.filter((x) => x.tabIndex === 0).length,
+        planta: window.__estudio.planta, foco: f?.getAttribute("role") === "tab" && f.getAttribute("aria-selected") === "true" ? f.textContent : null };
+    });
+    await p.focus(SEL.pestanaElegida);
+    await p.keyboard.press("ArrowLeft");
+    const izq = await pestanas();
+    await p.keyboard.press("End");
+    const fin = await pestanas();
+    inf.ok(izq.nombre === "Plantas" && izq.roles === "tab,tab" && izq.paradas === 1 && izq.planta === "p0" && izq.foco === "Planta principal" && fin.planta !== "p0" && fin.foco === "Planta primera",
+      "A15 · las plantas son pestañas (tablist «Plantas», una parada en el tabulador) y las flechas cambian de planta con el foco", { izq, fin });
+
+    // M6 · Dirección final del recorrido: por defecto la web + /tours/<referencia>/; si se escribe otra, manda en todo
+    await ir(p, "publicar");
+    await p.fill(SEL.webPublicar, "https://www.inmo-prueba.es");
+    await p.keyboard.press("Tab");
+    await esperar(p, () => window.__estudio.tour.marca?.web === "https://www.inmo-prueba.es");
+    const porDefecto = `https://www.inmo-prueba.es/tours/${await p.evaluate(() => window.__estudio.tour._estudio.ref.toLowerCase())}/`;
+    inf.ok(await p.inputValue(SEL.urlFinal) === porDefecto, "M6 · la dirección final es, por defecto, la web + /tours/<referencia>/", await p.inputValue(SEL.urlFinal));
+    await p.fill(SEL.urlFinal, "http://recorridos.inmo-prueba.es/piso-centro");
+    await p.keyboard.press("Tab");
+    const errFinal = await p.textContent(SEL.errorUrlFinal);
+    inf.ok(/https:\/\/ y terminada en \//.test(errFinal) && await p.evaluate(() => !("urlFinal" in window.__estudio.tour._estudio)), "M6 · una dirección sin https o sin la / final se rechaza y no se guarda", errFinal);
+    const final = "https://recorridos.inmo-prueba.es/piso-centro/";
+    await p.fill(SEL.urlFinal, final);
+    await p.keyboard.press("Tab");
+    await esperar(p, (u) => window.__estudio.tour._estudio.urlFinal === u, final);
+    const pub = await p.evaluate(() => ({ subir: document.querySelector(__SEL.pasoSubir)?.textContent, qr: document.querySelector(__SEL.qrPublicar)?.getAttribute("aria-label"),
+      codigo: document.querySelector(__SEL.codigoIncrustar)?.textContent ?? "" }));
+    inf.ok(pub.subir === final && pub.qr?.endsWith(final) && pub.codigo.includes(`src="${final}"`) && !pub.codigo.includes("embed") && pub.codigo.includes("clipboard-write; web-share"),
+      "M6 · M7 · «Súbelo», el QR y el código para incrustar llevan la dirección final (código sin ?embed, con clipboard-write y web-share)", pub);
+    await habilitado(p, SEL.zipWeb);
+    const zip = await descargar(p, async () => { await p.click(SEL.zipWeb); await p.waitForSelector(SEL.dialogoTitulo); await p.click("dialog[open] [data-principal]"); }); // sin contacto: «Descargar igualmente»
+    const z = leerZip(zip.datos), tz = jsonDe(z["tour.json"]);
+    inf.ok(tz.url_publica === final && !("_estudio" in tz) && Buffer.from(z["LEEME.txt"] ?? []).toString("utf8").includes(final),
+      "M6 · el ZIP publicado lleva la dirección final en url_publica y en su LEEME.txt", tz.url_publica);
+    await p.fill(SEL.urlFinal, "");
+    await p.keyboard.press("Tab");
+    await esperar(p, () => !("urlFinal" in window.__estudio.tour._estudio));
+    inf.ok(await p.inputValue(SEL.urlFinal) === porDefecto, "M6 · vacía, vuelve a la de por defecto");
+
+    // M12 · El título automático usa la zona (la que enseña el visor, sin número) en vez de repetir habitaciones y m²
+    const titulos = await p.evaluate(async () => {
+      const { tituloAuto } = await import("./estudio-nucleo.js");
+      const t = (extra) => ({ inmueble: { operacion: "venta", tipo: "piso", habitaciones: 3, superficie_construida: 112, ...extra } });
+      return [tituloAuto(t({})), tituloAuto(t({ direccion: "Calle Mayor 12, 28013 Madrid" })),
+        tituloAuto(t({ direccion: "Calle Mayor 12, 3º B, 28013 Madrid", mostrar_direccion_exacta: true })), tituloAuto(t({ direccion: "Calle Mayor 12, Madrid" }), "en")].join(" | ");
+    });
+    inf.ok(titulos === "Piso en venta · 3 hab. · 112 m² | Piso en venta en Madrid | Piso en venta en Calle Mayor, Madrid | Flat for sale in Madrid",
+      "M12 · título automático con la zona (sin la dirección exacta, solo la ciudad; nunca el número)", titulos);
     const err = erroresDe(p, IGNORAR);
     inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
   });

@@ -44,7 +44,7 @@ function rgbaDe(valor) {
 
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {object} ctx  { tour(), planta(), nodos(), nodoActual(), posicion(), modoMapa(), texto(v), formato(n), alElegirNodo(n), alElegirPunto(x, z) }
+ * @param {object} ctx  { tour(), planta(), nodos(), nodoActual(), posicion(), modoMapa(), texto(v), superficie(m²), alElegirNodo(n), alElegirPunto(x, z) }
  */
 export function crearPlano(canvas, ctx) {
   const g = canvas.getContext("2d");
@@ -182,6 +182,17 @@ export function crearPlano(canvas, ctx) {
       g.stroke();
     }
 
+    // Enlaces entre las fotos, bajo los rótulos: el halo del rótulo tapa la línea que lo cruza (V14)
+    const nodos = ctx.nodos().filter((n) => n.planta === p.id);
+    g.strokeStyle = css(C.acentoTinta, 0.5); g.lineWidth = 1.5; g.setLineDash([3, 3]);
+    g.beginPath();
+    for (const n of nodos) for (const v of n.vecinos) {
+      if (v.planta !== p.id || v.id < n.id) continue;
+      const [ax, az] = T.a(n.x, n.z), [bx, bz] = T.a(v.x, v.z);
+      g.moveTo(ax, az); g.lineTo(bx, bz);
+    }
+    g.stroke(); g.setLineDash([]);
+
     // Etiquetas de estancias cuando hay espacio: nombre y m² en el plano; en el radar solo el nombre, y solo si es grande.
     if (T.radar ? Math.min(W, H) >= 130 : grande || T.esc > 22) {
       g.textAlign = "center"; g.textBaseline = "middle";
@@ -193,12 +204,12 @@ export function crearPlano(canvas, ctx) {
       // Puntos de las fotos 360 de esta planta: si uno cae sobre el rótulo (la foto suele estar en el centro de la
       // estancia), el rótulo sube por encima del punto en vez de quedar tapado por él.
       const radio = (grande ? 6 : 5) * u;
-      const puntos = ctx.nodos().filter((n) => n.planta === p.id).map((n) => T.a(n.x, n.z));
+      const puntos = nodos.map((n) => T.a(n.x, n.z));
       for (const e of estancias) {
         // En el radar no se rotula la estancia donde está el visitante (ya figura en la tarjeta superior).
         if (pos0 && puntoEnPoligono([pos0.x, pos0.z], e.poligono)) continue;
         const [cx, cz] = T.a(...puntoEtiqueta(e.poligono));
-        const txt = ctx.texto(e.nombre), sup = `${ctx.formato(areaPoligono(e.poligono))} m²`;
+        const txt = ctx.texto(e.nombre), sup = ctx.superficie(areaPoligono(e.poligono));
         g.font = letra(C.semi, nombre);
         const ancho = g.measureText(txt).width / 2 + radio;
         const arriba = T.radar ? nombre * 0.6 : nombre * 1.1, abajo = T.radar ? nombre * 0.6 : m2 * 1.2;
@@ -221,16 +232,7 @@ export function crearPlano(canvas, ctx) {
       }
     }
 
-    // Enlaces y fotos
-    const nodos = ctx.nodos().filter((n) => n.planta === p.id);
-    g.strokeStyle = css(C.acentoTinta, 0.5); g.lineWidth = 1.5; g.setLineDash([3, 3]);
-    g.beginPath();
-    for (const n of nodos) for (const v of n.vecinos) {
-      if (v.planta !== p.id || v.id < n.id) continue;
-      const [ax, az] = T.a(n.x, n.z), [bx, bz] = T.a(v.x, v.z);
-      g.moveTo(ax, az); g.lineTo(bx, bz);
-    }
-    g.stroke(); g.setLineDash([]);
+    // Fotos 360, encima de todo
     const actual = ctx.nodoActual();
     for (const n of nodos) {
       const [x, z] = T.a(n.x, n.z);

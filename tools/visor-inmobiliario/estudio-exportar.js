@@ -1,9 +1,10 @@
 // Paso 4 · Publicar (S-1 · S-7 · E4): «Antes de publicar» (lo que antes era Revisar) y las descargas por destino:
 //   1 · Tu web (ZIP, enlace, QR y código para incrustarlo) · 2 · Portales y redes (fotos 360, vídeo, plano con medidas)
 //   · 3 · Para tus clientes (dossier, recorrido en un solo archivo y QR) · Avanzado (tour.json).
-// La copia de seguridad está en «Proyecto ▾». La web es la de «Mi inmobiliaria»; con web se escribe `url_publica`.
+// La copia de seguridad está en «Proyecto ▾». La web es la de «Mi inmobiliaria»; `url_publica` es la «Dirección final del
+// recorrido» (por defecto, la web + /tours/<referencia>/; editable si se aloja en otro sitio: _estudio.urlFinal).
 import { slug, norm360, zipAlmacenado } from "./estudio-util.js";
-import { app, h, icono, emitir, on, toast, confirmar, textoDe, colocado, calcularEnlaces, tourParaExportar, archivosParaExportar, rutasUsadas,
+import { app, h, icono, emitir, on, toast, confirmar, cambiar, textoDe, colocado, calcularEnlaces, tourParaExportar, archivosParaExportar, rutasUsadas,
   fmtMB, archivosFaltantes, urlsNoValidas, urlPermitida, MENSAJE_URL, tienePlano, textosTraducibles, textoExacto, referenciaDe, VIDRIO } from "./estudio-nucleo.js";
 import { problemaVariante, nombreEstilo, origenDe } from "./estudio-variantes.js";
 import { fijarWeb, migrarWebAntigua } from "./estudio-perfil.js";
@@ -85,7 +86,7 @@ export function comprobar() {
   const malas = urlsNoValidas(t);
   if (malas.length) add("urls", "error", `${malas.length} ${malas.length === 1 ? "dirección web no válida" : "direcciones web no válidas"}`, `${lista(malas.map((m) => m.donde), 3)}. ${MENSAJE_URL}`, malas[0].ir);
   if (!t.marca?.nombre) add("marca", "aviso", "Falta el nombre de tu inmobiliaria", "Sale en la portada del recorrido y en el dossier.", { perfil: "nombre" });
-  if (!webPublica()) add("web", "aviso", "Falta la dirección de tu web", "Sin ella no hay enlace, QR ni código para incrustar el recorrido.", { seccion: "publicar", campo: "web" });
+  if (!urlPublica()) add("web", "aviso", "Falta la dirección de tu web", "Sin ella no hay enlace, QR ni código para incrustar el recorrido.", { seccion: "publicar", campo: "web" });
   // Estilo y luz: versiones, renders e IA
   const problemas = [];
   for (const p of ps) for (const v of p.variantes ?? []) { const pr = problemaVariante(p, v); if (pr) problemas.push({ ...pr, p }); }
@@ -182,8 +183,13 @@ function sinContacto(t) {
 const seguirSinContacto = async () => !sinContacto(app.tour) || confirmar("Falta el contacto",
   "Sin el WhatsApp o el CRM de tu inmobiliaria, el recorrido no tendrá «Contactar» y los visitantes no podrán preguntarte. Escríbelo en Mi inmobiliaria o descarga igualmente.",
   "Descargar igualmente");
-/** Dirección del recorrido publicado (url_publica) o null si aún no hay web: nunca un dominio de ejemplo (E4). */
-const urlPublica = () => { const w = webPublica(); return w ? `${w}/tours/${nombreBase()}/` : null; };
+/** «Dirección final del recorrido» válida: https y terminada en / (la carpeta con index.html) → normalizada, o null. */
+const direccionFinal = (v) => { try { const u = new URL(String(v ?? "").trim()); return u.protocol === "https:" && u.href.endsWith("/") ? u.href : null; } catch { return null; } };
+/** Por defecto, la web + /tours/<referencia>/ (null sin web: nunca un dominio de ejemplo, E4). */
+const urlPorDefecto = () => { const w = webPublica(); return w ? `${w}/tours/${nombreBase()}/` : null; };
+/** Dirección del recorrido publicado (url_publica): la escrita en Publicar si se aloja en otro sitio, o la de por defecto.
+ *  De ella salen el enlace, el QR, el código para incrustar, el dossier y los enlaces de cada consulta. */
+const urlPublica = () => direccionFinal(app.tour?._estudio?.urlFinal) ?? urlPorDefecto();
 function descargar(blob, nombre) {
   if (EXP?.descargar) return EXP.descargar(blob, nombre);
   const a = h("a", { href: URL.createObjectURL(blob), download: nombre });
@@ -246,13 +252,15 @@ const destino = (n, titulo, texto, ...contenido) => h("section", { class: "desti
   ...contenido);
 
 let pintando = false;
+/** Lo que identifica un control entre dos pintados (los botones no tienen id): etiqueta, id o nombre y texto. */
+const huella = (e) => `${e.tagName}|${e.id}|${e.getAttribute("aria-label") ?? ""}|${e.textContent}`;
 /** Pinta Publicar. Protegido contra repintados anidados (un «change» al perder el foco) y conserva el foco. */
 function pintarExportar() {
   if (!raizE || pintando) return;
   pintando = true;
-  const foco = raizE.contains(document.activeElement) ? document.activeElement.id : "";
+  const foco = raizE.contains(document.activeElement) ? huella(document.activeElement) : null;
   try { pintarPublicar(); } finally { pintando = false; }
-  if (foco) document.getElementById(foco)?.focus({ preventScroll: true });
+  if (foco) [...raizE.querySelectorAll("a, button, input, select, summary, [tabindex]")].find((x) => huella(x) === foco)?.focus({ preventScroll: true });
 }
 function pintarPublicar() {
   const t = app.tour;
@@ -279,11 +287,27 @@ function pintarPublicar() {
     if (v !== String(t.marca?.web ?? "").trim()) fijarWeb(v); // repinta Publicar (evento «perfil» o cambio del proyecto)
     pintarExportar();
   };
+  // «Dirección final del recorrido» (M6): por defecto la web + /tours/<referencia>/; si se escribe otra, se guarda en el proyecto.
+  const final = h("input", { type: "url", id: "url-final", value: url ?? "", placeholder: `https://www.tu-inmobiliaria.com/tours/${ref}/`, autocomplete: "off",
+    "aria-describedby": "url-final-ayuda url-final-err" });
+  const errFinal = h("small", { class: "c8-error", id: "url-final-err", "aria-live": "polite" });
+  final.onchange = () => {
+    const v = final.value.trim(), porDefecto = urlPorDefecto();
+    const propia = v && v !== porDefecto ? direccionFinal(v) : null;
+    if (v && v !== porDefecto && !propia) { errFinal.textContent = "Escribe la dirección completa, empezando por https:// y terminada en /"; final.setAttribute("aria-invalid", "true"); return; }
+    errFinal.textContent = ""; final.setAttribute("aria-invalid", "false");
+    const nueva = propia && propia !== porDefecto ? propia : undefined;
+    if (nueva !== t._estudio.urlFinal) cambiar((tt) => { if (nueva) tt._estudio.urlFinal = nueva; else delete tt._estudio.urlFinal; }, { tipo: "local" });
+    pintarExportar();
+  };
   let enlace;
   if (url) {
     const qr = h("div", { class: "qr", "aria-label": `Código QR del enlace ${url}`, role: "img" });
     if (QR?.qrSVG) qr.innerHTML = qrSVG(2);
-    const codigo = `<iframe src="${url}" width="100%" height="600" style="border:0;border-radius:12px" allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking" allowfullscreen loading="lazy" title="Recorrido virtual ${ref}"></iframe>`;
+    // El mismo código que el LEEME.txt del ZIP (exportar.js): sin ?embed y con permiso para copiar la foto y compartir.
+    // El de aquí, solo mientras exportar.js no ha cargado.
+    const titulo = `Recorrido virtual ${ref}`;
+    const codigo = EXP?.codigoIncrustar?.(url, titulo) ?? `<iframe src="${url}" width="100%" height="600" style="border:0;border-radius:12px" allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking; clipboard-write; web-share" allowfullscreen loading="lazy" title="${titulo}"></iframe>`;
     const copiarBoton = (etq, txt) => h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--icono c8-boton--s", "aria-label": etq, title: etq, onclick: copiar(txt) }, icono("copiar", 14));
     enlace = h("div", { class: "pasos-publicar" },
       h("div", {},
@@ -291,15 +315,18 @@ function pintarPublicar() {
         h("details", { class: "codigo-incrustar" }, h("summary", { class: "suave", text: "Código para incrustarlo en tu web (WordPress, Wix…)" }),
           h("div", { class: "codigo" }, h("code", { text: codigo }), copiarBoton("Copiar código", codigo)))),
       qr);
-  } else enlace = h("p", { class: "nota-c8", role: "note", text: "Escribe tu web para ver el enlace y el QR." });
+  } else enlace = h("p", { class: "nota-c8", role: "note", text: "Escribe tu web (paso 1) para ver el enlace y el QR." });
   const tuWeb = destino("1", "Tu web", "Tres pasos para tenerlo en tu web y compartir el enlace.",
     h("ol", { class: `pasos-web ${VIDRIO}` },
-      h("li", {}, h("b", { text: "Descarga tu recorrido. " }), "Es una carpeta comprimida lista para tu web (sin los documentos privados del proyecto).",
-        h("div", { class: "fila" }, zipWeb.b), zipWeb.prog, zipWeb.estado),
-      h("li", {}, h("b", { text: "Súbelo a tu web. " }), "Descomprímelo y súbelo con el gestor de archivos de tu hosting (o por FTP) a la carpeta ", h("code", { text: `/tours/${ref}/` }), ". Dentro deben quedar index.html, tour.json y la carpeta panos."),
-      h("li", {}, h("b", { text: "Comparte el enlace." }),
+      h("li", {}, h("b", { text: "Descarga tu recorrido. " }), "Es una carpeta comprimida lista para tu web (sin los documentos privados del proyecto). El enlace y el QR llevan dentro su dirección final: revísala antes.",
         h("div", { class: "c8-campo campo-web", "data-campo": "web" }, h("label", { for: "web-publicar", text: "Tu web (la de Mi inmobiliaria)" }), web, errWeb),
-        enlace)));
+        h("div", { class: "c8-campo campo-web", "data-campo": "url-final" }, h("label", { for: "url-final", text: "Dirección final del recorrido" }), final,
+          h("small", { class: "c8-ayuda", id: "url-final-ayuda", text: `Por defecto, tu web + /tours/${ref}/. Cámbiala solo si lo alojas en otro sitio (un subdominio, Netlify…).` }), errFinal),
+        h("div", { class: "fila" }, zipWeb.b), zipWeb.prog, zipWeb.estado),
+      h("li", {}, h("b", { text: "Súbelo a tu web. " }), "Descomprímelo y súbelo con el gestor de archivos de tu hosting (o por FTP) ",
+        ...(url ? ["para que se abra en ", h("code", { text: url }), ". Dentro de esa carpeta"] : ["a la carpeta ", h("code", { text: `/tours/${ref}/` }), ". Dentro"]),
+        " deben quedar index.html, tour.json y la carpeta panos."),
+      h("li", {}, h("b", { text: "Comparte el enlace." }), enlace)));
 
   // 2 · Portales y redes
   const tieneMusica = !!t.audio?.musica?.archivo;

@@ -126,7 +126,8 @@
 .pn-disp-lateral .pn-t-precio { font-size: var(--t-titulo-g, 1.75rem); }
 .pn-disp-lateral .pn-t-datos { font-size: var(--t-sec, 0.8125rem); }
 .pn-disp-lateral :is(.pn-t-contactar, .pn-t-boton) { width: 100%; padding-inline: var(--e-3, 0.75rem); }
-.pn-disp-lateral .pn-t-boton .pn-t-et { overflow: hidden; text-overflow: ellipsis; }
+/* si no cabe (letra grande, espaciado aumentado u otro idioma), el nombre pasa a dos líneas en vez de cortarse (A12) */
+.pn-disp-lateral .pn-t-boton .pn-t-et { white-space: normal; text-align: center; line-height: var(--lh-ajustado, 1.15); }
 .pn-t-acciones { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--e-1, 0.25rem); padding: var(--e-2, 0.5rem);
   border-top: 1px solid var(--c-separador, rgba(255, 255, 255, 0.08)); }
 .pn-tarjeta.pn-abierto .pn-t-acciones { display: none; }
@@ -182,8 +183,10 @@
 .pn-disp-compacta .pn-datos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 /* ---------------------------------------------------------------- en reposo (el núcleo pone body.ui-inactiva): «349.000 € · Contactar»
-   La tarjeta nunca desaparece; vuelve entera con cualquier gesto, al tener el foco o con algo abierto. */
-body.ui-inactiva .pn-raiz:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) :is(.pn-t-sobre, .pn-t-datos, .pn-t-boton, .pn-t-acciones) { display: none; }
+   La tarjeta nunca desaparece; vuelve entera con cualquier gesto, al tener el foco o con algo abierto. Lo demás se
+   oculta solo a la vista (como .pn-sr): sigue para los lectores de pantalla, que no despiertan la interfaz (A11). */
+body.ui-inactiva .pn-raiz:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) :is(.pn-t-sobre, .pn-t-datos, .pn-t-boton, .pn-t-acciones) {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 body.ui-inactiva .pn-raiz.pn-disp-lateral:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) { width: auto; max-width: var(--pn-ancho); }
 body.ui-inactiva .pn-raiz.pn-disp-lateral:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) .pn-t-cab {
   display: flex; align-items: center; gap: var(--e-3, 0.75rem); padding: var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-4, 1rem); }
@@ -265,8 +268,9 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-desc p + p { margin-top: var(--e-2, 0.5rem); }
 /* (máscaras: solo cuenta la opacidad del color) */
 .pn-desc-corta { max-height: 4.8em; overflow: hidden; -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
-.pn-tabla { display: grid; grid-template-columns: 1fr auto; gap: var(--e-2, 0.5rem) var(--e-3, 0.75rem); margin: 0; }
-.pn-tabla dt { color: var(--c-texto-2, #a9adb5); }
+/* (minmax(0, 1fr): un nombre larguísimo se parte en vez de empujar las cifras fuera del panel, M10) */
+.pn-tabla { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--e-2, 0.5rem) var(--e-3, 0.75rem); margin: 0; }
+.pn-tabla dt { color: var(--c-texto-2, #a9adb5); overflow-wrap: anywhere; }
 .pn-tabla dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: var(--peso-medio, 510); }
 .pn-tabla .pn-total { color: var(--c-texto, #f5f5f7); font-weight: var(--peso-semi, 590); padding-top: var(--e-2, 0.5rem); border-top: 1px solid var(--c-separador, rgba(255, 255, 255, 0.08)); }
 .pn-ubic { display: flex; gap: var(--e-2, 0.5rem); align-items: flex-start; margin-bottom: var(--e-3, 0.75rem) !important; }
@@ -360,6 +364,7 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-estado-error { background: var(--c-error-fondo, rgba(255, 123, 114, 0.12)); }
 .pn-estado-ok { justify-items: center; text-align: center; padding: var(--e-6, 1.5rem) var(--e-3, 0.75rem); }
 .pn-estado-ok p { display: block; font-size: var(--t-cuerpo, 1rem); }
+.pn-estado-ok p:focus { outline: none; } /* recibe el foco para que se lea (como el título del diálogo); no es un control */
 .pn-estado-ic { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: 50%; background: var(--c-acento-suave, rgba(207, 173, 102, 0.16)); color: var(--c-acento-texto, #d9b872); }
 #paneles .pn-estado-ic .pn-ic { width: 1.625rem; height: 1.625rem; }
 .pn-estado-pegar { justify-items: stretch; text-align: left; padding: var(--e-1) 0; }
@@ -374,10 +379,12 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-tira { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: var(--e-2, 0.5rem); }
 .pn-tira li { position: relative; border-radius: var(--r-2, 0.625rem); overflow: hidden; background: var(--c-capa-activa, rgba(255, 255, 255, 0.12)); aspect-ratio: 4 / 3; }
 .pn-tira img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* el nombre de la estancia, sobre la foto: blanco sobre el degradado de oscurecimiento (tema.css), igual en los dos temas;
-   el texto va abajo, donde el velo es más fuerte (6,2:1 incluso sobre una miniatura blanca) */
-.pn-tira-et { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.625rem 0.375rem var(--e-1, 0.25rem); font-size: var(--t-micro, 0.6875rem); font-weight: var(--peso-medio, 510);
-  color: var(--c-sobre-foto, #fff); background-image: var(--degradado-foto, linear-gradient(to top, rgba(0, 0, 0, 0.62), transparent 70%));
+/* el nombre de la estancia, arriba (abajo va la franja de marca que graba la captura, V12): blanco sobre el velo de las
+   fotos (tema.css), igual en los dos temas. El velo es entero bajo el texto y se funde por debajo: 6,2:1 incluso sobre
+   una miniatura blanca (A4). El texto acaba antes del círculo de «quitar», que va en la misma franja */
+.pn-tira-et { position: absolute; left: 0; right: 0; top: 0; padding: var(--e-1, 0.25rem) 1.875rem 0.5rem 0.375rem;
+  font-size: var(--t-micro, 0.6875rem); font-weight: var(--peso-medio, 510); line-height: var(--lh-ui, 1.3);
+  color: var(--c-sobre-foto, #fff); background: linear-gradient(to top, transparent, var(--velo-foto, rgba(0, 0, 0, 0.62)) 0.5rem);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pn-tira-cargando { display: grid; place-items: center; background: var(--c-capa-hover, rgba(255, 255, 255, 0.06)) !important; color: var(--c-texto-2, #a9adb5); }
 .pn-tira-mas { background: transparent !important; border: 1px dashed var(--c-borde-2, rgba(255, 255, 255, 0.18)); }
@@ -385,11 +392,11 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
   background: transparent; color: var(--c-texto-2, #a9adb5); font-size: var(--t-micro, 0.6875rem); font-weight: var(--peso-medio, 510); line-height: 1.2; text-align: center;
   transition: background-color var(--d-1, 120ms) var(--suave, ease), color var(--d-1, 120ms) var(--suave, ease); }
 .pn-tira-mas button:hover { background: var(--c-capa-hover, rgba(255, 255, 255, 0.08)); color: var(--c-texto, #f5f5f7); }
-/* quitar una foto: el objetivo mide 44 px (transparente) y se ve un círculo pequeño del vidrio denso sobre la miniatura
-   (sin desenfoque: no es un vidrio dentro de otro), para no tapar la foto */
-.pn-quitar { position: absolute; z-index: 0; top: 0; right: 0; width: var(--toque-minimo, 44px); height: var(--toque-minimo, 44px); border: 0; padding: 0;
-  display: grid; place-items: center; background: transparent; color: var(--c-texto, #f5f5f7); transition: color var(--d-1, 120ms) var(--suave, ease); }
-.pn-quitar::before { content: ""; position: absolute; z-index: -1; inset: 0; margin: auto; width: 1.75rem; height: 1.75rem; border-radius: 50%;
+/* quitar una foto: el objetivo mide 44 px (transparente) y se ve un círculo pequeño del vidrio denso arriba a la derecha,
+   en la franja del nombre (sin desenfoque: no es un vidrio dentro de otro), para no tapar la foto */
+.pn-quitar { position: absolute; z-index: 0; top: 0; right: 0; width: var(--toque-minimo, 44px); height: var(--toque-minimo, 44px); border: 0; padding: 0.3125rem;
+  display: grid; place-items: start end; background: transparent; color: var(--c-texto, #f5f5f7); transition: color var(--d-1, 120ms) var(--suave, ease); }
+.pn-quitar::before { content: ""; position: absolute; z-index: -1; top: 0.1875rem; right: 0.1875rem; width: 1.25rem; height: 1.25rem; border-radius: 50%;
   background: var(--vidrio-denso, rgba(18, 20, 24, 0.9)); box-shadow: var(--sombra-1, 0 1px 2px rgba(0, 0, 0, 0.3)); transition: transform var(--d-3, 380ms) var(--muelle-rebote, ease-out); }
 .pn-quitar:hover { color: var(--c-error, #ff7b72); }
 .pn-quitar:active::before { transform: scale(0.88); }
@@ -418,8 +425,8 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
   max-height: calc(100dvh - var(--pn-dlg-arriba, var(--pn-arriba, 4rem)) - var(--pn-margen) - var(--pn-inf));
 }
 .pn-disp-lateral .pn-dialogo-contacto { width: min(26rem, calc(100vw - var(--pn-columna, 25rem) - 2 * var(--pn-margen))); }
-/* Ajustes, algo más ancho: «Automatique · Clair · Sombre» caben en el control segmentado sin cortarse */
-.pn-disp-lateral .pn-dialogo-ajustes { width: min(24rem, calc(100vw - var(--pn-columna, 25rem) - 2 * var(--pn-margen))); }
+/* Ajustes y Estilo y luz, algo más anchos: «Automatique · Clair · Sombre» y «Contemporáneo» caben sin cortarse (V5) */
+.pn-disp-lateral :is(.pn-dialogo-ajustes, .pn-dialogo-estilo) { width: min(24rem, calc(100vw - var(--pn-columna, 25rem) - 2 * var(--pn-margen))); }
 /* móvil en vertical: hoja inferior; «Estilo y luz» como mucho el 40 % del alto, para que se vea la escena */
 .pn-disp-hoja .pn-dialogo { left: var(--pn-izq); right: var(--pn-der); bottom: 0; max-width: 47.5rem; margin-inline: auto; max-height: 88dvh;
   border-radius: var(--r-5, 1.75rem) var(--r-5, 1.75rem) 0 0; border-bottom-width: 0; }
@@ -488,10 +495,13 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-estilo-muestra { display: flex; height: 2rem; border-radius: var(--r-2, 0.625rem); overflow: hidden; }
 .pn-estilo-muestra i { flex: 1; } /* colores de cada estilo: son datos (paneles.js) */
 .pn-estilo-mini { width: 100%; height: 2.75rem; object-fit: cover; border-radius: var(--r-2, 0.625rem); }
-.pn-estilo-nombre { font-size: var(--t-pie, 0.75rem); line-height: 1.2; padding: 0 0.125rem; }
+/* un nombre que no cabe (Zeitgenössisch, Mediterranean…) se parte dentro de su ficha en vez de salirse (V5) */
+.pn-estilo-nombre { font-size: var(--t-pie, 0.75rem); line-height: 1.2; padding: 0 0.125rem; overflow-wrap: anywhere; hyphens: auto; }
 .pn-no-aqui :is(.pn-estilo-muestra, .pn-estilo-mini) { opacity: 0.35; }
 .pn-no-aqui .pn-estilo-nombre { color: var(--c-texto-3, #8b9099); }
 .pn-segmentado > label span { display: inline-flex; align-items: center; gap: var(--e-1, 0.25rem); }
+/* «Luz» en otros idiomas o tallas («Coucher de soleil»): el nombre pasa a dos líneas antes que montarse en el vecino (V5) */
+.pn-dialogo-estilo .pn-segmentado > label { white-space: normal; text-align: center; line-height: var(--lh-ajustado, 1.15); overflow-wrap: anywhere; hyphens: auto; }
 .pn-pintura { display: grid; gap: var(--e-2, 0.5rem); }
 .pn-muestras { display: flex; flex-wrap: wrap; gap: var(--e-2, 0.5rem); }
 .pn-muestra { width: 2.75rem; height: 2.75rem; min-width: var(--toque-minimo, 44px); min-height: var(--toque-minimo, 44px); border-radius: 50%; padding: 0;
@@ -586,6 +596,9 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-filtros { margin-bottom: var(--e-3, 0.75rem); }
 .pn-galeria { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.375rem; }
 .pn-galeria-destacada li:first-child { grid-column: span 2; grid-row: span 2; }
+/* sin imagen huérfana (4, 7, 10… imágenes): la última ocupa la fila entera, más apaisada (V13) */
+.pn-galeria li:last-child:nth-child(3n + 4) { grid-column: 1 / -1; }
+.pn-galeria li:last-child:nth-child(3n + 4) .pn-gal-btn { aspect-ratio: 3 / 1; }
 .pn-gal-btn { position: relative; display: block; width: 100%; height: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; border-radius: var(--r-2, 0.625rem); overflow: hidden;
   background: var(--c-capa-activa, rgba(255, 255, 255, 0.12)); }
 .pn-gal-btn img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--d-3, 380ms) var(--salida, ease-out); }
@@ -644,5 +657,8 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
   .pn-check input { width: 1.5rem; height: 1.5rem; margin-top: 0.625rem; }
   .pn-rgpd summary, .pn-enlace-btn, .pn-marca-enlace { min-height: var(--toque-minimo, 44px); display: flex; align-items: center; }
   .pn-plegable summary, .pn-idioma { min-height: max(3.25rem, var(--toque-minimo, 44px)); }
-  .pn-seg-talla { width: calc(3 * var(--toque-minimo, 44px) + 0.5rem); }
+  /* tres opciones de 44 px más el relleno y el borde del segmentado (8 px, tema.css) y algo de holgura: también con la
+     talla S, en la que 0,5rem ya no llegaba (A21) */
+  .pn-seg-talla { width: calc(3 * var(--toque-minimo, 44px) + 10px); }
+  .pn-t-resumen { min-height: var(--toque-minimo, 44px); align-content: center; } /* «Ver ficha», también en S */
 }

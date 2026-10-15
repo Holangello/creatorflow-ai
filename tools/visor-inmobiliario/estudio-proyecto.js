@@ -124,6 +124,9 @@ export function normalizarTour(t) {
   if (typeof e.perfil !== "boolean") e.perfil = !tieneDatosPropios(t);
   // Referencia automática: solo en proyectos aún sin fotos (los ya publicados conservan su carpeta /tours/…/).
   if (!e.ref && !t.panoramas.length) e.ref = referenciaNueva();
+  // Un recorrido ya publicado (su tour.json) conserva su dirección final: la llevan sus QR y sus enlaces (Publicar la valida).
+  if (typeof t.url_publica === "string" && !e.urlFinal) e.urlFinal = t.url_publica;
+  delete t.url_publica;
   // Color de marca (fase 4, decisión A): el antiguo valor por defecto no lo eligió nadie; sin color, el visor usa el champán del tema.
   if (String(t.marca?.color ?? "").toLowerCase() === COLOR_ANTIGUO) delete t.marca.color;
   return t;

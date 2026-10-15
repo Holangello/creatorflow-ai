@@ -82,16 +82,28 @@ function pintarUI() {
   pintarLado();
   marcar();
 }
+const elegirPlanta = (id) => { app.planta = id; S.sel = null; S.ajustado = false; pintarUI(); ajustar(); };
+/** Pestañas de planta (patrón tablist): solo la elegida entra en el tabulador; las flechas, Inicio y Fin cambian de planta. */
+function teclasPlantas(e) {
+  const ps = app.tour.plantas, i = ps.indexOf(planta());
+  const n = { ArrowLeft: i - 1, ArrowRight: i + 1, Home: 0, End: ps.length - 1 }[e.key];
+  if (n === undefined) return;
+  e.preventDefault(); e.stopPropagation(); // las flechas no deben mover la foto elegida en el plano
+  elegirPlanta(ps[(n + ps.length) % ps.length].id);
+}
 function pintarPlantas() {
   const b = $("#barra-plantas");
   if (!b) return;
-  b.replaceChildren(...[
-    ...app.tour.plantas.map((pl) => h("button", {
-      class: "pestana", role: "tab", "aria-selected": String(pl.id === planta().id), text: textoDe(pl.nombre) || pl.id,
-      title: "Doble clic para renombrar",
-      onclick: () => { app.planta = pl.id; S.sel = null; S.ajustado = false; pintarUI(); ajustar(); },
+  const conFoco = !!b.querySelector("[role=tablist]")?.contains(document.activeElement); // repintar no pierde el foco
+  const pestanas = h("div", { class: "pestanas", role: "tablist", "aria-label": "Plantas", onkeydown: teclasPlantas },
+    app.tour.plantas.map((pl) => h("button", {
+      type: "button", class: "pestana", role: "tab", "aria-selected": String(pl.id === planta().id), tabindex: pl.id === planta().id ? "0" : "-1",
+      text: textoDe(pl.nombre) || pl.id, title: "Doble clic para renombrar",
+      onclick: () => elegirPlanta(pl.id),
       ondblclick: () => renombrarPlanta(pl.id),
-    })),
+    })));
+  b.replaceChildren(...[
+    pestanas,
     h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", title: "Añadir planta", onclick: anadirPlanta }, icono("mas", 15), "Planta"),
     h("div", { class: "relleno" }),
     h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: subirPlano, title: "Plano del arquitecto: PDF, DXF (AutoCAD, Revit, ArchiCAD), PNG o JPG" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
@@ -104,6 +116,7 @@ function pintarPlantas() {
         usado ? `Continuar → ${sig.titulo}` : `Saltar → ${sig.titulo}`);
     })(),
   ].filter(Boolean));
+  if (conFoco) pestanas.querySelector("[aria-selected=true]").focus();
 }
 /** Herramientas a la vista: Calibrar solo con imagen de plano; Muro (solo para la maqueta) en «Avanzado» salvo que ya haya muros. */
 const herramientaVisible = (t) => (t.id === "calibrar" ? !!planta()?.plano?.imagen : t.id === "muro" ? S.herr === "muro" || !!planta()?.muros?.length : true);

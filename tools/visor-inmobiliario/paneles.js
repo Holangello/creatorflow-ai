@@ -34,9 +34,10 @@ const P = {
   pincel: "M18.4 2.6a2 2 0 0 1 2.9 2.9L13 13.8 10.2 11zM9 14.5c-2 0-3.5 1.5-3.5 3.5 0 1-.8 2-2.5 2 1 1 2.5 1.5 4 1.5 2.5 0 4.5-2 4.5-4.5",
   regla: "M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2",
   play: "M8 5l11 7-11 7z",
-  compartir: "M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8.6 13.5l6.8 4M15.4 6.5l-6.8 4",
+  // compartir y ajustes: los mismos trazos que el menú «Más» del núcleo (ICONOS de visor.js), un solo dibujo por gesto
+  compartir: "M12 15V4M8 8l4-4 4 4M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12",
   globo: "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z",
-  ajustes: "M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4",
+  ajustes: "M4 7h10M18 7h2M4 17h4M12 17h8M14 7a2 2 0 1 0 4 0 2 2 0 1 0-4 0M8 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0",
   whatsapp: "M3.5 20.5l1.3-4.3A8.5 8.5 0 1 1 8 19.4zM9 8.6c0 3.4 3 6.4 6.4 6.4l1-1.5-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2z",
   chat: "M4 5h16v11H9l-5 4z",
   cerrar: "M6 6l12 12M18 6L6 18",
@@ -277,6 +278,7 @@ export function destruir() {
   masIds = []; masFirma = "";
   observarTarjeta = () => {};
   if (raiz) { raiz.replaceChildren(); raiz.className = ""; }
+  fijarInertes(); // sin diálogo: lo que quedara inerte detrás de una hoja vuelve a funcionar
   for (const v of ["--reserva-inferior", "--ancho-dock"]) { try { document.documentElement.style.removeProperty(v); } catch {} }
 }
 
@@ -461,13 +463,14 @@ function renderizar() {
   const t = tarjeta();
   raiz.replaceChildren(...[
     t,
-    h("div", { class: "pn-velo", hidden: !(ui.dialogo && ui.disp !== "lateral" && ui.dialogo !== "estilo"), onclick: cerrarDialogo }),
+    h("div", { class: "pn-velo", hidden: !hojaModal(), onclick: cerrarDialogo }),
     dialogo(),
     ui.menu ? menuPropio() : null,
     ui.capturando ? barraCaptura() : null,
     ui.lightbox ? lightbox() : null,
     toast,
   ].filter(Boolean));
+  fijarInertes();
   observarTarjeta(t);
   aplicarEstadoFicha();
   pintarContador();
@@ -523,9 +526,14 @@ function aviso(texto, { accion, alPulsar } = {}) {
       onclick: () => { ocultarAviso(); alPulsar?.(); } }, accion) : null]);
   colocarAviso();
   toast.classList.add("pn-visible");
-  clearTimeout(aviso.t); aviso.t = setTimeout(ocultarAviso, accion ? 6000 : 2600);
+  ocultarAvisoLuego(accion ? 6000 : 2600);
 }
 const ocultarAviso = () => toast?.classList.remove("pn-visible");
+// Se oculta solo, pero no mientras tenga el foco o el puntero encima: «Deshacer» no se va mientras se usa (A17)
+function ocultarAvisoLuego(ms) {
+  clearTimeout(aviso.t);
+  aviso.t = setTimeout(() => (toast?.matches(":hover, :focus-within") ? ocultarAvisoLuego(1000) : ocultarAviso()), ms);
+}
 // El aviso nunca tapa un diálogo abierto: en el móvil sube por encima de la hoja; en el escritorio y en el móvil en
 // horizontal, si cae encima, se centra en la escena libre que queda a la izquierda del diálogo
 function colocarAviso() {
@@ -1181,6 +1189,25 @@ function escape(e) {
   if (ui.ficha && raiz.contains(document.activeElement)) { e.preventDefault(); abrirFicha(false); enfocarResumen(); }
 }
 
+// En el teléfono los diálogos son hojas con velo, modales de verdad (A8): lo de detrás queda inerte y ni el foco ni el
+// lector de pantalla salen de la hoja. «Estilo y luz» no lleva velo (la escena se sigue viendo y moviendo), ni el modo
+// captura (hay que encuadrar). Nunca quedan inertes la hoja, el velo (un toque fuera la cierra) ni las regiones vivas
+// (la tostada y los avisos del núcleo se siguen anunciando). Se rehace en cada repintado: al cerrar, al cambiar de
+// disposición o de tour no queda nada inerte que no deba.
+const hojaModal = () => !!ui.dialogo && ui.disp !== "lateral" && ui.dialogo !== "estilo" && !ui.capturando;
+let inertes = [];
+function fijarInertes() {
+  for (const e of inertes) e.inert = false;
+  inertes = [];
+  const hoja = hojaModal() && raiz?.querySelector(".pn-dialogo");
+  for (let n = hoja; n && n !== document.body; n = n.parentElement) {
+    for (const e of n.parentElement?.children ?? []) {
+      if (e === n || e.inert || e.matches("script, .pn-velo, [aria-live], [role=status], [role=alert]")) continue;
+      e.inert = true; inertes.push(e);
+    }
+  }
+}
+
 function dialogo() {
   const cont = { contacto: dlgContacto, compartir: dlgCompartir, estilo: dlgEstilo, ajustes: dlgAjustes, idioma: dlgIdioma }[ui.dialogo];
   if (!cont) return null;
@@ -1188,7 +1215,7 @@ function dialogo() {
   const { titulo: tit, cuerpo, icono, claseCuerpo } = cont();
   const entra = ui.entrada; ui.entrada = false;
   // al abrirse, el icono de la cabecera se dibuja (en los repintados, no)
-  return h("section", { class: `pn-dialogo pn-dialogo-${ui.dialogo} pn-abierto c8-vidrio c8-vidrio--denso${entra ? " pn-entra" : ""}`, role: "dialog", "aria-modal": "false", "aria-labelledby": titId },
+  return h("section", { class: `pn-dialogo pn-dialogo-${ui.dialogo} pn-abierto c8-vidrio c8-vidrio--denso${entra ? " pn-entra" : ""}`, role: "dialog", "aria-modal": String(hojaModal()), "aria-labelledby": titId },
     h("header", { class: "pn-dlg-cab" },
       icono ? ic(icono, entra ? "pn-ic pn-dibujar" : "pn-ic") : null,
       h("h2", { id: titId, class: "pn-dlg-tit", tabindex: "-1" }, tit),
@@ -1403,9 +1430,11 @@ function pantallaExito() {
   const b = ui.borrador, env = ui.envio, nombre = b.nombre.trim().split(/\s+/)[0] ?? "";
   const texto = env.email ? tr("contacto.exito_email") : env.porWhatsapp === "confirmado" ? tr("contacto.exito_wa", { x: nombre })
     : env.porWhatsapp && canalContacto() === "whatsapp" ? tr("contacto.exito_whatsapp") : tr("contacto.exito", { x: nombre });
-  return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: h("div", { class: "pn-estado pn-estado-ok", role: "status" },
-    h("span", { class: "pn-estado-ic" }, ic("ok", "pn-ic pn-dibujar")), h("p", {}, texto),
-    h("button", { type: "button", class: "c8-boton c8-boton--secundario", "data-k": "otra", autofocus: true, onclick: () => {
+  // La confirmación recibe el foco: así se lee seguro (una región viva creada a la vez que el foco salta puede no
+  // anunciarse, A16). «Hacer otra pregunta» queda a un Tab.
+  return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: h("div", { class: "pn-estado pn-estado-ok" },
+    h("span", { class: "pn-estado-ic" }, ic("ok", "pn-ic pn-dibujar")), h("p", { tabindex: "-1", "data-k": "exito", autofocus: true }, texto),
+    h("button", { type: "button", class: "c8-boton c8-boton--secundario", "data-k": "otra", onclick: () => {
       terminarConsulta(); rehacerDialogo();
       raiz.querySelector(".pn-dialogo [data-k='c-pregunta']")?.focus();
       if (puedeCapturar()) tomarCaptura({ auto: true });
@@ -1715,7 +1744,7 @@ async function enviarContacto(form, forzar) {
   } finally { clearTimeout(temporizador); }
   if (ui.dialogo === "contacto") {
     rehacerDialogo();
-    raiz.querySelector(ui.envio.estado === "exito" ? ".pn-dialogo [data-k='otra']" : ".pn-dialogo [data-k='reintentar']")?.focus();
+    raiz.querySelector(ui.envio.estado === "exito" ? ".pn-dialogo [data-k='exito']" : ".pn-dialogo [data-k='reintentar']")?.focus();
   }
 }
 
@@ -1894,12 +1923,18 @@ function dlgEstilo() {
           h("span", {}, ic(iconos[m] ?? "sol", "pn-ic pn-ic-s"), tr(`momento.${m}`)))))));
   }
   if (tiene(V.comparar) && partes.length) {
-    partes.push(h("label", { class: "pn-fila-ajuste pn-grupo" },
-      h("span", { class: "pn-fila-texto" }, tr("comparar.titulo"), h("small", {}, tr("comparar.nota"))),
-      h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", "data-k": "comparar", checked: !!e.comparar,
-        onchange: (ev) => { try { V.comparar(ev.target.checked); } catch (er) { console.warn(er); } if (V.estado) V.estado.comparar = ev.target.checked; } })));
+    partes.push(interruptor("comparar", tr("comparar.titulo"), tr("comparar.nota"), e.comparar,
+      (si) => { try { V.comparar(si); } catch (er) { console.warn(er); } if (V.estado) V.estado.comparar = si; }, "pn-grupo"));
   }
   return { titulo: tr("personalizar.titulo"), icono: "pincel", cuerpo: partes };
+}
+// Interruptor con su nombre y, aparte, su nota: la nota es la descripción (aria-describedby), no parte del nombre (A18)
+function interruptor(k, texto, nota, marcado, alCambiar, clase = "") {
+  const id = nuevoId("sw");
+  return h("label", { class: `pn-fila-ajuste ${clase}`.trim() },
+    h("span", { class: "pn-fila-texto" }, h("span", { id }, texto), nota ? h("small", { id: `${id}-nota` }, nota) : null),
+    h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", "data-k": k, checked: !!marcado, "aria-labelledby": id,
+      "aria-describedby": nota ? `${id}-nota` : null, onchange: (e) => alCambiar(e.target.checked) }));
 }
 // Al cambiar estilo, luz, color o comparación, solo cambian las marcas (sin repintar: no salta el control segmentado)
 function pintarEstilo() {
@@ -1925,10 +1960,7 @@ function pintarEstilo() {
 function dlgAjustes() {
   const a = ajustesActuales(), ef = temaLeer("efectivo") ?? {}, partes = [];
   const grupo = (titulo, ...hijos) => h("section", { class: "pn-grupo-ajustes" }, titulo ? h("h3", { class: "pn-sec-tit" }, titulo) : null, ...hijos);
-  const interruptor = (k, texto, nota, marcado, alCambiar) => h("label", { class: "pn-fila-ajuste" },
-    h("span", { class: "pn-fila-texto" }, texto, nota ? h("small", {}, nota) : null),
-    h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", "data-k": `aj-${k}`, checked: !!marcado, onchange: (e) => alCambiar(e.target.checked) }));
-  const ajuste = (k, texto, nota, clave = k) => interruptor(k, texto, nota, a[clave], (si) => cambiarAjuste({ [clave]: si }));
+  const ajuste = (k, texto, nota, clave = k) => interruptor(`aj-${k}`, texto, nota, a[clave], (si) => cambiarAjuste({ [clave]: si }));
   if (idiomasOfrecidos().length > 1) partes.push(grupo(tr("idioma.titulo"), selectorIdioma(true)));
   const apariencia = grupoApariencia();
   if (apariencia) partes.push(apariencia);
@@ -1949,7 +1981,7 @@ function dlgAjustes() {
   partes.push(grupo(tr("ajustes.accesibilidad"),
     ajuste("atajos", tr("ajustes.atajos"), tr("ajustes.atajos_nota")),
     ajuste("movimiento", tr("ajustes.reducir_movimiento"), tr("ajustes.reducir_nota"), "reducirMovimiento"),
-    temaApi() ? interruptor("transparencia", tr("ajustes.reducir_transparencia"), tr("ajustes.transparencia_nota"), ef.transparencia === "reducida",
+    temaApi() ? interruptor("aj-transparencia", tr("ajustes.reducir_transparencia"), tr("ajustes.transparencia_nota"), ef.transparencia === "reducida",
       (si) => fijarTema("transparencia", si ? "reducida" : "normal")) : null));
   // Restablecer: los ajustes del visor y la apariencia vuelven a lo de fábrica (automático, talla M)
   partes.push(h("button", { type: "button", class: "pn-enlace-btn", "data-k": "aj-reset", onclick: () => {
@@ -2024,7 +2056,7 @@ function selectorIdioma(compacto = false) {
   const lista = idiomasOfrecidos(), nombre = nuevoId("idioma");
   if (compacto) return h("div", { class: "c8-segmentado pn-segmentado", role: "radiogroup", "aria-label": tr("idioma.titulo") }, lista.map((c) =>
     h("label", { "data-k": `idioma-${c}`, lang: c, title: nombreIdioma(c) },
-      h("input", { type: "radio", name: nombre, value: c, checked: c === idiomaActual(), "aria-label": nombreIdioma(c), onchange: () => cambiarIdioma(c) }),
+      h("input", { type: "radio", name: nombre, value: c, checked: c === idiomaActual(), "aria-label": `${c.toUpperCase()}, ${nombreIdioma(c)}`, onchange: () => cambiarIdioma(c) }),
       h("span", { "aria-hidden": "true" }, c.toUpperCase()))));
   return h("div", { class: "pn-idiomas", role: "radiogroup", "aria-label": tr("idioma.titulo") }, lista.map((c) =>
     h("label", { class: "pn-idioma" + (c === idiomaActual() ? " pn-elegido" : ""), "data-k": `idioma-${c}`, lang: c },

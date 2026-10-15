@@ -66,7 +66,8 @@ function pintarPasos() {
   nav.replaceChildren(
     ...ORDEN.map((id, i) => botonPaso(porId[id], i + 1)),
     h("div", { class: "separador", role: "presentation" }),
-    h("button", { type: "button", class: "mas-herramientas", "aria-expanded": String(masAbierto), "aria-controls": "lista-herramientas", title: "Más herramientas: orientación y notas, estilo y luz, extras",
+    // aria-label: el nombre no suma el rótulo corto «Más» que se pinta con ::after en pantallas medianas
+    h("button", { type: "button", class: "mas-herramientas", "aria-expanded": String(masAbierto), "aria-controls": "lista-herramientas", "aria-label": "Más herramientas", title: "Más herramientas: orientación y notas, estilo y luz, extras",
       onclick: () => { masAbierto = !masAbierto; try { localStorage.setItem("estudio:mas-herramientas", masAbierto ? "si" : "no"); } catch {} pintarPasos(); } },
       h("span", { class: "num ico-paso" }, icono("herramientas", 15)),
       h("span", { class: "etq" }, h("b", { text: "Más herramientas", "data-corto": "Más" }), h("small", { text: "Orientación, estilo, extras" })),
@@ -465,8 +466,9 @@ function mostrarAyuda() {
 }
 
 // ------------------------------------------------------------------ móvil (S-9): el Estudio necesita un ordenador o un iPad
+// Solo en pantallas táctiles: un ordenador con el zoom al 200 % (o una ventana estrecha) sigue en el Estudio.
 function avisoMovil() {
-  const pequena = matchMedia("(max-width: 759px)").matches || (matchMedia("(pointer: coarse)").matches && matchMedia("(max-height: 479px)").matches);
+  const pequena = matchMedia("(pointer: coarse) and (max-width: 759px), (pointer: coarse) and (max-height: 479px)").matches;
   let seguir = false;
   try { seguir = sessionStorage.getItem("estudio:seguir-movil") === "si"; } catch {}
   if (!pequena || seguir) return;

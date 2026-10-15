@@ -339,6 +339,7 @@ El Estudio guarda en `tour._estudio` lo que necesita para trabajar; `soloPublico
 | `estiloTodo` | «Mostrar todo» en Estilo y luz (si no, solo lo que corresponde a `estado_obra`) |
 | `sinZonas` | «No usar zonas»: no se proponen `secciones` automáticas |
 | `nombresGuia` | Nombres de estancias de la lista que llegó de la Guía y aún no tienen foto |
+| `urlFinal` | «Dirección final del recorrido» (Publicar → Tu web) cuando no es la de por defecto (la web + `/tours/<referencia>/`): https y terminada en `/`. De ella salen `url_publica`, el enlace, el QR, el código para incrustar y el dossier; vacía, la de por defecto. Al importar un `tour.json` ya publicado se toma de su `url_publica` |
 
 - **Zonas automáticas:** si no hay `secciones` ni `sinZonas`, el Estudio las propone y las publica cuando salen dos o más y hay una sola planta.
 - **Anclas:** `estudio.html#fotos`, `#plano`, `#datos`, `#publicar` (alias `#revisar` y `#exportar`), `#orientacion`, `#estilo` y `#extras`. Las antiguas `#orientar`, `#variantes` y `#material` siguen funcionando. La Guía abre `estudio.html#fotos&estancias=…&tomas=…`.

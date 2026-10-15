@@ -271,6 +271,8 @@ try {
       await p.click(SEL.sugerencia); await p.check(SEL.privacidad);
       await p.click(SEL.enviar);
       await p.waitForSelector(SEL.exito, { timeout: 5000 });
+      inf.ok(await esperar(p, (s) => !!document.activeElement?.closest(s) && /^Gracias, Lucía/.test(document.activeElement.textContent), SEL.exito, 3000).then(() => true, () => false),
+        `${n}: la confirmación («Gracias, Lucía…») recibe el foco, así el lector de pantalla la anuncia seguro (A16)`, await foco(p));
       const h = red.hook[0] ?? {};
       inf.ok(red.hook.length === 1 && h.nombre === "Lucía Martín" && h.referencia === "REF-1234" && h.estancia === "Salón" && h.pregunta?.length > 5, "el CRM recibe nombre, referencia, estancia y la pregunta sugerida", h);
       inf.ok(await p.evaluate(() => window.__registro.some(([e, d]) => e === "contacto" && d.canal === "webhook")), "se emite el evento «contacto» (canal webhook) para la analítica");
@@ -487,6 +489,11 @@ try {
     await p.click(SEL.galeriaTipo("render"));
     inf.ok((await p.$$(SEL.galeria)).length === 2, "el filtro por tipo muestra solo los 2 renders");
     await p.click(SEL.galeriaTodo);
+    const gal = await p.evaluate((s) => {
+      const li = [...document.querySelectorAll(s)], w = (e) => Math.round(e?.getBoundingClientRect().width ?? 0);
+      return { n: li.length, fila: w(li[0]?.parentElement), ultima: w(li.at(-1)), primera: w(li[0]) };
+    }, SEL.galeria);
+    inf.ok(gal.n === 4 && Math.abs(gal.ultima - gal.fila) <= 1 && gal.primera < gal.fila / 2, "con 4 imágenes la última ocupa la fila entera: ninguna queda huérfana (V13)", gal);
     await p.click(SEL.galeriaItem(0));
     await esperar(p, (s) => !!document.activeElement?.closest(s), SEL.lightbox, 3000);
     await p.keyboard.press("ArrowRight");
@@ -588,6 +595,10 @@ try {
     await elegirMas(p, "pn-ajustes");
     if (!(await inf.requiere(p, { "«Apariencia»": SEL.apariencia("claro"), "«Tamaño»": SEL.talla("l"), "«Reducir transparencia»": SEL.transparencia }, "controles de Apariencia y Tamaño"))) return;
     inf.ok(await marcados() === "auto,m" && await p.getAttribute(SEL.iconoApariencia, "data-v") === "auto", "Ajustes muestra «Automático» y «M» elegidos, con el icono de círculo a medio llenar");
+    const a18 = { talla: await p.getByRole("radio", { name: "S, pequeño", exact: true }).count(), atajos: await p.getByRole("switch", { name: "Atajos de teclado", exact: true }).count(),
+      nota: await p.evaluate(() => document.getElementById(document.querySelector("[data-k='aj-atajos']")?.getAttribute("aria-describedby"))?.textContent) };
+    inf.ok(a18.talla === 1 && a18.atajos === 1 && /una sola letra/.test(a18.nota ?? ""),
+      "«S, pequeño» lleva en su nombre la letra que se ve, y la nota de cada interruptor es su descripción, no parte del nombre (A18)", a18);
     // el dialogo no se repinta al cambiar la apariencia: se marca el nodo para comprobar que sigue siendo el mismo
     await p.evaluate((s) => { document.querySelector(s).__mismo = true; }, SEL.dialogoAjustes);
     await p.click(SEL.apariencia("claro"));
@@ -639,14 +650,17 @@ try {
     const fabrica = await q.evaluate(() => Object.fromEntries(["tema", "talla", "transparencia", "movimiento"].map((k) => [k, localStorage.getItem(`cre8eight:${k}`)])));
     inf.ok(fabrica.tema === "auto" && fabrica.talla === "m" && fabrica.transparencia === "auto" && fabrica.movimiento === "auto", "«Restablecer» devuelve Apariencia, Tamaño, transparencia y movimiento a automático y M", fabrica);
     await q.close();
-    // en el móvil, las opciones de Apariencia y Tamaño son objetivos de 44 px
-    const m = await simulado({ ancho: 390, alto: 844, tactil: true });
-    await elegirMas(m.p, "pn-ajustes");
-    await estable(m.p);
-    const peq = await objetivosPequenos(m.p);
-    inf.ok(!peq.length, "390×844: objetivos ≥ 44 px en Apariencia y Tamaño", peq.join(", "));
-    const dx = await sinDesbordeX(m.p);
-    inf.ok(dx.ok, "390×844: sin desplazamiento horizontal con Ajustes abierto", dx);
+    // en el móvil, «Ver ficha» y las opciones de Apariencia y Tamaño son objetivos de 44 px, también con la talla S (A21)
+    for (const talla of ["m", "s"]) {
+      const m = await simulado({ ancho: 390, alto: 844, tactil: true, query: `?talla=${talla}` });
+      const tarjeta = await objetivosPequenos(m.p); // antes de abrir: con la hoja abierta la tarjeta queda inerte (A8)
+      await elegirMas(m.p, "pn-ajustes");
+      await estable(m.p);
+      const peq = [...tarjeta, ...(await objetivosPequenos(m.p))];
+      inf.ok(!peq.length, `390×844, talla ${talla.toUpperCase()}: objetivos ≥ 44 px en la tarjeta («Ver ficha»), Apariencia y Tamaño`, peq.join(", "));
+      const dx = await sinDesbordeX(m.p);
+      inf.ok(dx.ok, `390×844, talla ${talla.toUpperCase()}: sin desplazamiento horizontal con Ajustes abierto`, dx);
+    }
     // el aviso de «Enlace copiado» es solo texto (antes un aviso sin botón añadía «null») y el icono pasa a una marca
     await elegirMas(p, "pn-compartir");
     await p.click(SEL.copiarEnlace);
@@ -689,6 +703,90 @@ try {
     const largas = await p.evaluate(() => document.getAnimations().filter((a) => a.effect?.target?.closest?.("#paneles") && a.animationName !== "pn-giro")
       .map((a) => { const t = a.effect.getComputedTiming(); return [a.animationName ?? a.transitionProperty, t.duration, t.delay]; }).filter(([, d, e]) => d > 1 || e > 0));
     inf.ok(!largas.length, "con «Reducir movimiento», ninguna animación de los paneles dura más de 1 ms ni espera su turno (dibujo, entrada, latido…)", largas);
+  });
+
+  // ================================================================== 12 e · hojas modales en el teléfono (A8)
+  await inf.bloque("Hojas modales en el teléfono: Tab no sale de la hoja y lo de detrás queda inerte solo mientras está abierta (A8)", async () => {
+    const { p } = await simulado({ ancho: 390, alto: 844, tactil: true });
+    if (!(await inf.requiere(p, { ...piezas("contacto"), "«Más»": SEL.mas }, "hojas modales en el teléfono"))) return;
+    // (la ficha plegada ya es inerte por sí misma: no cuenta)
+    const inertes = () => p.evaluate(() => [...document.querySelectorAll("[inert]:not(.pn-panel)")].map((e) => e.id || e.className || e.tagName));
+    await abrirContacto(p);
+    const fuera = new Set();
+    for (let i = 0; i < 40; i++) {
+      await p.keyboard.press("Tab");
+      const f = await p.evaluate((s) => { const a = document.activeElement; return !a || a === document.body || a.closest(s) ? "" : a.dataset?.k || a.id || a.className || a.tagName; }, SEL.dialogo);
+      if (f) fuera.add(f);
+    }
+    const m = await p.evaluate((S) => ({ modal: document.querySelector(S.dialogo)?.getAttribute("aria-modal"), tarjeta: document.querySelector(S.tarjeta)?.inert,
+      tostada: document.querySelector(".pn-toast")?.inert, velo: document.querySelector(".pn-velo")?.inert }), SD);
+    inf.ok(!fuera.size && m.modal === "true" && m.tarjeta && !m.tostada && !m.velo,
+      "con la hoja de contacto abierta, Tab no sale de ella: es modal y lo de detrás queda inerte (no la tostada, que se sigue anunciando, ni el velo)", { fuera: [...fuera], ...m });
+    await cerrarDialogo(p);
+    const cerrada = { inertes: await inertes(), foco: await foco(p) };
+    inf.ok(!cerrada.inertes.length && cerrada.foco === "contactar", "al cerrarla no queda nada inerte y el foco vuelve a «Contactar»", cerrada);
+    // con Ajustes abierto, el teléfono pasa a una pantalla de escritorio: otra disposición, el diálogo deja de ser modal
+    await elegirMas(p, "pn-ajustes");
+    const enHoja = (await inertes()).length;
+    await p.setViewportSize({ width: 1280, height: 800 });
+    await esperar(p, (s) => document.querySelector(s)?.classList.contains("pn-disp-lateral"), SEL.raiz, 3000).catch(() => {});
+    const lateral = { enHoja, inertes: await inertes(), modal: await p.evaluate((s) => document.querySelector(s)?.getAttribute("aria-modal"), SEL.dialogo) };
+    inf.ok(lateral.enHoja > 0 && !lateral.inertes.length && lateral.modal === "false", "al cambiar de disposición con Ajustes abierto deja de ser modal y no queda nada inerte", lateral);
+    await cerrarDialogo(p);
+    // con Idioma abierto llega un tour con un solo idioma (vista previa del Estudio): la hoja se cierra y nada queda inerte
+    await p.setViewportSize({ width: 390, height: 844 });
+    await esperar(p, (s) => document.querySelector(s)?.classList.contains("pn-disp-hoja"), SEL.raiz, 3000).catch(() => {});
+    await elegirMas(p, "pn-idioma");
+    const conIdioma = (await inertes()).length;
+    await p.evaluate(() => window.__cambiarTour({ version: 2, titulo: "Un solo idioma", idiomas: ["es"], contacto: { whatsapp: "34600111222" },
+      inmueble: { precio: 99000, operacion: "venta" }, panoramas: [{ id: "a", nombre: "Entrada", x: 0, z: 0, imagen: "a.jpg" }] }));
+    const tour = { conIdioma, dialogo: !!(await p.$(SEL.dialogo)), inertes: await inertes() };
+    inf.ok(tour.conIdioma > 0 && !tour.dialogo && !tour.inertes.length, "al cambiar de tour con una hoja abierta que ya no tiene sentido, se cierra y nada queda inerte", tour);
+    const err = erroresDe(p, IGNORAR);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
+
+  // ================================================================== 12 f · tarjeta en reposo, espaciado de texto y «Deshacer»
+  await inf.bloque("Tarjeta: en reposo se recoge solo a la vista (A11), con el espaciado aumentado no corta nombres (A12) y «Deshacer» espera (A17)", async () => {
+    for (const [n, opciones, nombres] of [["1280×800", {}, ["Foto de la vista", "Estilo y luz", "Visita guiada", "Medir"]],
+      ["390×844", { ancho: 390, alto: 844, tactil: true }, ["Foto de la vista", "Estilo y luz"]]]) {
+      const { p } = await simulado(opciones);
+      if (!(await inf.requiere(p, piezas("contacto", "herramientas"), `${n}: tarjeta en reposo`))) return;
+      if (n === "1280×800") {
+        // espaciado de texto de WCAG 1.4.12: «Foto de la vista» pasa a dos líneas dentro de su botón, sin puntos suspensivos
+        const estilo = await p.addStyleTag({ content: "* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }" });
+        const et = await p.evaluate((s) => {
+          const e = document.querySelector(`${s} [data-k='foto-vista'] .pn-t-et`), r = e.getBoundingClientRect(), b = e.closest("button").getBoundingClientRect();
+          return { cabe: e.scrollWidth <= e.clientWidth + 1 && r.left >= b.left - 1 && r.right <= b.right + 1 && r.bottom <= b.bottom + 1, texto: [r.width, r.height].map(Math.round), boton: [b.width, b.height].map(Math.round) };
+        }, SEL.tarjeta);
+        inf.ok(et.cabe, `${n}: con el espaciado de texto aumentado, «Foto de la vista» cabe en su botón sin cortarse (pasa a dos líneas)`, et);
+        await estilo.evaluate((e) => e.remove());
+      }
+      const ancho = () => p.evaluate((s) => Math.round(document.querySelector(s).getBoundingClientRect().width), SEL.tarjeta);
+      const antes = await ancho();
+      await p.evaluate(() => { document.activeElement?.blur(); document.body.classList.add("ui-inactiva"); }); // como el núcleo tras 3,5 s
+      await estable(p);
+      const arbol = await p.locator(SEL.tarjeta).ariaSnapshot();
+      const r = await p.evaluate(([s, nombres]) => nombres.map((x) => {
+        const b = [...document.querySelectorAll(`${s} button`)].find((e) => (e.getAttribute("aria-label") ?? e.textContent).trim() === x);
+        const c = b?.getBoundingClientRect(), dentro = c && document.elementFromPoint(c.left + c.width / 2, c.top + c.height / 2);
+        return [x, !b ? "no está" : b.contains(dentro) ? "se ve" : "oculto a la vista"];
+      }), [SEL.tarjeta, nombres]);
+      const despues = await ancho();
+      inf.ok(r.every(([, v]) => v === "oculto a la vista") && nombres.every((x) => arbol.includes(`button "${x}"`)) && (n !== "1280×800" || despues < antes),
+        `${n}: en reposo la tarjeta se recoge, pero ${nombres.join(", ")} se ocultan solo a la vista: siguen en el árbol de accesibilidad`, { r, antes, despues });
+      if (n !== "1280×800") continue;
+      // «Deshacer» de «Foto de la vista» no se va mientras tiene el foco; al salir, sí
+      await p.evaluate(() => document.body.classList.remove("ui-inactiva"));
+      await p.click(`${SEL.tarjeta} [data-k='foto-vista']`);
+      await p.waitForSelector(".pn-toast.pn-visible [data-k='aviso-accion']");
+      await p.focus("[data-k='aviso-accion']");
+      await p.waitForTimeout(6800);
+      const sigue = await p.evaluate(() => document.querySelector(".pn-toast")?.classList.contains("pn-visible"));
+      await p.focus(SEL.ficha);
+      const sale = await esperar(p, () => !document.querySelector(".pn-toast")?.classList.contains("pn-visible"), null, 3000).then(() => true, () => false);
+      inf.ok(sigue && sale, "«Deshacer» no desaparece mientras tiene el foco (pasados sus 6 s) y se va al salir de él", { sigue, sale });
+    }
   });
 
   // ================================================================== 13 · núcleo real

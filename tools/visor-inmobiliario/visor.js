@@ -100,7 +100,10 @@ function texto(v) {
   if (typeof v === "object") return v[estado.idioma] ?? v.es ?? Object.values(v)[0] ?? "";
   return String(v);
 }
-const metros = (m) => formatoMetros(m, estado.idioma);
+const metros = (m) => formatoMetros(m, estado.idioma); // medidas y distancias, con dos decimales
+const localeActual = () => i18n?.localeActual?.() ?? estado.idioma;
+/** Superficies: sin decimales y con punto de millar («1.200 m²»), en el título, el plano, la maqueta y las listas (V14). */
+const m2Corto = (a) => `${new Intl.NumberFormat(localeActual(), { maximumFractionDigits: 0, useGrouping: "always" }).format(a)} m²`;
 
 // ------------------------------------------------------------------ API y estado
 const visor = new Emisor();
@@ -242,7 +245,9 @@ escena360.add(grupoFlechas);
 
 // ------------------------------------------------------------------ texturas (caché LRU)
 const cache = new Map();
-const LIMITE_TEX = esTactil ? 4 : 14; // móvil: una textura 4096×2048 ≈ 32 MB de GPU
+// Móvil: una textura 4096×2048 ≈ 32 MB de GPU. Escritorio: una de 8192×4096 ≈ 128 MB; con 8 (la actual, sus vecinas y
+// alguna variante) el tope ronda 1 GB, no 1,75 (M15)
+const LIMITE_TEX = esTactil ? 4 : 8;
 const cargadorTex = new THREE.TextureLoader();
 
 function ajustarTextura(tex, color = true) {
@@ -449,12 +454,15 @@ const matInvisible = new THREE.MeshBasicMaterial({ visible: false });
 
 const etiquetas = $("#etiquetas");
 let etiquetasActivas = [];
+/** Las etiquetas se ocultan al ir a otra estancia y se rehacen al llegar: si una tenía el foco, pasa al lienzo (A10). */
+const focoAlLienzo = () => { if (etiquetas.contains(document.activeElement)) lienzo.focus({ preventScroll: true }); };
 const alturaNodo = (n = int.actual) => n?.altura_camara ?? int.tour?.altura_camara ?? 1.5;
 const plantaPorId = (id) => int.tour?.plantas?.find((p) => p.id === id);
 
 function construirPuntos() {
   tocarEscena();
   grupoFlechas.clear();
+  focoAlLienzo();
   etiquetas.replaceChildren();
   etiquetasActivas = [];
   const n = int.actual;
@@ -524,6 +532,7 @@ async function irA(destino, { instantaneo = false } = {}) {
   if (typeof destino === "string") destino = int.nodos.get(destino);
   if (!destino || !renderer) return;
   if (destino === int.actual && !int.transicion) return;
+  focoAlLienzo();
   // Ficha de petición: si llega otra navegación mientras esta carga, gana la última.
   const ficha = (int.navFicha = (int.navFicha ?? 0) + 1);
   int.navDestino = destino; // si el Estudio recarga el tour a mitad de camino, se conserva el destino (cargarEnVisor)
@@ -611,10 +620,10 @@ function actualizarSello() {
   return txt;
 }
 
-/** «Salón · Planta 1» con varias plantas; si no, «Salón · 30,00 m²» (en #lugar y para el lector de pantalla). */
+/** «Salón · Planta 1» con varias plantas; si no, «Salón · 30 m²» (en #lugar y para el lector de pantalla). */
 function anunciarEstancia(n) {
   const est = estanciaDe(n);
-  const m2 = est ? `${metros(areaPoligono(est.poligono))} m²` : "";
+  const m2 = est ? m2Corto(areaPoligono(est.poligono)) : "";
   const planta = (int.tour.plantas?.length ?? 0) > 1 ? texto(plantaPorId(n.planta)?.nombre) : "";
   const nombre = texto(n.nombre);
   $("#estancia").textContent = [nombre, planta || m2].filter(Boolean).join(" · ");
@@ -928,7 +937,7 @@ const medicion = renderer && crearMedicion({
 });
 
 const maqueta = renderer && crearMaqueta({
-  lienzo, contenedor, tr, texto, formato: metros,
+  lienzo, contenedor, tr, texto, superficie: m2Corto,
   tour: () => int.tour,
   nodos: () => [...int.nodos.values()],
   escenaLibre,
@@ -1311,7 +1320,7 @@ const ctxPlano = {
   nodos: () => [...int.nodos.values()],
   nodoActual: () => (estado.modo === "tour" ? int.actual : null),
   posicion: posicionVisitante,
-  texto, formato: metros,
+  texto, superficie: m2Corto,
 };
 const radar = crearPlano($("#mapa"), {
   ...ctxPlano,
@@ -1498,7 +1507,8 @@ function colorearTema() {
   if (fondo) renderer?.setClearColor(fondo);
 }
 document.addEventListener("cre8:tema", () => {
-  colorearTema();
+  pintarAcento(); // el relleno del color de marca depende del tema
+  dibujarMapa();
   if (transparenciaReducida()) quitarLuz(); else luz.pendiente = true;
 });
 
@@ -1638,6 +1648,12 @@ function precompilar() {
     for (const o of fuera) o.frustumCulled = true;
   }
 }
+// Una pieza de vidrio que aparece o se va en los paneles (un diálogo, un menú, la barra de captura) cambia las zonas: se
+// vuelve a medir sin esperar a que se mueva la vista (A23). Lo mismo al abrir el menú «Más» (abrirMas).
+new MutationObserver((cambios) => {
+  const vidrio = (n) => n.nodeType === 1 && (n.matches(".c8-vidrio") || !!n.querySelector(".c8-vidrio"));
+  if (cambios.some((c) => [...c.addedNodes, ...c.removedNodes].some(vidrio))) luz.pendiente = true;
+}).observe($("#paneles"), { childList: true, subtree: true });
 /** Tras pintar: mide si hay un cambio pendiente o si la vista se movió y lleva quieta un momento. */
 function quizaMedirLuz() {
   if (estado.modo !== "tour" || luz.leyendo || int.transicion || int.captura || transparenciaReducida()) return;
@@ -1660,19 +1676,26 @@ function mostrarCarga(si, frac) {
   c.classList.toggle("determinado", frac != null);
   c.querySelector(".barra div").style.width = frac != null ? `${Math.round(frac * 100)}%` : "";
 }
-let tAviso;
+// Aviso flotante, dentro de la región viva fija #avisos (se anuncia al aparecer · A16). WCAG 2.2.1: con el foco o el
+// puntero encima («Reintentar») no se va; al salir vuelve a contar (A17).
+const avisoEl = $("#aviso");
+let tAviso, msAviso = 4500;
+const contarAviso = () => { clearTimeout(tAviso); tAviso = setTimeout(() => (avisoEl.hidden = true), msAviso); };
+avisoEl.addEventListener("focusin", () => clearTimeout(tAviso));
+avisoEl.addEventListener("pointerenter", () => clearTimeout(tAviso));
+avisoEl.addEventListener("focusout", (e) => { if (!avisoEl.contains(e.relatedTarget) && !avisoEl.matches(":hover")) contarAviso(); });
+avisoEl.addEventListener("pointerleave", () => { if (!avisoEl.contains(document.activeElement)) contarAviso(); });
 function aviso(txt, ms = 4500, { reintentar } = {}) {
-  const el = $("#aviso");
-  el.replaceChildren(document.createTextNode(txt));
+  avisoEl.replaceChildren(document.createTextNode(txt));
   if (reintentar) {
     const b = document.createElement("button");
     b.type = "button"; b.textContent = tr("aviso.reintentar");
-    b.onclick = () => { el.hidden = true; reintentar(); };
-    el.append(" ", b);
+    b.onclick = () => { avisoEl.hidden = true; lienzo.focus({ preventScroll: true }); reintentar(); };
+    avisoEl.append(" ", b);
   }
-  el.hidden = false;
-  clearTimeout(tAviso);
-  tAviso = setTimeout(() => (el.hidden = true), ms);
+  avisoEl.hidden = false;
+  msAviso = ms;
+  contarAviso();
 }
 /** Imágenes del tour (logo, miniaturas, notas): las reglas comunes de util.js (http(s), blob: del mismo origen, data:image
     o rutas relativas; nunca otro esquema). Los enlaces usan urlSegura(u) a secas. */
@@ -1685,10 +1708,10 @@ function elem(etiqueta, clase, txt) {
   return e;
 }
 function boton(txt, clase) { const b = elem("button", clase, txt); b.type = "button"; return b; }
-const localeActual = () => i18n?.localeActual?.() ?? estado.idioma;
-const m2Corto = (a) => `${new Intl.NumberFormat(localeActual(), { maximumFractionDigits: 0, useGrouping: "always" }).format(a)} m²`;
 
+let origenFicha = null;
 function mostrarFicha(p) {
+  origenFicha = document.activeElement; // el «i» que la abre: al cerrar, el foco vuelve a él (A10)
   const f = $("#ficha");
   f.querySelector("h2").textContent = texto(p.titulo);
   f.querySelector("p").textContent = texto(p.texto);
@@ -1707,8 +1730,14 @@ function mostrarFicha(p) {
   f.querySelector(".cerrar").focus({ preventScroll: true });
 }
 function ocultarFicha() { $("#ficha").hidden = true; }
-$("#ficha .cerrar").onclick = () => { ocultarFicha(); lienzo.focus({ preventScroll: true }); };
-$("#ficha").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); ocultarFicha(); lienzo.focus({ preventScroll: true }); } });
+/** Cierra la nota y devuelve el foco al «i» que la abrió; si ya no está (otra estancia), al lienzo. */
+function cerrarFicha() {
+  ocultarFicha();
+  origenFicha?.focus?.({ preventScroll: true });
+  if (document.activeElement !== origenFicha) lienzo.focus({ preventScroll: true });
+}
+$("#ficha .cerrar").onclick = cerrarFicha;
+$("#ficha").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); cerrarFicha(); } });
 
 // ---- diálogos del núcleo (<dialog> modal: foco atrapado, Esc, por encima de todo, también en el móvil en horizontal)
 // Contingencia: sin <dialog> (navegadores antiguos) se abren con el atributo open, sin velo.
@@ -1911,6 +1940,7 @@ function abrirMas() {
   const menu = $("#menu-mas");
   menu.hidden = false;
   colocarMas();
+  luz.pendiente = true; // el menú es vidrio sobre la foto (A23)
   $("#btn-mas").setAttribute("aria-expanded", "true");
   menu.querySelector("button")?.focus({ preventScroll: true });
 }
@@ -2038,7 +2068,8 @@ $("#btn-ampliar").onclick = () => estanciasPlano(true);
 function actualizarLugar() {
   const l = $("#lugar");
   const que = tr(hayPlano() ? "ep.titulo" : "galeria.titulo");
-  l.setAttribute("aria-label", [int.actual ? texto(int.actual.nombre) : "", que].filter(Boolean).join(" · "));
+  // El nombre es lo que se ve (logo, título y estancia) y, oculto, lo que abre: el control por voz lo encuentra (A13)
+  $("#lugar-abre").textContent = ` · ${que}`;
   l.title = `${tr("ep.abrir")}${conRaton ? " (M)" : ""}`;
   const a = $("#btn-ampliar");
   a.setAttribute("aria-label", que);
@@ -2121,7 +2152,8 @@ function ayudaLibre() { if (conRaton) tarjetaJuego(true); else mostrarPista("lib
 function pistaInicial() {
   if (!renderer) return;
   if (estado.modo === "libre") ayudaLibre();
-  else if (estado.modo === "tour") mostrarPista("inicio", tr(conRaton ? "pista.raton" : "pista.tactil"));
+  // sin estancias a las que ir desde aquí (una sola foto), solo «Arrastra para mirar» (M11)
+  else if (estado.modo === "tour") mostrarPista("inicio", tr(!int.actual?.vecinos.length ? "aviso.arrastra" : conRaton ? "pista.raton" : "pista.tactil"));
 }
 
 function modosDisponibles() {
@@ -2189,7 +2221,9 @@ function construirModos() {
     const r = document.createElement("input");
     r.type = "radio"; r.name = "modo"; r.value = m; r.checked = m === estado.modo;
     r.setAttribute("aria-label", tr(`modo.${m}`));
-    l.append(r, elem("span", "", tr(`modo.${m}_corto`)));
+    const corto = elem("span", "", tr(`modo.${m}_corto`));
+    corto.setAttribute("aria-hidden", "true"); // ya está en el nombre largo: el lector no lo repite (A18)
+    l.append(r, corto);
     return l;
   }));
   window.cre8Tema?.segmentados?.(g);
@@ -2200,28 +2234,40 @@ function marcarModo() {
 }
 $("#modos").addEventListener("change", (e) => { if (e.target.name === "modo") cambiarModo(e.target.value).finally(marcarModo); });
 
-// Texto legible sobre el color de marca: oscuro o blanco, el que más contraste dé (WCAG).
-function textoSobreColor(hex) {
-  const lin = hexALineal(hex);
-  if (!lin) return null;
-  const L = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
-  return (L + 0.05) / 0.05 >= 1.05 / (L + 0.05) ? "#15110a" : "#ffffff";
+/** Relleno del acento con el color de marca y su texto (M5). El relleno se acota por tema para que se vea sobre el vidrio:
+    en claro, como mucho Y = 0,55 (un blanco de marca queda gris); en oscuro, como poco Y = 0,06 (el negro o el azul marino
+    se aclaran). Se escala en luz lineal, que conserva el tono (ningún canal pasa de 1: el azul pesa 0,0722 en Y); el negro,
+    que no se puede escalar, pasa a gris. Encima, texto oscuro o blanco, el que más contraste dé (WCAG). Siempre un hex
+    normal, que leen los lienzos (plano, radar) y las flechas del suelo. → { relleno: "#rrggbb", sobre } o null. */
+function acentoDeMarca(hex, oscuro) {
+  let c = hexALineal(hex);
+  if (!c) return null;
+  let Y = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  const tope = oscuro ? 0.06 : 0.55;
+  if (oscuro ? Y < tope : Y > tope) { c = Y ? c.map((v) => (v * tope) / Y) : [tope, tope, tope]; Y = tope; }
+  const srgb = (v) => Math.round(255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055)).toString(16).padStart(2, "0");
+  return { relleno: `#${c.map(srgb).join("")}`, sobre: (Y + 0.05) / 0.05 >= 1.05 / (Y + 0.05) ? "#15110a" : "#ffffff" };
+}
+/** El color de marca del tour en el acento, con el relleno del tema vigente (se repite con «cre8:tema»). Sin marca, o al
+    cambiar a un tour sin ella (Estudio), se quita y vuelve el champán de tema.css. */
+function pintarAcento() {
+  const raiz = document.documentElement.style;
+  const a = acentoDeMarca(int.tour?.marca?.color, document.documentElement.dataset.tema !== "claro");
+  if (a) { raiz.setProperty("--c-acento", a.relleno); raiz.setProperty("--c-sobre-acento", a.sobre); }
+  else for (const v of ["--c-acento", "--c-sobre-acento"]) raiz.removeProperty(v);
+  colorearTema();
+  radar.retema(); planoGrande.retema(); // el radar y el plano releen el acento en el próximo dibujo
 }
 
 function aplicarMarca() {
   const m = int.tour.marca ?? {};
-  // Color de marca validado; se quita si el tour nuevo no trae (al cambiar de tour en el Estudio).
-  const raiz = document.documentElement.style;
-  const sobre = textoSobreColor(m.color);
-  if (sobre) { raiz.setProperty("--c-acento", m.color); raiz.setProperty("--c-sobre-acento", sobre); }
-  else for (const v of ["--c-acento", "--c-sobre-acento"]) raiz.removeProperty(v);
-  colorearTema();
-  radar.retema(); planoGrande.retema(); // el radar y el plano releen el acento en el próximo dibujo
+  pintarAcento();
   const logo = $("#logo"), src = srcSegura(m.logo);
   logo.onerror = () => { logo.hidden = true; };
   if (src) { logo.src = src; logo.alt = texto(m.nombre); logo.hidden = false; } else { logo.removeAttribute("src"); logo.hidden = true; }
   const titulo = texto(int.tour.titulo) || tr("titulo.defecto");
   $("#titulo").textContent = titulo;
+  $("#titulo-recorrido").textContent = titulo; // h1 oculto: el lector salta a él con «encabezados» (A18)
   document.title = `${titulo} · ${texto(m.nombre) || "cre8eight"}`;
 }
 
@@ -2252,13 +2298,16 @@ function precioPortada(i) {
   catch { s = `${Math.round(n).toLocaleString()} €`; }
   return s + (i.operacion === "alquiler" ? tr("ficha.mes") : "");
 }
-function datosPortada(i) {
+/** «3 habitaciones · 2 baños · 112 m²». Vacío si el título ya dice la superficie, como el automático del Estudio («Piso en
+    venta · 3 hab. · 112 m²»): la portada no repite los datos (M12). Se comparan las cifras: vale «1.200 m²» o «1 200 m2». */
+function datosPortada(i, titulo = "") {
   const n = (v) => (Number(v) > 0 ? Number(v) : 0);
   const min = (s) => (estado.idioma === "de" ? s : s.toLowerCase()); // en alemán los sustantivos van en mayúscula
+  const sup = n(i.superficie_construida) || n(i.superficie_util), cifras = (x) => String(x).replace(/\D/g, "");
+  if (sup && [...titulo.matchAll(/(\d+(?:[.,\u00a0\u202f ]\d+)*)\s?m[²2]/g)].some(([, x]) => cifras(x) === cifras(+sup.toFixed(1)))) return "";
   const partes = [];
   if (n(i.habitaciones)) partes.push(`${n(i.habitaciones)} ${min(tr(n(i.habitaciones) === 1 ? "ficha.habitacion" : "ficha.habitaciones"))}`);
   if (n(i.banos)) partes.push(`${n(i.banos)} ${min(tr(n(i.banos) === 1 ? "ficha.bano" : "ficha.banos"))}`);
-  const sup = n(i.superficie_construida) || n(i.superficie_util);
   if (sup) partes.push(m2Corto(sup));
   return partes.join(" · ");
 }
@@ -2291,7 +2340,7 @@ function rellenarPortada() {
   marca.hidden = !src && !texto(m.nombre);
   const titulo = texto(t.titulo);
   portada.querySelector(".titulo").textContent = titulo;
-  for (const [sel, txt] of [[".precio", precioPortada(i)], [".datos", datosPortada(i)]]) {
+  for (const [sel, txt] of [[".precio", precioPortada(i)], [".datos", datosPortada(i, titulo)]]) {
     const p = portada.querySelector(sel);
     p.textContent = txt;
     p.hidden = !txt;
@@ -2465,12 +2514,18 @@ Object.assign(visor, {
   },
   /** Captura de la vista actual (sin interfaz), con una franja de marca y la estancia. */
   capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.88, marca = true } = {}) {
+    // La foto que recibe la agencia, sin los aros del suelo (V12): se pinta sin ellos, se copia y se vuelve a pintar con
+    // ellos en el mismo instante (la pantalla no llega a parpadear).
+    const flechas = grupoFlechas.visible;
+    grupoFlechas.visible = false;
     renderizar();
     const alto = Math.round((ancho * lienzo.height) / lienzo.width);
     const c = document.createElement("canvas");
     c.width = ancho; c.height = alto;
     const g = c.getContext("2d");
     g.drawImage(lienzo, 0, 0, ancho, alto);
+    grupoFlechas.visible = flechas;
+    if (renderer) pintarEscena();
     // Nombre para el visitante: en el recorrido, el de la foto que ve (el mismo del título, aunque esté dentro de una
     // estancia mayor del plano, p. ej. «Salón» dentro de «Salón-comedor»); en el paseo libre, la estancia del plano.
     const est = estado.modo === "tour" && int.actual ? { id: int.actual.id, nombre: int.actual.nombre } : visor.estanciaActual();
@@ -2590,8 +2645,12 @@ function vistaParaPadre() {
   const f = new THREE.Vector3(0, 0, -1).applyQuaternion(camara.quaternion);
   return { ...visor.vista(), ...localDeDir(f) };
 }
+/** Mensajes a la página que contiene el visor (la vista previa del Estudio), solo si es del mismo origen: incrustado en la
+    web de otro no se envía nada, que llenaba su consola de errores de «target origin» (M7). */
 function enviarPadre(msg) {
-  if (EMBED && window.parent !== window) window.parent.postMessage(msg, location.origin === "null" ? "*" : location.origin);
+  if (!EMBED || window.parent === window) return;
+  try { if (window.parent.location.origin !== location.origin) return; } catch { return; } // otro origen: no se puede leer
+  window.parent.postMessage(msg, "/");
 }
 addEventListener("message", async (e) => {
   if (!EMBED || e.source !== window.parent || window.parent === window) return;
@@ -2636,7 +2695,7 @@ async function obtenerTour() {
     const el = document.createElement("div");
     el.id = "error-carga";
     el.setAttribute("role", "alert");
-    el.innerHTML = `<div class="tarjeta c8-vidrio c8-vidrio--texto"><div class="marca-cre8">cre8<span>eight</span></div><p></p><button type="button" class="c8-boton c8-boton--primario"></button></div>`;
+    el.innerHTML = `<div class="tarjeta c8-vidrio c8-vidrio--texto"><div class="marca-cre8">cre<span>8</span>eight</div><p></p><button type="button" class="c8-boton c8-boton--primario"></button></div>`;
     el.querySelector("p").textContent = `${tr("aviso.error_carga", { x: url })}`;
     el.querySelector("button").textContent = tr("aviso.reintentar");
     el.querySelector("button").onclick = () => location.reload();

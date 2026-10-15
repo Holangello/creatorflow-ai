@@ -72,19 +72,34 @@ const TIPOS_TXT = {
 };
 const OPERACION_TXT = { venta: ["en venta", "for sale", "à vendre", "zu verkaufen"], alquiler: ["en alquiler", "for rent", "à louer", "zu vermieten"] };
 const HAB_TXT = ["hab.", "bed", "ch.", "Zi."];
+const EN_TXT = ["en", "in", "à", "in"];
 const LOCALES = { es: "es-ES", en: "en-GB", fr: "fr-FR", de: "de-DE" };
 const posIdioma = (idioma) => Math.max(0, Object.keys(IDIOMAS).indexOf(idioma));
 /**
- * «Piso en venta · 3 hab. · 112 m²»: título del anuncio si el agente no escribe otro (también en en, fr y de).
- * Vacío mientras no haya ningún dato (habitaciones, superficie o precio).
+ * Zona del inmueble para el título, sin número de portal, piso ni código postal. Sin «Mostrar la dirección exacta», solo el
+ * último tramo de la dirección, lo mismo que enseña el visor («Calle Mayor 12, 28013 Madrid» → «Madrid»); con ella, la calle
+ * y la ciudad («Calle Mayor, Madrid»).
+ */
+function zonaTitulo(I) {
+  const dir = String(textoDe(I.direccion)).trim().split(",");
+  return (I.mostrar_direccion_exacta === true ? dir : dir.slice(-1))
+    .map((p) => p.replace(/\b\d{5}\b/g, "").replace(/(\s+(?:[-–]|s\/n|(?:n[º°o.]*|núm\.?)?\s*\d\S*))+$/i, "").trim())
+    .filter((p, i) => p && (i === 0 || !/\d/.test(p))).join(", ");
+}
+/**
+ * «Piso en venta en Madrid» (con dirección) o «Piso en venta · 3 hab. · 112 m²»: título del anuncio si el agente no escribe
+ * otro (también en en, fr y de). Con la zona no repite los datos, que la portada y la ficha ya enseñan. Vacío mientras no
+ * haya ningún dato (dirección, habitaciones, superficie o precio).
  */
 export function tituloAuto(t = app.tour, idioma = "es") {
   const I = t?.inmueble ?? {};
   const hab = Number(I.habitaciones), m2 = Number(I.superficie_construida || I.superficie_util), precio = Number(I.precio);
-  if (!(hab > 0) && !(m2 > 0) && !(precio > 0)) return "";
+  const zona = zonaTitulo(I);
+  if (!zona && !(hab > 0) && !(m2 > 0) && !(precio > 0)) return "";
   const k = posIdioma(idioma);
   const tipo = TIPOS_TXT[I.tipo]?.[k] ?? (I.tipo ? String(I.tipo).charAt(0).toUpperCase() + String(I.tipo).slice(1) : TIPOS_TXT.piso[k]);
   const partes = [`${tipo} ${OPERACION_TXT[I.operacion === "alquiler" ? "alquiler" : "venta"][k]}`];
+  if (zona) return `${partes[0]} ${EN_TXT[k]} ${zona}`;
   if (hab > 0) partes.push(`${hab} ${HAB_TXT[k]}`);
   if (m2 > 0) partes.push(`${m2.toLocaleString(LOCALES[idioma] ?? "es-ES", { maximumFractionDigits: 1, useGrouping: "always" })} m²`);
   return partes.join(" · ");
@@ -667,9 +682,10 @@ const ICONOS = {
   herramientas: '<path d="M14.5 5.5a4 4 0 00-5 5L4 16l4 4 5.5-5.5a4 4 0 005-5l-2.5 2.5-2.5-.5-.5-2.5z"/>',
   apariencia: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 010 17z" fill="currentColor" stroke="none"/>',
 };
+/** Icono de trazo. tam: px con la letra a 16 px; se aplica en rem (--ico, estudio.css), así sigue a la talla y a la pantalla. */
 export function icono(n, tam = 18) {
   const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("width", tam); s.setAttribute("height", tam);
+  s.setAttribute("viewBox", "0 0 24 24"); s.style.setProperty("--ico", `${tam / 16}rem`);
   s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "1.7");
   s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round"); s.setAttribute("aria-hidden", "true");
   s.classList.add("ico");

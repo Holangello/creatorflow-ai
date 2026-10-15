@@ -23,6 +23,7 @@
 </head>
 <body>
   <div id="app">
+    <h1 id="titulo-recorrido" class="c8-visualmente-oculto">Recorrido virtual</h1>
     <canvas id="lienzo" tabindex="0" role="application" aria-roledescription="visor 3D" aria-label="Recorrido virtual"></canvas>
     <div id="etiquetas"></div>
 
@@ -31,6 +32,7 @@
       <button id="lugar" type="button" class="c8-vidrio c8-vidrio--texto" aria-haspopup="dialog" aria-controls="estancias-plano">
         <img id="logo" alt="" hidden>
         <span class="titulos"><span id="titulo">Recorrido virtual</span><span id="estancia"></span></span>
+        <span id="lugar-abre" class="c8-visualmente-oculto"></span>
         <svg class="c8-icono chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
       </button>
       <div id="radar" hidden>
@@ -46,7 +48,7 @@
     <div id="modos" class="c8-segmentado c8-vidrio" role="radiogroup" aria-label="Modo de visita" hidden></div>
 
     <!-- Barra de vista (arriba a la derecha): Radar · Modo juego · Música · Ayuda · Pantalla completa · Más -->
-    <div id="barra-vista" class="c8-pastilla c8-vidrio" role="toolbar" aria-label="Vista">
+    <div id="barra-vista" class="c8-pastilla c8-vidrio c8-vidrio--texto" role="toolbar" aria-label="Vista">
       <button id="btn-radar" type="button" class="c8-boton c8-boton--icono" aria-label="Radar" aria-pressed="false">
         <svg class="c8-icono c8-icono--dibujar ic-radar" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" pathLength="1"/><circle cx="12" cy="12" r="4.5" pathLength="1"/><path class="barrido" d="M12 12 18.5 5.5" pathLength="1"/></svg>
       </button>
@@ -88,9 +90,7 @@
       </button>
     </div>
     <div id="joystick" class="c8-vidrio" aria-hidden="true"><div id="joystick-pomo"></div></div>
-    <div id="pista" class="c8-vidrio c8-vidrio--texto" role="status" hidden></div>
     <button id="tarjeta-juego" type="button" class="c8-vidrio c8-vidrio--texto" hidden></button>
-    <div id="aviso-juego" class="c8-vidrio c8-vidrio--texto" role="status" hidden></div>
     <div id="mira-juego" aria-hidden="true"></div>
 
     <div id="ficha" class="c8-vidrio c8-vidrio--texto" role="dialog" aria-modal="false" aria-labelledby="ficha-titulo" hidden>
@@ -156,7 +156,12 @@
       </div>
       <p class="credito c8-etiqueta c8-vidrio">Creado con <b>cre8eight</b></p>
     </div>
-    <div id="aviso" class="c8-aviso c8-vidrio c8-vidrio--texto" role="status" hidden></div>
+    <!-- Avisos: una sola región viva que siempre está; dentro, cada aviso aparece y desaparece (así se anuncia) -->
+    <div id="avisos" role="status">
+      <div id="pista" class="c8-vidrio c8-vidrio--texto" hidden></div>
+      <div id="aviso-juego" class="c8-vidrio c8-vidrio--texto" hidden></div>
+      <div id="aviso" class="c8-aviso c8-vidrio c8-vidrio--texto" hidden></div>
+    </div>
     <div id="paneles"></div>
     <noscript><p class="sin-js">Este recorrido necesita JavaScript.</p></noscript>
   </div>

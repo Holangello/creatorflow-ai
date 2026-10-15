@@ -28,23 +28,25 @@ export function crearMaqueta(ctx) {
     controles.minDistance = 3;
     controles.maxDistance = 80;
     controles.screenSpacePanning = false;
+    controles.addEventListener("start", () => { movida = true; }); // arrastre, rueda o pellizco del visitante
     // Teclado (WCAG 2.1.1), con el foco en el lienzo: ← → giran, ↑ ↓ inclinan, + − acercan y alejan
     ctx.lienzo.addEventListener("keydown", (e) => {
       if (!activa || e.ctrlKey || e.metaKey || e.altKey) return;
       const f = { ArrowLeft: () => controles.rotateLeft(0.15), ArrowRight: () => controles.rotateLeft(-0.15), ArrowUp: () => controles.rotateUp(0.1),
         ArrowDown: () => controles.rotateUp(-0.1), Equal: () => acercar(true), NumpadAdd: () => acercar(true), Minus: () => acercar(false), NumpadSubtract: () => acercar(false) }[e.code];
-      if (f) { e.preventDefault(); f(); }
+      if (f) { e.preventDefault(); f(); movida = true; }
     });
   }
   /** Acercar o alejar sin rueda ni pellizco (teclado y «Más» en táctil · WCAG 2.5.1). */
-  const acercar = (si) => { if (activa && controles) controles[si ? "dollyIn" : "dollyOut"](1.25); };
+  const acercar = (si) => { if (activa && controles) { controles[si ? "dollyIn" : "dollyOut"](1.25); movida = true; } };
 
   const capa = document.createElement("div");
   capa.id = "maqueta-capa";
   capa.hidden = true;
   ctx.contenedor.append(capa);
 
-  let escena = null, usaModelo = false, construida = false, activa = false, fondoPrevio;
+  // movida: el visitante ya ha girado o acercado la maqueta (desde entonces no se vuelve a encuadrar al girar la pantalla)
+  let escena = null, usaModelo = false, construida = false, activa = false, movida = false, fondoPrevio;
   const etiquetas = [];
   const superficies = [];
   const rayo = new THREE.Raycaster();
@@ -100,7 +102,7 @@ export function crearMaqueta(ctx) {
       el.className = "maq-estancia c8-vidrio c8-vidrio--texto";
       el.innerHTML = `<b></b><span></span>`;
       el.querySelector("b").textContent = ctx.texto(e.nombre);
-      el.querySelector("span").textContent = `${ctx.formato(areaPoligono(e.poligono))} m²`;
+      el.querySelector("span").textContent = ctx.superficie(areaPoligono(e.poligono));
       capa.append(el);
       etiquetas.push({ el, pos: new THREE.Vector3(cx, elev(e.planta) + 0.2, cz) });
     });
@@ -118,16 +120,27 @@ export function crearMaqueta(ctx) {
     encuadrar();
   }
 
+  /** La casa entera a la vista con cualquier proporción de pantalla (V4): desde arriba y en diagonal, a la distancia a la
+      que caben las 8 esquinas de su caja (con los muros) en el campo de visión vertical y en el horizontal. */
+  const DIR = new THREE.Vector3(0.35, 1.05, 0.95).normalize();
   function encuadrar() {
     const caja = new THREE.Box3();
     for (const s of superficies) caja.expandByObject(s);
     if (caja.isEmpty()) for (const n of ctx.nodos()) caja.expandByPoint(new THREE.Vector3(n.x, 0, n.z));
     if (caja.isEmpty()) caja.setFromCenterAndSize(new THREE.Vector3(), new THREE.Vector3(10, 3, 10));
+    caja.max.y += ALTO_MURO;
     const centro = caja.getCenter(new THREE.Vector3());
-    const tam = caja.getSize(new THREE.Vector3());
-    const r = Math.max(tam.x, tam.z, 6);
-    camara.position.set(centro.x + r * 0.35, centro.y + r * 1.05, centro.z + r * 0.95);
+    camara.position.copy(centro).add(DIR);
     camara.lookAt(centro);
+    camara.updateMatrixWorld();
+    const x = new THREE.Vector3().setFromMatrixColumn(camara.matrixWorld, 0), y = new THREE.Vector3().setFromMatrixColumn(camara.matrixWorld, 1);
+    const tv = Math.tan((camara.fov * Math.PI) / 360), th = tv * camara.aspect, p = new THREE.Vector3();
+    let d = 0;
+    for (let i = 0; i < 8; i++) {
+      p.set(i & 1 ? caja.max.x : caja.min.x, i & 2 ? caja.max.y : caja.min.y, i & 4 ? caja.max.z : caja.min.z).sub(centro);
+      d = Math.max(d, p.dot(DIR) + Math.abs(p.dot(x)) / th, p.dot(DIR) + Math.abs(p.dot(y)) / tv);
+    }
+    camara.position.copy(centro).addScaledVector(DIR, d * 1.1);
     if (controles) { controles.target.copy(centro); controles.update(); }
   }
 
@@ -179,7 +192,8 @@ export function crearMaqueta(ctx) {
       activa = !!si;
       ctx.lienzo[si ? "addEventListener" : "removeEventListener"]("pointermove", alMover);
     },
-    redimensionar(aspecto) { camara.aspect = aspecto; camara.updateProjectionMatrix(); },
+    /** También al girar la pantalla: mientras el visitante no la haya movido, la maqueta se vuelve a encuadrar. */
+    redimensionar(aspecto) { camara.aspect = aspecto; camara.updateProjectionMatrix(); if (construida && !movida) encuadrar(); },
     cuadro,
     reiniciar() {
       if (activa && usaModelo && escena) escena.background = fondoPrevio ?? null;
@@ -191,6 +205,7 @@ export function crearMaqueta(ctx) {
       etiquetas.forEach((e) => e.el.remove());
       etiquetas.length = 0;
       construida = false;
+      movida = false;
     },
   };
 }

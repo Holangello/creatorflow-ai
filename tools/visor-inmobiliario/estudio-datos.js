@@ -16,6 +16,10 @@ const TIPOS = [["piso", "Piso"], ["casa", "Casa"], ["chalet", "Chalet"], ["adosa
 let raiz = null, idiomaTrad = null;
 const abiertas = new Set();
 const ob = (ruta) => () => { let o = app.tour; for (const k of ruta) { o[k] ??= {}; o = o[k]; } return o; };
+/** Marcador del título: el automático (lo que se publicará si se deja vacío) o, sin datos aún, un ejemplo. */
+const marcadorTitulo = () => tituloAuto() || (app.tour.inmueble?.operacion === "alquiler" ? "Ej.: Piso en alquiler · 2 hab. · 80 m²" : "Ej.: Piso en venta · 3 hab. · 112 m²");
+// El título automático cambia con los datos (también con la dirección): se refresca en el marcador mientras se escribe.
+const refrescarTitulo = () => { const i = raiz?.querySelector('[data-campo="titulo"] input'); if (i) i.placeholder = marcadorTitulo(); };
 
 function render(cont, op = {}) {
   raiz = h("section", { class: "seccion seccion-datos" });
@@ -51,19 +55,16 @@ function segmentado(nombre, opciones, valor, alElegir, etiqueta) {
 function esencial() {
   const I = ob(["inmueble"]);
   const alquiler = I().operacion === "alquiler";
-  const auto = () => tituloAuto() || (alquiler ? "Piso en alquiler · 2 hab. · 80 m²" : "Piso en venta · 3 hab. · 112 m²");
-  // El título automático cambia con los datos: se refresca en el marcador del campo mientras se escribe.
-  const refrescar = () => { const i = raiz?.querySelector('[data-campo="titulo"] input'); if (i) i.placeholder = auto(); };
-  const num = (clave, etiqueta, extra = {}) => campo(I, clave, { etiqueta, tipo: "number", min: 0, alCambiar: refrescar, ...extra });
+  const num = (clave, etiqueta, extra = {}) => campo(I, clave, { etiqueta, tipo: "number", min: 0, alCambiar: refrescarTitulo, ...extra });
   const ref = app.tour._estudio.ref;
   return h("div", { class: `tarjeta ${VIDRIO} tarjeta-esencial` },
     h("div", { class: "fila-operacion" },
       segmentado("operacion", [["venta", "Venta"], ["alquiler", "Alquiler"]], alquiler ? "alquiler" : "venta",
         (v) => { cambiar(() => { I().operacion = v; }, { tipo: "datos" }); pintar(); }, "Operación"),
-      campo(I, "tipo", { etiqueta: "Tipo", tipo: "select", opciones: TIPOS, alCambiar: refrescar }),
+      campo(I, "tipo", { etiqueta: "Tipo", tipo: "select", opciones: TIPOS, alCambiar: refrescarTitulo }),
       campo(I, "estado_obra", { etiqueta: "Situación", tipo: "select", opciones: [["construido", "Construida"], ["proyecto", "Obra nueva o proyecto"]] })),
     h("div", { class: "mini-datos" },
-      num("precio", alquiler ? "Alquiler (€/mes)" : "Precio (€)", { paso: alquiler ? 50 : 1000, placeholder: alquiler ? "1.200" : "349.000" }),
+      num("precio", alquiler ? "Alquiler (€/mes)" : "Precio (€)", { paso: alquiler ? 50 : 1000, placeholder: alquiler ? "Ej.: 1.200" : "Ej.: 349.000" }),
       num("superficie_construida", "m² construidos"),
       num("superficie_util", "m² útiles"),
       num("habitaciones", "Habitaciones", { paso: 1 }),
@@ -71,9 +72,9 @@ function esencial() {
     h("h2", { class: "sub", text: "Certificado energético (obligatorio en los anuncios)" }),
     certificado(),
     h("div", { class: "rejilla rejilla-auto" },
-      h("div", { class: "ancho-2" }, campoTexto(() => app.tour, "titulo", { etiqueta: "Título del anuncio", placeholder: auto(), tipo: "datos",
+      h("div", { class: "ancho-2" }, campoTexto(() => app.tour, "titulo", { etiqueta: "Título del anuncio", placeholder: marcadorTitulo(), tipo: "datos",
         ayuda: "Automático si lo dejas vacío (también en los otros idiomas).", alCambiar: () => emitir("historial") })),
-      campo(I, "referencia", { etiqueta: "Referencia", placeholder: ref || "REF-1234",
+      campo(I, "referencia", { etiqueta: "Referencia", placeholder: ref || "Ej.: REF-1234",
         ayuda: ref ? "Automática si la dejas vacía. Va en los mensajes de WhatsApp y en la dirección de tu web." : "Va en los mensajes de WhatsApp y en la dirección de tu web." })));
 }
 
@@ -85,7 +86,7 @@ function certificado() {
     const letras = (clave, etq) => {
       const g = h("div", { class: "letras-ce", role: "group", "aria-label": etq });
       const pintarL = () => g.replaceChildren(...LETRAS.map((l) => h("button", {
-        type: "button", text: l, "data-l": l, style: { background: `var(--ce-${l.toLowerCase()})` }, "aria-pressed": String(CE()[clave] === l), "aria-label": `${etq}: letra ${l}`,
+        type: "button", text: l, "data-l": l, style: `--ce: var(--ce-${l.toLowerCase()})`, "aria-pressed": String(CE()[clave] === l), "aria-label": `${etq}: letra ${l}`,
         onclick: () => { cambiar(() => { const o = CE(); if (o[clave] === l) delete o[clave]; else { o[clave] = l; delete o.en_tramite; } }, { tipo: "datos", render: false }); pintarL(); },
       })));
       pintarL();
@@ -131,8 +132,8 @@ function masDatos() {
       chips()),
     h("h2", { class: "sub", text: "Ubicación" }),
     h("div", { class: "rejilla" },
-      h("div", { class: "ancho-2" }, campo(I, "direccion", { etiqueta: "Dirección", placeholder: "Calle Mayor 12, Madrid" })),
-      h("div", { class: "ancho-todo" }, campo(I, "mostrar_direccion_exacta", { etiqueta: "Mostrar la dirección exacta (si no, solo la zona)", tipo: "check" }))));
+      h("div", { class: "ancho-2" }, campo(I, "direccion", { etiqueta: "Dirección", placeholder: "Ej.: Calle Mayor 12, Madrid", alCambiar: refrescarTitulo })),
+      h("div", { class: "ancho-todo" }, campo(I, "mostrar_direccion_exacta", { etiqueta: "Mostrar la dirección exacta (si no, solo la zona)", tipo: "check", alCambiar: refrescarTitulo }))));
 }
 function chips() {
   const I = ob(["inmueble"]);

@@ -26,6 +26,13 @@ body { font: var(--peso-normal) var(--t-cuerpo) / var(--lh-ui) var(--fuente); le
 /* Marco de foco del lienzo solo si se llegó con el tabulador (W A S D o un clic no lo encienden) */
 #lienzo:focus-visible { outline: none; }
 body.foco-tab #lienzo:focus { outline: 3px solid var(--c-foco); outline-offset: -3px; }
+/* Sobre la foto, un marco doble (técnica C40 de WCAG): el del foco y, por dentro, uno del color del fondo; con cualquier
+   foto se ve uno de los dos (A6). La imagen del lienzo tapa su box-shadow: lo pinta una capa encima, sin puntero. */
+@supports selector(:has(*)) {
+  body.foco-tab #lienzo:focus { outline: none; }
+  body.foco-tab #app:has(> #lienzo:focus)::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    box-shadow: inset 0 0 0 3px var(--c-foco), inset 0 0 0 6px var(--c-fondo); }
+}
 #lienzo:active { cursor: grabbing; }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; }
@@ -62,9 +69,9 @@ body.raton-capturado #lienzo { cursor: none; }
 #radar { position: relative; width: var(--radar); aspect-ratio: 1; flex: none; }
 #radar .disco { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border-color: color-mix(in srgb, var(--c-acento) 45%, var(--vidrio-borde)); }
 #mapa { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
+/* «Ampliar»: 36 px como mínimo y 44 en táctil, el --alto-control-s de tema.css (A21) */
 #btn-ampliar { position: absolute; right: -0.25rem; bottom: -0.25rem; }
-/* Táctil: se queda en 36 px (no 44) para no tapar el radar, que también se toca para ir a una estancia */
-@media (pointer: coarse) { #btn-ampliar { --alto-control-s: 2.25rem; } }
+@media not all and (pointer: coarse) { #btn-ampliar { --alto-control-s: max(2rem, 36px); } }
 body.modo-maqueta :is(#radar, #btn-radar) { display: none; }
 /* N-14: el precio, discreto, solo en el modo juego (los paneles se ocultan) */
 #precio-juego { display: none; margin: 0; min-height: 1.75rem; padding: 0 var(--e-3); font-size: var(--t-sec); }
@@ -103,15 +110,20 @@ body.con-portada #barra-vista .c8-icono * { animation-play-state: paused; }
 /* Ayuda: la interrogación salta al pulsar */
 .ic-ayuda .pregunta { transform-box: view-box; transition: translate var(--d-3) var(--muelle-rebote); }
 #btn-ayuda:active .ic-ayuda .pregunta { translate: 0 -1.5px; transition-duration: var(--d-1); }
-/* Música: ondas mientras suena y tachado si está silenciada (no se dibujan al aparecer: dependen del estado) */
+/* Música: ondas quietas mientras suena y tachado si está silenciada (no se dibujan al aparecer: dependen del estado).
+   Nada infinito sobre el vidrio (M3): una animación sin fin obligaba a recomponer el vidrio en cada fotograma, también
+   en reposo. Las ondas laten dos veces al empezar a sonar y al pasar el ratón (la de reposo no se repite al salir: al
+   añadir «onda-raton», «onda» conserva su estado). */
 .ic-sonido :is(.onda, .tachado) { animation: none; }
 .ic-sonido .onda { stroke-dasharray: none; stroke-dashoffset: 0; opacity: 0; translate: -1.5px 0;
   transition: opacity var(--d-2) var(--suave), translate var(--d-3) var(--muelle); }
 .ic-sonido .tachado { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--d-3) var(--salida); }
-#btn-sonido.sonando .onda { opacity: 1; translate: 0 0; animation: onda 1.6s var(--suave) infinite; }
-#btn-sonido.sonando .o2 { animation-delay: 0.25s; }
+#btn-sonido.sonando .onda { opacity: 1; translate: 0 0; animation: onda 1.6s var(--suave) 2; }
+#btn-sonido.sonando:hover .onda { animation: onda 1.6s var(--suave) 2, onda-raton 1.6s var(--suave) 2; }
+#btn-sonido.sonando .onda.o2 { animation-delay: 0.25s; }
 #btn-sonido.silenciado .tachado { stroke-dashoffset: 0; }
-@keyframes onda { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes onda { 50% { opacity: 0.35; } }
+@keyframes onda-raton { 50% { opacity: 0.35; } }
 /* Pantalla completa: las esquinas se separan al pasar el ratón y se dan la vuelta (hacia dentro) en pantalla completa */
 .ic-pantalla path { transform-box: fill-box; transform-origin: center; transition: translate var(--d-3) var(--muelle), rotate var(--d-3) var(--muelle); }
 #btn-pantalla:hover .ic-pantalla path:nth-child(1) { translate: -1.5px -1.5px; }
@@ -186,6 +198,8 @@ body:is(.modo-libre, .modo-maqueta, .midiendo) #galeria { display: none; }
   padding: var(--e-3) var(--e-5); border-radius: var(--r-5); text-align: center; font: var(--peso-medio) var(--t-cuerpo) / 1.35 var(--fuente); color: var(--c-texto); text-wrap: balance; }
 #pista { pointer-events: none; animation: pista 2.2s var(--suave) 2; }
 @keyframes pista { 50% { scale: 1.04; } }
+/* No asoma detrás de un diálogo, la nota de un «i» ni lo que abren los paneles: la hoja de la ficha, sus diálogos (M11) */
+body:has(dialog[open], #ficha:not([hidden]), #paneles .pn-abierto) #pista { display: none; }
 #tarjeta-juego { border-radius: var(--r-4); padding: var(--e-4) var(--e-5); }
 #tarjeta-juego:hover { border-color: var(--c-borde-2); }
 #aviso-juego { position: absolute; z-index: var(--z-aviso); top: var(--arriba); left: 50%; translate: -50% 0; padding: var(--e-2) var(--e-4);
@@ -216,7 +230,7 @@ dialog.c8-dialogo::backdrop { background: var(--velo); }
 .ep-grupos h3 { margin: var(--e-3) 0 var(--e-2); font: var(--peso-semi) var(--t-micro) / 1 var(--fuente); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-texto-2); }
 .ep-grupos h3:first-child { margin-top: 0; }
 .ep-grupos ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-1); }
-.ep-estancia { display: flex; align-items: center; gap: var(--e-3); width: 100%; min-height: 3.25rem; padding: var(--e-1); border: 1px solid transparent; border-radius: var(--r-3);
+.ep-estancia { display: flex; align-items: center; gap: var(--e-3); width: 100%; min-height: max(3.25rem, var(--toque-minimo)); padding: var(--e-1); border: 1px solid transparent; border-radius: var(--r-3);
   background: transparent; color: var(--c-texto); text-align: left; font: var(--peso-medio) var(--t-ui) / 1.25 var(--fuente); transition: background-color var(--d-1) var(--suave); }
 .ep-estancia:hover { background: var(--c-capa-hover); }
 .ep-estancia[aria-current="true"] { border-color: color-mix(in srgb, var(--c-acento) 60%, transparent); background: var(--c-acento-suave); }
@@ -233,7 +247,8 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
 /* ---------------- portada ----------------
    La foto difuminada de la estancia inicial y, encima, una tarjeta de vidrio con el inmueble (el vidrio, que el visor
    también adapta a esta foto, garantiza el contraste). Sin foto todavía, un degradado del fondo del tema. */
-#portada { position: fixed; inset: 0; z-index: var(--z-carga); display: grid; place-items: center; overflow: hidden; color: var(--c-texto);
+/* Una sola pista que no crece con el contenido: una palabra larguísima (el nombre de la agencia) no saca la tarjeta (M10) */
+#portada { position: fixed; inset: 0; z-index: var(--z-carga); display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; overflow: hidden; color: var(--c-texto);
   padding: calc(var(--e-6) + var(--seg-sup)) calc(var(--e-5) + var(--seg-der)) calc(var(--e-9) + var(--seg-inf)) calc(var(--e-5) + var(--seg-izq));
   background: radial-gradient(circle at 50% 40%, var(--c-sup-1), var(--c-fondo)); transition: opacity var(--d-4) var(--suave); }
 #portada.fuera { opacity: 0; pointer-events: none; }
@@ -242,7 +257,7 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
 #portada .fondo.visible { opacity: 1; }
 #portada .contenido { position: relative; display: grid; justify-items: center; gap: var(--e-3); width: min(34rem, 100%); padding: var(--e-7) var(--e-6) var(--e-6);
   border-radius: var(--r-5); text-align: center; animation: c8-aparecer var(--d-4) var(--muelle) both; }
-#portada .marca { display: flex; align-items: center; gap: var(--e-3); font: var(--peso-semi) var(--t-ui) / 1.2 var(--fuente); letter-spacing: 0.02em; color: var(--c-texto-2); }
+#portada .marca { display: flex; align-items: center; gap: var(--e-3); font: var(--peso-semi) var(--t-ui) / 1.2 var(--fuente); letter-spacing: 0.02em; color: var(--c-texto-2); overflow-wrap: anywhere; }
 #portada .marca img { max-height: 3.25rem; max-width: 11rem; object-fit: contain; }
 #portada .titulo { margin: var(--e-1) 0 0; font: var(--peso-semi) var(--t-titulo-g) / var(--lh-ajustado) var(--fuente-titular); letter-spacing: var(--track-titular); text-wrap: balance; overflow-wrap: anywhere; }
 #portada .titulo:empty { display: none; }
@@ -277,6 +292,11 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
 .info.c8-vidrio:is(:hover, :focus-visible) { background: var(--c-acento); color: var(--c-sobre-acento); scale: 1.08; }
 .info:active { scale: 0.94; }
 .info::after { content: ""; position: absolute; inset: -0.375rem; }
+/* Foco de lo que flota sobre la foto: anillo doble (técnica C40), el del foco entre dos bandas del color del fondo; con
+   cualquier foto detrás se ve (A6). Va después de las sombras del vidrio, que sustituye mientras dura el foco. */
+:is(#lugar, #btn-ampliar, .etq, .info, #cortinilla button, #tarjeta-juego):focus-visible {
+  outline: 2px solid var(--c-foco); outline-offset: 2px; box-shadow: 0 0 0 6px var(--c-fondo);
+}
 
 /* ---------------- nota de un punto «i» ---------------- */
 #ficha { position: absolute; z-index: var(--z-panel); left: 50%; translate: -50% 0; bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--e-3));
@@ -330,7 +350,8 @@ body.midiendo :is(#pista, #rotulo, #tarjeta-juego) { display: none; }
   font: var(--peso-medio) var(--t-destacado) / var(--lh-ui) var(--fuente); letter-spacing: var(--track-ui); text-wrap: balance;
   animation: c8-aparecer var(--d-4) var(--muelle) both; }
 /* Comparador «Antes y después»: línea blanca con halo sobre la foto; tirador y rótulos de vidrio */
-#cortinilla { position: absolute; z-index: calc(var(--z-hud) + 3); top: 0; bottom: 0; left: 50%; width: 0; border-left: 2px solid var(--foto-trazo); box-shadow: 0 0 0.75rem var(--foto-halo); }
+/* Bajo el HUD (no cruza los modos ni la tira) y sobre las etiquetas de la escena; el tirador, en el centro, queda libre (V9) */
+#cortinilla { position: absolute; z-index: calc(var(--z-hud) - 1); top: 0; bottom: 0; left: 50%; width: 0; border-left: 2px solid var(--foto-trazo); box-shadow: 0 0 0.75rem var(--foto-halo); }
 #cortinilla button { position: absolute; top: 50%; left: 0; translate: -50% -50%; width: 2.875rem; height: 2.875rem; display: grid; place-items: center; padding: 0;
   border-radius: 50%; color: var(--c-texto); touch-action: none; cursor: ew-resize; transition: scale var(--d-3) var(--muelle-rebote); }
 #cortinilla button:hover { scale: 1.06; }
@@ -374,12 +395,18 @@ body.embed #btn-pantalla { display: none; }
 /* ================================================================== tamaños
    Teléfono = (max-width: 540px) o (max-height: 540px) en horizontal: sin tira ni botón de pantalla completa (los paneles
    lo ponen en «Más» cuando #btn-pantalla no se ve).
-   Vertical hasta 1024 px (tablet incluida): modos, visita guiada y medición abajo. */
-@media (orientation: portrait) and (max-width: 1024px) {
-  :root { --radar: 8rem; }
+   Vertical hasta 1024 px (tablet incluida): modos, visita guiada y medición abajo.
+   En horizontal los modos también bajan si no caben entre el título y la barra de vista: con la letra del navegador al
+   200 % o la talla L en una ventana estrecha (A12). La consulta va en em, que sigue a la letra del navegador: 62em son
+   992 px con la letra normal y 1984 con la doble. El teléfono en horizontal (alto ≤ 540) los deja arriba: abajo está la
+   tarjeta. */
+@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-width: 62em) and (min-height: 541px) {
   #esquina { max-width: calc(100vw - 2 * var(--hud) - 17rem); }
   #modos, #guion-barra { top: auto; bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--e-2)); }
   #subtitulo, #ficha { bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--alto-control) + var(--e-5)); }
+}
+@media (orientation: portrait) and (max-width: 1024px) {
+  :root { --radar: 8rem; }
   #estado-vista { top: calc(var(--arriba) + var(--alto-control) + var(--e-4)); }
   #galeria { left: calc(var(--hud) + var(--seg-izq)); right: calc(var(--hud) + var(--seg-der)); transform: none; max-width: none; width: fit-content; margin-inline: auto; }
   #galeria .guiada { display: inline-flex; }
