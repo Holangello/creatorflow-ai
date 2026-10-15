@@ -9,7 +9,8 @@
     "build:dev": "node build.mjs --sin-minificar",
     "prueba": "node pruebas/humo.mjs",
     "prueba:e2e": "node pruebas/e2e.mjs",
-    "prueba:todo": "npm run prueba && npm run contraste && npm run prueba:e2e",
+    "prueba:sol": "node pruebas/sol.mjs",
+    "prueba:todo": "npm run prueba && npm run contraste && npm run prueba:sol && npm run prueba:e2e",
     "contraste": "node pruebas/contraste.mjs",
     "medir": "node pruebas/medir.mjs"
   },
