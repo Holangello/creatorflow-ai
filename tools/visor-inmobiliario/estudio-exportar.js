@@ -252,8 +252,8 @@ const destino = (n, titulo, texto, ...contenido) => h("section", { class: "desti
   ...contenido);
 
 let pintando = false;
-/** Lo que identifica un control entre dos pintados (los botones no tienen id): etiqueta, id o nombre y texto. */
-const huella = (e) => `${e.tagName}|${e.id}|${e.getAttribute("aria-label") ?? ""}|${e.textContent}`;
+/** Lo que identifica un control entre dos pintados (los botones y las casillas no tienen id): id, nombre, etiqueta y texto. */
+const huella = (e) => `${e.tagName}|${e.id}|${e.getAttribute("aria-label") ?? ""}|${e.labels?.[0]?.textContent ?? ""}|${e.textContent}`;
 /** Pinta Publicar. Protegido contra repintados anidados (un «change» al perder el foco) y conserva el foco. */
 function pintarExportar() {
   if (!raizE || pintando) return;
@@ -262,6 +262,10 @@ function pintarExportar() {
   try { pintarPublicar(); } finally { pintando = false; }
   if (foco) [...raizE.querySelectorAll("a, button, input, select, summary, [tabindex]")].find((x) => huella(x) === foco)?.focus({ preventScroll: true });
 }
+/** Repinta en la tarea siguiente, una vez aunque se pida varias. Durante el «change» de un campo (al salir con Tab) el foco
+ *  está en tránsito: pintar entonces quitaría el control al que va y el foco se perdería. El dato ya está guardado. */
+let tPintar = 0;
+const repintar = () => { clearTimeout(tPintar); tPintar = setTimeout(pintarExportar); };
 function pintarPublicar() {
   const t = app.tour;
   const ref = nombreBase();
@@ -285,7 +289,7 @@ function pintarPublicar() {
     if (v && !(urlPermitida(v) && /^https?:\/\/[^/\s]+/i.test(v))) { errWeb.textContent = "Escribe la dirección completa de tu web, empezando por https://"; web.setAttribute("aria-invalid", "true"); return; }
     errWeb.textContent = ""; web.setAttribute("aria-invalid", "false");
     if (v !== String(t.marca?.web ?? "").trim()) fijarWeb(v); // repinta Publicar (evento «perfil» o cambio del proyecto)
-    pintarExportar();
+    repintar();
   };
   // «Dirección final del recorrido» (M6): por defecto la web + /tours/<referencia>/; si se escribe otra, se guarda en el proyecto.
   const final = h("input", { type: "url", id: "url-final", value: url ?? "", placeholder: `https://www.tu-inmobiliaria.com/tours/${ref}/`, autocomplete: "off",
@@ -298,7 +302,7 @@ function pintarPublicar() {
     errFinal.textContent = ""; final.setAttribute("aria-invalid", "false");
     const nueva = propia && propia !== porDefecto ? propia : undefined;
     if (nueva !== t._estudio.urlFinal) cambiar((tt) => { if (nueva) tt._estudio.urlFinal = nueva; else delete tt._estudio.urlFinal; }, { tipo: "local" });
-    pintarExportar();
+    repintar();
   };
   let enlace;
   if (url) {
@@ -485,8 +489,8 @@ export const seccionPublicar = {
     return { texto: !app.tour.panoramas.length ? "Tu web, portales y redes" : errores ? `${errores} por corregir` : avisos ? `Listo · ${avisos} ${avisos === 1 ? "sugerencia" : "sugerencias"}` : "Listo para publicar", hecho: app.tour.panoramas.length > 0 && !errores };
   },
   render: renderExportar,
-  actualizar: () => { if (!raizE?.contains(document.activeElement) || /^(BUTTON|SUMMARY)$/.test(document.activeElement?.tagName)) pintarExportar(); },
+  actualizar: () => { if (!raizE?.contains(document.activeElement) || /^(BUTTON|SUMMARY)$/.test(document.activeElement?.tagName)) repintar(); },
   salir: () => { raizE = null; },
 };
 on("exportar-listo", () => pintarExportar());
-on("perfil", () => pintarExportar());
+on("perfil", repintar);

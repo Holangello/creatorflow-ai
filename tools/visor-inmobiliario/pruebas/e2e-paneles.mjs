@@ -457,6 +457,7 @@ try {
         "«Copiar siguiente foto» copia la última y deja el foco en «Ya lo he enviado»");
       await p.click(SEL.terminado);
       inf.ok(/Te responderemos por WhatsApp/.test(await p.textContent(SEL.dialogo)), "confirmación final");
+      inf.ok(await enFoco(p, "exito"), "y la confirmación recibe el foco, para que se anuncie (A16)", await foco(p));
     }
     {
       // aunque el móvil pueda compartir archivos, se abre el chat de la agencia (wa.me): la hoja de compartir no sabe a quién enviar

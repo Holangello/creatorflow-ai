@@ -45,6 +45,12 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | El tour no tiene plano | El radar empieza oculto y se puede mostrar con R o con su botón |
 | Un toque cuando la interfaz está oculta | Solo la despierta: nunca navega por sorpresa |
 | Un icono SVG con scripts en el menú «Más» | Se descarta |
+| El navegador no admite `inert` (hojas del teléfono) | La hoja sigue siendo modal y con velo; el Tab podría llegar a lo de detrás, sin errores |
+| Se cierra la hoja, cambia la disposición o llega otro tour | No queda nada inerte |
+| El lector de pantalla no anuncia una región recién creada | La confirmación del contacto recibe el foco y se lee |
+| No da tiempo a «Deshacer» | El aviso espera mientras tiene el foco o el puntero encima; la foto también se quita con ✕ |
+| La interfaz entra en reposo con un lector de pantalla | Los botones de la tarjeta siguen en el árbol de accesibilidad y vuelven con el foco |
+| Un nombre no cabe (idioma, talla L, espaciado aumentado) | Pasa a dos líneas o se parte, también sin diccionario de guiones |
 | El visitante desactiva los atajos de una letra (WCAG 2.1.4) | Las letras solo actúan con el foco en el lienzo o en el modo juego; el interruptor está también en táctil |
 | El visitante no puede pellizcar (un dedo, puntero de cabeza) | «Acercar» y «Alejar» en «Más» (recorrido y maqueta); la maqueta gira con las flechas y se acerca con + y − |
 | El recorrido no tiene WhatsApp, CRM ni email | No se ofrecen «Contactar» ni «Foto de la vista»: nunca una confirmación de algo que no llega a nadie |

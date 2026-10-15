@@ -186,7 +186,7 @@
    La tarjeta nunca desaparece; vuelve entera con cualquier gesto, al tener el foco o con algo abierto. Lo demás se
    oculta solo a la vista (como .pn-sr): sigue para los lectores de pantalla, que no despiertan la interfaz (A11). */
 body.ui-inactiva .pn-raiz:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) :is(.pn-t-sobre, .pn-t-datos, .pn-t-boton, .pn-t-acciones) {
-  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 body.ui-inactiva .pn-raiz.pn-disp-lateral:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) { width: auto; max-width: var(--pn-ancho); }
 body.ui-inactiva .pn-raiz.pn-disp-lateral:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) .pn-t-cab {
   display: flex; align-items: center; gap: var(--e-3, 0.75rem); padding: var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-4, 1rem); }

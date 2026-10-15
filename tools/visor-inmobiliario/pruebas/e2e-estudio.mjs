@@ -1068,6 +1068,7 @@ try {
     await p.fill(SEL.urlFinal, final);
     await p.keyboard.press("Tab");
     await esperar(p, (u) => window.__estudio.tour._estudio.urlFinal === u, final);
+    inf.ok(await p.evaluate(() => document.activeElement?.textContent) === "Descargar mi recorrido (ZIP)", "M6 · al salir del campo con Tab, Publicar se repinta sin perder el foco (sigue en «Descargar»)");
     const pub = await p.evaluate(() => ({ subir: document.querySelector(__SEL.pasoSubir)?.textContent, qr: document.querySelector(__SEL.qrPublicar)?.getAttribute("aria-label"),
       codigo: document.querySelector(__SEL.codigoIncrustar)?.textContent ?? "" }));
     inf.ok(pub.subir === final && pub.qr?.endsWith(final) && pub.codigo.includes(`src="${final}"`) && !pub.codigo.includes("embed") && pub.codigo.includes("clipboard-write; web-share"),

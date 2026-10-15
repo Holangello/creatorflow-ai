@@ -126,7 +126,6 @@
      En los dos temas, porque la foto no cambia con el tema. Con el velo, ≥ 4,5:1 incluso sobre una foto blanca. */
   --c-sobre-foto: #ffffff;
   --velo-foto: rgba(0, 0, 0, 0.62);
-  --degradado-foto: linear-gradient(to top, var(--velo-foto), transparent 70%);
   --ce-a: #00a651; --ce-b: #4cb848; --ce-c: #bfd730; --ce-d: #e8d900; --ce-e: #fdb913; --ce-f: #f37021; --ce-g: #ed1c24;
 
   /* Vidrio: parámetros comunes */

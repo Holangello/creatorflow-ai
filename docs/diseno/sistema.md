@@ -171,7 +171,7 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
 
 ## Texto sobre una foto
 
-Para un nombre sobre una miniatura: `--c-sobre-foto` (blanco en los dos temas) sobre `--degradado-foto`, un degradado que oscurece la parte de abajo con `--velo-foto`. El texto va donde el velo ya es pleno (no en la parte que se desvanece): así llega a 6,2:1 incluso sobre una foto blanca. `pruebas/contraste.mjs` lo comprueba con `--velo-foto` sobre blanco.
+Para un nombre sobre una miniatura: `--c-sobre-foto` (blanco en los dos temas) sobre `--velo-foto` entero bajo el texto, nunca sobre la parte que se desvanece: así llega a 6,2:1 incluso sobre una foto blanca. En la tira de estancias del núcleo el nombre va abajo; en las fotos de la consulta, arriba, para no tapar la franja de marca que la captura lleva abajo. `pruebas/contraste.mjs` lo comprueba con `--velo-foto` sobre blanco.
 
 ## Vidrio adaptativo («liquid glass»)
 
