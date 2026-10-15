@@ -95,12 +95,6 @@
   button:hover .ic-pantalla path:nth-child(2) { transform: translate(1.5px, -1.5px); }
   button:hover .ic-pantalla path:nth-child(3) { transform: translate(1.5px, 1.5px); }
   button:hover .ic-pantalla path:nth-child(4) { transform: translate(-1.5px, 1.5px); }
-  .ic-tema .disco { transition: r var(--d-4) var(--muelle); }
-  .ic-tema .mordisco { transition: cx var(--d-4) var(--muelle), cy var(--d-4) var(--muelle); }
-  .ic-tema .rayos { transition: opacity var(--d-2), transform var(--d-4) var(--muelle); transform-origin: 12px 12px; }
-  :root[data-tema="oscuro"] .ic-tema .rayos { opacity: 0; transform: rotate(-45deg) scale(0.6); }
-  :root[data-tema="claro"] .ic-tema .mordisco { cx: 30px; cy: -6px; }
-  :root[data-tema="claro"] .ic-tema .disco { r: 4.5px; }
   .ic-contacto .punto { animation: c8-latido 1.4s var(--suave) infinite; transform-box: fill-box; transform-origin: center; }
   .ic-contacto .punto:nth-of-type(2) { animation-delay: 0.15s; } .ic-contacto .punto:nth-of-type(3) { animation-delay: 0.3s; }
   @media (max-width: 760px) {
@@ -159,17 +153,13 @@
       <div class="h-titulo c8-vidrio c8-vidrio--texto"><i class="logo-marca" aria-hidden="true"></i><div><strong>Ático en Chamberí</strong><span>Salón · Planta 1</span></div></div>
       <div class="h-modos c8-segmentado c8-vidrio" role="radiogroup" aria-label="Modo">
         <label><input type="radio" name="modo" checked><span>Recorrido</span></label>
-        <label><input type="radio" name="modo"><span>Libre 3D</span></label>
+        <label><input type="radio" name="modo"><span>Paseo libre</span></label>
         <label><input type="radio" name="modo"><span>Maqueta</span></label>
       </div>
       <div class="h-iconos c8-pastilla c8-vidrio" role="toolbar" aria-label="Herramientas">
         <button class="c8-boton c8-boton--icono" aria-pressed="true" aria-label="Radar"><svg class="c8-icono"><use href="#i-radar"/></svg></button>
         <button class="c8-boton c8-boton--icono" aria-label="Silenciar música">
           <svg class="c8-icono ic-sonido" viewBox="0 0 24 24"><path d="M4 9.5h3l4.5-4v13L7 14.5H4z"/><path class="onda" d="M15 9.5a3.5 3.5 0 0 1 0 5"/><path class="onda" d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
-        <button class="c8-boton c8-boton--icono" aria-label="Cambiar apariencia" id="alternar-tema">
-          <svg class="c8-icono ic-tema" viewBox="0 0 24 24"><mask id="m-luna"><rect width="24" height="24" fill="#fff"/><circle class="mordisco" cx="17" cy="7" r="6.5" fill="#000"/></mask>
-            <circle class="disco" cx="12" cy="12" r="8" mask="url(#m-luna)" fill="currentColor" stroke="none"/>
-            <g class="rayos"><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g></svg></button>
         <button class="c8-boton c8-boton--icono" aria-label="Ayuda"><svg class="c8-icono"><use href="#i-ayuda"/></svg></button>
         <span class="c8-separador" aria-hidden="true"></span>
         <button class="c8-boton c8-boton--icono" aria-label="Pantalla completa">
@@ -270,7 +260,6 @@
     medir();
   }
   cre8Tema.alCambiar(marcar);
-  document.getElementById("alternar-tema").addEventListener("click", () => cre8Tema.fijar("tema", cre8Tema.efectivo.tema === "oscuro" ? "claro" : "oscuro"));
   document.getElementById("fondos").addEventListener("change", (e) => { document.getElementById("escena").dataset.fondo = e.target.value; });
 
 

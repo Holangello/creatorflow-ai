@@ -16,7 +16,7 @@ const lista = (v) => v.split(",").map((x) => x.trim()).filter(Boolean);
 const PAGINAS = lista(arg("paginas", "index.html?demo,estudio.html,asistente-osmo.html,tema-muestra.html"));
 const TEMAS = lista(arg("temas", "oscuro,claro"));
 const TALLAS = lista(arg("tallas", "m"));
-const TAMANOS = lista(arg("tamanos", "360x640,390x844,844x390,820x1180,1024x768,1280x800,1920x1080,2560x1440,3440x1440,3840x2160"));
+const TAMANOS = lista(arg("tamanos", "360x640,390x844,844x390,820x1180,1024x768,1280x800,1440x900,1920x1080,2560x1440,3440x1440,3840x2160"));
 const SALIDA = arg("salida", join(tmpdir(), `cre8eight-capturas-${Date.now()}`));
 mkdirSync(SALIDA, { recursive: true });
 

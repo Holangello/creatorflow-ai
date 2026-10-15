@@ -56,6 +56,8 @@ try {
   const enlace = await a.evaluate(() => { document.querySelector("#sugerir").click(); document.querySelector("[data-ancla='estudio'] [data-accion='enviar']").click(); return document.querySelector("#enlace-estudio")?.value ?? ""; });
   ok(/estudio\.html#fotos&estancias=Entrada,Sal%C3%B3n,/.test(enlace), `guía: enlace al Estudio con la lista (${enlace.split("#")[1]?.slice(0, 50)}…)`);
   ok(a.errores.length === 0, `asistente: sin errores ${a.errores.slice(0, 2).join(" | ")}`);
+  const anchoGuia = await a.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
+  ok(anchoGuia[0] <= anchoGuia[1], `guía: sin desplazamiento horizontal en el móvil (${anchoGuia.join(" ≤ ")} px)`);
   const t = await pagina("tema-muestra.html", { ancho: 390, alto: 844, movil: true });
   await t.waitForTimeout(500);
   const tema = await t.evaluate(() => { cre8Tema.fijar("tema", "claro"); cre8Tema.fijar("talla", "l");

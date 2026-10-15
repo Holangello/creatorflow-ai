@@ -10,7 +10,7 @@
 <style>
   /* Guía Osmo 360: pensada para el móvil durante la sesión de fotos. Todo el aspecto sale de tema.css. */
   body { min-height: 100dvh; }
-  .marco { width: min(46rem, 100%); margin: 0 auto; padding: 0 max(var(--e-4), env(safe-area-inset-right, 0px)) calc(7rem + env(safe-area-inset-bottom, 0px)) max(var(--e-4), env(safe-area-inset-left, 0px)); }
+  .marco { box-sizing: border-box; width: min(46rem, 100%); margin: 0 auto; padding: 0 max(var(--e-4), env(safe-area-inset-right, 0px)) calc(7rem + env(safe-area-inset-bottom, 0px)) max(var(--e-4), env(safe-area-inset-left, 0px)); }
   .cabecera { position: sticky; top: 0; z-index: var(--z-panel); display: flex; align-items: center; gap: var(--e-2);
     margin: 0 0 var(--e-5); padding: calc(var(--e-2) + env(safe-area-inset-top, 0px)) max(var(--e-4), calc(50vw - 23rem)) var(--e-2);
     border-width: 0 0 1px; border-radius: 0; }
@@ -89,8 +89,8 @@
   </defs>
 </svg>
 
-<header class="cabecera c8-vidrio c8-vidrio--texto">
-  <span class="marca">cre<b>8</b>eight <small>Guía Osmo 360</small></span>
+<header class="cabecera c8-vidrio c8-vidrio--texto c8-vidrio--barra">
+  <span class="marca"><span>cre<b>8</b>eight</span> <small>Guía Osmo 360</small></span>
   <a class="c8-boton c8-boton--fantasma c8-boton--s" href="#problemas" id="ir-problemas" aria-label="Problemas frecuentes">?</a>
   <a class="c8-boton c8-boton--secundario c8-boton--s solo-grande" href="estudio.html#fotos" data-accion="estudio-cabecera">Abrir el Estudio</a>
 </header>
@@ -294,7 +294,7 @@
   </main>
 </div>
 
-<nav class="pie c8-vidrio c8-vidrio--texto" aria-label="Navegación entre pasos">
+<nav class="pie c8-vidrio c8-vidrio--texto c8-vidrio--barra" aria-label="Navegación entre pasos">
   <div class="dentro">
     <button class="c8-boton c8-boton--secundario" type="button" id="anterior">← Anterior</button>
     <button class="c8-boton c8-boton--primario" type="button" id="siguiente">Siguiente →</button>

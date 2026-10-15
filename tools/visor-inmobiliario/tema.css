@@ -264,6 +264,13 @@ html[data-talla="l"] { --talla: 1.18; }
     --c-foco: color-mix(in oklab, var(--c-acento) 70%, black);
   }
 }
+/* Con color relativo (Chrome 119, Safari 16.4, Firefox 128), el texto de acento y el foco tienen una luminosidad mínima
+   en oscuro y máxima en claro: con cualquier color de marca del tour (azul marino, negro, blanco, amarillo…) se leen
+   con AA sobre el fondo y sobre el vidrio en el peor caso (pruebas/contraste.mjs). */
+@supports (color: oklch(from red l c h)) {
+  :root, :root[data-tema="oscuro"] { --c-acento-texto: oklch(from var(--c-acento) max(l, 0.8) c h); --c-foco: var(--c-acento-texto); }
+  :root[data-tema="claro"] { --c-acento-texto: oklch(from var(--c-acento) min(l, 0.44) c h); --c-foco: var(--c-acento-texto); }
+}
 
 /* ------------------------------------------------------------------ Planes de contingencia del material
    Sin backdrop-filter (navegadores antiguos o desactivado), el vidrio pasa a ser casi opaco para que se lea igual.
@@ -360,6 +367,10 @@ html[data-talla="l"] { --talla: 1.18; }
 }
 .c8-vidrio.c8-vidrio--texto { background: var(--vidrio-texto); box-shadow: var(--sombra-2), inset 0 1px 0 var(--vidrio-brillo); }
 .c8-vidrio.c8-vidrio--denso { background: var(--vidrio-denso); box-shadow: var(--sombra-3), inset 0 1px 0 var(--vidrio-brillo); }
+/* Barra a todo el ancho (cabecera o pie): sin radio ni canto especular, que sin bordes laterales sobresaldría 1 px
+   y daría desplazamiento horizontal. Solo el filo de abajo (cabecera) o de arriba (pie): border-width en la página. */
+.c8-vidrio.c8-vidrio--barra { border-radius: 0; }
+.c8-vidrio.c8-vidrio--barra::before { display: none; }
 /* Borde especular: más intenso arriba a la izquierda, como un canto de cristal pulido */
 .c8-vidrio::before {
   content: "";

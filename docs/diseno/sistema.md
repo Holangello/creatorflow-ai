@@ -84,7 +84,7 @@ La talla multiplica la base: **S** 0,875, **M** 1, **L** 1,18. En pantallas tác
 | `--c-texto-3` | `#8b9099` (≥4,7:1) | `#636369` (≥4,6:1) | pies, marcadores de posición |
 | `--c-acento` | `#cfad66` | `#c9a55a` | relleno de botones principales, estados activos |
 | `--c-sobre-acento` | `#15110a` (8,8:1) | `#1a1408` (7,9:1) | texto **sobre** el acento |
-| `--c-acento-texto` | acento + blanco | acento + negro (≈5,5:1) | texto **de color** acento (enlaces) |
+| `--c-acento-texto` | acento con luminosidad OKLCH ≥ 0,8 | acento con luminosidad OKLCH ≤ 0,44 | texto **de color** acento (enlaces) y anillo de foco (`--c-foco`). Con cualquier color de marca cumple AA sobre el fondo y sobre el vidrio en el peor caso (`npm run contraste`) |
 | `--c-foco` | acento | acento oscuro | anillo de foco (≥3:1) |
 | `--c-ok` · `--c-aviso` · `--c-error` · `--c-info` | — | — | estados AA en ambos temas |
 | `--c-whatsapp` | `#15803d` | `#15803d` | botón de WhatsApp (5:1 con texto blanco) |
@@ -156,7 +156,7 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
 
 | Clase | Variantes y modificadores | Estados | Accesibilidad |
 |---|---|---|---|
-| `.c8-vidrio` | `--texto`, `--denso` | luz al pasar (solo ratón) | Usa `--texto` siempre que haya texto sobre la foto |
+| `.c8-vidrio` | `--texto`, `--denso`, `--barra` (cabecera o pie a todo el ancho: sin radio ni canto, que sin bordes laterales sobresaldría 1 px) | luz al pasar (solo ratón) | Usa `--texto` siempre que haya texto sobre la foto |
 | `.c8-boton` | `--primario`, `--secundario`, `--fantasma`, `--peligro`, `--whatsapp`, `--icono`, `--s`, `--bloque` | `:hover`, `:active` (pulsación con muelle), `:disabled`, `aria-pressed`, `aria-busy` (indicador de carga), `:focus-visible` | Los botones de icono necesitan `aria-label` |
 | `.c8-pastilla` | `--vertical` (móvil en vertical) | — | `role="toolbar"` + `aria-label` |
 | `.c8-segmentado` | sobre vidrio con `.c8-vidrio` | pulgar deslizante con muelle | `role="radiogroup"` con radios reales |
@@ -174,7 +174,7 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
 
 - **Sonido:** ondas que laten; tachado cuando está silenciado.
 - **Pantalla completa:** las esquinas se separan al pasar el ratón.
-- **Tema:** sol ⇄ luna. El disco encoge y el «mordisco» se aparta con un muelle.
+- **Apariencia (claro u oscuro de la interfaz):** un círculo mitad lleno. **Nunca sol ni luna**, que se confundirían con la luz de la vivienda (día, atardecer, noche).
 - **Contacto:** puntos de «escribiendo».
 - **Radar:** barrido giratorio.
 - **Confirmaciones:** ✓ que se dibuja con `--dibujar`.
@@ -213,6 +213,6 @@ La ruta más rápida es **apuntar las variables antiguas a los tokens nuevos** a
 
 Pendiente para el rediseño (fase 4):
 
-- **Color de marca:** el visor aplica `marca.color` a `--acento`, pero no recalcula el texto que va encima (`--acento-texto`). Un color de marca oscuro dejaría el texto ilegible. Con el sistema nuevo, `visor.js` debe fijar `--c-acento` y calcular `--c-sobre-acento` según su luminancia.
+- **Color de marca:** `visor.js` fija `--c-acento` con `marca.color` y calcula `--c-sobre-acento` según su luminancia. `--c-acento-texto` y `--c-foco` salen de `--c-acento` con color relativo (`oklch(from …)`), acotando la luminosidad para que cualquier marca se lea; sin color relativo, con `color-mix()`.
 - **Empaquetado:** el HTML autónomo (`build.mjs`) debe incrustar las fuentes de `vendor/fonts/` (cargador `dataurl` de esbuild para `.woff2`), y el ZIP web debe incluirlas.
 - **Vidrio adaptativo (opcional):** muestrear el brillo medio de la vista (un lienzo pequeño cada ~500 ms) y ajustar el tinte del HUD, como hace Apple.

@@ -14,9 +14,26 @@
 //            prioridad sobre la red. Las rutas del tour también pueden ser URLs blob: o data:.
 // Sin dependencias de CDN en tiempo de ejecución: fflate y el generador de QR están en vendor/.
 import { qrSVG } from "./vendor/qr.js";
-import { areaPoligono, puntoEnPoligono, puntoEtiqueta } from "./util.js";
+import { areaPoligono, puntoEnPoligono, puntoEtiqueta, hexALineal } from "./util.js";
 
 const MODULO = import.meta.url;
+/** URL absoluta de la fuente Inter autoalojada (el dossier se escribe en una ventana nueva, sin base propia). */
+const fuenteInter = (sub) => new URL(`vendor/fonts/inter/inter-${sub}-opsz-normal.woff2`, MODULO).href;
+/** Champán del sistema (tema.css): relleno sobre claro y sobre oscuro. */
+const CHAMPAN_CLARO = "#c9a55a", CHAMPAN_OSCURO = "#cfad66";
+const esHex = (c) => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c ?? "");
+const luminancia = (hex) => { const l = hexALineal(hex); return l ? 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2] : 0.5; };
+/** Variante del color de acento que se lee (≥ 4,5:1) sobre `fondo`: lo mezcla con negro o con blanco lo justo. */
+function acentoLegible(hex, fondo) {
+  const contraste = (a) => { const [x, y] = [luminancia(a), luminancia(fondo)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+  const h = hex.length === 4 ? hex.replace(/[0-9a-f]/gi, (c) => c + c) : hex;
+  const rgb = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)), destino = luminancia(fondo) > 0.5 ? 0 : 255;
+  for (let t = 0; t <= 1; t += 0.05) {
+    const c = "#" + rgb.map((v) => Math.round(v + (destino - v) * t).toString(16).padStart(2, "0")).join("");
+    if (contraste(c) >= 4.5) return c;
+  }
+  return destino ? "#ffffff" : "#000000";
+}
 const MB = 1024 * 1024;
 
 // ======================================================================= utilidades comunes
@@ -606,7 +623,8 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   const tour = visor.tour ?? {};
   const idioma = visor.estado?.idioma ?? tour.idioma ?? "es";
   const t = (v) => (typeof visor.t === "function" ? visor.t(v) : texto(v, idioma));
-  const acento = tour.marca?.color ?? "#c8a24a";
+  const acento = esHex(tour.marca?.color) ? tour.marca.color : CHAMPAN_OSCURO;
+  const acentoTexto = acentoLegible(acento, "#000000"); // el texto de color va sobre franjas oscuras
   const titulo = t(tour.titulo);
   const precio = precioTexto(tour, idioma);
   const contacto = [t(tour.agente?.nombre), tour.agente?.telefono ?? (tour.contacto?.whatsapp ? "+" + tour.contacto.whatsapp : null), !tour.agente?.telefono && tour.marca?.web ? tour.marca.web.replace(/^https?:\/\//, "") : null].filter(Boolean).join(" · ");
@@ -652,7 +670,8 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
       g.drawImage(logo, x, y, lw, lh);
       x += lw + 28 * u;
     } else if (tour.marca?.nombre) {
-      g.font = fuente(700, 30); g.fillStyle = acento; g.textBaseline = "top";
+      g.font = fuente(700, 30); g.fillStyle = acentoTexto; g.textBaseline = "top";
+      g.shadowColor = "rgba(0,0,0,.5)"; g.shadowBlur = 8 * u;
       g.fillText(textoAjustado(g, t(tour.marca.nombre).toUpperCase(), W * 0.4), x, y);
     }
     g.textBaseline = "top"; g.fillStyle = "#fff";
@@ -660,7 +679,7 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
     const anchoTexto = W - x - 48 * u;
     const yT = logo || !tour.marca?.nombre ? y : y + 42 * u;
     g.font = fuente(700, 44); g.fillText(textoAjustado(g, titulo, anchoTexto), x, yT);
-    if (precio) { g.font = fuente(800, 40); g.fillStyle = acento; g.fillText(precio, x, yT + 56 * u); }
+    if (precio) { g.font = fuente(800, 40); g.fillStyle = acentoTexto; g.fillText(precio, x, yT + 56 * u); }
     g.shadowBlur = 0;
     // subtítulo del guion
     const barra = 112 * u;
@@ -951,7 +970,8 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
   idioma ??= t.idioma ?? "es";
   const tx = (v) => texto(v, idioma);
   const { planta, plantas, plano, muros, estancias, fotos: puntos } = plantaDe(t, plantaId);
-  const acento = t.marca?.color ?? "#c8a24a";
+  const acento = esHex(t.marca?.color) ? t.marca.color : CHAMPAN_CLARO;
+  const acentoTexto = acentoLegible(acento, fondo === "transparent" || !esHex(fondo) ? "#ffffff" : fondo);
   const [imgPlano, imgLogo] = await Promise.all([
     plano?.imagen ? cargarImagen(plano.imagen, { base, archivos }).catch(() => null) : null,
     t.marca?.logo ? cargarImagen(t.marca.logo, { base, archivos }).catch(() => null) : null,
@@ -995,7 +1015,7 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
   }
   g.textBaseline = "alphabetic"; g.fillStyle = "#1d1f24";
   const titulo = tx(t.titulo);
-  if (!imgLogo && t.marca?.nombre) { g.font = F(700, 34 * u); g.fillStyle = acento; g.fillText(tx(t.marca.nombre).toUpperCase(), xc, 88 * u); g.fillStyle = "#1d1f24"; }
+  if (!imgLogo && t.marca?.nombre) { g.font = F(700, 34 * u); g.fillStyle = acentoTexto; g.fillText(tx(t.marca.nombre).toUpperCase(), xc, 88 * u); g.fillStyle = "#1d1f24"; }
   g.font = F(700, 54 * u);
   g.fillText(textoAjustado(g, titulo || rotulo(idioma, "plano"), W - xc - margen - 500 * u), xc, imgLogo || !t.marca?.nombre ? 120 * u : 150 * u);
   const sub = [plantas.length > 1 || planta.nombre ? tx(planta.nombre) : "", t.inmueble?.direccion && t.inmueble?.mostrar_direccion_exacta ? t.inmueble.direccion : ""].filter(Boolean).join(" · ");
@@ -1256,7 +1276,9 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
 
   (async () => {
     const i = t.inmueble ?? {};
-    const acento = t.marca?.color ?? "#c8a24a";
+    // Champán del tema claro, o el color de la marca; el texto del botón, el de más contraste (negro cálido o blanco).
+    const acento = esHex(t.marca?.color) ? t.marca.color : CHAMPAN_CLARO;
+    const sobreAcento = (luminancia(acento) + 0.05) / (luminancia("#1a1408") + 0.05) >= 1.05 / (luminancia(acento) + 0.05) ? "#1a1408" : "#ffffff";
     let planoURL = null;
     const plantas = t.plantas?.length ? t.plantas : [{ id: undefined }];
     const planos = [];
@@ -1284,28 +1306,37 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
 <html lang="${esc(idioma)}"><head><meta charset="utf-8">
 <title>${esc(tx(t.titulo) || "Ficha")}${i.referencia ? " · " + esc(i.referencia) : ""}</title>
 <style>
+  /* Mismo lenguaje que tema.css (tema claro, para imprimir): SF o Inter, champán (o el color de la marca), sin remates. */
+  @font-face { font-family: "Inter Variable"; font-weight: 100 900; font-display: swap; src: url(${esc(fuenteInter("latin"))}) format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: "Inter Variable"; font-weight: 100 900; font-display: swap; src: url(${esc(fuenteInter("latin-ext"))}) format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+20AD-20C0, U+2C60-2C7F, U+A720-A7FF; }
   @page { size: A4; margin: 12mm 12mm 14mm; }
-  :root { --acento: ${/^#[0-9a-f]{3,8}$/i.test(acento) ? acento : "#c8a24a"}; --tinta: #1d1f24; --gris: #5b6270; }
+  :root { --acento: ${acento}; --sobre-acento: ${sobreAcento}; --acento-texto: color-mix(in oklab, var(--acento) 62%, black);
+    --tinta: #1d1d1f; --gris: #55555c; --linea: #e3e3e8; --fondo: #f5f5f7; }
+  @supports (color: oklch(from red l c h)) { :root { --acento-texto: oklch(from var(--acento) min(l, 0.44) c h); } }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 10.5pt/1.45 "Helvetica Neue", Arial, system-ui, sans-serif; color: var(--tinta); background: #e9ebef; }
-  .hoja { width: 210mm; margin: 12px auto; background: #fff; padding: 12mm; box-shadow: 0 2px 14px rgba(0,0,0,.15); }
-  @media print { body { background: #fff; } .hoja { width: auto; margin: 0; padding: 0; box-shadow: none; } .no-imprimir { display: none !important; } }
-  .barra-imp { position: sticky; top: 0; display: flex; gap: 8px; justify-content: center; padding: 10px; background: #1d1f24; color: #fff; font: 14px system-ui; z-index: 2; }
-  .barra-imp button { font: 600 14px system-ui; padding: 8px 18px; border: 0; border-radius: 6px; background: var(--acento); color: #111; cursor: pointer; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 3px solid var(--acento); padding-bottom: 4mm; margin-bottom: 5mm; }
-  header img { max-height: 16mm; max-width: 60mm; object-fit: contain; }
-  header .marca { font-weight: 700; font-size: 14pt; color: var(--acento); letter-spacing: .04em; text-transform: uppercase; }
-  header .ref { color: var(--gris); font-size: 9.5pt; text-align: right; }
-  h1 { font-size: 19pt; line-height: 1.15; margin: 0 0 1.5mm; }
+  body { margin: 0; font: 10.5pt/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter Variable", "Helvetica Neue", Arial, sans-serif;
+    color: var(--tinta); background: var(--fondo); -webkit-font-smoothing: antialiased; }
+  .hoja { width: 210mm; margin: 16px auto; background: #fff; padding: 12mm; border-radius: 4mm; box-shadow: 0 0 0 .5px rgba(0,0,0,.06), 0 16px 44px rgba(15,20,30,.12); }
+  @media print { body { background: #fff; } .hoja { width: auto; margin: 0; padding: 0; border-radius: 0; box-shadow: none; } .no-imprimir { display: none !important; } }
+  .barra-imp { position: sticky; top: 0; display: flex; gap: 12px; align-items: center; justify-content: center; padding: 10px; background: rgba(29,29,31,.92); color: #f5f5f7; font: 500 14px -apple-system, "Inter Variable", system-ui, sans-serif; z-index: 2; backdrop-filter: blur(16px); }
+  .barra-imp button { font: 600 14px/1 -apple-system, "Inter Variable", system-ui, sans-serif; padding: 9px 20px; border: 0; border-radius: 999px; background: var(--acento); color: var(--sobre-acento); cursor: pointer; }
+  .barra-imp button:focus-visible { outline: 2px solid #f5f5f7; outline-offset: 2px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 4mm; margin-bottom: 5mm; border-bottom: 1px solid var(--linea); }
+  header img { max-height: 15mm; max-width: 60mm; object-fit: contain; }
+  header .marca { font-weight: 650; font-size: 13pt; color: var(--acento-texto); letter-spacing: -.01em; }
+  header .ref { color: var(--gris); font-size: 9pt; text-align: right; font-variant-numeric: tabular-nums; }
+  h1 { font-size: 20pt; line-height: 1.12; font-weight: 650; letter-spacing: -.02em; margin: 0 0 1.5mm; }
   .direccion { color: var(--gris); margin: 0 0 3mm; }
-  .precio { font-size: 22pt; font-weight: 800; color: var(--tinta); margin: 0 0 4mm; }
-  .precio small { font-size: 11pt; color: var(--gris); font-weight: 400; }
-  .portada { width: 100%; height: 78mm; object-fit: cover; border-radius: 2mm; margin-bottom: 5mm; display: block; }
+  .precio { font-size: 22pt; font-weight: 700; letter-spacing: -.02em; color: var(--tinta); margin: 0 0 4mm; font-variant-numeric: tabular-nums; }
+  .precio small { font-size: 10.5pt; color: var(--gris); font-weight: 500; letter-spacing: 0; }
+  .portada { width: 100%; height: 78mm; object-fit: cover; border-radius: 3mm; margin-bottom: 5mm; display: block; }
   .dos { display: grid; grid-template-columns: 1.25fr 1fr; gap: 7mm; }
-  h2 { font-size: 11.5pt; text-transform: uppercase; letter-spacing: .06em; color: var(--gris); border-bottom: 1px solid #dde1e7; padding-bottom: 1.5mm; margin: 5mm 0 3mm; }
+  h2 { font-size: 8.5pt; font-weight: 650; text-transform: uppercase; letter-spacing: .08em; color: var(--gris); border-bottom: 1px solid var(--linea); padding-bottom: 1.5mm; margin: 5mm 0 3mm; }
   dl { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2mm 6mm; margin: 0; }
-  .dato { display: flex; justify-content: space-between; border-bottom: 1px dotted #d3d7de; padding: .6mm 0; }
-  dt { color: var(--gris); } dd { margin: 0; font-weight: 600; text-align: right; }
+  .dato { display: flex; justify-content: space-between; gap: 2mm; border-bottom: 1px solid var(--linea); padding: .8mm 0; }
+  dt { color: var(--gris); } dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
   .cee { font-size: 8.5pt; }
   .cee-fila { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; height: 5.2mm; margin-bottom: .7mm; }
   .cee-cab { color: var(--gris); font-weight: 600; height: auto; }
@@ -1315,17 +1346,19 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
   .cee-flecha small { font-weight: 600; font-size: 7pt; }
   .cee-tramite { font-weight: 600; }
   ul.caract { columns: 2; padding-left: 4mm; margin: 0; } ul.caract li { margin-bottom: 1mm; break-inside: avoid; }
-  .descripcion { white-space: pre-line; text-align: justify; }
+  ul.caract li::marker { color: var(--acento-texto); }
+  .descripcion { white-space: pre-line; text-align: justify; hyphens: auto; }
   .salto { break-before: page; page-break-before: always; }
-  .plano { width: 100%; border: 1px solid #e3e6eb; border-radius: 2mm; display: block; }
+  .plano { width: 100%; border: 1px solid var(--linea); border-radius: 3mm; display: block; }
   .plano-nombre { font-weight: 600; margin: 3mm 0 1mm; }
   .fotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
-  .fotos figure { margin: 0; break-inside: avoid; } .fotos img { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; border-radius: 1.5mm; display: block; }
+  .fotos figure { margin: 0; break-inside: avoid; } .fotos img { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; border-radius: 2mm; display: block; }
   .fotos figcaption { font-size: 8.5pt; color: var(--gris); margin-top: .8mm; }
-  .contacto { display: grid; grid-template-columns: 1fr 34mm; gap: 6mm; align-items: center; background: #f5f6f8; border-left: 4px solid var(--acento); padding: 4mm 5mm; margin-top: 6mm; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .contacto { display: grid; grid-template-columns: 1fr 34mm; gap: 6mm; align-items: center; background: var(--fondo); border-radius: 3mm; padding: 4mm 5mm; margin-top: 6mm; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .contacto strong { color: var(--acento-texto); }
   .contacto .qr svg { width: 34mm; height: 34mm; display: block; }
   .contacto p { margin: .5mm 0; } .contacto .enlace { font-size: 8.5pt; color: var(--gris); word-break: break-all; }
-  .legal { font-size: 7.5pt; color: var(--gris); margin-top: 5mm; border-top: 1px solid #dde1e7; padding-top: 2mm; }
+  .legal { font-size: 7.5pt; color: var(--gris); margin-top: 5mm; border-top: 1px solid var(--linea); padding-top: 2mm; }
   .legal p { margin: .6mm 0; }
 </style></head>
 <body>

@@ -21,6 +21,7 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | `npm run prueba` | Humo: el visor carga la demo; navegación, estilo, noche, modo libre, maqueta, música y captura; móvil, Estudio, Asistente y el tema (claro + talla L) |
 | `npm run prueba:e2e` · `npm run prueba:todo` | Extremo a extremo, 341 comprobaciones en unos 6 min: Estudio (92), paneles (168), exportación (47: ZIP, HTML autónomo sin red, GPano, plano, dossier, vídeo) y seguridad (34: tour hostil, escapes, sin `file://`). Se elige con `node pruebas/e2e.mjs estudio seguridad`; el detalle está en `pruebas/LEEME.md`. Lo que depende de una interfaz en obras sale como «pendiente» en vez de fallar (al cerrar la fase 3, ninguno) |
 | `node pruebas/capturas.mjs` | Matriz visual: páginas × claro/oscuro × S/M/L × de 360×640 a 3840×2160 y 3440×1440, con hoja de contactos |
+| `npm run contraste` | Contraste WCAG de los pares de tokens de `tema.css` en claro y oscuro: texto 4,5:1, foco e iconos 3:1, el vidrio sobre el peor fondo de la foto (blanco y negro puros) y seis colores de marca típicos (rojo, azul marino, verde, amarillo, negro y blanco). Entra en `npm run prueba:todo` |
 | `npm run medir` | Métricas para compactar, en el teléfono y el portátil: JS propio y de dependencias, CSS y fuentes hasta `visor.listo`; tiempo hasta `listo`; controles visibles y % de pantalla tapada, con la interfaz despierta y en reposo. Falla si en el teléfono la interfaz en reposo tapa más del 15 %. Los tiempos dependen de la máquina: se comparan en la misma. En este contenedor las fuentes dan 0 KB porque Inter ya está instalada en el sistema |
 | Auditorías por fase | QA, UX/UI, Maverick, esencialista y organización (`docs/auditorias/`) |
 
@@ -92,6 +93,8 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | No hay `backdrop-filter` | El vidrio pasa a casi opaco y se lee igual |
 | No hay máscaras compuestas | Se quita el canto especular |
 | No hay `color-mix()` | Tonos fijos pensados para el champán |
+| No hay color relativo (`oklch(from …)`) | El texto de acento y el foco salen de `color-mix()`; con un color de marca muy oscuro o muy claro pueden quedar por debajo de AA en navegadores anteriores a 2023–2024 |
+| El color de marca del tour es muy oscuro o muy claro | El texto de acento y el foco se aclaran (oscuro) o se oscurecen (claro) lo justo para cumplir AA |
 | No hay `linear()` (muelles) | Curvas cúbicas |
 | No hay `:has()` | `tema.js` marca la opción elegida del control segmentado |
 | No carga la fuente Inter | Fuente del sistema (SF en Apple, Segoe en Windows) |
