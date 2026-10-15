@@ -152,6 +152,11 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
   - Sin soporte de `linear()`, los muelles pasan a curvas cúbicas.
 - **Capas:** `--z-hud` < `--z-panel` < `--z-menu` < `--z-dialogo` < `--z-aviso` < `--z-carga`.
 
+## Estados (ok, aviso, error, info)
+
+- Para chips y avisos tintados: `--c-<estado>-fondo` y, encima, `--c-<estado>-texto`. Cumplen AA en los dos temas sobre `--c-fondo` y `--c-sup-1` (`npm run contraste`).
+- `--c-<estado>` a secas es para iconos y bordes.
+
 ## Texto sobre una foto
 
 Para un nombre sobre una miniatura: `--c-sobre-foto` (blanco en los dos temas) sobre `--degradado-foto`, un degradado que oscurece la parte de abajo con `--velo-foto`. El texto va abajo, donde el velo es más fuerte: 6,2:1 incluso sobre una foto blanca.
@@ -179,7 +184,7 @@ La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el
 | Clase | Variantes y modificadores | Estados | Accesibilidad |
 |---|---|---|---|
 | `.c8-vidrio` | `--texto`, `--denso`, `--barra` (cabecera o pie a todo el ancho: sin radio ni canto, que sin bordes laterales sobresaldría 1 px) | luz al pasar (solo ratón) | Usa `--texto` siempre que haya texto sobre la foto |
-| `.c8-boton` | `--primario`, `--secundario`, `--fantasma`, `--peligro`, `--whatsapp`, `--icono`, `--s`, `--bloque` | `:hover`, `:active` (pulsación con muelle), `:disabled`, `aria-pressed`, `aria-busy` (indicador de carga), `:focus-visible` | Los botones de icono necesitan `aria-label` |
+| `.c8-boton` | `--primario`, `--secundario`, `--fantasma`, `--peligro`, `--whatsapp`, `--icono`, `--s`, `--l` (acción principal de una pantalla), `--bloque` | `:hover`, `:active` (pulsación con muelle), `:disabled`, `aria-pressed`, `aria-busy` (indicador de carga), `:focus-visible` | Los botones de icono necesitan `aria-label` |
 | `.c8-pastilla` | `--vertical` (móvil en vertical) | — | `role="toolbar"` + `aria-label` |
 | `.c8-segmentado` | sobre vidrio con `.c8-vidrio` | pulgar deslizante con muelle | `role="radiogroup"` con radios reales |
 | `.c8-interruptor` | — | `:checked`, `:active`, `:disabled` | `<input type="checkbox" role="switch">` |

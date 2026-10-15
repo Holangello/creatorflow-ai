@@ -186,6 +186,11 @@ html[data-talla="l"] { --talla: 1.18; }
   --c-error: #ff7b72;
   --c-info: #7aa7ff;
   --c-error-fondo: rgba(255, 123, 114, 0.12);
+  --c-ok-fondo: rgba(76, 195, 138, 0.14);
+  --c-aviso-fondo: rgba(242, 193, 78, 0.14);
+  --c-info-fondo: rgba(122, 167, 255, 0.14);
+  /* Texto de estado sobre su fondo tintado (chips «calibrado», «sin conectar»…) */
+  --c-ok-texto: var(--c-ok); --c-aviso-texto: var(--c-aviso); --c-error-texto: var(--c-error); --c-info-texto: var(--c-info);
 
   /* Vidrio: alfa mínima calculada para el peor fondo (pared blanca) */
   --vidrio: rgba(22, 24, 28, 0.56);         /* controles solo icono: ≥ 3:1 */
@@ -237,6 +242,10 @@ html[data-talla="l"] { --talla: 1.18; }
   --c-error: #c4372e;
   --c-info: #2563c9;
   --c-error-fondo: rgba(196, 55, 46, 0.08);
+  --c-ok-fondo: rgba(29, 127, 78, 0.1);
+  --c-aviso-fondo: rgba(138, 90, 0, 0.1);
+  --c-info-fondo: rgba(37, 99, 201, 0.1);
+  --c-ok-texto: #17663f; --c-aviso-texto: #6e4800; --c-error-texto: #a42c25; --c-info-texto: #1d4fa3;
 
   --vidrio: rgba(255, 255, 255, 0.5);       /* ≥ 3:1 sobre negro */
   --vidrio-texto: rgba(255, 255, 255, 0.78);/* ≥ 4,5:1 sobre negro, también el secundario */
@@ -502,6 +511,8 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-boton--icono .c8-icono { width: var(--icono); height: var(--icono); }
 .c8-boton--s { min-height: var(--alto-control-s); min-width: var(--alto-control-s); padding: 0 var(--e-3); font-size: var(--t-sec); }
 .c8-boton--s.c8-boton--icono { width: var(--alto-control-s); padding: 0; }
+/* Grande: acción principal de una pantalla (primera visita, pie de cada paso del Estudio) */
+.c8-boton--l { min-height: max(2.875rem, var(--alto-control)); padding: 0 var(--e-5); font-size: var(--t-cuerpo); }
 .c8-boton--bloque { display: flex; width: 100%; }
 .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
 /* Cargando: <button aria-busy="true"> */

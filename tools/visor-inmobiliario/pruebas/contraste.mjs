@@ -20,6 +20,7 @@ const PARES = [
   ...["--c-ok", "--c-aviso", "--c-error", "--c-info"].flatMap((c) => [[c, "--c-fondo", TEXTO], [c, "--c-sup-1", TEXTO]]),
   ["--c-error", "--c-error-fondo", TEXTO, "--c-sup-1"],
   ["--c-sobre-foto", "--velo-foto", TEXTO, "#ffffff"], // nombre sobre una miniatura blanca, en la parte con velo
+  ...["ok", "aviso", "error", "info"].flatMap((e) => [[`--c-${e}-texto`, `--c-${e}-fondo`, TEXTO, "--c-sup-1"], [`--c-${e}-texto`, `--c-${e}-fondo`, TEXTO, "--c-fondo"]]),
   // Vidrio sobre la foto: el peor caso es una pared blanca o una zona negra
   ...["#ffffff", "#000000"].flatMap((foto) => [
     ["--c-texto", "--vidrio-texto", TEXTO, foto],
