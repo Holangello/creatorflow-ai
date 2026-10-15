@@ -208,14 +208,19 @@ al visor, el Estudio y la Guía) y el visor lee `cre8Tema.efectivo.movimiento`, 
 aplica en el momento (transiciones entre estancias, visita guiada, desplazamientos) y en CSS con `data-movimiento` en
 `<html>`. `visor.ajustes({ reducirMovimiento: true|false })` sigue funcionando como alias de
 `cre8Tema.fijar("movimiento", si ? "reducido" : "auto")` y ya no se guarda en `visor:ajustes`; `visor.ajustes()` devuelve
-`reducirMovimiento` según el valor efectivo. Un `reducirMovimiento: true` guardado por la fase 3 se pasa a `tema.js` una vez.
+`reducirMovimiento` según el valor efectivo. Diferencia a propósito: el alias con `false` guarda `"auto"` (vuelve a mandar
+`prefers-reduced-motion`), mientras que el interruptor de Ajustes de los paneles guarda `"normal"`, para que no se vuelva a
+encender solo si el sistema pide movimiento reducido. Un `reducirMovimiento: true` guardado por la fase 3 se pasa a
+`tema.js` una vez.
 Los ajustes de apariencia (tema, talla, transparencia, movimiento) se cambian con `cre8Tema.fijar` (paneles, Ajustes).
 
 **Vidrio adaptativo (fase 4).** El núcleo mide la luz de la vista (32×18 píxeles, tras cada cambio de estancia, estilo o
-momento y como mucho una vez por segundo con la vista quieta) y pone en `<html>` `data-luz-max` (`baja` | `media`; percentil
-90 de la luminancia) y `data-luz-min` (`media` | `alta`; percentil 10), con histéresis de ±0,03. `tema.css` vuelve el vidrio
-más transparente cuando la foto lo permite, siempre con AA. Sin atributos (no se pudo medir, sin WebGL, «Reducir
-transparencia»), el vidrio es el del peor caso.
+momento y como mucho una vez por segundo con la vista quieta) solo donde hay vidrio encima: cada pieza `.c8-vidrio` visible
+(HUD, rótulos, puntos «i», tarjeta y diálogos de los paneles) es una zona con sus percentiles y manda la más exigente.
+Pone en `<html>` `data-luz-max` (`baja` | `media`; percentil 90 de la luminancia) y `data-luz-min` (`media` | `alta`;
+percentil 10), con histéresis de ±0,03. `tema.css` vuelve el vidrio más transparente cuando la foto lo permite, siempre
+con AA. Sin atributos (no se pudo medir, sin WebGL, «Reducir transparencia», paseo libre y maqueta), el vidrio es el del
+peor caso.
 
 **Pintado bajo demanda (fase 4).** En el recorrido el núcleo solo pinta cuando algo cambia (la cámara, una transición, una
 foto que termina de cargar, el estilo o el momento, el tema, el tamaño) o mientras dura algo que lo necesita (visita

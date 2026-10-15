@@ -190,17 +190,34 @@ export function crearPlano(canvas, ctx) {
       const rotular = (txt, x, y) => { g.strokeText(txt, x, y); g.fillText(txt, x, y); };
       const pos0 = T.radar ? ctx.posicion() : null;
       const nombre = T.radar ? C.micro : grande ? C.sec : C.micro, m2 = grande ? C.pie : C.micro * 0.92;
+      // Puntos de las fotos 360 de esta planta: si uno cae sobre el rótulo (la foto suele estar en el centro de la
+      // estancia), el rótulo sube por encima del punto en vez de quedar tapado por él.
+      const radio = (grande ? 6 : 5) * u;
+      const puntos = ctx.nodos().filter((n) => n.planta === p.id).map((n) => T.a(n.x, n.z));
       for (const e of estancias) {
         // En el radar no se rotula la estancia donde está el visitante (ya figura en la tarjeta superior).
         if (pos0 && puntoEnPoligono([pos0.x, pos0.z], e.poligono)) continue;
         const [cx, cz] = T.a(...puntoEtiqueta(e.poligono));
+        const txt = ctx.texto(e.nombre), sup = `${ctx.formato(areaPoligono(e.poligono))} m²`;
         g.font = letra(C.semi, nombre);
+        const ancho = g.measureText(txt).width / 2 + radio;
+        const arriba = T.radar ? nombre * 0.6 : nombre * 1.1, abajo = T.radar ? nombre * 0.6 : m2 * 1.2;
+        const punto = puntos.find(([x, z]) => Math.abs(x - cx) < ancho && z > cz - arriba - radio && z < cz + abajo + radio);
+        // Línea del nombre y de los m²: centradas en la estancia o, si hay un punto, justo encima de él
+        const base = punto ? punto[1] - radio - 2 * u : null;
+        const yNombre = T.radar ? (punto ? base - nombre * 0.55 : cz) : punto ? base - m2 * 1.15 - nombre * 0.55 : cz - nombre * 0.55;
+        const yM2 = punto ? base - m2 * 0.55 : cz + m2 * 0.7;
+        if (T.radar) {
+          // En el radar, solo si el nombre cabe entero dentro del disco (cortado por el borde no se lee)
+          const R = Math.min(W, H) / 2 - 3 * u, dx = ancho - radio, dy = nombre * 0.6;
+          if ([[-dx, -dy], [dx, -dy], [-dx, dy], [dx, dy]].some(([a, b]) => Math.hypot(cx + a - T.cx, yNombre + b - T.cz) > R)) continue;
+        }
         g.fillStyle = css(C.texto);
-        rotular(ctx.texto(e.nombre), cx, T.radar ? cz : cz - nombre * 0.55);
+        rotular(txt, cx, yNombre);
         if (T.radar) continue;
         g.font = letra(C.normal, m2);
         g.fillStyle = css(C.texto2);
-        rotular(`${ctx.formato(areaPoligono(e.poligono))} m²`, cx, cz + m2 * 0.7);
+        rotular(sup, cx, yM2);
       }
     }
 

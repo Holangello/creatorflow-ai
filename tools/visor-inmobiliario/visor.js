@@ -167,7 +167,8 @@ if (renderer) {
 }
 visor.lienzo = lienzo;
 Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, programas: renderer?.info.programs?.map((x) => String(x.cacheKey)) ?? [],
-  luz: { ...luz.medida, max: luz.max, min: luz.min, ms: luz.ms, n: luz.n } }) });
+  luz: { ...luz.medida, max: luz.max, min: luz.min, ms: luz.ms, n: luz.n,
+    detalle: luz.zonas?.map((z) => [z.el ? z.el.id || z.el.className.split(" ")[0] : "vista", +z.p10.toFixed(3), +z.p90.toFixed(3)]) } }) });
 
 // ------------------------------------------------------------------ escena 360
 const escena360 = new THREE.Scene();
@@ -944,7 +945,7 @@ const guion = crearGuion({
   reducido,
   subtitulo: (t) => {
     const el = $("#subtitulo");
-    el.textContent = t ? texto(t) : "";
+    el.textContent = t ? sinCortes(texto(t)) : "";
     el.hidden = !t;
   },
   emitir: (ev, d) => {
@@ -1151,7 +1152,7 @@ document.addEventListener("pointerlockchange", () => {
 function tarjetaJuego(si) {
   const t = $("#tarjeta-juego");
   const ver = !!si && juegoPosible() && estado.modo === "libre" && !estado.midiendo && document.pointerLockElement !== lienzo;
-  if (ver) t.textContent = tr("juego.tarjeta");
+  if (ver) t.textContent = sinCortes(tr("juego.tarjeta"));
   t.hidden = !ver;
 }
 $("#tarjeta-juego").onclick = () => capturarRaton();
@@ -1499,16 +1500,18 @@ document.addEventListener("cre8:tema", () => {
 
 // Vidrio adaptativo (tema.css, «Vidrio adaptativo»): el vidrio se vuelve más transparente cuando la foto lo permite.
 // En el recorrido 360, tras cada cambio de estancia, estilo o momento, y como mucho una vez por segundo si la vista se
-// movió y ya está quieta, se mide la luminancia relativa de la vista en 32×18 píxeles: percentil 90 → data-luz-max (manda en oscuro: lo difícil
-// es una zona clara detrás del vidrio); percentil 10 → data-luz-min (manda en claro). Histéresis de ±0,03 para que no
-// parpadee. Con «Reducir transparencia» no se mide.
+// movió y ya está quieta, se mide la luminancia relativa de la vista en 32×18 píxeles, solo donde hay vidrio encima: cada
+// pieza de vidrio (HUD, rótulos de las flechas, puntos «i», tarjeta de los paneles…) es una zona con sus percentiles y
+// manda la más exigente. Percentil 90 → data-luz-max (manda en oscuro: lo difícil es una zona clara detrás del vidrio);
+// percentil 10 → data-luz-min (manda en claro). Así el vidrio se aclara si detrás del vidrio hay pared clara aunque en el
+// centro haya un sofá oscuro. Histéresis de ±0,03 para que no parpadee. Con «Reducir transparencia» no se mide.
 // La escena no se copia del lienzo (drawImage del WebGL espera a la GPU y lee el fotograma entero: 180-560 ms en esta
 // máquina): se vuelve a pintar igual en 32×18 y se lee sin esperar (PBO + fence, readRenderTargetPixelsAsync). La foto
 // de la portada, que es una imagen, sí se copia a 32×18. En el paseo libre y la maqueta (modelos 3D, no la foto) no se
 // mide: medir estrenaría allí otros programas (≈1 s de bloqueo con WebGL por software) y vale el peor caso.
 // Contingencia: si la lectura falla, se quitan los atributos y queda el peor caso, que siempre cumple AA.
 const LINEAL = Float32Array.from({ length: 256 }, (_, i) => { const c = i / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
-const luz = { g: null, rt: null, px: new Uint8Array(32 * 18 * 4), leyendo: false, max: null, min: null, medida: null, ms: 0, n: 0,
+const luz = { g: null, rt: null, px: new Uint8Array(32 * 18 * 4), leyendo: false, max: null, min: null, medida: null, zonas: null, ms: 0, n: 0,
   pendiente: true, movida: false, quietaDesde: 0, ultima: -1e9, vista: new Float64Array(17) };
 /** Cuántos umbrales (de menor a mayor) supera v, con histéresis respecto al nivel actual. */
 function nivelLuz(v, actual, umbrales, h = 0.03) {
@@ -1519,32 +1522,69 @@ function nivelLuz(v, actual, umbrales, h = 0.03) {
 function quitarLuz() {
   const d = document.documentElement.dataset;
   delete d.luzMax; delete d.luzMin;
-  luz.max = luz.min = luz.medida = null;
+  luz.max = luz.min = luz.medida = luz.zonas = null;
 }
-/** Percentiles 90 y 10 de la luminancia de 32×18 píxeles RGBA (lineales si vienen del render, sRGB si de una imagen). */
-function calcularLuz(px, lineal) {
-  if (!px[3]) throw new Error("sin imagen"); // contexto gráfico perdido: transparente
-  const L = new Float32Array(px.length / 4);
-  for (let i = 0, j = 0; i < px.length; i += 4, j++) {
-    L[j] = lineal ? (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255 : 0.2126 * LINEAL[px[i]] + 0.7152 * LINEAL[px[i + 1]] + 0.0722 * LINEAL[px[i + 2]];
+/** Zonas con vidrio encima: para cada pieza `.c8-vidrio` que se ve sobre `marco` (el rectángulo de la pantalla que ocupa
+    la rejilla de 32×18), las celdas cuyo centro tapa (la del centro de la pieza si es más pequeña que una celda). Las
+    piezas ocultas por inactividad cuentan: vuelven a verse sin que la vista cambie. Sin piezas, toda la vista. */
+function zonasVidrio(marco) {
+  const zonas = [];
+  if (!marco.width || !marco.height) return zonas;
+  const sx = 32 / marco.width, sy = 18 / marco.height;
+  for (const el of document.querySelectorAll(".c8-vidrio")) {
+    if (el.id === "rotulo" && !el.classList.contains("visible")) continue; // transparente mientras no se anuncia una estancia
+    if (!int.portada && portada?.contains(el)) continue; // la portada que se va (se desvanece 0,7 s) ya no cuenta
+    const q = el.getBoundingClientRect();
+    if (!q.width || !q.height) continue; // display: none (atributo hidden, diálogo cerrado)
+    const x0 = (q.left - marco.left) * sx, x1 = (q.right - marco.left) * sx, y0 = (q.top - marco.top) * sy, y1 = (q.bottom - marco.top) * sy;
+    if (x1 <= 0 || y1 <= 0 || x0 >= 32 || y0 >= 18) continue; // fuera de la vista
+    const celdas = [];
+    for (let y = Math.max(0, Math.ceil(y0 - 0.5)); y <= Math.min(17, Math.floor(y1 - 0.5)); y++) {
+      for (let x = Math.max(0, Math.ceil(x0 - 0.5)); x <= Math.min(31, Math.floor(x1 - 0.5)); x++) celdas.push(y * 32 + x);
+    }
+    if (!celdas.length) celdas.push(Math.min(17, Math.max(0, Math.floor((y0 + y1) / 2))) * 32 + Math.min(31, Math.max(0, Math.floor((x0 + x1) / 2))));
+    zonas.push({ el, celdas });
   }
-  L.sort();
-  const p90 = L[Math.round(0.9 * (L.length - 1))], p10 = L[Math.round(0.1 * (L.length - 1))];
+  return zonas;
+}
+/** Percentiles 90 y 10 de la luminancia de 32×18 píxeles RGBA (lineales y de abajo arriba si vienen del render; sRGB y
+    de arriba abajo si de una imagen), por zona de vidrio: manda el p90 más alto y el p10 más bajo. */
+function calcularLuz(px, lineal, zonas = []) {
+  if (!px[3]) throw new Error("sin imagen"); // contexto gráfico perdido: transparente
+  const L = new Float32Array(32 * 18);
+  for (let y = 0; y < 18; y++) {
+    for (let x = 0, i = ((lineal ? 17 - y : y) * 32) * 4; x < 32; x++, i += 4) {
+      L[y * 32 + x] = lineal ? (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255 : 0.2126 * LINEAL[px[i]] + 0.7152 * LINEAL[px[i + 1]] + 0.0722 * LINEAL[px[i + 2]];
+    }
+  }
+  const pct = (v, p) => v[Math.round(p * (v.length - 1))];
+  let p90 = 0, p10 = 1;
+  luz.zonas = (zonas.length ? zonas : [{ el: null, celdas: L.map((_, j) => j) }]).map(({ el, celdas }) => {
+    const v = Float32Array.from(celdas, (j) => L[j]).sort(), z = { el, p90: pct(v, 0.9), p10: pct(v, 0.1) };
+    p90 = Math.max(p90, z.p90);
+    p10 = Math.min(p10, z.p10);
+    return z;
+  });
   luz.max = nivelLuz(p90, luz.max, [0.1, 0.35]);
   luz.min = nivelLuz(p10, luz.min, [0.18, 0.45]);
   const d = document.documentElement.dataset, max = ["baja", "media"][luz.max], min = [null, "media", "alta"][luz.min];
   if (max) d.luzMax = max; else delete d.luzMax;
   if (min) d.luzMin = min; else delete d.luzMin;
-  luz.medida = { p90: +p90.toFixed(3), p10: +p10.toFixed(3) };
+  luz.medida = { p90: +p90.toFixed(3), p10: +p10.toFixed(3), zonas: zonas.length };
   luz.n++;
 }
-/** Imagen o lienzo 2D (la foto de la portada): se copia a 32×18 y se mide. */
+/** Imagen o lienzo 2D (la foto de la portada): se copia a 32×18 la parte que se ve y se mide. */
 function medirImagen(fuente) {
   const t0 = performance.now();
   try {
     if (!luz.g) { const c = document.createElement("canvas"); c.width = 32; c.height = 18; luz.g = c.getContext("2d", { willReadFrequently: true }); }
-    luz.g.drawImage(fuente, 0, 0, 32, 18);
-    calcularLuz(luz.g.getImageData(0, 0, 32, 18).data, false);
+    // #portada .fondo: object-fit: cover en el 112 % de la pantalla, centrado (se ve la parte central)
+    const w = fuente.naturalWidth || fuente.width, h = fuente.naturalHeight || fuente.height, pantalla = { left: 0, top: 0, width: innerWidth, height: innerHeight };
+    let sw = w, sh = h;
+    if (w / h > innerWidth / innerHeight) sw = (h * innerWidth) / innerHeight; else sh = (w * innerHeight) / innerWidth;
+    sw /= 1.12; sh /= 1.12;
+    luz.g.drawImage(fuente, (w - sw) / 2, (h - sh) / 2, sw, sh, 0, 0, 32, 18);
+    calcularLuz(luz.g.getImageData(0, 0, 32, 18).data, false, zonasVidrio(pantalla));
   } catch {
     quitarLuz(); // p. ej. una miniatura de otro dominio sin CORS
   }
@@ -1571,7 +1611,7 @@ function medirEscena() {
     .then((px) => {
       if (transparenciaReducida()) return;
       const t1 = performance.now();
-      calcularLuz(px, true);
+      calcularLuz(px, true, zonasVidrio(lienzo.getBoundingClientRect()));
       luz.ms = Math.round((sincrono + performance.now() - t1) * 100) / 100;
     })
     .catch(() => quitarLuz())
@@ -2042,10 +2082,16 @@ function medirTira() {
 
 // Pistas de primer uso (se recuerdan en localStorage)
 const pistasVistas = new Set(almacen.leer("visor:pistas", []));
+/** Textos centrados en dos líneas (pistas, tarjeta del paseo libre, subtítulos): «·» no empieza una línea, «W A S D» no
+    se parte y un número no se separa de su unidad («30 m²», «2 hab.», «349.000 €»): espacios de no separación. */
+function sinCortes(t) {
+  return String(t).replace(/ · /g, "\u00A0· ").replace(/\b([A-Z]) (?=[A-Z]\b)/g, "$1\u00A0")
+    .replace(/(\d) (?=(?:m²|m2|m|cm|km|ha|€|%|hab\.?|h|min)(?![\p{L}\d]))/gu, "$1\u00A0");
+}
 function mostrarPista(id, txt) {
   if (pistasVistas.has(id) || EMBED || int.portada) return;
   const p = $("#pista");
-  p.textContent = txt;
+  p.textContent = sinCortes(txt);
   p.dataset.id = id;
   p.hidden = false;
   setTimeout(() => ocultarPista(id), 6000);
@@ -2315,7 +2361,7 @@ function refrescarTextos() {
   pintarSonido();
   actualizarBtnMas();
   $("#aviso-juego").textContent = tr("juego.aviso");
-  if (!$("#tarjeta-juego").hidden) $("#tarjeta-juego").textContent = tr("juego.tarjeta");
+  if (!$("#tarjeta-juego").hidden) $("#tarjeta-juego").textContent = sinCortes(tr("juego.tarjeta"));
   // N-14: el precio, discreto, bajo el radar mientras dura el modo juego (los paneles se ocultan)
   const precio = int.tour.inmueble ? precioPortada(int.tour.inmueble) : "";
   $("#precio-juego").textContent = precio;

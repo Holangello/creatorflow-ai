@@ -139,8 +139,8 @@ body.con-portada #barra-vista .c8-icono * { animation-play-state: paused; }
 .ic-mas circle:nth-child(2) { animation-delay: 60ms; }
 .ic-mas circle:nth-child(3) { animation-delay: 120ms; }
 @keyframes punto-aparece { from { scale: 0; } }
-/* TODO tema: con movimiento reducido, .c8-icono--dibujar sin el retraso escalonado (hoy el trazo espera hasta 180 ms) */
-:root[data-movimiento="reducido"] :is(.c8-icono--dibujar *, .ic-mas circle) { animation-delay: 0s !important; }
+/* Movimiento reducido: los puntos de «Más» salen a la vez (el retraso de .c8-icono--dibujar ya lo quita tema.css) */
+:root[data-movimiento="reducido"] .ic-mas circle { animation-delay: 0s !important; }
 
 /* ---------------- abajo en el centro: tira de estancias (escritorio y tablet) ---------------- */
 #galeria { position: absolute; z-index: var(--z-hud); left: 50%; transform: translateX(-50%); bottom: var(--abajo);
@@ -183,7 +183,7 @@ body:is(.modo-libre, .modo-maqueta, .midiendo) #galeria { display: none; }
 #aviso button { margin-left: var(--e-2); border: 0; border-radius: var(--r-pastilla); padding: var(--e-1) var(--e-3); min-height: 2rem;
   background: var(--c-acento); color: var(--c-sobre-acento); font-weight: var(--peso-semi); }
 /* Sello legal (recreación con IA, render o luz simulada) y carga: apilados bajo la barra superior, sin taparse */
-#estado-vista { position: absolute; z-index: calc(var(--z-hud) + 6); top: var(--bajo-modos); left: 50%; translate: -50% 0;
+#estado-vista { position: absolute; z-index: calc(var(--z-hud) + 6); top: var(--bajo-modos); inset-inline: 0; width: fit-content; margin-inline: auto;
   display: flex; flex-direction: column; align-items: center; gap: var(--e-2); pointer-events: none; }
 #carga { padding: var(--e-2) var(--e-3); border-radius: var(--r-pastilla); }
 #carga .barra { width: 7.5rem; height: 0.25rem; border-radius: var(--r-pastilla); background: var(--c-pista); overflow: hidden; }
@@ -191,7 +191,10 @@ body:is(.modo-libre, .modo-maqueta, .midiendo) #galeria { display: none; }
 #carga.determinado .barra div { animation: none; transition: width var(--d-2) var(--suave); }
 @keyframes carga { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
 :root[data-movimiento="reducido"] #carga:not(.determinado) .barra div { animation: none; width: 100%; opacity: 0.5; }
-#pista, #tarjeta-juego { position: absolute; z-index: calc(var(--z-hud) + 2); left: 50%; top: 50%; translate: -50% -50%; max-width: min(30rem, calc(100vw - 2 * var(--hud)));
+/* Centrados con márgenes automáticos y fit-content: con left: 50% el texto solo podía ocupar media pantalla (en el móvil,
+   tres líneas estrechas). Igual en los subtítulos, el rótulo y el estado de la vista. */
+#pista, #tarjeta-juego { position: absolute; z-index: calc(var(--z-hud) + 2); inset-inline: 0; top: 50%; translate: 0 -50%; width: fit-content; margin-inline: auto;
+  max-width: min(30rem, calc(100vw - 2 * var(--hud)));
   padding: var(--e-3) var(--e-5); border-radius: var(--r-5); text-align: center; font: var(--peso-medio) var(--t-cuerpo) / 1.35 var(--fuente); color: var(--c-texto); text-wrap: balance; }
 #pista { pointer-events: none; animation: pista 2.2s var(--suave) 2; }
 @keyframes pista { 50% { scale: 1.04; } }
@@ -289,12 +292,13 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
 #ficha { position: absolute; z-index: var(--z-panel); left: 50%; translate: -50% 0; bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--e-3));
   width: min(27.5rem, calc(100vw - 2 * var(--hud))); padding: var(--e-4) var(--e-5) var(--e-5); border-radius: var(--r-5); color: var(--c-texto);
   user-select: text; -webkit-user-select: text; animation: c8-aparecer var(--d-4) var(--muelle) both; }
-#ficha h2 { margin: var(--e-1) 2.5rem var(--e-2) 0; font: var(--peso-semi) var(--t-destacado) / var(--lh-ajustado) var(--fuente-titular); letter-spacing: var(--track-titular); text-wrap: balance; }
+#ficha h2 { margin: var(--e-1) 0 var(--e-2); font: var(--peso-semi) var(--t-destacado) / var(--lh-ajustado) var(--fuente-titular); letter-spacing: var(--track-titular); text-wrap: balance; }
 #ficha p { margin: 0; color: var(--c-texto-2); font-size: var(--t-ui); line-height: var(--lh-texto); text-wrap: pretty; }
 #ficha p:empty, #ficha .media:empty { display: none; }
 #ficha .media { display: flex; flex-wrap: wrap; gap: var(--e-2); margin-top: var(--e-3); }
 #ficha .media img { width: 100%; max-height: 32dvh; object-fit: cover; border-radius: var(--r-3); }
-#ficha .cerrar { position: absolute; top: var(--e-2); right: var(--e-2); }
+/* Cerrar: flota arriba a la derecha (a var(--e-2) del borde) y el título y el texto lo rodean: con 44 px en táctil no los tapa */
+#ficha .cerrar { float: right; margin: calc(var(--e-2) - var(--e-4)) calc(var(--e-2) - var(--e-5)) var(--e-1) var(--e-2); }
 
 /* ---------------- maqueta: estancias (vidrio con nombre y m²) y fotos 360 (pines de acento) ---------------- */
 #maqueta-capa { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -331,7 +335,7 @@ body.midiendo :is(#pista, #rotulo, #tarjeta-juego) { display: none; }
   font: var(--peso-semi) var(--t-sec) / 1.2 var(--fuente); font-variant-numeric: tabular-nums; pointer-events: none; white-space: nowrap; }
 
 /* ---------------- visita guiada (subtítulos), comparador, joystick y rótulo de la estancia ---------------- */
-#subtitulo { position: absolute; z-index: calc(var(--z-hud) + 2); left: 50%; translate: -50% 0; bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--e-3));
+#subtitulo { position: absolute; z-index: calc(var(--z-hud) + 2); inset-inline: 0; width: fit-content; margin-inline: auto; bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--e-3));
   max-width: min(42rem, calc(100vw - 2 * var(--hud))); padding: var(--e-3) var(--e-5); border-radius: var(--r-4); text-align: center; color: var(--c-texto);
   font: var(--peso-medio) var(--t-destacado) / var(--lh-ui) var(--fuente); letter-spacing: var(--track-ui); text-wrap: balance;
   animation: c8-aparecer var(--d-4) var(--muelle) both; }
@@ -351,7 +355,8 @@ body.midiendo :is(#pista, #rotulo, #tarjeta-juego) { display: none; }
 #joystick-pomo { position: absolute; left: 50%; top: 50%; width: 3.25rem; height: 3.25rem; margin: -1.625rem; border-radius: 50%;
   background: color-mix(in srgb, var(--c-texto) 55%, transparent); box-shadow: var(--sombra-1); }
 /* Rótulo al entrar en una estancia: vidrio que aparece y se desvanece solo (con movimiento reducido, no sale) */
-#rotulo { position: absolute; z-index: calc(var(--z-hud) - 3); left: 50%; top: 22%; translate: -50% 0; display: grid; justify-items: center; gap: var(--e-1);
+#rotulo { position: absolute; z-index: calc(var(--z-hud) - 3); inset-inline: 0; top: 22%; width: fit-content; max-width: calc(100vw - 2 * var(--hud)); margin-inline: auto;
+  display: grid; justify-items: center; gap: var(--e-1);
   padding: var(--e-3) var(--e-6); border-radius: var(--r-5); text-align: center; color: var(--c-texto); pointer-events: none; opacity: 0; }
 #rotulo b { font: var(--peso-semi) var(--t-titulo-g) / var(--lh-ajustado) var(--fuente-titular); letter-spacing: var(--track-titular); }
 #rotulo span { font: var(--peso-semi) var(--t-micro) / 1 var(--fuente); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
@@ -369,7 +374,7 @@ body:is(.modo-libre, .modo-maqueta, .sin-webgl) #rotulo, :root[data-movimiento="
 #error-carga .c8-boton { min-height: max(2.75rem, var(--toque-minimo)); padding: 0 var(--e-6); }
 .marca-cre8 { font: var(--peso-semi) var(--t-titulo-g) / 1 var(--fuente-titular); letter-spacing: var(--track-titular); color: var(--c-texto); }
 .marca-cre8 span { color: var(--c-acento-texto); }
-#vacio { position: absolute; inset: 0; margin: auto; height: fit-content; max-width: min(26rem, 80vw); text-align: center; color: var(--c-texto-2);
+#vacio { position: absolute; inset: 0; margin: auto; height: fit-content; max-width: min(26rem, 80vw); text-align: center; color: var(--c-texto-2); text-wrap: balance;
   font: var(--peso-normal) var(--t-cuerpo) / var(--lh-texto) var(--fuente); pointer-events: none; }
 body.vista-vacia #lienzo { visibility: hidden; }
 body.sin-webgl :is(#lienzo, #modos, #radar, #btn-radar, #btn-juego, #etiquetas) { display: none; }
@@ -400,6 +405,14 @@ body.embed #btn-pantalla { display: none; }
   #aviso { top: auto; bottom: calc(var(--abajo) + var(--alto-control) + var(--e-5)); width: max-content; max-width: calc(100vw - 2 * var(--hud)); }
   #portada .titulo { font-size: var(--t-titulo); }
   #medir-barra { width: auto; left: calc(var(--hud) + var(--seg-izq)); right: calc(var(--hud) + var(--seg-der)); translate: none; }
+}
+@media (max-width: 540px) and (orientation: portrait) {
+  /* Paseo libre: la tarjeta de los paneles queda como píldora abajo a la derecha sin reservar alto (--reserva-inferior: 0)
+     y tapaba la mitad de los modos. Los modos y el aviso suben por encima de una píldora de un control de alto (si los
+     paneles publican la reserva, manda la suya). TODO paneles: publicar el alto de la píldora en --reserva-inferior. */
+  body.modo-libre { --abajo-libre: max(var(--abajo), calc(var(--hud) + var(--seg-inf) + var(--alto-control) + var(--e-3))); }
+  body.modo-libre #modos { bottom: calc(var(--abajo-libre) + var(--e-2)); }
+  body.modo-libre #aviso { bottom: calc(var(--abajo-libre) + var(--alto-control) + var(--e-5)); }
 }
 @media (max-height: 540px) and (orientation: landscape) {
   :root { --radar: 5.25rem; }
