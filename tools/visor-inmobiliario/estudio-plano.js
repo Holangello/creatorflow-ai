@@ -3,7 +3,8 @@
 // Coordenadas en metros: x → derecha, z → abajo; rumbo 0 = arriba, horario.
 import { area, centroide, dentro, redondear, norm360, rumboDe, dimensiones } from "./estudio-util.js";
 import { app, h, $, icono, cambiar, emitir, on, toast, pedir, confirmar, dialogo, guardarArchivo, guardarDocumento, urlDe, rutaLibre, idLibre,
-  elegirArchivos, cargando, textoDe, colocado, pano, calcularEnlaces, alternarEnlace, claveEnlace, fmtM2, zonasSugeridas, zonasPublicadas, modoZonas } from "./estudio-nucleo.js";
+  elegirArchivos, cargando, textoDe, fijarTexto, colocado, pano, calcularEnlaces, alternarEnlace, claveEnlace, fmtM2, zonasSugeridas, zonasPublicadas, modoZonas,
+  coloresTema, fuenteLienzo, alCambiarTema, deslizador, VIDRIO } from "./estudio-nucleo.js";
 import { campoTexto, campo } from "./estudio-campos.js";
 import { leerDxf, sugerirUnidades, extension, aMetros, renderizar, FACTOR } from "./estudio-dxf.js";
 
@@ -14,7 +15,12 @@ const HERRAMIENTAS = [
   { id: "muro", nombre: "Muro", tecla: "M", icono: "muro", pista: "Clic para empezar y en cada esquina. Se ajusta a 90° (Shift para ángulo libre). Esc o doble clic para terminar." },
   { id: "enlace", nombre: "Conectar", tecla: "L", icono: "enlace", pista: "Toca una foto y luego otra para conectarlas (o desconectarlas). Shift para encadenar." },
 ];
-const COLORES_EST = ["#ffb547", "#6aa8ff", "#5fc48a", "#e58bd2", "#f07b62", "#9b8cff", "#4fd1c5", "#d4c46a"];
+/** Colores de categoría de las estancias (datos): paleta validada (azul, naranja, aguamarina, amarillo, magenta, verde, violeta,
+ *  rojo), con su versión para el tema oscuro. Solo distinguen una estancia de otra: el nombre y los m² van siempre rotulados. */
+const COLORES_EST = {
+  claro: ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"],
+  oscuro: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"],
+};
 
 const S = {
   esc: 40, ox: 40, oy: 40, ajustado: false,
@@ -53,14 +59,13 @@ function render(cont) {
   const lienzoCont = h("div", { class: "lienzo-plano" });
   S.lienzo = h("canvas", { tabindex: 0, "aria-label": "Plano editable" });
   S.ctx = S.lienzo.getContext("2d");
-  pista = h("div", { class: "pista" });
-  avisoEscala = h("div", { class: "aviso-escala", hidden: true });
-  lienzoCont.append(S.lienzo, pista, avisoEscala, h("div", { class: "zoom" },
-    h("button", { class: "btn icono-btn", title: "Acercar", "aria-label": "Acercar", onclick: () => zoom(1.25) }, icono("mas", 16)),
-    h("button", { class: "btn icono-btn", title: "Alejar", "aria-label": "Alejar", onclick: () => zoom(0.8) }, h("span", { text: "−", style: { fontSize: "18px", lineHeight: 1 } })),
-    h("button", { class: "btn icono-btn", title: "Encuadrar todo (0)", "aria-label": "Encuadrar todo", onclick: ajustar }, icono("ajustar", 16))));
+  pista = h("div", { class: "pista c8-vidrio c8-vidrio--texto" });
+  avisoEscala = h("div", { class: "aviso-escala c8-vidrio c8-vidrio--texto", hidden: true });
+  const bz = (titulo, fn, ...hijos) => h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s", title: titulo, "aria-label": titulo.replace(/ \(0\)$/, ""), onclick: fn }, ...hijos);
+  lienzoCont.append(S.lienzo, pista, avisoEscala, h("div", { class: "zoom c8-vidrio" },
+    bz("Acercar", () => zoom(1.25), icono("mas", 16)), bz("Alejar", () => zoom(0.8), icono("menos", 16)), bz("Encuadrar todo (0)", ajustar, icono("ajustar", 16))));
   lado = h("aside", { class: "plano-lado" });
-  raiz.append(h("div", { class: "editor-plano" },
+  raiz.append(h("div", { class: `editor-plano ${VIDRIO}` },
     h("div", { class: "plano-centro" }, h("div", { class: "barra-plantas", id: "barra-plantas" }), h("div", { class: "herramientas", id: "herramientas" }), lienzoCont),
     lado));
   S.ro = new ResizeObserver(() => { dimensionar(); if (!S.ajustado) ajustar(); marcar(); });
@@ -86,15 +91,15 @@ function pintarPlantas() {
       onclick: () => { app.planta = pl.id; S.sel = null; S.ajustado = false; pintarUI(); ajustar(); },
       ondblclick: () => renombrarPlanta(pl.id),
     })),
-    h("button", { class: "btn fantasma peq", title: "Añadir planta", onclick: anadirPlanta }, icono("mas", 15), "Planta"),
-    h("div", { class: "relleno", style: { flex: 1 } }),
-    h("button", { class: "btn peq", onclick: subirPlano, title: "Plano del arquitecto: PDF, DXF (AutoCAD, Revit, ArchiCAD), PNG o JPG" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
+    h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", title: "Añadir planta", onclick: anadirPlanta }, icono("mas", 15), "Planta"),
+    h("div", { class: "relleno" }),
+    h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: subirPlano, title: "Plano del arquitecto: PDF, DXF (AutoCAD, Revit, ArchiCAD), PNG o JPG" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
     (() => {
       // Un solo botón para seguir: «Saltar» mientras no se use el plano; «Continuar» en cuanto se use.
       const sig = app.pasoSiguiente?.("plano");
       if (!sig || !app.tour.panoramas.length) return null;
       const usado = app.tour.panoramas.some(colocado) || app.tour.plantas.some((pl) => pl.plano?.imagen);
-      return h("button", { class: `btn peq ${usado ? "primario" : ""}`, "data-continuar": sig.id, onclick: () => emitir("ir", { seccion: sig.id }) },
+      return h("button", { type: "button", class: `c8-boton c8-boton--s ${usado ? "c8-boton--primario" : "c8-boton--secundario"}`, "data-continuar": sig.id, onclick: () => emitir("ir", { seccion: sig.id }) },
         usado ? `Continuar → ${sig.titulo}` : `Saltar → ${sig.titulo}`);
     })(),
   ].filter(Boolean));
@@ -105,7 +110,7 @@ function pintarHerramientas() {
   const b = $("#herramientas");
   if (!b) return;
   b.replaceChildren(...HERRAMIENTAS.filter(herramientaVisible).map((t) => h("button", {
-    class: `btn ${S.herr === t.id ? "activo" : "fantasma"}`, "aria-pressed": String(S.herr === t.id),
+    type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", "aria-pressed": String(S.herr === t.id),
     title: `${t.nombre}${app.atajos ? ` (${t.tecla})` : ""}`, onclick: () => fijarHerramienta(t.id),
   }, icono(t.icono, 16), h("span", { text: t.nombre }), h("kbd", { text: t.tecla }))));
   const herr = HERRAMIENTAS.find((t) => t.id === S.herr);
@@ -115,8 +120,8 @@ function pintarHerramientas() {
       : S.herr === "sel" && hayPorColocar ? "Arrastra cada foto al punto del plano donde pusiste la cámara." : herr.pista;
   const pl = planta();
   avisoEscala.hidden = !(pl?.plano?.imagen && !app.tour._estudio.calibrado?.[pl.id]) || S.herr === "calibrar";
-  avisoEscala.replaceChildren(icono("regla", 18), h("span", { style: { flex: 1 } }, "Escala sin calibrar: haz clic en «Calibrar» y marca una medida conocida para que las distancias y los m² sean reales."),
-    h("button", { class: "btn peq primario", onclick: () => fijarHerramienta("calibrar") }, "Calibrar"));
+  avisoEscala.replaceChildren(icono("regla", 18), h("span", { class: "estirar" }, "Escala sin calibrar: haz clic en «Calibrar» y marca una medida conocida para que las distancias y los m² sean reales."),
+    h("button", { type: "button", class: "c8-boton c8-boton--primario c8-boton--s", onclick: () => fijarHerramienta("calibrar") }, "Calibrar"));
 }
 export function fijarHerramienta(id) {
   S.herr = id; S.borrador = []; S.calib = []; S.enlaceDesde = null;
@@ -132,47 +137,47 @@ function pintarLado() {
   const { vecinos } = calcularEnlaces();
   const partes = [];
   if (!t.panoramas.some(colocado) && !pl?.plano?.imagen) {
-    partes.push(h("div", { class: "panel-sel", style: { marginTop: 0, marginBottom: "6px" } },
+    partes.push(h("div", { class: "panel-sel inicio" },
       h("b", { text: "El plano es opcional" }),
-      h("span", { class: "suave", style: { fontSize: "13px" }, text: "Sin plano, las fotos se conectan en el orden de la lista (1 → 2 → 3…). Con plano, el cliente ve dónde está (radar) y los m² de cada estancia." })));
+      h("span", { class: "texto-sec", text: "Sin plano, las fotos se conectan en el orden de la lista (1 → 2 → 3…). Con plano, el cliente ve dónde está (radar) y los m² de cada estancia." })));
   }
   const sel = S.sel;
   // Selección
   if (sel?.tipo === "nodo" && pano(sel.id)) {
     const p = pano(sel.id);
     partes.push(h("h3", { text: "Foto seleccionada" }), h("div", { class: "panel-sel" },
-      h("div", { class: "fila", style: { flexWrap: "nowrap" } }, h("img", { src: urlDe(p.miniatura), alt: "", style: { width: "64px", height: "32px", borderRadius: "4px", objectFit: "cover" } }), h("b", { text: nombreDe(p), style: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } })),
-      h("div", { class: "suave", style: { fontSize: "12.5px" } }, `Conectada con: ${(vecinos.get(p.id) ?? []).map((id) => nombreDe(pano(id))).join(", ") || "ninguna"}`),
+      h("div", { class: "fila sin-salto" }, h("img", { class: "mini", src: urlDe(p.miniatura), alt: "" }), h("b", { class: "cortar", text: nombreDe(p) })),
+      h("div", { class: "texto-sec" }, `Conectada con: ${(vecinos.get(p.id) ?? []).map((id) => nombreDe(pano(id))).join(", ") || "ninguna"}`),
       h("details", { class: "posicion-exacta" }, h("summary", { text: "Posición exacta" }), h("div", { class: "fila" },
         campo(() => pano(sel.id), "x", { etiqueta: "x (m)", tipo: "number", paso: 0.05, tipoCambio: "todo", alCambiar: marcar }),
         campo(() => pano(sel.id), "z", { etiqueta: "z (m)", tipo: "number", paso: 0.05, tipoCambio: "todo", alCambiar: marcar }))),
       h("div", { class: "fila" },
-        h("button", { class: "btn peq", onclick: () => emitir("ir", { seccion: "orientacion" }) }, icono("orientar", 14), "Orientar"),
-        h("button", { class: "btn peq", onclick: () => { cambiar(() => { const q = pano(sel.id); delete q.x; delete q.z; }); S.sel = null; pintarLado(); } }, "Quitar del plano"))));
+        h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => emitir("ir", { seccion: "orientacion" }) }, icono("orientar", 14), "Orientar"),
+        h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => { cambiar(() => { const q = pano(sel.id); delete q.x; delete q.z; }); S.sel = null; pintarLado(); } }, "Quitar del plano"))));
   } else if (sel?.tipo === "estancia") {
     const e = t.estancias.find((x) => x.id === sel.id);
     if (e) {
       partes.push(h("h3", { text: "Estancia seleccionada" }), h("div", { class: "panel-sel" },
         campoTexto(() => app.tour.estancias.find((x) => x.id === sel.id), "nombre", { etiqueta: "Nombre", tipo: "todo", alCambiar: marcar }),
-        h("div", { class: "campo" }, h("span", { text: "Superficie" }), h("b", { text: fmtM2(area(e.poligono)), style: { fontSize: "16px" } })),
+        h("div", { class: "campo" }, h("span", { text: "Superficie" }), h("b", { class: "superficie", text: fmtM2(area(e.poligono)) })),
         h("small", { class: "tenue", text: "Arrastra los vértices para ajustar. Doble clic en un borde añade un vértice; Alt+clic en un vértice lo quita." }),
-        h("button", { class: "btn peq peligro", onclick: borrarSeleccion }, icono("basura", 14), "Borrar estancia")));
+        h("button", { type: "button", class: "c8-boton c8-boton--peligro c8-boton--s", onclick: borrarSeleccion }, icono("basura", 14), "Borrar estancia")));
     }
   } else if (sel?.tipo === "muro") {
     partes.push(h("h3", { text: "Muro seleccionado" }), h("div", { class: "panel-sel" },
       h("div", { class: "suave", text: `Longitud: ${redondear(longMuro(sel.i), 2)} m` }),
-      h("button", { class: "btn peq peligro", onclick: borrarSeleccion }, icono("basura", 14), "Borrar muro")));
+      h("button", { type: "button", class: "c8-boton c8-boton--peligro c8-boton--s", onclick: borrarSeleccion }, icono("basura", 14), "Borrar muro")));
   }
 
   // Fotos sin colocar
   const sinColocar = t.panoramas.filter((p) => !colocado(p));
   partes.push(h("h3", { text: `Fotos sin colocar (${sinColocar.length})` }));
-  if (!t.panoramas.length) partes.push(h("p", { class: "tenue", style: { margin: 0, fontSize: "13px" }, text: "Primero sube las fotos 360 en el paso 1." }));
-  else if (!sinColocar.length) partes.push(h("p", { class: "tenue", style: { margin: 0, fontSize: "13px" }, text: "Todas las fotos están en el plano." }));
+  if (!t.panoramas.length) partes.push(h("p", { class: "texto-sec", text: "Primero sube las fotos 360 en el paso 1." }));
+  else if (!sinColocar.length) partes.push(h("p", { class: "texto-sec", text: "Todas las fotos están en el plano." }));
   else {
     for (const p of sinColocar) {
-      const f = h("div", { class: "ficha-arrastre", title: "Arrastra al plano" }, h("img", { src: urlDe(p.miniatura), alt: "", draggable: "false" }), h("span", { text: nombreDe(p), style: { flex: 1 } }),
-        h("button", { class: `btn peq ${S.colocando === p.id ? "colocando" : ""}`, "aria-pressed": String(S.colocando === p.id), title: "Colocar sin arrastrar: pulsa y luego toca el plano",
+      const f = h("div", { class: "ficha-arrastre", title: "Arrastra al plano" }, h("img", { src: urlDe(p.miniatura), alt: "", draggable: "false" }), h("span", { text: nombreDe(p) }),
+        h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", "aria-pressed": String(S.colocando === p.id), title: "Colocar sin arrastrar: pulsa y luego toca el plano",
           onpointerdown: (e) => e.stopPropagation(),
           onclick: () => { S.colocando = S.colocando === p.id ? null : p.id; if (S.herr !== "sel") fijarHerramienta("sel"); pintarLado(); pintarHerramientas(); S.lienzo?.focus(); } },
         S.colocando === p.id ? "Toca el plano…" : "Colocar"));
@@ -193,28 +198,28 @@ function pintarLado() {
   // Estancias
   const ests = estanciasPlanta();
   partes.push(h("h3", { text: "Estancias" }));
-  if (!ests.length) partes.push(h("p", { class: "tenue", style: { margin: 0, fontSize: "13px" } }, "Dibuja el contorno de cada estancia con la herramienta ", h("b", { text: "Estancia" }), " para mostrar sus m² en el visor."));
+  if (!ests.length) partes.push(h("p", { class: "texto-sec" }, "Dibuja el contorno de cada estancia con la herramienta ", h("b", { text: "Estancia" }), " para mostrar sus m² en el visor."));
   else {
     let total = 0;
     for (const e of ests) {
       const a = area(e.poligono); total += a;
       partes.push(h("div", { class: `fila-lista ${S.sel?.id === e.id ? "sel" : ""}`, onclick: () => { S.sel = { tipo: "estancia", id: e.id }; fijarHerramienta("sel"); S.sel = { tipo: "estancia", id: e.id }; pintarLado(); marcar(); } },
-        h("span", { class: "muestra", style: { background: colorEst(e), width: "10px", height: "10px", borderRadius: "3px" } }),
+        h("span", { class: "muestra", style: { background: colorEst(e) } }),
         h("span", { class: "nom", text: textoDe(e.nombre) || "Sin nombre" }), h("span", { class: "val", text: fmtM2(a) })));
     }
-    partes.push(h("div", { class: "fila-lista", style: { cursor: "default", borderTop: "1px solid var(--borde)", borderRadius: 0, marginTop: "4px" } },
+    partes.push(h("div", { class: "fila-lista total" },
       h("span", { class: "nom", text: "Total útil aprox." }), h("b", { class: "val", text: fmtM2(total) })));
   }
   // Imagen del plano
   if (pl?.plano?.imagen) {
     partes.push(h("h3", { text: "Imagen del plano" }),
-      h("div", { class: "suave", style: { fontSize: "12.5px" } }, `${redondear(pl.plano.ancho_m, 2)} × ${redondear(pl.plano.alto_m, 2)} m · `,
+      h("div", { class: "texto-sec" }, `${redondear(pl.plano.ancho_m, 2)} × ${redondear(pl.plano.alto_m, 2)} m · `,
         app.tour._estudio.calibrado?.[pl.id] ? h("span", { class: "chip ok", text: "calibrado" }) : h("span", { class: "chip aviso", text: "sin calibrar" })),
-      h("div", { class: "fila", style: { marginTop: "6px" } },
-        h("button", { class: "btn peq", onclick: () => fijarHerramienta("calibrar") }, icono("regla", 14), "Calibrar"),
-        h("button", { class: "btn peq fantasma", onclick: async () => { if (await confirmar("Quitar imagen del plano", "Las fotos, estancias y muros se mantienen.", "Quitar")) cambiar(() => { delete planta().plano; }); } }, "Quitar")));
+      h("div", { class: "fila" },
+        h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => fijarHerramienta("calibrar") }, icono("regla", 14), "Calibrar"),
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: async () => { if (await confirmar("Quitar imagen del plano", "Las fotos, estancias y muros se mantienen.", "Quitar")) cambiar(() => { delete planta().plano; }); } }, "Quitar")));
   }
-  if (app.tour.plantas.length > 1) partes.push(h("button", { class: "btn peq fantasma", style: { marginTop: "14px" }, onclick: borrarPlanta }, icono("basura", 14), "Eliminar esta planta"));
+  if (app.tour.plantas.length > 1) partes.push(h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s eliminar-planta", onclick: borrarPlanta }, icono("basura", 14), "Eliminar esta planta"));
   partes.push(panelAvanzado());
   lado.replaceChildren(...partes);
 }
@@ -229,37 +234,36 @@ function panelAvanzado() {
   const dial = h("div", { class: "dial-norte", title: "Arrastra la flecha hacia el norte del plano", role: "slider", "aria-label": "Dirección del norte en el plano", "aria-valuemin": 0, "aria-valuemax": 359, "aria-valuenow": aguja, "aria-valuetext": `${aguja} grados`, tabindex: 0 },
     h("div", { class: "aguja", style: { transform: `rotate(${aguja}deg)` } }), h("div", { class: "centro" }));
   eventosDial(dial);
-  const inpNorte = h("input", { type: "text", inputmode: "numeric", value: aguja, style: { width: "84px" }, "aria-label": "Norte en grados" });
+  const inpNorte = h("input", { type: "text", inputmode: "numeric", value: aguja, class: "corto", "aria-label": "Norte en grados" });
   inpNorte.oninput = () => { const v = Number(String(inpNorte.value).replace(",", ".")); if (Number.isFinite(v)) fijarNorte(v, false); };
   // Conexiones automáticas
-  const radio = h("input", { type: "range", min: 1, max: 10, step: 0.5, value: t.radio_enlace_auto ?? 4.5, "aria-label": "Distancia para conectar fotos automáticamente" });
+  const radio = deslizador({ min: 1, max: 10, step: 0.5, value: t.radio_enlace_auto ?? 4.5, "aria-label": "Distancia para conectar fotos automáticamente" });
   const metros = (v) => `${String(v).replace(".", ",")} m`;
   const radioVal = h("b", { text: metros(t.radio_enlace_auto ?? 4.5) });
   radio.setAttribute("aria-valuetext", metros(t.radio_enlace_auto ?? 4.5));
   radio.oninput = () => { radioVal.textContent = metros(radio.value); radio.setAttribute("aria-valuetext", metros(radio.value)); cambiar((tt) => { tt.radio_enlace_auto = Number(radio.value); }, { clave: "radio", render: false }); marcar(); };
   radio.onchange = () => pintarLado();
-  const linea = (estilo, texto) => h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: estilo, verticalAlign: "middle", marginRight: "6px" } }), texto);
+  const linea = (clase, texto) => h("span", {}, h("i", { class: clase, "aria-hidden": "true" }), texto);
   const modo = modoZonas(t), nZonas = zonasPublicadas(t)?.length ?? 0;
   const textoZonas = modo === "editadas" ? `${nZonas} zonas a tu medida.` : modo === "ninguna" ? "Sin zonas: las estancias se ven en una sola lista."
     : modo === "plantas" ? "Con varias plantas, el cliente ve las estancias agrupadas por planta."
     : nZonas ? `Automáticas: ${nZonas} zonas según los nombres de las estancias.` : "Automáticas: aparecen en cuanto haya estancias de día y de noche (o exteriores).";
   det.append(h("div", { class: "contenido-avanzado" },
     h("h3", { text: "Norte" }),
-    h("div", { class: "fila", style: { flexWrap: "nowrap" } }, dial,
+    h("div", { class: "fila sin-salto" }, dial,
       h("div", { class: "campo" }, h("span", { text: "Hacia dónde está el norte (°, 0 = arriba)" }), inpNorte, h("small", { text: "Para la orientación (sur, etc.) y la luz." }))),
     h("h3", { text: "Conexiones entre fotos" }),
     h("div", { class: "campo" }, h("span", {}, "Conectar fotos a menos de ", radioVal), radio),
-    h("div", { class: "suave", style: { fontSize: "12.5px", display: "flex", flexDirection: "column", gap: "4px", marginTop: "6px" } },
-      linea("2px dashed var(--acento)", "automática (por distancia)"), linea("2.5px solid var(--acento)", "manual (herramienta Conectar)"),
-      linea("2px dashed rgba(239,107,98,.7)", "automática quitada")),
+    h("div", { class: "leyenda-enlaces" },
+      linea("", "automática (por distancia)"), linea("manual", "manual (herramienta Conectar)"), linea("quitado", "automática quitada")),
     h("h3", { text: "Altura de la cámara" }),
     campo(() => app.tour, "altura_camara", { etiqueta: "Altura del trípode (m)", tipo: "number", min: 0.5, max: 3, paso: 0.05, tipoCambio: "todo", ayuda: "La Guía Osmo 360 recomienda 1,5 m." }),
     h("h3", { text: "Zonas de la vivienda" }),
-    h("p", { class: "suave", style: { fontSize: "12.5px", margin: "0 0 6px" }, text: textoZonas }),
-    h("button", { class: "btn peq", "data-campo": "zonas", onclick: dialogoZonas }, "Ver o cambiar zonas…"),
+    h("p", { class: "texto-sec", text: textoZonas }),
+    h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", "data-campo": "zonas", onclick: dialogoZonas }, "Ver o cambiar zonas…"),
     h("h3", { text: "Muros (para la maqueta 3D)" }),
-    h("p", { class: "suave", style: { fontSize: "12.5px", margin: "0 0 6px" }, text: planta()?.muros?.length ? `${planta().muros.length} tramos en esta planta.` : "Un DXF ya los trae. A mano: clic en cada esquina." }),
-    h("button", { class: "btn peq", onclick: () => fijarHerramienta("muro") }, icono("muro", 14), "Dibujar muros")));
+    h("p", { class: "texto-sec", text: planta()?.muros?.length ? `${planta().muros.length} tramos en esta planta.` : "Un DXF ya los trae. A mano: clic en cada esquina." }),
+    h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => fijarHerramienta("muro") }, icono("muro", 14), "Dibujar muros")));
   return det;
 }
 
@@ -280,33 +284,33 @@ function dialogoZonas() {
       plantas: "Con varias plantas, el cliente ve las estancias agrupadas por planta. Cambia la zona de una estancia para agruparlas por zonas.",
       ninguna: "El cliente ve todas las estancias en una sola lista." }[modo];
     cont.replaceChildren(
-      h("div", { class: "fila", style: { marginBottom: "8px" } },
+      h("div", { class: "fila" },
         h("span", { class: estado[0], text: estado[1] }),
-        h("div", { style: { flex: 1 } }),
+        h("div", { class: "relleno" }),
         activo ? accion("Añadir zona", () => { app.tour.secciones.push({ id: `zona-${app.tour.secciones.length + 1}`, nombre: { es: "Nueva zona" }, estancias: [] }); }) : null,
         activo ? accion("Volver a automáticas", () => { delete app.tour.secciones; }) : null,
         modo === "ninguna" ? accion("Usar zonas automáticas", () => { delete app.tour._estudio.sinZonas; })
           : accion("No usar zonas", () => { delete app.tour.secciones; app.tour._estudio.sinZonas = true; })),
-      h("p", { class: "c8-sec", style: { margin: "0 0 12px" }, text: nota }),
-      activo ? h("div", { class: "lista-zonas" }, t.secciones.map((z, i) => h("div", { class: "fila", style: { flexWrap: "nowrap" } },
-        h("div", { style: { flex: 1 } }, campoTexto(() => app.tour.secciones[i], "nombre", { etiqueta: "Nombre de la zona", compacto: true, tipo: "datos" })),
+      h("p", { class: "c8-sec", text: nota }),
+      activo ? h("div", { class: "lista-zonas" }, t.secciones.map((z, i) => h("div", { class: "fila sin-salto" },
+        h("div", { class: "estirar" }, campoTexto(() => app.tour.secciones[i], "nombre", { etiqueta: "Nombre de la zona", compacto: true, tipo: "datos" })),
         h("span", { class: "chip", text: `${z.estancias?.length ?? 0} estancias` }),
-        h("button", { type: "button", class: "btn fantasma icono-btn", "aria-label": "Quitar zona", onclick: () => { cambiar(() => { app.tour.secciones.splice(i, 1); }, { tipo: "datos" }); pintarZ(); } }, icono("basura", 15))))) : null,
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s", "aria-label": "Quitar zona", onclick: () => { cambiar(() => { app.tour.secciones.splice(i, 1); }, { tipo: "datos" }); pintarZ(); } }, icono("basura", 15))))) : null,
       t.panoramas.length ? h("div", { class: "lista-zonas" }, t.panoramas.map((p) => {
         const sel = h("select", { "aria-label": `Zona de ${textoDe(p.nombre)}` }, h("option", { value: "-1", text: "— Sin zona —" }), lista.map((z, i) => h("option", { value: String(i), text: textoDe(z.nombre) })));
         sel.value = String(de(p.id));
         sel.onchange = () => { cambiar(() => { materializar(); for (const z of app.tour.secciones) z.estancias = (z.estancias ?? []).filter((x) => x !== p.id); const j = Number(sel.value); if (j >= 0) app.tour.secciones[j].estancias.push(p.id); }, { tipo: "datos" }); pintarZ(); };
-        return h("div", { class: "fila", style: { flexWrap: "nowrap" } },
-          h("img", { src: urlDe(p.miniatura), alt: "", style: { width: "64px", height: "32px", objectFit: "cover", borderRadius: "4px" } }),
-          h("span", { style: { flex: 1, minWidth: 0 }, text: textoDe(p.nombre) || p.id }), h("div", { style: { width: "220px" } }, sel));
+        return h("div", { class: "fila sin-salto" },
+          h("img", { class: "mini", src: urlDe(p.miniatura), alt: "" }),
+          h("span", { class: "estirar", text: textoDe(p.nombre) || p.id }), sel);
       })) : h("p", { class: "c8-sec", text: "Añade fotos para agruparlas." }));
   };
   pintarZ();
-  dialogo({ c8: true, titulo: "Zonas de la vivienda", ancho: "min(640px, calc(100vw - 32px))", texto: "El cliente encuentra las estancias agrupadas en el visor y al preguntar por una zona.",
+  dialogo({ titulo: "Zonas de la vivienda", ancho: "min(40rem, calc(100vw - 2rem))", texto: "El cliente encuentra las estancias agrupadas en el visor y al preguntar por una zona.",
     cuerpo: cont, botones: [{ texto: "Hecho", primario: true, valor: null }] }).then(() => pintarLado());
 }
 
-const colorEst = (e) => COLORES_EST[Math.abs([...e.id].reduce((s, c) => s * 31 + c.charCodeAt(0), 7)) % COLORES_EST.length];
+const colorEst = (e) => { const l = COLORES_EST[document.documentElement.dataset.tema === "claro" ? "claro" : "oscuro"]; return l[Math.abs([...e.id].reduce((s, c) => s * 31 + c.charCodeAt(0), 7)) % l.length]; };
 function longMuro(i) { const m = planta().muros?.[i]; return m ? Math.hypot(m[2] - m[0], m[3] - m[1]) : 0; }
 
 // ------------------------------------------------------------------ plantas
@@ -323,7 +327,7 @@ async function anadirPlanta() {
 async function renombrarPlanta(id) {
   const pl = app.tour.plantas.find((p) => p.id === id);
   const nombre = await pedir("Renombrar planta", "Nombre", textoDe(pl.nombre));
-  if (nombre) cambiar(() => { const p = app.tour.plantas.find((x) => x.id === id); if (typeof p.nombre === "object" && p.nombre) p.nombre.es = nombre; else p.nombre = { es: nombre }; });
+  if (nombre) cambiar(() => fijarTexto(app.tour.plantas.find((x) => x.id === id), "nombre", "es", nombre));
 }
 async function borrarPlanta() {
   const pl = planta();
@@ -366,20 +370,21 @@ async function importarPdf(f, plantaId) {
     capa.remove();
     if (doc.numPages > 1) {
       // Miniaturas de las páginas para elegir
-      const cont = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "8px", maxHeight: "50vh", overflow: "auto" } });
+      const cont = h("div", { class: "paginas-pdf" });
       let elegida = 1;
       const botones = [];
       for (let i = 1; i <= Math.min(doc.numPages, 24); i++) {
         const pg = await doc.getPage(i);
         const vp = pg.getViewport({ scale: 1 });
         const k = 160 / Math.max(vp.width, vp.height);
-        const c = h("canvas", { width: Math.round(vp.width * k), height: Math.round(vp.height * k), style: { width: "100%", background: "#fff", borderRadius: "4px" } });
-        await pg.render({ canvasContext: c.getContext("2d"), viewport: pg.getViewport({ scale: k }) }).promise;
-        const b = h("button", { class: "btn", style: { flexDirection: "column", padding: "6px", height: "auto" }, "aria-pressed": String(i === 1), onclick: () => { elegida = i; botones.forEach((x, j) => x.classList.toggle("activo", j + 1 === i)); } }, c, `Página ${i}`);
-        if (i === 1) b.classList.add("activo");
+        const c = h("canvas", { width: Math.round(vp.width * k), height: Math.round(vp.height * k) });
+        const gc = c.getContext("2d");
+        gc.fillStyle = PAPEL; gc.fillRect(0, 0, c.width, c.height);
+        await pg.render({ canvasContext: gc, viewport: pg.getViewport({ scale: k }) }).promise;
+        const b = h("button", { type: "button", class: "c8-boton c8-boton--secundario", "aria-pressed": String(i === 1), onclick: () => { elegida = i; botones.forEach((x, j) => x.setAttribute("aria-pressed", String(j + 1 === i))); } }, c, `Página ${i}`);
         botones.push(b); cont.append(b);
       }
-      const r = await dialogo({ titulo: "¿Qué página es el plano de esta planta?", cuerpo: cont, ancho: "min(720px, calc(100vw - 32px))",
+      const r = await dialogo({ titulo: "¿Qué página es el plano de esta planta?", cuerpo: cont, ancho: "min(45rem, calc(100vw - 2rem))",
         botones: [{ texto: "Cancelar", valor: null }, { texto: "Usar esta página", primario: true, valor: () => elegida }] });
       if (!r) return;
       num = r;
@@ -392,7 +397,7 @@ async function importarPdf(f, plantaId) {
       const v2 = pg.getViewport({ scale: k });
       const c = new OffscreenCanvas(Math.round(v2.width), Math.round(v2.height));
       const g = c.getContext("2d");
-      g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+      g.fillStyle = PAPEL; g.fillRect(0, 0, c.width, c.height);
       await pg.render({ canvasContext: g, viewport: v2 }).promise;
       const png = await c.convertToBlob({ type: "image/png" });
       await guardarDocumento(f, "plano", { nombre: `${f.name.replace(/\.[^.]+$/, "")}${doc.numPages > 1 ? ` (pág. ${num})` : ""}` });
@@ -416,35 +421,35 @@ async function importarDxf(f, plantaId) {
   let unidad = dxf.unidades ?? sugerirUnidades(dxf.segs);
   const selU = h("select", { "aria-label": "Unidades" }, Object.keys(FACTOR).map((u) => h("option", { value: u, text: { mm: "Milímetros", cm: "Centímetros", dm: "Decímetros", m: "Metros", in: "Pulgadas", ft: "Pies" }[u] })));
   selU.value = unidad;
-  const info = h("small", { class: "tenue" });
-  const prev = h("canvas", { width: 640, height: 360, style: { width: "100%", background: "#fff", borderRadius: "8px", marginTop: "10px" } });
+  const info = h("small", { class: "texto-pie" });
+  const prev = h("canvas", { class: "vista-dxf", width: 640, height: 360 });
   const usarImagen = h("input", { type: "checkbox", checked: true });
   const pintarPrev = () => {
     unidad = selU.value;
     const e = extension(dxf.segs);
     info.textContent = `${dxf.unidades ? `Unidades del archivo: ${dxf.unidades}. ` : "El archivo no indica unidades. "}Tamaño: ${redondear(e.w * FACTOR[unidad], 2)} × ${redondear(e.h * FACTOR[unidad], 2)} m`;
-    const g = prev.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, prev.width, prev.height);
+    const g = prev.getContext("2d"); g.fillStyle = PAPEL; g.fillRect(0, 0, prev.width, prev.height);
     const k = Math.min((prev.width - 20) / e.w, (prev.height - 20) / e.h);
     for (const s of dxf.segs) {
       const sel = marcadas.has(s.capa);
-      g.strokeStyle = sel ? "#14161a" : "#c5c9cf"; g.lineWidth = sel ? 1.6 : 0.8;
+      g.strokeStyle = sel ? TINTA : TINTA_SUAVE; g.lineWidth = sel ? 1.6 : 0.8; // dibujo del arquitecto (dato): muros en tinta negra, el resto gris
       g.beginPath(); g.moveTo(10 + (s.x1 - e.x0) * k, 10 + (e.y1 - s.y1) * k); g.lineTo(10 + (s.x2 - e.x0) * k, 10 + (e.y1 - s.y2) * k); g.stroke();
     }
   };
   selU.onchange = pintarPrev;
-  const listaCapas = h("div", { style: { maxHeight: "180px", overflow: "auto", display: "flex", flexDirection: "column", gap: "2px", border: "1px solid var(--borde2)", borderRadius: "8px", padding: "6px 10px" } },
+  const listaCapas = h("div", { class: "capas-dxf" },
     capas.map(([c, n]) => {
       const i = h("input", { type: "checkbox", checked: marcadas.has(c) });
       i.onchange = () => { i.checked ? marcadas.add(c) : marcadas.delete(c); pintarPrev(); };
-      return h("label", { class: "check", style: { minHeight: "26px" } }, i, h("span", { style: { flex: 1 }, text: c }), h("span", { class: "tenue", text: `${n}` }));
+      return h("label", { class: "check" }, i, h("span", { class: "estirar", text: c }), h("span", { class: "tenue", text: `${n}` }));
     }));
-  const cuerpo = h("div", {},
+  const cuerpo = h("div", { class: "pila" },
     h("div", { class: "fila" }, h("div", { class: "campo" }, h("span", { text: "Unidades del dibujo" }), selU), info),
-    h("div", { class: "campo", style: { marginTop: "10px" } }, h("span", { text: "Capas que son muros (se dibujan en el visor)" }), listaCapas),
+    h("div", { class: "campo" }, h("span", { text: "Capas que son muros (se dibujan en el visor)" }), listaCapas),
     prev,
-    h("label", { class: "check", style: { marginTop: "8px" } }, usarImagen, "Usar el dibujo completo como imagen del plano (ya a escala)"));
+    h("label", { class: "check" }, usarImagen, "Usar el dibujo completo como imagen del plano (ya a escala)"));
   setTimeout(pintarPrev, 0);
-  const ok = await dialogo({ titulo: `Importar ${f.name}`, cuerpo, ancho: "min(720px, calc(100vw - 32px))", botones: [{ texto: "Cancelar", valor: false }, { texto: "Importar plano", primario: true, valor: true }] });
+  const ok = await dialogo({ titulo: `Importar ${f.name}`, cuerpo, ancho: "min(45rem, calc(100vw - 2rem))", botones: [{ texto: "Cancelar", valor: false }, { texto: "Importar plano", primario: true, valor: true }] });
   if (!ok) return;
   const factor = FACTOR[unidad];
   const e = extension(dxf.segs);
@@ -559,10 +564,37 @@ function bucle() {
   if (S.sucio) { S.sucio = false; dibujar(); }
   S.raf = requestAnimationFrame(bucle);
 }
+// Colores del lienzo: tokens de tema.css, releídos al cambiar de tema o de talla («cre8:tema»). El texto va siempre en los
+// colores del texto sobre un rótulo de vidrio denso (legible sobre el papel del plano y sobre el fondo, en los dos temas).
+let PAL = null;
+function pal() {
+  if (PAL) return PAL;
+  const c = coloresTema({ acento: "--c-acento", sobreAcento: "--c-sobre-acento", acentoTexto: "--c-acento-texto", texto: "--c-texto", texto2: "--c-texto-2",
+    rejilla: "--c-borde", marco: "--c-borde-2", rotulo: "--vidrio-denso", sup3: "--c-sup-3", fondo: "--c-fondo", error: "--c-error", info: "--c-info" });
+  const claro = document.documentElement.dataset.tema === "claro";
+  PAL = { ...c, claro,
+    linea: claro ? c.acentoTexto : c.acento,          // conexiones y trazos de acento (en claro, el champán oscuro: se ve sobre el papel)
+    nodo: claro ? c.texto : c.sup3, numNodo: claro ? c.fondo : c.texto, // las fotos, disco oscuro con número claro en los dos temas
+    papel: claro ? 1 : 0.84,                          // en oscuro el papel del plano se atenúa para no deslumbrar
+    f: { nombre: fuenteLienzo(600, 0.78), dato: fuenteLienzo(500, 0.75), num: fuenteLienzo(700, 0.69), rotulo: fuenteLienzo(600, 0.75),
+      etiqueta: fuenteLienzo(700, 0.81), peq: fuenteLienzo(600, 0.72), norte: fuenteLienzo(700, 0.63) } };
+  return PAL;
+}
+alCambiarTema(() => { PAL = null; if (raiz) { pintarLado(); marcar(); } });
+/** Papel y tinta del plano del arquitecto (datos: el dibujo es negro sobre blanco), bajo la imagen por si es transparente. */
+const PAPEL = "#ffffff", TINTA = "#14161a", TINTA_SUAVE = "#c5c9cf";
+/** Color con transparencia (para los degradados); los tokens del acento son hexadecimales. */
+const alfa = (color, a) => (/^#[0-9a-f]{6}$/i.test(color) ? `rgba(${[1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16)).join(", ")}, ${a})` : color);
+/** Trazo con halo: legible sobre el papel claro y sobre el fondo oscuro. */
+function trazoConHalo(g, color, ancho, dibujarTrazo) {
+  const P = pal();
+  g.strokeStyle = P.rotulo; g.lineWidth = ancho + 2.5; dibujarTrazo(); g.stroke();
+  g.strokeStyle = color; g.lineWidth = ancho; dibujarTrazo(); g.stroke();
+}
 function dibujar() {
   const c = S.lienzo, g = S.ctx;
   if (!c || !S.w) return;
-  const acento = getComputedStyle(document.documentElement).getPropertyValue("--acento").trim() || "#ffb547";
+  const P = pal();
   g.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
   g.clearRect(0, 0, S.w, S.h);
   const pl = planta(), t = app.tour;
@@ -572,27 +604,29 @@ function dibujar() {
     const [ox, oz] = pl.plano.origen ?? [0, 0];
     const [sx, sy] = aPantalla(ox, oz);
     const w = pl.plano.ancho_m * S.esc, hh = pl.plano.alto_m * S.esc;
-    g.fillStyle = "#f4f2ee"; g.fillRect(sx, sy, w, hh);
+    g.globalAlpha = P.papel;
+    g.fillStyle = PAPEL; g.fillRect(sx, sy, w, hh);
     if (im) { g.imageSmoothingQuality = "high"; g.drawImage(im, sx, sy, w, hh); }
-    g.fillStyle = "rgba(10,12,15,.18)"; g.fillRect(sx, sy, w, hh);
-    g.strokeStyle = "rgba(255,255,255,.18)"; g.lineWidth = 1; g.strokeRect(sx + .5, sy + .5, w, hh);
+    g.globalAlpha = 1;
+    g.strokeStyle = P.marco; g.lineWidth = 1; g.strokeRect(sx + 0.5, sy + 0.5, w, hh);
   }
-  // Rejilla métrica
+  // Rejilla métrica (cada 5 m, más marcada)
   const paso = S.esc > 60 ? 0.5 : S.esc > 18 ? 1 : 5;
   const [mx0, mz0] = aMundo(0, 0), [mx1, mz1] = aMundo(S.w, S.h);
-  g.lineWidth = 1;
+  g.lineWidth = 1; g.strokeStyle = P.rejilla;
   for (let x = Math.floor(mx0 / paso) * paso; x <= mx1; x += paso) {
     const sx = Math.round(S.ox + x * S.esc) + 0.5;
-    g.strokeStyle = Math.abs(x % 5) < 1e-6 ? "rgba(255,255,255,.09)" : "rgba(255,255,255,.035)";
+    g.globalAlpha = Math.abs(x % 5) < 1e-6 ? 1 : 0.4;
     g.beginPath(); g.moveTo(sx, 0); g.lineTo(sx, S.h); g.stroke();
   }
   for (let z = Math.floor(mz0 / paso) * paso; z <= mz1; z += paso) {
     const sy = Math.round(S.oy + z * S.esc) + 0.5;
-    g.strokeStyle = Math.abs(z % 5) < 1e-6 ? "rgba(255,255,255,.09)" : "rgba(255,255,255,.035)";
+    g.globalAlpha = Math.abs(z % 5) < 1e-6 ? 1 : 0.4;
     g.beginPath(); g.moveTo(0, sy); g.lineTo(S.w, sy); g.stroke();
   }
-  // Estancias
-  g.font = "600 12.5px system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.globalAlpha = 1;
+  // Estancias: el color (dato) las distingue; el nombre y los m², en los colores del texto
+  g.textAlign = "center"; g.textBaseline = "middle";
   for (const e of estanciasPlanta()) {
     const col = colorEst(e);
     const selE = S.sel?.tipo === "estancia" && S.sel.id === e.id;
@@ -609,19 +643,20 @@ function dibujar() {
       sy = Math.max(top + 24, sy - 48);
     }
     const nom = textoDe(e.nombre) || "Estancia", ar = fmtM2(area(e.poligono));
-    const ancho = Math.max(g.measureText(nom).width, g.measureText(ar).width) + 16;
-    g.fillStyle = "rgba(12,14,18,.82)"; redondo(g, sx - ancho / 2, sy - 19, ancho, 38, 7); g.fill();
-    g.fillStyle = "#fff"; g.fillText(nom, sx, sy - 7);
-    g.fillStyle = col; g.font = "500 12px system-ui, sans-serif"; g.fillText(ar, sx, sy + 8);
-    g.font = "600 12.5px system-ui, sans-serif";
-    if (selE) for (const [x, z] of e.poligono) { const [vx, vy] = aPantalla(x, z); g.fillStyle = "#fff"; g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); g.arc(vx, vy, 5.5, 0, 7); g.fill(); g.stroke(); }
+    g.font = P.f.nombre; const wn = g.measureText(nom).width;
+    g.font = P.f.dato; const wa = g.measureText(ar).width;
+    const ancho = Math.max(wn, wa) + 16;
+    g.fillStyle = P.rotulo; redondo(g, sx - ancho / 2, sy - 19, ancho, 38, 8); g.fill();
+    g.fillStyle = P.texto2; g.fillText(ar, sx, sy + 8);
+    g.font = P.f.nombre; g.fillStyle = P.texto; g.fillText(nom, sx, sy - 7);
+    if (selE) for (const [x, z] of e.poligono) { const [vx, vy] = aPantalla(x, z); g.fillStyle = P.rotulo; g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); g.arc(vx, vy, 5.5, 0, 7); g.fill(); g.stroke(); }
   }
   // Muros
   g.lineCap = "round";
   (pl?.muros ?? []).forEach((m, i) => {
     const [a, b] = [aPantalla(m[0], m[1]), aPantalla(m[2], m[3])];
     const selM = S.sel?.tipo === "muro" && S.sel.i === i;
-    g.strokeStyle = selM ? acento : "#e9e6df"; g.lineWidth = Math.max(3, 0.12 * S.esc);
+    g.strokeStyle = selM ? P.linea : P.texto2; g.lineWidth = Math.max(3, 0.12 * S.esc);
     g.beginPath(); g.moveTo(...a); g.lineTo(...b); g.stroke();
   });
   // Enlaces
@@ -630,15 +665,15 @@ function dibujar() {
     const [a, b] = k.split("|").map(pano);
     if (!a || !b || !colocado(a) || !colocado(b) || !enPlanta(a) || !enPlanta(b)) return;
     const [x1, y1] = aPantalla(a.x, a.z), [x2, y2] = aPantalla(b.x, b.z);
-    g.setLineDash(estilo.dash ?? []); g.strokeStyle = estilo.color; g.lineWidth = estilo.ancho;
-    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); g.setLineDash([]);
+    g.setLineDash(estilo.dash ?? []); g.strokeStyle = estilo.color; g.lineWidth = estilo.ancho; g.globalAlpha = estilo.alfa ?? 1;
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); g.setLineDash([]); g.globalAlpha = 1;
   };
-  if (S.herr === "enlace") for (const k of quitados) if (auto.has(k)) linea(k, { color: "rgba(239,107,98,.55)", ancho: 1.5, dash: [5, 5] });
-  for (const k of efectivos) linea(k, manual.has(k) ? { color: acento, ancho: 2.5 } : { color: acento + "cc", ancho: 1.8, dash: [7, 5] });
+  if (S.herr === "enlace") for (const k of quitados) if (auto.has(k)) linea(k, { color: P.error, alfa: 0.6, ancho: 1.5, dash: [5, 5] });
+  for (const k of efectivos) linea(k, manual.has(k) ? { color: P.linea, ancho: 2.5 } : { color: P.linea, alfa: 0.8, ancho: 1.8, dash: [7, 5] });
   // Radio de enlace (al arrastrar una foto)
   if (S.arrastre?.tipo === "nodo") {
     const p = pano(S.arrastre.id);
-    if (p) { const [sx, sy] = aPantalla(p.x, p.z); g.strokeStyle = "rgba(255,181,71,.35)"; g.setLineDash([4, 6]); g.beginPath(); g.arc(sx, sy, (t.radio_enlace_auto ?? 4.5) * S.esc, 0, 7); g.stroke(); g.setLineDash([]); }
+    if (p) { const [sx, sy] = aPantalla(p.x, p.z); g.strokeStyle = P.linea; g.globalAlpha = 0.45; g.setLineDash([4, 6]); g.beginPath(); g.arc(sx, sy, (t.radio_enlace_auto ?? 4.5) * S.esc, 0, 7); g.stroke(); g.setLineDash([]); g.globalAlpha = 1; }
   }
   // Fotos (nodos)
   const { vecinos } = calcularEnlaces();
@@ -647,76 +682,84 @@ function dibujar() {
     const [sx, sy] = aPantalla(p.x, p.z);
     const actual = p.id === app.nodo, selN = S.sel?.tipo === "nodo" && S.sel.id === p.id;
     const aislado = t.panoramas.length > 1 && !(vecinos.get(p.id)?.length);
-    // Dirección del centro de la foto (yaw) y cono de la vista actual
+    // Cono de la vista actual de la vista previa
     if (actual && app.vista && app.vista.nodo === p.id && Number.isFinite(app.vista.rumbo)) {
       const r = (app.vista.rumbo * Math.PI) / 180, ap = ((app.vista.fov ?? 75) * Math.PI) / 360;
       const grad = g.createRadialGradient(sx, sy, 4, sx, sy, 60);
-      grad.addColorStop(0, "rgba(255,181,71,.55)"); grad.addColorStop(1, "rgba(255,181,71,0)");
+      grad.addColorStop(0, alfa(P.acento, 0.55)); grad.addColorStop(1, alfa(P.acento, 0));
       g.fillStyle = grad; g.beginPath(); g.moveTo(sx, sy);
       g.arc(sx, sy, 60, r - Math.PI / 2 - ap, r - Math.PI / 2 + ap); g.closePath(); g.fill();
     }
+    // Dirección del centro de la foto (yaw)
     const yaw = ((p.yaw ?? 0) * Math.PI) / 180;
-    g.strokeStyle = "rgba(255,255,255,.75)"; g.lineWidth = 2;
-    g.beginPath(); g.moveTo(sx + Math.sin(yaw) * 11, sy - Math.cos(yaw) * 11); g.lineTo(sx + Math.sin(yaw) * 21, sy - Math.cos(yaw) * 21); g.stroke();
+    trazoConHalo(g, P.texto, 2, () => { g.beginPath(); g.moveTo(sx + Math.sin(yaw) * 11, sy - Math.cos(yaw) * 11); g.lineTo(sx + Math.sin(yaw) * 21, sy - Math.cos(yaw) * 21); });
     g.beginPath(); g.arc(sx, sy, 11, 0, 7);
-    g.fillStyle = aislado ? "#ef6b62" : actual ? acento : "#2a3038"; g.fill();
-    g.lineWidth = selN || S.enlaceDesde === p.id ? 3 : 1.5; g.strokeStyle = selN || S.enlaceDesde === p.id ? "#fff" : actual ? "#fff" : acento; g.stroke();
-    g.fillStyle = actual || aislado ? "#1a1205" : "#fff"; g.font = "700 11px system-ui, sans-serif"; g.fillText(String(i + 1), sx, sy + 0.5);
-    g.font = "600 12px system-ui, sans-serif";
+    g.fillStyle = aislado ? P.error : actual ? P.acento : P.nodo; g.fill();
+    const marcada = selN || S.enlaceDesde === p.id;
+    g.lineWidth = marcada ? 3 : 1.5; g.strokeStyle = marcada || actual ? P.texto : P.acento; g.stroke();
+    g.fillStyle = actual ? P.sobreAcento : aislado ? P.fondo : P.numNodo; g.font = P.f.num; g.fillText(String(i + 1), sx, sy + 0.5);
+    g.font = P.f.rotulo;
     const nom = nombreDe(p); const wn = g.measureText(nom).width + 12;
-    g.fillStyle = "rgba(12,14,18,.78)"; redondo(g, sx - wn / 2, sy + 15, wn, 19, 6); g.fill();
-    g.fillStyle = "#fff"; g.fillText(nom, sx, sy + 25);
+    g.fillStyle = P.rotulo; redondo(g, sx - wn / 2, sy + 15, wn, 20, 7); g.fill();
+    g.fillStyle = P.texto; g.fillText(nom, sx, sy + 25.5);
   });
   // Borrador de estancia / muro
   const raton = S.raton;
   if (S.herr === "estancia" && S.borrador.length) {
     const pts = [...S.borrador, ...(raton ? [ajustarPunto(raton, true)] : [])];
     g.beginPath(); pts.forEach(([x, z], i) => { const [sx, sy] = aPantalla(x, z); i ? g.lineTo(sx, sy) : g.moveTo(sx, sy); });
-    g.closePath(); g.fillStyle = "rgba(255,181,71,.15)"; g.fill();
-    g.strokeStyle = acento; g.lineWidth = 2; g.setLineDash([6, 4]); g.stroke(); g.setLineDash([]);
-    S.borrador.forEach(([x, z], i) => { const [sx, sy] = aPantalla(x, z); g.fillStyle = i === 0 ? acento : "#fff"; g.beginPath(); g.arc(sx, sy, i === 0 ? 6.5 : 4.5, 0, 7); g.fill(); });
+    g.closePath(); g.globalAlpha = 0.15; g.fillStyle = P.acento; g.fill(); g.globalAlpha = 1;
+    g.strokeStyle = P.linea; g.lineWidth = 2; g.setLineDash([6, 4]); g.stroke(); g.setLineDash([]);
+    S.borrador.forEach(([x, z], i) => { const [sx, sy] = aPantalla(x, z); g.fillStyle = i === 0 ? P.acento : P.texto; g.strokeStyle = P.rotulo; g.lineWidth = 1.5; g.beginPath(); g.arc(sx, sy, i === 0 ? 6.5 : 4.5, 0, 7); g.fill(); g.stroke(); });
     if (pts.length >= 3) {
       const [cx, cz] = centroide(pts); const [sx, sy] = aPantalla(cx, cz);
-      etiqueta(g, fmtM2(area(pts)), sx, sy, acento);
+      etiqueta(g, fmtM2(area(pts)), sx, sy);
     }
-    if (raton && S.borrador.length) { const u = S.borrador.at(-1), r = ajustarPunto(raton, true); etiqueta(g, `${redondear(Math.hypot(r[0] - u[0], r[1] - u[1]), 2)} m`, ...aPantalla((u[0] + r[0]) / 2, (u[1] + r[1]) / 2), "#fff", true); }
+    if (raton && S.borrador.length) { const u = S.borrador.at(-1), r = ajustarPunto(raton, true); etiqueta(g, `${redondear(Math.hypot(r[0] - u[0], r[1] - u[1]), 2)} m`, ...aPantalla((u[0] + r[0]) / 2, (u[1] + r[1]) / 2), true); }
   }
   if (S.herr === "muro" && S.borrador.length && raton) {
     const a = S.borrador[0], b = ajustarMuro(a, raton);
-    g.strokeStyle = acento; g.lineWidth = Math.max(3, 0.12 * S.esc); g.lineCap = "round";
+    g.strokeStyle = P.linea; g.lineWidth = Math.max(3, 0.12 * S.esc); g.lineCap = "round";
     g.beginPath(); g.moveTo(...aPantalla(...a)); g.lineTo(...aPantalla(...b)); g.stroke();
-    etiqueta(g, `${redondear(Math.hypot(b[0] - a[0], b[1] - a[1]), 2)} m`, ...aPantalla((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), "#fff", true);
+    etiqueta(g, `${redondear(Math.hypot(b[0] - a[0], b[1] - a[1]), 2)} m`, ...aPantalla((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), true);
   }
   if (S.herr === "calibrar" && S.calib.length) {
     const pts = [...S.calib, ...(S.calib.length === 1 && raton ? [raton] : [])];
-    g.strokeStyle = "#6aa8ff"; g.lineWidth = 2;
-    g.beginPath(); pts.forEach(([x, z], i) => { const [sx, sy] = aPantalla(x, z); i ? g.lineTo(sx, sy) : g.moveTo(sx, sy); }); g.stroke();
-    for (const [x, z] of pts) { const [sx, sy] = aPantalla(x, z); g.beginPath(); g.moveTo(sx - 8, sy); g.lineTo(sx + 8, sy); g.moveTo(sx, sy - 8); g.lineTo(sx, sy + 8); g.stroke(); }
+    const trazo = () => {
+      g.beginPath(); pts.forEach(([x, z], i) => { const [sx, sy] = aPantalla(x, z); i ? g.lineTo(sx, sy) : g.moveTo(sx, sy); });
+      for (const [x, z] of pts) { const [sx, sy] = aPantalla(x, z); g.moveTo(sx - 8, sy); g.lineTo(sx + 8, sy); g.moveTo(sx, sy - 8); g.lineTo(sx, sy + 8); }
+    };
+    trazoConHalo(g, P.info, 2, trazo);
   }
   if (S.herr === "enlace" && S.enlaceDesde && raton) {
     const a = pano(S.enlaceDesde);
-    if (a) { g.strokeStyle = acento; g.setLineDash([3, 4]); g.lineWidth = 2; g.beginPath(); g.moveTo(...aPantalla(a.x, a.z)); g.lineTo(...aPantalla(...raton)); g.stroke(); g.setLineDash([]); }
+    if (a) { g.strokeStyle = P.linea; g.setLineDash([3, 4]); g.lineWidth = 2; g.beginPath(); g.moveTo(...aPantalla(a.x, a.z)); g.lineTo(...aPantalla(...raton)); g.stroke(); g.setLineDash([]); }
   }
   // Rosa de los vientos y escala
   const norte = (-(t.norte ?? 0) * Math.PI) / 180; // el norte del plano está a −tour.norte
   const nx = S.w - 34, ny = 34;
   g.save(); g.translate(nx, ny); g.rotate(norte);
-  g.fillStyle = "rgba(12,14,18,.75)"; g.beginPath(); g.arc(0, 0, 22, 0, 7); g.fill();
-  g.fillStyle = acento; g.beginPath(); g.moveTo(0, -16); g.lineTo(6, 4); g.lineTo(0, 0); g.lineTo(-6, 4); g.closePath(); g.fill();
-  g.fillStyle = "#fff"; g.font = "700 10px system-ui"; g.fillText("N", 0, 11);
+  g.fillStyle = P.rotulo; g.beginPath(); g.arc(0, 0, 22, 0, 7); g.fill();
+  g.strokeStyle = P.marco; g.lineWidth = 1; g.stroke();
+  g.fillStyle = P.acento; g.beginPath(); g.moveTo(0, -16); g.lineTo(6, 4); g.lineTo(0, 0); g.lineTo(-6, 4); g.closePath(); g.fill();
+  g.fillStyle = P.texto; g.font = P.f.norte; g.fillText("N", 0, 11);
   g.restore();
   const metros = [0.5, 1, 2, 5, 10, 20].find((m) => m * S.esc >= 70) ?? 50;
   const bx = 16, by = S.h - 54;
-  g.strokeStyle = "#fff"; g.lineWidth = 2; g.beginPath(); g.moveTo(bx, by - 5); g.lineTo(bx, by); g.lineTo(bx + metros * S.esc, by); g.lineTo(bx + metros * S.esc, by - 5); g.stroke();
-  g.textAlign = "left"; g.fillStyle = "#fff"; g.font = "600 11.5px system-ui"; g.fillText(`${metros} m`, bx + 4, by - 10);
+  trazoConHalo(g, P.texto, 2, () => { g.beginPath(); g.moveTo(bx, by - 5); g.lineTo(bx, by); g.lineTo(bx + metros * S.esc, by); g.lineTo(bx + metros * S.esc, by - 5); });
+  g.textAlign = "left"; g.font = P.f.peq; g.lineJoin = "round";
+  g.strokeStyle = P.rotulo; g.lineWidth = 3; g.strokeText(`${metros} m`, bx + 4, by - 10);
+  g.fillStyle = P.texto; g.fillText(`${metros} m`, bx + 4, by - 10);
   g.textAlign = "center";
 }
 function redondo(g, x, y, w, hh, r) { g.beginPath(); g.roundRect ? g.roundRect(x, y, w, hh, r) : g.rect(x, y, w, hh); }
-function etiqueta(g, txt, x, y, color, peq) {
-  g.font = `${peq ? 600 : 700} ${peq ? 11.5 : 13}px system-ui, sans-serif`;
+/** Medida sobre el lienzo (m² del borrador, longitudes): rótulo de vidrio denso con texto. */
+function etiqueta(g, txt, x, y, peq) {
+  const P = pal();
+  g.font = peq ? P.f.peq : P.f.etiqueta;
   const w = g.measureText(txt).width + 14;
-  g.fillStyle = "rgba(12,14,18,.88)"; redondo(g, x - w / 2, y - 11, w, 22, 6); g.fill();
-  g.fillStyle = color; g.fillText(txt, x, y + 0.5);
+  g.fillStyle = P.rotulo; redondo(g, x - w / 2, y - 11, w, 22, 7); g.fill();
+  g.fillStyle = P.texto; g.fillText(txt, x, y + 0.5);
 }
 
 // ------------------------------------------------------------------ ajuste (snap)

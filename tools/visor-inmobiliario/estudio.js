@@ -13,9 +13,6 @@ import { seccionDatos } from "./estudio-datos.js";
 import { seccionPublicar, pendientes, copiaDeSeguridad } from "./estudio-exportar.js";
 import { abrirPerfil, abrirContacto, perfilVacio } from "./estudio-perfil.js";
 
-// Fase 3: tema oscuro por defecto (lo que elija el usuario manda) hasta que la fase 4 pase todo el Estudio a tema.css.
-window.cre8Tema?.porDefecto({ tema: "oscuro" });
-
 const SECCIONES = [seccionFotos, seccionPlano, seccionDatos, seccionPublicar, seccionOrientar, seccionEstilo, seccionExtras];
 const porId = Object.fromEntries(SECCIONES.map((s) => [s.id, s]));
 /** Pasos (atajos 1-4). El plano es el paso 2, opcional (ronda 2, decisión I: moverlo a «Más herramientas» es cambiar esta lista). */
@@ -83,8 +80,8 @@ function pieContinuar() {
   const conFotos = app.tour.panoramas.length > 0; // S-3: «Continuar» no aparece hasta que haya fotos
   if (!(sig && conFotos) && !ant) return null;
   return h("div", { class: "seccion pie-paso" },
-    ant ? h("button", { class: "btn grande fantasma", onclick: () => irSeccion(ant.id) }, `← ${ant.titulo}`) : h("span"),
-    sig && conFotos ? h("button", { class: "btn grande primario", onclick: () => irSeccion(sig.id), "data-continuar": sig.id }, `Continuar → ${sig.titulo}`) : null);
+    ant ? h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--l", onclick: () => irSeccion(ant.id) }, `← ${ant.titulo}`) : h("span"),
+    sig && conFotos ? h("button", { type: "button", class: "c8-boton c8-boton--primario c8-boton--l", onclick: () => irSeccion(sig.id), "data-continuar": sig.id }, `Continuar → ${sig.titulo}`) : null);
 }
 
 /** El pie cambia con el proyecto (p. ej. al llegar las primeras fotos aparece «Continuar»). */
@@ -169,6 +166,7 @@ $("#btn-rehacer").append(icono("rehacer"));
 $("#btn-proyecto").append(icono("abajo", 14));
 $("#btn-guia").prepend(icono("guia", 16));
 $("#btn-ayuda").append(icono("ayuda"));
+$("#btn-apariencia").append(icono("apariencia"));
 $("#btn-perfil").prepend(icono("inmobiliaria", 17));
 $("#btn-vista").prepend(icono("ojo", 16));
 $("#btn-publicar").prepend(icono("exportar", 16));
@@ -176,6 +174,7 @@ $("#btn-deshacer").onclick = deshacer;
 $("#btn-rehacer").onclick = rehacer;
 $("#btn-proyecto").onclick = () => menuProyecto();
 $("#btn-ayuda").onclick = mostrarAyuda;
+$("#btn-apariencia").onclick = () => menuApariencia();
 $("#btn-perfil").onclick = () => abrirPerfil();
 $("#btn-publicar").onclick = () => irSeccion("publicar");
 $("#btn-vista").onclick = () => {
@@ -233,8 +232,60 @@ function menuProyecto() {
   addEventListener("pointerdown", fueraDelMenu, true);
 }
 
+// ------------------------------------------------------------------ Apariencia, tamaño y transparencia (decisión B: automático)
+// Las preferencias son las de tema.js (cre8eight:tema|talla|transparencia): valen también para el visor y la Guía.
+function cerrarApariencia({ foco = true } = {}) {
+  const m = document.querySelector(".menu-apariencia");
+  if (!m) return;
+  m.quitar?.();
+  m.remove();
+  $("#btn-apariencia").setAttribute("aria-expanded", "false");
+  removeEventListener("pointerdown", fueraApariencia, true);
+  if (foco) $("#btn-apariencia").focus();
+}
+function fueraApariencia(e) { if (!e.target.closest(".menu-apariencia, #btn-apariencia")) cerrarApariencia({ foco: false }); }
+function menuApariencia() {
+  if (document.querySelector(".menu-apariencia")) return cerrarApariencia();
+  const T = window.cre8Tema, boton = $("#btn-apariencia");
+  if (!T) return toast("No se ha podido cargar el tema: se usa el del sistema", "aviso");
+  const grupo = (clave, etiqueta, opciones) => h("div", { class: "grupo" }, h("span", { class: "c8-mayus", id: `ap-${clave}`, text: etiqueta }),
+    h("div", { class: "c8-segmentado", role: "radiogroup", "aria-labelledby": `ap-${clave}`, "data-pref": clave }, opciones.map(([v, t, titulo]) => {
+      const r = h("input", { type: "radio", name: `ap-${clave}`, value: v });
+      r.onchange = () => { if (r.checked) T.fijar(clave, v); };
+      return h("label", { title: titulo }, r, h("span", { text: t }));
+    })));
+  const transparencia = h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", id: "ap-transparencia" });
+  transparencia.onchange = () => T.fijar("transparencia", transparencia.checked ? "reducida" : "normal");
+  const menu = h("div", { class: "menu-apariencia c8-vidrio c8-vidrio--denso", role: "dialog", "aria-label": "Apariencia y tamaño" },
+    grupo("tema", "Apariencia", [["auto", "Automático", "Como el sistema (claro de día, oscuro de noche)"], ["claro", "Claro"], ["oscuro", "Oscuro"]]),
+    grupo("talla", "Tamaño", [["s", "S", "Pequeño"], ["m", "M", "Mediano"], ["l", "L", "Grande"]]),
+    h("label", { class: "fila-interruptor", for: "ap-transparencia" }, transparencia,
+      h("span", {}, h("b", { text: "Reducir transparencia" }), h("small", { class: "tenue", text: "Paneles opacos en lugar de vidrio." }))),
+    h("p", { class: "nota", text: "Vale también para el visor y la Guía en este navegador." }));
+  // Refleja los cambios hechos en otra pestaña, en el visor o en la Guía mientras está abierto.
+  const sincronizar = () => {
+    const pref = T.preferencias;
+    for (const g of menu.querySelectorAll("[data-pref]")) for (const r of g.querySelectorAll("input")) r.checked = r.value === pref[g.dataset.pref];
+    transparencia.checked = T.efectivo.transparencia === "reducida";
+    T.segmentados(menu);
+  };
+  sincronizar();
+  menu.quitar = T.alCambiar(sincronizar);
+  menu.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); cerrarApariencia(); } });
+  menu.addEventListener("focusout", (e) => { if (e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== boton) cerrarApariencia({ foco: false }); });
+  document.body.append(menu);
+  const r = boton.getBoundingClientRect();
+  Object.assign(menu.style, { top: `${Math.round(r.bottom + 6)}px`, left: `${Math.round(Math.max(8, Math.min(r.right - menu.offsetWidth, innerWidth - menu.offsetWidth - 8)))}px` });
+  boton.setAttribute("aria-expanded", "true");
+  (menu.querySelector("input:checked") ?? menu.querySelector("input"))?.focus();
+  addEventListener("pointerdown", fueraApariencia, true);
+}
+
 // ------------------------------------------------------------------ vista previa (iframe del visor real)
 const iframe = $("#iframe-visor");
+// Con ?tema= o ?talla= en la dirección del Estudio (capturas, pruebas), la vista previa se abre igual.
+const SRC_VISTA = `index.html?embed&estudio${["tema", "talla"].map((k) => [k, new URLSearchParams(location.search).get(k)]).filter(([, v]) => v).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join("")}`;
+if (!iframe.src.endsWith(SRC_VISTA)) iframe.src = SRC_VISTA;
 const vp = { listo: false, tCarga: 0, tAviso: 0, enviado: false, pedido: null, nodos: new Set() };
 // Estancia que el Estudio ha pedido a la vista previa, hasta que el visor confirma que ha llegado (3 s como mucho). Mientras
 // tanto no se recarga la vista previa y, si el visor vuelve a anunciar la estancia de antes (una recarga cruzada con la
@@ -268,7 +319,7 @@ iframe.addEventListener("load", () => {
   vigilarVista();
 });
 vigilarVista();
-$("#vista-reintentar").onclick = () => { $("#vista-error").hidden = true; vp.listo = false; iframe.src = "index.html?embed&estudio"; vigilarVista(); };
+$("#vista-reintentar").onclick = () => { $("#vista-error").hidden = true; vp.listo = false; iframe.src = SRC_VISTA; vigilarVista(); };
 function postVisor(msg) {
   try { iframe.contentWindow?.postMessage(msg, location.origin); } catch (e) { console.warn(e); }
 }
@@ -361,7 +412,7 @@ function enCampo(e) {
   return t.isContentEditable || /^(TEXTAREA|SELECT)$/.test(t.tagName);
 }
 addEventListener("keydown", (e) => {
-  if (document.querySelector("dialog[open], .editor-mascara, .menu-proyecto")) return; // los diálogos, el menú y el editor gestionan su teclado
+  if (document.querySelector("dialog[open], .editor-mascara, .menu-proyecto, .menu-apariencia")) return; // los diálogos, los menús y el editor gestionan su teclado
   const mod = e.ctrlKey || e.metaKey;
   const k = e.key.toLowerCase();
   if (mod && k === "z" && !enCampo(e)) { e.preventDefault(); e.shiftKey ? rehacer() : deshacer(); return; }
@@ -388,7 +439,7 @@ function mostrarAyuda() {
     toast(app.atajos ? "Atajos de una tecla activados" : "Atajos de una tecla desactivados (Ctrl+Z, Ctrl+S… siguen funcionando)", "info", 3500);
   };
   dialogo({
-    c8: true, titulo: "Ayuda y atajos", ancho: "min(600px, calc(100vw - 32px))", clase: "dialogo-ayuda", foco: ".enlaces-ayuda a",
+    titulo: "Ayuda y atajos", ancho: "min(37.5rem, calc(100vw - 2rem))", clase: "dialogo-ayuda", foco: ".enlaces-ayuda a",
     cuerpo: h("div", {},
       h("div", { class: "enlaces-ayuda" },
         h("a", { class: "c8-boton c8-boton--secundario", href: "asistente-osmo.html", target: "_blank", rel: "noopener" }, icono("guia", 16), "Guía Osmo 360"),
@@ -461,7 +512,12 @@ addEventListener("drop", async (e) => {
 });
 
 // ------------------------------------------------------------------ arranque
-addEventListener("beforeunload", () => { guardarAhora(); });
+// Al cerrar o recargar se guarda. Solo mientras se importan fotos el navegador pregunta antes de salir (se perderían);
+// el resto del tiempo no molesta (tampoco a las recargas de las pruebas, que esperan a que termine la importación).
+addEventListener("beforeunload", (e) => {
+  guardarAhora();
+  if (app.importando?.()) { e.preventDefault(); e.returnValue = ""; }
+});
 try { const [s] = resolver(localStorage.getItem("estudio:seccion")); if (s) app.seccion = s; } catch {}
 { const [s, op] = resolver(pasoDelHash()); if (s) { app.seccion = s; opcionesIniciales = op; } } // enlaces de la Guía: estudio.html#plano
 window.__estudio = app; // para depurar y para las pruebas automáticas

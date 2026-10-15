@@ -83,11 +83,22 @@ function ic(nombre, clase = "pn-ic") {
 // «Apariencia»: un círculo que se llena según lo elegido (vacío: claro · mitad: automático · lleno: oscuro). Nunca un
 // sol ni una luna, que son la luz de la vivienda (fase3-organizacion.md §7). El relleno se desliza con muelle (CSS).
 function icApariencia(valor) {
-  const id = nuevoId("ap-clip");
-  return svgEl("svg", { viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false", class: "pn-ic pn-ic-apariencia", "data-v": valor }).appendChild(svgEl("defs")).parentNode
-    .appendChild(svgEl("circle", { cx: 12, cy: 12, r: 8.25, pathLength: 1 })).parentNode
-    .appendChild(svgEl("g", { "clip-path": `url(#${id})` })).parentNode
-    .appendChild(svgEl("g")).parentNode;
+  const id = nuevoId("ap");
+  const s = svgEl("svg", { viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false", class: "pn-ic pn-ic-apariencia", "data-v": valor });
+  const recorte = svgEl("clipPath", { id }), defs = svgEl("defs"), relleno = svgEl("g", { "clip-path": `url(#${id})` });
+  recorte.append(svgEl("circle", { cx: 12, cy: 12, r: 8.25 }));
+  defs.append(recorte);
+  relleno.append(svgEl("rect", { class: "pn-ap-relleno", x: 3.75, y: 3.75, width: 16.5, height: 16.5, fill: "currentColor", stroke: "none" }));
+  s.append(defs, svgEl("circle", { cx: 12, cy: 12, r: 8.25, pathLength: 1 }), relleno);
+  return s;
+}
+// Reinicia una animación de CSS (clase de un solo uso: latido del contador, obturador de «Foto de la vista»…)
+function animar(el, clase, ms = 700) {
+  if (!el?.classList) return;
+  el.classList.remove(clase);
+  void el.getBoundingClientRect(); // fuerza el estilo: la misma clase vuelve a empezar
+  el.classList.add(clase);
+  clearTimeout(el._pnAnim); el._pnAnim = setTimeout(() => el.classList.remove(clase), ms);
 }
 // Iconos del menú «Más»: el núcleo los conoce por su nombre; el menú propio (sin visor.mas) usa estos
 const ICONO_MAS = { compartir: "compartir", idioma: "globo", ajustes: "ajustes", guiada: "play", medir: "regla", pantalla: "pantalla", giroscopio: "movil" };
@@ -188,10 +199,15 @@ export function iniciarPaneles(visor) {
 
   const guardado = almacen.leer(CLAVE_CONTACTO, null);
   if (guardado) { ui.borrador.nombre = guardado.nombre ?? ""; ui.borrador.telefono = guardado.telefono ?? ""; }
-  marcarMovimiento(ajustesActuales().reducirMovimiento);
+  if (!temaApi()) marcarMovimiento(ajustesActuales().reducirMovimiento); // sin tema.js: la clase propia de los paneles
 
   ui.disp = calcularDisposicion();
   renderizar();
+  // Los iconos de la tarjeta se dibujan al aparecer: ya, o al cerrar la portada del núcleo («empezar»)
+  if (!V.portada?.visible) requestAnimationFrame(dibujarTarjeta);
+  // Apariencia, talla, transparencia o movimiento cambiados aquí, en otra pestaña o por el sistema
+  const api = temaApi();
+  if (tiene(api?.alCambiar)) limpiezas.push(api.alCambiar(alCambiarTema));
 
   const on = (ev, fn) => { if (tiene(V.on)) { V.on(ev, fn); limpiezas.push(() => V.off?.(ev, fn)); } };
   for (const ev of ["nodo", "estilo", "momento", "pintura", "comparar"]) on(ev, () => refrescar(ev));
@@ -205,7 +221,7 @@ export function iniciarPaneles(visor) {
   on("tour", alTour);
   on("listo", alTour);
   on("sonido", () => pintarSonido());
-  on("empezar", () => colocar());
+  on("empezar", () => { colocar(); dibujarTarjeta(); });
   // Modo juego: ningún botón queda a la vista; lo abierto se cierra
   on("modojuego", (d) => { if (d?.activo) cerrarTodo(); });
   on("giroscopio", (d) => {
@@ -286,23 +302,51 @@ function clasesRaiz() {
     ui.capturando && "pn-capturando", ui.menu && "pn-con-menu"].filter(Boolean).join(" ");
 }
 
-// ------------------------------------------------------------------ ajustes (los guarda el núcleo: visor.ajustes)
+// ------------------------------------------------------------------ apariencia común (tema.js: window.cre8Tema)
+// Apariencia, Tamaño, Reducir transparencia y Reducir movimiento son preferencias del visitante que comparten el visor,
+// el Estudio y la Guía (localStorage cre8eight:tema|talla|transparencia|movimiento). Sin tema.js solo queda «Reducir
+// movimiento», que entonces guarda el núcleo (visor.ajustes, alias de la fase 4).
+const temaApi = () => (tiene(globalThis.cre8Tema?.fijar) ? globalThis.cre8Tema : null);
+function temaLeer(que) { // "efectivo" (lo aplicado) | "preferencias" (lo elegido, con "auto")
+  const t = temaApi(); if (!t) return null;
+  try { const v = t[que]; return (tiene(v) ? v.call(t) : v) ?? null; } catch { return null; }
+}
+const fijarTema = (clave, valor) => { try { return temaApi()?.fijar(clave, valor) === true; } catch { return false; } };
+const PREF_DEF = { tema: "auto", talla: "m", transparencia: "auto", movimiento: "auto" };
+
+// ------------------------------------------------------------------ ajustes del visor (los guarda el núcleo: visor.ajustes)
 const AJUSTES_DEF = () => ({ sensibilidad: 1, modoJuegoWASD: true, capturaConClic: false, atajos: true,
   reducirMovimiento: !!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches });
 function ajustesActuales() {
   let a = null;
   try { if (tiene(V?.ajustes)) a = V.ajustes({}); } catch {}
-  return { ...AJUSTES_DEF(), ...(ui.ajustes ?? {}), ...(a && typeof a === "object" ? a : {}) };
+  const r = { ...AJUSTES_DEF(), ...(ui.ajustes ?? {}), ...(a && typeof a === "object" ? a : {}) };
+  const ef = temaLeer("efectivo");
+  if (ef?.movimiento) r.reducirMovimiento = ef.movimiento === "reducido"; // una sola fuente de verdad (contrato 4)
+  return r;
 }
 function cambiarAjuste(obj) {
-  ui.ajustes = { ...(ui.ajustes ?? {}), ...obj };
-  try { if (tiene(V.ajustes)) V.ajustes(obj); } catch (e) { console.warn(e); }
-  if ("reducirMovimiento" in obj) {
-    marcarMovimiento(obj.reducirMovimiento);
-    try { window.cre8Tema?.fijar?.("movimiento", obj.reducirMovimiento ? "reducido" : "normal"); } catch {}
-  }
+  const { reducirMovimiento, ...resto } = obj;
+  ui.ajustes = { ...(ui.ajustes ?? {}), ...resto };
+  if (Object.keys(resto).length) { try { if (tiene(V.ajustes)) V.ajustes(resto); } catch (e) { console.warn(e); } }
+  if (typeof reducirMovimiento === "boolean") fijarMovimiento(reducirMovimiento ? "reducido" : "normal");
+}
+// Movimiento: la preferencia común de tema.js (el núcleo la lee de ahí); sin tema.js, el alias visor.ajustes y la clase propia
+function fijarMovimiento(valor) { // "reducido" | "normal" | "auto"
+  if (fijarTema("movimiento", valor)) return;
+  const si = valor === "auto" ? AJUSTES_DEF().reducirMovimiento : valor === "reducido";
+  ui.ajustes = { ...(ui.ajustes ?? {}), reducirMovimiento: si };
+  try { if (tiene(V.ajustes)) V.ajustes({ reducirMovimiento: si }); } catch (e) { console.warn(e); }
+  marcarMovimiento(si);
 }
 const marcarMovimiento = (si) => document.documentElement.classList.toggle("pn-sin-movimiento", !!si);
+// Cambió la apariencia (aquí, en otra pestaña, por ?tema= o por el sistema): Ajustes lo refleja sin repintarse y, como
+// la talla cambia los tamaños, se recolocan la hoja, los diálogos y el menú
+function alCambiarTema() {
+  if (!raiz) return;
+  pintarApariencia();
+  requestAnimationFrame(() => colocar());
+}
 
 // ------------------------------------------------------------------ datos derivados
 const inm = () => T.inmueble ?? {};
@@ -445,13 +489,15 @@ function rehacerDialogo() {
   if (!viejo) return;
   const teniaFoco = viejo.contains(document.activeElement);
   const foco = document.activeElement?.dataset?.k;
-  const scroll = viejo.querySelector(".pn-dlg-cuerpo")?.scrollTop ?? 0;
+  // lo que se desplaza: el cuerpo o, en el contacto, sus campos (el pie no se mueve)
+  const DESPLAZA = ".pn-dlg-cuerpo, .pn-form-campos";
+  const scroll = [...viejo.querySelectorAll(DESPLAZA)].map((e) => e.scrollTop);
   const nuevo = dialogo();
   if (!nuevo) { viejo.remove(); return; }
   viejo.replaceWith(nuevo);
   colocarDialogo();
   if (ui.dialogo === "compartir") pintarQR();
-  const c = nuevo.querySelector(".pn-dlg-cuerpo"); if (c) c.scrollTop = scroll;
+  nuevo.querySelectorAll(DESPLAZA).forEach((e, i) => { e.scrollTop = scroll[i] ?? 0; });
   if (foco) nuevo.querySelector(`[data-k="${CSS.escape(foco)}"]`)?.focus({ preventScroll: true });
   // si el control que tenía el foco ya no existe (cambio de pantalla), pasa al botón principal o al título
   if (teniaFoco && !nuevo.contains(document.activeElement)) (nuevo.querySelector("[autofocus]") ?? nuevo.querySelector(".pn-dlg-tit"))?.focus({ preventScroll: true });
@@ -460,13 +506,23 @@ function rehacerDialogo() {
 // Aviso flotante; con { accion, alPulsar } lleva un botón (p. ej. «Deshacer») y dura más
 function aviso(texto, { accion, alPulsar } = {}) {
   if (!toast) return;
-  toast.replaceChildren(h("span", {}, texto),
+  // (replaceChildren convertiría un null en el texto «null»: agregar() se salta los vacíos)
+  toast.replaceChildren();
+  agregar(toast, [h("span", {}, texto),
     accion ? h("button", { type: "button", class: "c8-boton c8-boton--s c8-boton--fantasma pn-toast-accion", "data-k": "aviso-accion",
-      onclick: () => { ocultarAviso(); alPulsar?.(); } }, accion) : null);
+      onclick: () => { ocultarAviso(); alPulsar?.(); } }, accion) : null]);
+  colocarAviso();
   toast.classList.add("pn-visible");
   clearTimeout(aviso.t); aviso.t = setTimeout(ocultarAviso, accion ? 6000 : 2600);
 }
 const ocultarAviso = () => toast?.classList.remove("pn-visible");
+// En el móvil, con una hoja de diálogo abierta, el aviso sube por encima de ella (no tapa sus botones)
+function colocarAviso() {
+  if (!toast || !raiz) return;
+  const d = ui.disp === "hoja" ? raiz.querySelector(".pn-dialogo")?.getBoundingClientRect() : null;
+  if (d?.height) toast.style.setProperty("--pn-aviso-abajo", `${Math.round(innerHeight - d.top + 12)}px`);
+  else toast.style.removeProperty("--pn-aviso-abajo");
+}
 
 function destello() {
   const d = h("div", { class: "pn-destello", "aria-hidden": "true" });
@@ -518,21 +574,29 @@ function botonResumen() {
 
 function botonContactar() {
   const n = ui.capturas.length;
+  // el bocadillo enseña los puntos de «escribiendo» al pasar el ratón (paneles.css)
+  const bocadillo = ic("chat");
+  for (const cx of [8.5, 12, 15.5]) bocadillo.append(svgEl("circle", { class: "pn-escribe", cx, cy: 10.5, r: 1 }));
   return h("button", { type: "button", class: "c8-boton c8-boton--primario pn-t-contactar", "data-k": "contactar", "aria-haspopup": "dialog",
     "aria-expanded": String(ui.dialogo === "contacto"), "aria-label": n ? tr("contacto.con_fotos", { x: textoNumFotos(n) }) : null,
     onclick: (e) => alternarDialogo("contacto", e.currentTarget) },
-    ic("chat"), h("span", {}, tr("contacto.corto")), h("span", { class: "pn-num", "aria-hidden": "true", hidden: !n }, n ? String(n) : ""));
+    bocadillo, h("span", {}, tr("contacto.corto")), h("span", { class: "pn-num", "aria-hidden": "true", hidden: !n }, n ? String(n) : ""));
 }
-// El contador de «Contactar · 2» y el estado de «Foto de la vista», sin repintar (no se pierde el foco)
+// El contador de «Contactar · 2» y el estado de «Foto de la vista», sin repintar (no se pierde el foco). El número late
+// cuando sube (cambio de estado animado).
+let ultimoNum = 0;
 function pintarContador() {
   const n = ui.capturas.length;
   for (const b of raiz?.querySelectorAll("[data-k='contactar']") ?? []) {
     const num = b.querySelector(".pn-num");
-    if (num) { num.textContent = n ? String(n) : ""; num.hidden = !n; }
+    if (num) { num.textContent = n ? String(n) : ""; num.hidden = !n; if (n > ultimoNum) animar(num, "pn-latido"); }
     if (n) b.setAttribute("aria-label", tr("contacto.con_fotos", { x: textoNumFotos(n) })); else b.removeAttribute("aria-label");
   }
+  ultimoNum = n;
   for (const b of raiz?.querySelectorAll("[data-k='foto-vista']") ?? []) b.setAttribute("aria-disabled", String(n >= MAX_FOTOS || ui.tomando));
 }
+// Los iconos de la tarjeta se dibujan una vez al aparecer (no en cada repintado por idioma, tamaño o tour)
+function dibujarTarjeta() { animar(raiz?.querySelector(".pn-tarjeta"), "pn-dibujar", 1200); }
 
 // Botón de icono con su nombre (visible o no según el tamaño: lo decide el CSS)
 function botonIconoTexto(k, icono, texto, onclick, extra = {}) {
@@ -604,7 +668,7 @@ function colocar(animar = false) {
       doc.setProperty("--ancho-dock", `${r.bottom > innerHeight - 160 ? ancho : 0}px`);
     }
   }
-  colocarDialogo(); colocarMenu(); colocarBarra();
+  colocarDialogo(); colocarMenu(); colocarBarra(); colocarAviso();
 }
 
 // --- hoja inferior (móvil y tablet en vertical): alturas, arrastre y reserva para el núcleo
@@ -616,7 +680,8 @@ function altoCab() {
 }
 function segInf() {
   const c = raiz?.querySelector(".pn-t-cab"); if (!c) return 0;
-  return Math.max(0, (parseFloat(getComputedStyle(c).paddingBottom) || 0) - 10); // padding = 10px + zona segura
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  return Math.max(0, (parseFloat(getComputedStyle(c).paddingBottom) || 0) - 0.625 * rem); // padding = 0,625rem + zona segura
 }
 function alturaVisible(nombre) {
   const c = altoCab();
@@ -1102,14 +1167,15 @@ function dialogo() {
   const cont = { contacto: dlgContacto, compartir: dlgCompartir, estilo: dlgEstilo, ajustes: dlgAjustes, idioma: dlgIdioma }[ui.dialogo];
   if (!cont) return null;
   const titId = nuevoId("dlg");
-  const { titulo: tit, cuerpo, icono } = cont();
+  const { titulo: tit, cuerpo, icono, claseCuerpo } = cont();
   const entra = ui.entrada; ui.entrada = false;
+  // al abrirse, el icono de la cabecera se dibuja (en los repintados, no)
   return h("section", { class: `pn-dialogo pn-dialogo-${ui.dialogo} pn-abierto c8-vidrio c8-vidrio--denso${entra ? " pn-entra" : ""}`, role: "dialog", "aria-modal": "false", "aria-labelledby": titId },
     h("header", { class: "pn-dlg-cab" },
-      icono ? ic(icono) : null,
+      icono ? ic(icono, entra ? "pn-ic pn-dibujar" : "pn-ic") : null,
       h("h2", { id: titId, class: "pn-dlg-tit", tabindex: "-1" }, tit),
       h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono pn-btn-ic", "data-k": "cerrar-dlg", "aria-label": tr("comun.cerrar"), onclick: cerrarDialogo }, ic("cerrar"))),
-    h("div", { class: "pn-dlg-cuerpo" }, cuerpo));
+    h("div", { class: `pn-dlg-cuerpo ${claseCuerpo ?? ""}`.trim() }, cuerpo));
 }
 
 // ------------------------------------------------------------------ contacto
@@ -1162,7 +1228,8 @@ const atajoPegar = () => (esMac() ? "⌘V" : "Ctrl+V");
 const textoNumFotos = (n) => (n === 1 ? tr("contacto.una_foto") : tr("contacto.n_fotos", { x: n }));
 
 // --- «Foto de la vista»: la foto se hace al momento, sin abrir nada; se puede deshacer y seguir paseando
-async function fotoDeLaVista() {
+async function fotoDeLaVista(e) {
+  animar(e?.currentTarget, "pn-disparo", 600); // el icono hace de obturador al pulsar
   if (ui.capturas.length >= MAX_FOTOS) { aviso(tr("contacto.max_fotos", { x: MAX_FOTOS })); return; }
   const c = await tomarCaptura();
   if (!c) return;
@@ -1317,7 +1384,7 @@ function pantallaExito() {
   const texto = env.email ? tr("contacto.exito_email") : env.porWhatsapp === "confirmado" ? tr("contacto.exito_wa", { x: nombre })
     : env.porWhatsapp && canalContacto() === "whatsapp" ? tr("contacto.exito_whatsapp") : tr("contacto.exito", { x: nombre });
   return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: h("div", { class: "pn-estado pn-estado-ok", role: "status" },
-    h("span", { class: "pn-estado-ic" }, ic("ok")), h("p", {}, texto),
+    h("span", { class: "pn-estado-ic" }, ic("ok", "pn-ic pn-dibujar")), h("p", {}, texto),
     h("button", { type: "button", class: "c8-boton c8-boton--secundario", "data-k": "otra", autofocus: true, onclick: () => {
       terminarConsulta(); rehacerDialogo();
       raiz.querySelector(".pn-dialogo [data-k='c-pregunta']")?.focus();
@@ -1350,7 +1417,8 @@ function pantallaPegar() {
   } else { principal = terminar(true); otros = [reabrir, env.descargadas ? null : descargar(false)]; }
   return { titulo: tr("contacto.pegar_titulo"), icono: "whatsapp", cuerpo: h("div", { class: "pn-estado pn-estado-pegar" },
     tiraFotos(env.descargadas ? -1 : env.indice),
-    h("p", { class: fallo ? "pn-aviso" : "pn-guia", role: "status" }, ic(fallo ? "alerta" : env.copiaOk || env.descargadas ? "ok" : "info", "pn-ic pn-ic-s"), h("span", {}, estado)),
+    h("p", { class: fallo ? "pn-aviso" : "pn-guia", role: "status" },
+      ic(fallo ? "alerta" : env.copiaOk || env.descargadas ? "ok" : "info", `pn-ic pn-ic-s${env.copiaOk || env.descargadas ? " pn-dibujar" : ""}`), h("span", {}, estado)),
     fallo ? null : h("p", { class: "pn-guia" }, ic("info", "pn-ic pn-ic-s"), h("span", {}, env.descargadas ? tr("contacto.wa_paso3_adjuntar") : instruccion)),
     principal,
     h("div", { class: "pn-fila" }, otros)) };
@@ -1437,14 +1505,18 @@ function dlgContacto() {
     "aria-invalid": err.telefono ? "true" : null, "aria-describedby": desc(ids.t, "telefono"), oninput: alEscribir("telefono"), onblur: alSalir("telefono") });
   const urlPriv = urlSegura(T.contacto?.url_privacidad);
   const viaWhatsApp = canal === "whatsapp", wa = numeroWhatsApp();
+  // Los campos se desplazan; el pie (privacidad, envío y WhatsApp directo) queda siempre a la vista, dentro del mismo
+  // vidrio y sin fondo propio (nada opaco sobre la foto). En el móvil en horizontal, a dos columnas (paneles.css).
   const form = h("form", { class: "pn-form", novalidate: true, onsubmit: (e) => { e.preventDefault(); enviarContacto(e.currentTarget); } },
-    bloqueFotos(),
-    campo("zona", ids.z, tr("contacto.zona"), zona),
-    campo("pregunta", ids.p, tr("contacto.pregunta"), [h("div", { class: "pn-chips", role: "group", "aria-label": tr("contacto.sugerencias") }, chips), pregunta]),
-    h("div", { class: "pn-fila-datos" },
-      campo("nombre", ids.n, tr("contacto.nombre"), nombre),
-      campo("telefono", ids.t, tr("contacto.telefono"), telefono)),
-    // 4) pie fijo (siempre a la vista): privacidad con su primera capa plegada, envío y WhatsApp directo
+    h("div", { class: "pn-form-campos" },
+      agenteMini(),
+      bloqueFotos(),
+      campo("zona", ids.z, tr("contacto.zona"), zona),
+      campo("pregunta", ids.p, tr("contacto.pregunta"), [h("div", { class: "pn-chips", role: "group", "aria-label": tr("contacto.sugerencias") }, chips), pregunta]),
+      h("div", { class: "pn-fila-datos" },
+        campo("nombre", ids.n, tr("contacto.nombre"), nombre),
+        campo("telefono", ids.t, tr("contacto.telefono"), telefono))),
+    // 4) pie fijo: privacidad con su primera capa plegada, envío y WhatsApp directo
     h("div", { class: "pn-form-pie" },
     h("div", { class: "pn-campo pn-check" + (err.privacidad ? " pn-invalido" : "") },
       h("input", { id: ids.v, name: "privacidad", type: "checkbox", required: true, checked: b.privacidad, "data-k": "c-priv",
@@ -1471,7 +1543,7 @@ function dlgContacto() {
       h("a", { href: `https://wa.me/${wa}?text=${encodeURIComponent(mensajeRapido())}`, target: "_blank", rel: "noopener noreferrer", "data-k": "wa-directo",
         onclick: () => emitirContacto("whatsapp_directo") }, tr("contacto.whatsapp"))) : null),
   );
-  return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: [agenteMini(), form] };
+  return { titulo: tr("contacto.titulo"), icono: "chat", cuerpo: form, claseCuerpo: "pn-dlg-form" };
 }
 
 // Quién responde, en una línea: «Ana Pérez · Inmobiliaria · Ref. 123»
@@ -1677,7 +1749,8 @@ function lightbox() {
       g.estancia && R(g.titulo) ? h("span", { class: "pn-suave" }, nombreZona(g.estancia)) : null,
       g.autor ? h("span", { class: "pn-suave" }, tr("galeria.autor", { x: R(g.autor) })) : null,
       varias ? h("span", { class: "pn-lb-n" }, tr("galeria.n_de", { n: i + 1, total: lista.length })) : null));
-  const caja = h("div", { class: "pn-lb", role: "dialog", "aria-modal": "true", "aria-label": tr("galeria.visor"), "aria-describedby": titId,
+  // vidrio denso a pantalla completa (sigue al tema): la foto manda y la escena queda desenfocada detrás
+  const caja = h("div", { class: "pn-lb c8-vidrio c8-vidrio--denso c8-vidrio--barra", role: "dialog", "aria-modal": "true", "aria-label": tr("galeria.visor"), "aria-describedby": titId,
     onkeydown: (e) => {
       if (e.key === "ArrowRight" && varias) { e.preventDefault(); moverLightbox(1); }
       else if (e.key === "ArrowLeft" && varias) { e.preventDefault(); moverLightbox(-1); }
@@ -1688,9 +1761,9 @@ function lightbox() {
     },
     onclick: (e) => { if (e.target === caja) cerrarLightbox(); } },
     fig,
-    varias ? h("button", { type: "button", class: "pn-btn-ic pn-lb-ant", "data-k": "lb-ant", "aria-label": tr("galeria.anterior"), onclick: () => moverLightbox(-1) }, ic("izq")) : null,
-    varias ? h("button", { type: "button", class: "pn-btn-ic pn-lb-sig", "data-k": "lb-sig", "aria-label": tr("galeria.siguiente"), onclick: () => moverLightbox(1) }, ic("der")) : null,
-    h("button", { type: "button", class: "pn-btn-ic pn-lb-cerrar", "data-k": "lb-cerrar", "aria-label": tr("comun.cerrar"), onclick: cerrarLightbox }, ic("cerrar")));
+    varias ? h("button", { type: "button", class: "c8-boton c8-boton--icono pn-btn-ic pn-lb-ant", "data-k": "lb-ant", "aria-label": tr("galeria.anterior"), onclick: () => moverLightbox(-1) }, ic("izq")) : null,
+    varias ? h("button", { type: "button", class: "c8-boton c8-boton--icono pn-btn-ic pn-lb-sig", "data-k": "lb-sig", "aria-label": tr("galeria.siguiente"), onclick: () => moverLightbox(1) }, ic("der")) : null,
+    h("button", { type: "button", class: "c8-boton c8-boton--icono pn-btn-ic pn-lb-cerrar", "data-k": "lb-cerrar", "aria-label": tr("comun.cerrar"), onclick: cerrarLightbox }, ic("cerrar")));
   return caja;
 }
 
@@ -1707,7 +1780,8 @@ function dlgCompartir() {
     try { await navigator.clipboard.writeText(url); ok = true; } catch {
       const inp = raiz.querySelector(`#${idInput}`); inp?.select(); try { ok = document.execCommand("copy"); } catch {}
     }
-    if (ok) { aviso(tr("compartir.copiado")); btn.querySelector("span").textContent = tr("compartir.copiado"); }
+    // cambio de estado animado: el icono de copiar pasa a una marca que se dibuja
+    if (ok) { aviso(tr("compartir.copiado")); btn.querySelector("span").textContent = tr("compartir.copiado"); btn.querySelector("svg")?.replaceWith(ic("ok", "pn-ic pn-dibujar")); }
   };
   const botonCopiar = h("button", { type: "button", class: `c8-boton ${nativo ? "c8-boton--secundario" : "c8-boton--primario"}`, "data-k": "copiar", autofocus: !nativo || null, onclick: copiar },
     ic("copiar"), h("span", {}, tr("compartir.copiar")));
@@ -1820,14 +1894,18 @@ function pintarEstilo() {
 }
 
 // ------------------------------------------------------------------ ajustes
-// Idioma · Música · Controles (solo con ratón) · Accesibilidad. Cada control llama al núcleo (visor.ajustes, visor.sonido…)
+// Idioma · Apariencia y Tamaño · Música · Controles (solo con ratón) · Accesibilidad (fase3-organizacion.md, P-4).
+// Cada control llama al núcleo (visor.ajustes, visor.sonido…) o a la preferencia común (cre8Tema.fijar).
 function dlgAjustes() {
-  const a = ajustesActuales(), partes = [];
-  const grupo = (titulo, ...hijos) => h("section", { class: "pn-grupo-ajustes" }, h("h3", { class: "pn-sec-tit" }, titulo), ...hijos);
-  const interruptor = (k, texto, nota, clave = k) => h("label", { class: "pn-fila-ajuste" },
+  const a = ajustesActuales(), ef = temaLeer("efectivo") ?? {}, partes = [];
+  const grupo = (titulo, ...hijos) => h("section", { class: "pn-grupo-ajustes" }, titulo ? h("h3", { class: "pn-sec-tit" }, titulo) : null, ...hijos);
+  const interruptor = (k, texto, nota, marcado, alCambiar) => h("label", { class: "pn-fila-ajuste" },
     h("span", { class: "pn-fila-texto" }, texto, nota ? h("small", {}, nota) : null),
-    h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", "data-k": `aj-${k}`, checked: !!a[clave], onchange: (e) => cambiarAjuste({ [clave]: e.target.checked }) }));
+    h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", "data-k": `aj-${k}`, checked: !!marcado, onchange: (e) => alCambiar(e.target.checked) }));
+  const ajuste = (k, texto, nota, clave = k) => interruptor(k, texto, nota, a[clave], (si) => cambiarAjuste({ [clave]: si }));
   if (idiomasOfrecidos().length > 1) partes.push(grupo(tr("idioma.titulo"), selectorIdioma(true)));
+  const apariencia = grupoApariencia();
+  if (apariencia) partes.push(apariencia);
   const musica = filaMusica();
   if (musica) partes.push(grupo(tr("sonido.musica"), musica));
   if (!esTactil()) {
@@ -1838,17 +1916,54 @@ function dlgAjustes() {
       h("div", { class: "pn-fila-ajuste pn-fila-rango" }, h("label", { for: id }, tr("ajustes.velocidad")), out),
       h("input", { id, type: "range", class: "c8-deslizador", min: "0.5", max: "2", step: "0.1", value: String(v), "data-k": "aj-velocidad", style: `--valor:${((v - 0.5) / 1.5) * 100}%`,
         oninput: (e) => { const x = +e.target.value; out.textContent = `${fmtNum(x, 1)}×`; cambiarAjuste({ sensibilidad: x, sensibilidadTactil: x }); } }),
-      juego ? interruptor("wasd", tr("ajustes.modo_juego_wasd"), tr("ajustes.modo_juego_nota"), "modoJuegoWASD") : null,
-      juego ? interruptor("clic", tr("ajustes.captura_clic"), null, "capturaConClic") : null,
-      interruptor("atajos", tr("ajustes.atajos"), tr("ajustes.atajos_nota"))));
+      juego ? ajuste("wasd", tr("ajustes.modo_juego_wasd"), tr("ajustes.modo_juego_nota"), "modoJuegoWASD") : null,
+      juego ? ajuste("clic", tr("ajustes.captura_clic"), null, "capturaConClic") : null,
+      ajuste("atajos", tr("ajustes.atajos"), tr("ajustes.atajos_nota"))));
   }
-  partes.push(grupo(tr("ajustes.accesibilidad"), interruptor("movimiento", tr("ajustes.reducir_movimiento"), tr("ajustes.reducir_nota"), "reducirMovimiento")));
+  partes.push(grupo(tr("ajustes.accesibilidad"),
+    ajuste("movimiento", tr("ajustes.reducir_movimiento"), tr("ajustes.reducir_nota"), "reducirMovimiento"),
+    temaApi() ? interruptor("transparencia", tr("ajustes.reducir_transparencia"), tr("ajustes.transparencia_nota"), ef.transparencia === "reducida",
+      (si) => fijarTema("transparencia", si ? "reducida" : "normal")) : null));
+  // Restablecer: los ajustes del visor y la apariencia vuelven a lo de fábrica (automático, talla M)
   partes.push(h("button", { type: "button", class: "pn-enlace-btn", "data-k": "aj-reset", onclick: () => {
     const def = AJUSTES_DEF();
-    cambiarAjuste({ sensibilidad: def.sensibilidad, sensibilidadTactil: def.sensibilidad, modoJuegoWASD: def.modoJuegoWASD, capturaConClic: def.capturaConClic, atajos: def.atajos, reducirMovimiento: def.reducirMovimiento });
+    cambiarAjuste({ sensibilidad: def.sensibilidad, sensibilidadTactil: def.sensibilidad, modoJuegoWASD: def.modoJuegoWASD, capturaConClic: def.capturaConClic, atajos: def.atajos });
+    if (temaApi()) for (const [k, v] of Object.entries(PREF_DEF)) fijarTema(k, v);
+    else fijarMovimiento("auto");
     rehacerDialogo();
   } }, tr("ajustes.restablecer")));
   return { titulo: tr("ajustes.titulo"), icono: "ajustes", cuerpo: partes };
+}
+
+// «Apariencia: Automático · Claro · Oscuro» y «Tamaño: S · M · L» (preferencias comunes de tema.js). El icono es un
+// círculo que se llena según lo elegido; nunca un sol ni una luna (son la luz de la vivienda, en «Estilo y luz»).
+function grupoApariencia() {
+  if (!temaApi()) return null;
+  const pref = { ...PREF_DEF, ...(temaLeer("preferencias") ?? {}) }, idAp = nuevoId("ap"), idTa = nuevoId("ta");
+  const opciones = (clave, valores, { etiqueta, texto, nombre, clase = "" }) => {
+    const grupoRadio = nuevoId(clave);
+    return h("div", { class: `c8-segmentado pn-segmentado ${clase}`.trim(), role: "radiogroup", "aria-labelledby": etiqueta, "data-pref": clave },
+      valores.map((v) => h("label", { "data-k": `aj-${clave}-${v}`, title: nombre?.(v) },
+        h("input", { type: "radio", name: grupoRadio, value: v, checked: pref[clave] === v, "aria-label": nombre?.(v), onchange: () => fijarTema(clave, v) }),
+        h("span", { "aria-hidden": nombre ? "true" : null }, texto(v)))));
+  };
+  return h("section", { class: "pn-grupo-ajustes pn-apariencia" },
+    h("h3", { class: "pn-sec-tit pn-tit-ic", id: idAp }, icApariencia(pref.tema), tr("ajustes.apariencia")),
+    opciones("tema", ["auto", "claro", "oscuro"], { etiqueta: idAp, texto: (v) => tr(`ajustes.tema_${v}`) }),
+    h("p", { class: "pn-nota" }, tr("ajustes.tema_nota")),
+    h("div", { class: "pn-fila-ajuste" },
+      h("span", { class: "pn-fila-texto", id: idTa }, tr("ajustes.tamano"), h("small", {}, tr("ajustes.tamano_nota"))),
+      opciones("talla", ["s", "m", "l"], { etiqueta: idTa, texto: (v) => v.toUpperCase(), nombre: (v) => tr(`ajustes.talla_${v}`), clase: "pn-seg-talla" })));
+}
+// Refleja en Ajustes (si está abierto) la apariencia vigente, sin repintar: no se pierde el foco
+function pintarApariencia() {
+  const d = raiz?.querySelector(".pn-dialogo-ajustes"); if (!d || !temaApi()) return;
+  const pref = { ...PREF_DEF, ...(temaLeer("preferencias") ?? {}) }, ef = temaLeer("efectivo") ?? {};
+  for (const r of d.querySelectorAll("[data-pref] input[type=radio]")) r.checked = r.value === pref[r.closest("[data-pref]").dataset.pref];
+  const icono = d.querySelector(".pn-ic-apariencia"); if (icono) icono.dataset.v = pref.tema;
+  const t = d.querySelector("[data-k='aj-transparencia']"); if (t) t.checked = ef.transparencia === "reducida";
+  const m = d.querySelector("[data-k='aj-movimiento']"); if (m) m.checked = ef.movimiento === "reducido";
+  try { temaApi().segmentados?.(d); } catch {}
 }
 
 // Música del proyecto (visor.sonido): interruptor y volumen. El botón del núcleo solo silencia.

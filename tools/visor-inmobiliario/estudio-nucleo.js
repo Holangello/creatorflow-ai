@@ -23,6 +23,10 @@ export const SUELOS_DEF = [
 ].map(([es, en, color]) => ({ nombre: { es, en }, color }));
 /** Idiomas que tiene el visor (i18n.js): el Estudio no ofrece otros. El español es la base y no se puede quitar. */
 export const IDIOMAS = { es: "Español", en: "English", fr: "Français", de: "Deutsch" };
+/** Clases del material de vidrio para tarjetas y paneles con texto (tema.css). Dentro de un vidrio, rellenos: nunca otro vidrio. */
+export const VIDRIO = "c8-vidrio c8-vidrio--texto";
+/** Color de marca que el Estudio ponía por defecto hasta la fase 3. Ahora, sin color, el visor usa el champán del tema. */
+export const COLOR_ANTIGUO = "#c8a24a";
 
 // Referencia automática y estable (la carpeta de publicación /tours/<referencia>/ no debe cambiar al editar los datos).
 const ALFABETO_REF = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"; // sin 0/O ni 1/I/L, que se confunden al dictarla
@@ -39,7 +43,7 @@ export function tourNuevo() {
     titulo: { es: "" },
     idioma: "es",
     idiomas: ["es"],
-    marca: { nombre: "", color: "#c8a24a" },
+    marca: { nombre: "" },                   // sin color: el visor usa el champán del tema (claro u oscuro)
     agente: {},
     contacto: { modo: "whatsapp" },
     inmueble: { operacion: "venta", tipo: "piso", estado_obra: "construido", moneda: "EUR", certificado_energetico: {}, caracteristicas: [] },
@@ -264,9 +268,18 @@ export const textoExacto = (t, idioma = "es") => (t == null ? "" : typeof t === 
 export function fijarTexto(obj, clave, idioma, valor) {
   let t = obj[clave];
   if (t == null || typeof t === "string") t = { es: t ?? "" };
+  // Al renombrar en español un texto que traía traducciones automáticas («Zona de día» → «Living area»…), estas se borran:
+  // ya no corresponden. Las que escribió el agente se quedan.
+  const auto = idioma === "es" && t.es !== valor ? AUTOMATICAS.get(t.es) : null;
+  if (auto) for (const [k, v] of Object.entries(auto)) if (k !== "es" && t[k] === v) delete t[k];
   t[idioma] = valor;
   obj[clave] = t;
 }
+/** Textos que el Estudio crea ya traducidos (zonas, estilos, colores, planta por defecto): español → { en, fr, de }. */
+const AUTOMATICAS = new Map();
+const registrarAutomaticas = (...listas) => { for (const n of listas.flat()) if (n?.es) AUTOMATICAS.set(n.es, n); };
+registrarAutomaticas(ESTILOS_IA.map((e) => e.nombre), PAREDES_DEF.map((c) => c.nombre), SUELOS_DEF.map((c) => c.nombre),
+  { es: "Original", en: "Original" }, { es: "Planta principal", en: "Main floor" }, { es: "Proyecto", en: "Design" });
 
 /**
  * Todos los textos que el visitante puede leer y que se traducen en Datos → «Idiomas y traducciones» (E11: el único
@@ -274,11 +287,14 @@ export function fijarTexto(obj, clave, idioma, valor) {
  */
 export function textosTraducibles(t = app.tour) {
   const r = [];
-  const add = (grupo, etiqueta, obj, clave, largo = false) => { if (textoExacto(obj()?.[clave]).trim()) r.push({ grupo, etiqueta, obj, clave, largo }); };
+  const add = (grupo, etiqueta, obj, clave, largo = false, extra = {}) => { if (textoExacto(obj()?.[clave]).trim()) r.push({ grupo, etiqueta, obj, clave, largo, ...extra }); };
   const I = () => app.tour.inmueble;
   add("Anuncio", "Título", () => app.tour, "titulo");
   add("Anuncio", "Descripción", I, "descripcion", true);
   add("Anuncio", "Aviso legal de las imágenes", I, "aviso_legal", true);
+  // De «Mi inmobiliaria»: la traducción se guarda también en el perfil (vale para todos los recorridos).
+  add("Mi inmobiliaria", "Pie legal", () => app.tour.marca, "pie_legal", true, { perfil: "marca" });
+  add("Mi inmobiliaria", "Texto de privacidad", () => app.tour.contacto, "texto_privacidad", true, { perfil: "contacto" });
   t.panoramas.forEach((p, i) => add("Estancias", `Foto ${i + 1}`, () => app.tour.panoramas.find((x) => x.id === p.id), "nombre"));
   (t.estancias ?? []).forEach((e) => add("Estancias", "Estancia del plano", () => app.tour.estancias.find((x) => x.id === e.id), "nombre"));
   (t.plantas ?? []).forEach((pl) => add("Estancias", "Planta", () => app.tour.plantas.find((x) => x.id === pl.id), "nombre"));
@@ -466,6 +482,7 @@ const ZONAS_DEF = [
   ["exterior", { es: "Exterior y zonas comunes", en: "Outdoor & common areas", fr: "Extérieur et parties communes", de: "Außen- und Gemeinschaftsbereiche" },
     /terraza|jard[ií]n|piscina|balc[oó]n|patio|garaje|trastero|fachada|comunidad|portal|azotea|exterior|terrace|garden|pool/i],
 ];
+registrarAutomaticas(ZONAS_DEF.map(([, nombre]) => nombre));
 export function zonasSugeridas(t = app.tour) {
   const r = ZONAS_DEF.map(([id, nombre]) => ({ id, nombre: structuredClone(nombre), estancias: [] }));
   for (const p of t.panoramas) {
@@ -608,6 +625,7 @@ const ICONOS = {
   abrir: '<path d="M3 7h6l2 2h10v10H3z"/>',
   nuevo: '<path d="M12 5v14M5 12h14"/>',
   mas: '<path d="M12 5v14M5 12h14"/>',
+  menos: '<path d="M5 12h14"/>',
   basura: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
   arrastrar: '<path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" stroke-width="3"/>',
   estrella: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
@@ -646,6 +664,7 @@ const ICONOS = {
   chat: '<path d="M4 20l1.3-3.9A8 8 0 1112 20a8 8 0 01-4.2-1.2z"/>',
   correo: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
   herramientas: '<path d="M14.5 5.5a4 4 0 00-5 5L4 16l4 4 5.5-5.5a4 4 0 005-5l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+  apariencia: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 010 17z" fill="currentColor" stroke="none"/>',
 };
 export function icono(n, tam = 18) {
   const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -657,45 +676,43 @@ export function icono(n, tam = 18) {
   return s;
 }
 
+/** Aviso flotante de vidrio (#toasts es la zona aria-live). tipo: info | ok | aviso | error */
 export function toast(msg, tipo = "info", ms = 2600) {
-  let cont = $("#toasts");
-  const t = h("div", { class: `toast ${tipo}`, role: "status" }, icono(tipo === "error" ? "error" : tipo === "ok" ? "ok" : tipo === "aviso" ? "aviso" : "info", 16), h("span", { text: msg }));
-  cont.append(t);
-  setTimeout(() => { t.classList.add("sale"); setTimeout(() => t.remove(), 300); }, ms);
+  const t = h("div", { class: "toast c8-aviso c8-vidrio c8-vidrio--denso", "data-tipo": tipo },
+    icono(tipo === "error" ? "error" : tipo === "ok" ? "ok" : tipo === "aviso" ? "aviso" : "info", 18), h("span", { text: msg }));
+  $("#toasts").append(t);
+  setTimeout(() => { t.classList.add("c8-saliendo"); setTimeout(() => t.remove(), 260); }, ms);
 }
 
 /**
- * Diálogo modal. botones: [{texto, valor, primario, peligro, izquierda}] → Promise<valor>.
+ * Diálogo modal de vidrio (tema.css). botones: [{texto, valor, primario, peligro, izquierda}] → Promise<valor>.
  * Si `valor` es una función y devuelve `false`, el diálogo no se cierra (p. ej. hay un campo que corregir).
- * c8: diálogo del sistema de diseño (tema.css), para lo nuevo o rehecho en la fase 3.
+ * El contenido se desplaza dentro y los botones quedan siempre a la vista.
  */
-export function dialogo({ titulo, texto, cuerpo, botones = [{ texto: "Aceptar", valor: true, primario: true }], ancho, c8 = false, clase = "", foco: focoInicial }) {
+export function dialogo({ titulo, texto, cuerpo, botones = [{ texto: "Aceptar", valor: true, primario: true }], ancho, clase = "", foco: focoInicial }) {
   return new Promise((ok) => {
-    const d = h("dialog", { class: c8 ? `dialogo c8-dialogo c8-vidrio c8-vidrio--denso ${clase}` : `dialogo ${clase}`, style: ancho ? { width: ancho } : null,
-      "aria-labelledby": titulo ? "dlg-titulo-" + (++nDialogo) : null });
+    const id = titulo ? `dlg-titulo-${++nDialogo}` : null;
+    const d = h("dialog", { class: `dialogo c8-dialogo c8-vidrio c8-vidrio--denso ${clase}`, style: ancho ? { width: ancho } : null, "aria-labelledby": id });
     const cerrar = (v) => { ok(v); if (d.open) d.close(); d.remove(); };
     d.addEventListener("close", () => { ok(undefined); d.remove(); });
-    const clase8 = (b) => `c8-boton ${b.primario ? "c8-boton--primario" : b.peligro ? "c8-boton--peligro" : "c8-boton--secundario"}`;
-    const contenido = [
-      titulo ? h("h2", { class: c8 ? "c8-panel-titulo" : null, id: `dlg-titulo-${nDialogo}`, text: titulo }) : null,
-      texto ? h("p", { class: c8 ? "c8-sec dialogo-texto" : "suave", text: texto }) : null,
-      cuerpo ?? null,
-    ].filter(Boolean);
-    // c8: el contenido se desplaza dentro y los botones quedan siempre a la vista (y el canto de vidrio no se descoloca).
-    d.append(...[
-      ...(c8 ? [h("div", { class: "dialogo-contenido" }, contenido)] : contenido),
+    // Una acción destructiva («Eliminar») va en rojo aunque sea la principal.
+    const tipo = (b) => (b.peligro ? "c8-boton--peligro" : b.primario ? "c8-boton--primario" : "c8-boton--secundario");
+    d.append(
+      h("div", { class: "dialogo-contenido" },
+        titulo ? h("h2", { class: "c8-panel-titulo", id, text: titulo }) : null,
+        texto ? h("p", { class: "c8-sec dialogo-texto", text: texto }) : null,
+        cuerpo ?? null),
       botones.length ? h("div", { class: "botones" }, botones.map((b) => h("button", {
-        type: "button", class: c8 ? `${clase8(b)} ${b.izquierda ? "izquierda" : ""}` : `btn ${b.primario ? "primario" : ""} ${b.peligro ? "peligro" : ""}`, text: b.texto,
+        type: "button", class: `c8-boton ${tipo(b)}${b.izquierda ? " izquierda" : ""}`, text: b.texto, "data-principal": b.primario ? "" : null,
         onclick: async () => {
           const v = typeof b.valor === "function" ? await b.valor() : b.valor;
           if (v !== false || !b.mantener) cerrar(v);
         },
-      }))) : null,
-    ].filter(Boolean));
+      }))) : null);
     d.addEventListener("cancel", (e) => { e.preventDefault(); cerrar(undefined); });
     document.body.append(d);
     d.showModal();
-    const foco = (focoInicial && d.querySelector(focoInicial)) ?? d.querySelector("input:not([type=checkbox]):not([type=radio]), textarea, select") ?? d.querySelector(".btn.primario, .c8-boton--primario");
+    const foco = (focoInicial && d.querySelector(focoInicial)) ?? d.querySelector("input:not([type=checkbox]):not([type=radio]), textarea, select") ?? d.querySelector("[data-principal]");
     foco?.focus(); if (foco?.select && foco.value) foco.select();
   });
 }
@@ -706,7 +723,7 @@ export async function pedir(titulo, etiqueta, valor = "", { tipo = "text", ayuda
   // Los números se piden como texto (inputmode decimal) para aceptar la coma decimal española.
   const inp = h("input", { type: tipo === "number" ? "text" : tipo, inputmode: tipo === "number" ? "decimal" : null, value: valor, autocomplete: "off" });
   const cuerpo = h("label", { class: "campo" }, h("span", { text: etiqueta }), inp, ayuda ? h("small", { text: ayuda }) : null);
-  inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); inp.closest("dialog").querySelector(".btn.primario").click(); } });
+  inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); inp.closest("dialog").querySelector("[data-principal]").click(); } });
   return dialogo({ titulo, cuerpo, botones: [{ texto: "Cancelar", valor: null }, { texto: "Aceptar", primario: true, valor: () => inp.value }] });
 }
 export const confirmar = (titulo, texto, si = "Eliminar") =>
@@ -727,9 +744,51 @@ export const fmtMB = (b) => `${(b / 1048576).toLocaleString("es-ES", { maximumFr
 
 /** Capa «trabajando…» a pantalla completa (procesar un PDF, una copia de seguridad…). Se quita con .remove(). */
 export function cargando(texto) {
-  const capa = h("div", { class: "cargando-global", role: "status" }, h("div", {}, h("span", { text: texto }), h("div", { class: "progreso" }, h("div", { style: { width: "100%" } }))));
+  const capa = h("div", { class: "cargando-global", role: "status" },
+    h("div", { class: "c8-vidrio c8-vidrio--denso" }, h("span", { text: texto }), h("div", { class: "progreso indeterminado" }, h("div"))));
   document.body.append(capa);
   return capa;
+}
+
+// ------------------------------------------------------------------ colores de los lienzos (tokens de tema.css)
+let sonda = null, prueba = null;
+/**
+ * Colores del tema actual para pintar en un <canvas>: tokens { nombre: ["--c-acento", reserva] } → { nombre: color }.
+ * El navegador resuelve el token (claro u oscuro, color-mix, color relativo…); si el lienzo no entiende el resultado
+ * (navegadores antiguos), se usa la reserva. Se vuelven a leer al recibir «cre8:tema» (alCambiarTema).
+ */
+export function coloresTema(tokens) {
+  if (!sonda) {
+    sonda = h("span", { hidden: true, "aria-hidden": "true" });
+    document.body.append(sonda);
+    prueba = document.createElement("canvas").getContext("2d");
+  }
+  const r = {};
+  for (const [k, [token, reserva]] of Object.entries(tokens)) {
+    sonda.style.color = `var(${token})`;
+    const c = getComputedStyle(sonda).color;
+    prueba.fillStyle = "#010203";
+    prueba.fillStyle = c;
+    r[k] = c && prueba.fillStyle !== "#010203" ? prueba.fillStyle : reserva;
+  }
+  return r;
+}
+/** Tipografía de la interfaz para un lienzo, en rem (sigue a la pantalla y a la talla S/M/L): fuenteLienzo(600, 0.8). */
+export function fuenteLienzo(peso, rem) {
+  const raiz = getComputedStyle(document.documentElement);
+  return `${peso} ${Math.round(rem * parseFloat(raiz.fontSize) * 10) / 10}px ${raiz.getPropertyValue("--fuente").trim() || "system-ui, sans-serif"}`;
+}
+/** Avisa cuando cambian el tema, la talla o la transparencia (evento «cre8:tema» de tema.js). → función para dejar de escuchar. */
+export function alCambiarTema(fn) {
+  document.addEventListener("cre8:tema", fn);
+  return () => document.removeEventListener("cre8:tema", fn);
+}
+/** Deslizador del sistema de diseño (.c8-deslizador) con la pista ya rellena hasta su valor. */
+export function deslizador(props) {
+  const r = h("input", { type: "range", class: "c8-deslizador", ...props });
+  const min = Number(props.min ?? 0), max = Number(props.max ?? 100);
+  r.style.setProperty("--valor", `${max > min ? ((Number(props.value) - min) / (max - min)) * 100 : 0}%`);
+  return r;
 }
 /** Guarda un archivo como documento del proyecto (documentacion). Privado salvo que se marque «Público». */
 export async function guardarDocumento(f, tipo, { publico = false, nombre } = {}) {

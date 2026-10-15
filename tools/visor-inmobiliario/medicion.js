@@ -2,12 +2,15 @@
 // · Recorrido 360: sin LiDAR, usando la altura conocida de la cámara (trípode). Un rayo que apunta
 //   al suelo corta el plano y = -altura; así se miden distancias en el suelo y alturas de paredes.
 // · Modo libre: rayos contra el modelo (GLB, colisionador o splat).
+// Barra de vidrio (se construye una vez y se actualiza en su sitio: el foco no se pierde al marcar) y medidas de vidrio.
 import * as THREE from "three";
+
+const NS = "http://www.w3.org/2000/svg";
 
 export function crearMedicion(ctx) {
   const barra = document.createElement("div");
   barra.id = "medir-barra";
-  barra.className = "barra-contextual";
+  barra.className = "barra-contextual c8-vidrio c8-vidrio--texto";
   barra.hidden = true;
   barra.setAttribute("role", "toolbar");
   const mira = document.createElement("div");
@@ -24,36 +27,57 @@ export function crearMedicion(ctx) {
 
   const est = { activo: false, tipo: "distancia", a: null, medidas: [], goma: null };
 
+  // Barra: pista arriba (con la nota de precisión) y, debajo, Distancia | Altura · Marcar punto · Deshacer · Borrar · Cerrar.
+  const pista = document.createElement("p");
+  pista.className = "pista";
+  pista.setAttribute("aria-live", "polite");
+  const pistaTexto = document.createElement("span"), nota = document.createElement("small");
+  pista.append(pistaTexto, nota);
+  const grupo = document.createElement("div");
+  grupo.className = "c8-segmentado";
+  grupo.setAttribute("role", "radiogroup");
+  const radios = ["distancia", "altura"].map((t) => {
+    const l = document.createElement("label"), r = document.createElement("input"), sp = document.createElement("span");
+    r.type = "radio"; r.name = "medir-tipo"; r.value = t;
+    r.onchange = () => { est.tipo = t; cancelarParcial(); render(); };
+    l.append(r, sp);
+    grupo.append(l);
+    return { r, sp, t };
+  });
+  const bMarcar = boton(() => marcarCentro(), "c8-boton--primario");
+  const bDeshacer = boton(deshacer, "", '<path d="M9 7 4.5 11.5 9 16"/><path d="M5 11.5h9.5a5 5 0 0 1 0 10H12"/>');
+  const bBorrar = boton(borrar, "", '<path d="M5 7h14M10 7V5h4v2M7 7l1 12.5h8L17 7"/>');
+  const bCerrar = boton(() => ctx.desactivar(), "", '<path d="M7 7l10 10M17 7 7 17"/>');
+  barra.append(pista, grupo, bMarcar, bDeshacer, bBorrar, bCerrar);
+
   function render() {
     const tr = ctx.tr;
-    barra.innerHTML = "";
-    const grupo = document.createElement("div");
-    grupo.className = "segmentado";
-    for (const t of ["distancia", "altura"]) {
-      const b = boton(tr(`medir.${t}`), () => { est.tipo = t; cancelarParcial(); render(); });
-      b.setAttribute("aria-pressed", String(est.tipo === t));
-      grupo.append(b);
-    }
-    const pista = document.createElement("span");
-    pista.className = "pista";
-    pista.setAttribute("aria-live", "polite");
-    pista.textContent = est.a ? tr(est.tipo === "altura" ? "medir.ayuda_altura_b" : "medir.ayuda_b") : tr(est.tipo === "altura" ? "medir.ayuda_altura_a" : "medir.ayuda_a");
-    barra.append(
-      grupo,
-      pista,
-      boton(tr("medir.marcar"), () => marcarCentro(), "primario"),
-      boton(tr("medir.deshacer"), deshacer),
-      boton(tr("medir.borrar"), borrar),
-      boton(tr("medir.cerrar"), () => ctx.desactivar()),
-    );
-    const nota = document.createElement("small");
-    nota.textContent = tr("medir.precision");
-    barra.append(nota);
+    barra.setAttribute("aria-label", tr("medir.titulo"));
+    grupo.setAttribute("aria-label", tr("medir.titulo"));
+    for (const { r, sp, t } of radios) { r.checked = est.tipo === t; sp.textContent = tr(`medir.${t}`); }
+    window.cre8Tema?.segmentados?.(grupo);
+    pistaTexto.textContent = est.a ? tr(est.tipo === "altura" ? "medir.ayuda_altura_b" : "medir.ayuda_b") : tr(est.tipo === "altura" ? "medir.ayuda_altura_a" : "medir.ayuda_a");
+    nota.textContent = ` · ${tr("medir.precision")}`;
+    for (const [b, k] of [[bMarcar, "medir.marcar"], [bDeshacer, "medir.deshacer"], [bBorrar, "medir.borrar"], [bCerrar, "medir.cerrar"]]) b.lastChild.textContent = tr(k);
+    // aria-disabled (no disabled): el botón conserva el foco aunque ya no haya nada que deshacer
+    const nada = String(!est.a && !est.medidas.length);
+    bDeshacer.setAttribute("aria-disabled", nada);
+    bBorrar.setAttribute("aria-disabled", nada);
   }
 
-  function boton(texto, fn, clase = "") {
+  function boton(fn, clase, icono) {
     const b = document.createElement("button");
-    b.type = "button"; b.textContent = texto; b.className = clase;
+    b.type = "button";
+    b.className = `c8-boton c8-boton--s ${clase}`.trim();
+    if (icono) {
+      const svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("class", "c8-icono");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.setAttribute("aria-hidden", "true");
+      svg.innerHTML = icono;
+      b.append(svg);
+    }
+    b.append(document.createElement("span"));
     b.onclick = fn;
     return b;
   }
@@ -113,7 +137,7 @@ export function crearMedicion(ctx) {
       quitar(est.goma);
       const obj = crearMarca(est.a, p);
       const etq = document.createElement("div");
-      etq.className = "medida-etq";
+      etq.className = "medida-etq c8-vidrio c8-vidrio--texto";
       etq.textContent = `${ctx.formato(v)} m`;
       etq.setAttribute("role", "status");
       ctx.contenedor.append(etq);

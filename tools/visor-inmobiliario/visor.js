@@ -13,14 +13,12 @@ const params = new URLSearchParams(location.search);
 const EMBED = params.has("embed");
 const esTactil = matchMedia("(pointer: coarse)").matches || "ontouchstart" in window;
 const conRaton = matchMedia("(pointer: fine)").matches; // modo juego: solo con ratón
-const prefiereReducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // «donde: "movil"» del menú «Más»: la disposición móvil de los paneles (teléfono y tablet en vertical).
 const MQ_MOVIL = matchMedia("(max-width: 720px), (orientation: portrait) and (max-width: 1024px), (max-height: 500px) and (orientation: landscape)");
 const API_PANTALLA = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 if (esTactil) document.body.classList.add("tactil");
 if (EMBED) { document.body.classList.add("embed"); $("#portada")?.remove(); }
-// Fase 3: el visor se ve en oscuro mientras las piezas antiguas no usen los tokens (la fase 4 lo quita).
-window.cre8Tema?.porDefecto({ tema: "oscuro" });
+// Apariencia automática (decisión B de la fase 4): manda el dispositivo; el visitante la cambia en Ajustes (tema.js).
 
 // ------------------------------------------------------------------ textos
 const FALLBACK = {
@@ -64,7 +62,7 @@ const FALLBACK = {
   "portada.cargando": "Cargando el recorrido…", "portada.empezar": "Empezar visita", "idioma.titulo": "Idioma", "marca.creado_con": "Creado con {x}",
   "ficha.mes": "/mes", "ficha.habitacion": "habitación", "ficha.habitaciones": "Habitaciones",
   "ficha.bano": "baño", "ficha.banos": "Baños",
-  "medir.distancia": "Distancia", "medir.altura": "Altura", "medir.marcar": "Marcar punto", "medir.deshacer": "Deshacer",
+  "medir.titulo": "Medir", "medir.distancia": "Distancia", "medir.altura": "Altura", "medir.marcar": "Marcar punto", "medir.deshacer": "Deshacer",
   "medir.borrar": "Borrar", "medir.cerrar": "Cerrar", "medir.ayuda_a": "Apunta al suelo y marca el punto A", "medir.ayuda_b": "Ahora marca el punto B",
   "medir.ayuda_altura_a": "Marca la base de la pared (en el suelo)", "medir.ayuda_altura_b": "Ahora marca el punto superior",
   "medir.precision": "Medida orientativa (±3 %)", "medir.suelo": "Apunta al suelo",
@@ -122,7 +120,19 @@ const estado = {
 visor.estado = estado;
 
 // modoJuegoWASD: W A S D entra en el modo juego (con ratón). capturaConClic: un clic en la escena también (antes de la fase 3).
-const AJUSTES_DEF = { sensibilidad: 1, sensibilidadTactil: 1, invertirY: false, reducirMovimiento: prefiereReducido, atajos: true, modoJuegoWASD: true, capturaConClic: false };
+// «Reducir movimiento» ya no es un ajuste del visor: lo guarda tema.js (cre8eight:movimiento), común a las tres páginas.
+const AJUSTES_DEF = { sensibilidad: 1, sensibilidadTactil: 1, invertirY: false, atajos: true, modoJuegoWASD: true, capturaConClic: false };
+// Migración (fase 4): quien activó «Reducir movimiento» en el visor de la fase 3 (visor:ajustes) lo conserva en tema.js.
+{
+  const viejos = almacen.leer("visor:ajustes", {});
+  if (viejos && typeof viejos === "object" && "reducirMovimiento" in viejos) {
+    let propio = null;
+    try { propio = localStorage.getItem("cre8eight:movimiento"); } catch { /* sin almacenamiento */ }
+    if (viejos.reducirMovimiento === true && !propio) window.cre8Tema?.fijar?.("movimiento", "reducido");
+    delete viejos.reducirMovimiento;
+    almacen.guardar("visor:ajustes", viejos);
+  }
+}
 const int = {
   tour: null, nodos: new Map(), actual: null, transicion: null, teclas: new Set(), giro: null,
   zoom: 1, fovBase: 75, ajustes: { ...AJUSTES_DEF, ...almacen.leer("visor:ajustes", {}) },
@@ -130,7 +140,13 @@ const int = {
   joy: { x: 0, y: 0, id: null }, ultimaInteraccion: performance.now(), fuenteActual: null,
   portada: !!$("#portada"), progreso: 0, radarVisible: false, plantaVista: null, // sin portada con ?embed (se quitó arriba)
 };
-const reducido = () => int.ajustes.reducirMovimiento;
+/** Movimiento reducido: una sola fuente de verdad, la de tema.js (lo que eligió el visitante o prefers-reduced-motion).
+    Contingencia: sin tema.js, lo último pedido con visor.ajustes({ reducirMovimiento }) o el ajuste del sistema. */
+let movimientoSinTema = null;
+const reducido = () => {
+  const m = window.cre8Tema?.efectivo?.movimiento;
+  return m ? m === "reducido" : (movimientoSinTema ?? matchMedia("(prefers-reduced-motion: reduce)").matches);
+};
 
 // ------------------------------------------------------------------ render base
 const lienzo = $("#lienzo");
@@ -150,7 +166,7 @@ if (renderer) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 }
 visor.lienzo = lienzo;
-Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size }) });
+Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, luz: { ...luz.medida, max: luz.max, min: luz.min, ms: luz.ms, n: luz.n } }) });
 
 // ------------------------------------------------------------------ escena 360
 const escena360 = new THREE.Scene();
@@ -424,7 +440,7 @@ const geoFlecha = (() => {
   return new THREE.ShapeGeometry(s).rotateX(-Math.PI / 2);
 })();
 const matAro = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthTest: false });
-const matAroHover = new THREE.MeshBasicMaterial({ color: 0xffb547, transparent: true, opacity: 1, depthTest: false });
+const matAroHover = new THREE.MeshBasicMaterial({ color: 0xcfad66, transparent: true, opacity: 1, depthTest: false }); // color: --c-acento (colorearTema)
 const matInvisible = new THREE.MeshBasicMaterial({ visible: false });
 
 const etiquetas = $("#etiquetas");
@@ -462,7 +478,7 @@ function construirPuntos() {
     grupoFlechas.add(g);
     const etq = document.createElement("button");
     etq.type = "button";
-    etq.className = "etq";
+    etq.className = "etq c8-vidrio c8-vidrio--texto";
     const otraPlanta = destino.planta !== n.planta ? ` · ${texto(plantaPorId(destino.planta)?.nombre) || tr("plano.planta")}` : "";
     etq.textContent = texto(destino.nombre) + otraPlanta;
     etq.setAttribute("aria-label", vertical ? tr("nav.ir_a", { x: texto(destino.nombre) + otraPlanta }) : `${tr("nav.ir_a", { x: texto(destino.nombre) })}, ${tr("nav.metros", { x: metros(dist) })}`);
@@ -475,7 +491,7 @@ function construirPuntos() {
     const v = (p.pitch ?? 0) * GRAD;
     const el = document.createElement("button");
     el.type = "button";
-    el.className = "info";
+    el.className = "info c8-vidrio c8-vidrio--texto";
     el.textContent = "i";
     el.setAttribute("aria-label", texto(p.titulo));
     el.title = texto(p.titulo);
@@ -537,6 +553,7 @@ async function irA(destino, { instantaneo = false } = {}) {
 
 function llegar(nodo) {
   int.actual = nodo;
+  luz.pendiente = true;
   if (int.navDestino === nodo) int.navDestino = null;
   estado.nodo = nodo.id;
   estado.planta = nodo.planta;
@@ -676,6 +693,7 @@ async function refrescarAmbiente(evento, anterior) {
     await promesa;
   }
   precargarVecinos(int.actual);
+  luz.pendiente = true;
   visor.emitir(evento, { id: estado[evento] });
 }
 
@@ -777,7 +795,7 @@ async function prepararLibre() {
 function aplicarAmbienteLibre() {
   if (!pisoDemo) return;
   pisoDemo.aplicar({ estilo: estado.estilo, momento: estado.momento, pintura: estado.pintura });
-  escenaLibre.background = new THREE.Color(estado.momento === "noche" ? 0x0d1830 : 0x1b1e24);
+  if (estado.modo !== "maqueta") escenaLibre.background = new THREE.Color(estado.momento === "noche" ? 0x0d1830 : 0x1b1e24);
 }
 
 function aplicarTransformacion(obj, cfg) {
@@ -946,8 +964,7 @@ function actualizarBarraGuion() {
   barraGuion.querySelector(".n").textContent = `${p.actual}/${p.total}`;
   barraGuion.querySelector(".progreso div").style.width = `${(p.progreso * 100).toFixed(1)}%`;
   const b = barraGuion.querySelector(".pausa");
-  const txt = guion.pausado ? "▶" : "❚❚";
-  if (b.textContent !== txt) { b.textContent = txt; b.setAttribute("aria-label", tr(guion.pausado ? "guion.reanudar" : "guion.pausar")); }
+  if (b.classList.contains("pausado") !== guion.pausado) { b.classList.toggle("pausado", guion.pausado); b.setAttribute("aria-label", tr(guion.pausado ? "guion.reanudar" : "guion.pausar")); }
 }
 
 // ------------------------------------------------------------------ entrada
@@ -977,10 +994,11 @@ lienzo.addEventListener("pointerdown", (e) => {
   ocultarPista("inicio");
   // Joystick flotante: pulgar en la mitad izquierda en modo libre táctil.
   if (estado.modo === "libre" && e.pointerType === "touch" && e.clientX < innerWidth * 0.45 && int.joy.id == null) {
-    int.joy = { x: 0, y: 0, id: e.pointerId, cx: e.clientX, cy: e.clientY };
     const j = $("#joystick");
-    j.style.left = `${e.clientX - 60}px`; j.style.top = `${e.clientY - 60}px`;
     j.classList.add("activo");
+    const r = j.offsetWidth / 2 || 60, pomo = $("#joystick-pomo").offsetWidth / 2 || 26;
+    int.joy = { x: 0, y: 0, id: e.pointerId, cx: e.clientX, cy: e.clientY, r, recorrido: r - pomo };
+    j.style.left = `${e.clientX - r}px`; j.style.top = `${e.clientY - r}px`;
     ocultarPista("libre");
     return;
   }
@@ -1005,12 +1023,12 @@ function enHudOculto(x, y) {
 lienzo.addEventListener("pointermove", (e) => {
   if (punteros.has(e.pointerId)) punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (e.pointerId === int.joy.id) {
-    let x = (e.clientX - int.joy.cx) / 60, y = (e.clientY - int.joy.cy) / 60;
+    let x = (e.clientX - int.joy.cx) / int.joy.r, y = (e.clientY - int.joy.cy) / int.joy.r;
     const m = Math.hypot(x, y);
     if (m > 1) { x /= m; y /= m; }
     int.joy.x = Math.abs(x) < 0.12 ? 0 : x;
     int.joy.y = Math.abs(y) < 0.12 ? 0 : y;
-    $("#joystick-pomo").style.transform = `translate(${x * 34}px, ${y * 34}px)`;
+    $("#joystick-pomo").style.transform = `translate(${x * int.joy.recorrido}px, ${y * int.joy.recorrido}px)`;
     return;
   }
   if (pellizco && punteros.size === 2) {
@@ -1269,7 +1287,6 @@ async function fijarGiro(si = !int.giro) {
 // ------------------------------------------------------------------ radar y plano
 // Dos vistas del mismo plano (plano.js): el radar de la esquina (gira con la mirada, como en Counter-Strike) y el plano
 // grande de «Estancias y plano» (norte arriba, con pestañas de planta).
-const colorAcento = () => (int.acento ||= getComputedStyle(document.documentElement).getPropertyValue("--c-acento").trim() || "#cfad66");
 function posicionVisitante() {
   const fovH = 2 * Math.atan(Math.tan((camara.fov * GRAD) / 2) * camara.aspect);
   if (estado.modo === "libre" && int.libre.listo) return { x: int.libre.pos.x, z: int.libre.pos.z, rumbo: int.libre.rumbo, fovH, planta: estado.planta };
@@ -1284,7 +1301,6 @@ const ctxPlano = {
   nodos: () => [...int.nodos.values()],
   nodoActual: () => (estado.modo === "tour" ? int.actual : null),
   posicion: posicionVisitante,
-  acento: colorAcento,
   texto, formato: metros,
 };
 const radar = crearPlano($("#mapa"), {
@@ -1460,10 +1476,85 @@ document.addEventListener("visibilitychange", () => {
   else if (sonido.activo && sonido.iniciado) arrancarSonido();
 });
 
+// ------------------------------------------------------------------ tema: colores de la escena y vidrio adaptativo
+const transparenciaReducida = () => document.documentElement.dataset.transparencia === "reducida";
+/** Colores de la escena que salen de los tokens: el realce de las flechas del suelo (acento) y el fondo sin foto. */
+function colorearTema() {
+  const cs = getComputedStyle(document.documentElement);
+  const hex = (v) => { const x = cs.getPropertyValue(v).trim(); return /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(x) ? x : null; };
+  const acento = hex("--c-acento"), fondo = hex("--c-fondo");
+  if (acento) matAroHover.color.set(acento);
+  if (fondo) renderer?.setClearColor(fondo);
+}
+document.addEventListener("cre8:tema", () => {
+  colorearTema();
+  if (transparenciaReducida()) quitarLuz(); else luz.pendiente = true;
+});
+
+// Vidrio adaptativo (tema.css, «Vidrio adaptativo»): el vidrio se vuelve más transparente cuando la foto lo permite.
+// Tras cada cambio de estancia, estilo o momento, y como mucho una vez por segundo si la vista se movió y ya está quieta,
+// el fotograma se copia a un lienzo de 32×18 justo después de pintarlo (como capturar) y se mide la luminancia relativa
+// de cada píxel: percentil 90 → data-luz-max (manda en oscuro: lo difícil es una zona clara detrás del vidrio);
+// percentil 10 → data-luz-min (manda en claro). Histéresis de ±0,03 para que no parpadee. Con «Reducir transparencia»
+// no se mide. Contingencia: si la lectura falla, se quitan los atributos y queda el peor caso, que siempre cumple AA.
+const LINEAL = Float32Array.from({ length: 256 }, (_, i) => { const c = i / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+const luz = { g: null, max: null, min: null, medida: null, ms: 0, n: 0, pendiente: true, movida: false, quietaDesde: 0, ultima: -1e9, vista: new Float64Array(17) };
+/** Cuántos umbrales (de menor a mayor) supera v, con histéresis respecto al nivel actual. */
+function nivelLuz(v, actual, umbrales, h = 0.03) {
+  let n = 0;
+  umbrales.forEach((u, i) => { if (v > u + (actual == null ? 0 : actual > i ? -h : h)) n = i + 1; });
+  return n;
+}
+function quitarLuz() {
+  const d = document.documentElement.dataset;
+  delete d.luzMax; delete d.luzMin;
+  luz.max = luz.min = luz.medida = null;
+}
+function medirLuz(fuente) {
+  const t0 = performance.now();
+  try {
+    if (!luz.g) { const c = document.createElement("canvas"); c.width = 32; c.height = 18; luz.g = c.getContext("2d"); }
+    luz.g.drawImage(fuente, 0, 0, 32, 18);
+    const px = luz.g.getImageData(0, 0, 32, 18).data;
+    if (!px[3]) throw new Error("sin imagen"); // contexto gráfico perdido: el lienzo queda transparente
+    const L = new Float32Array(px.length / 4);
+    for (let i = 0, j = 0; i < px.length; i += 4, j++) L[j] = 0.2126 * LINEAL[px[i]] + 0.7152 * LINEAL[px[i + 1]] + 0.0722 * LINEAL[px[i + 2]];
+    L.sort();
+    const p90 = L[Math.round(0.9 * (L.length - 1))], p10 = L[Math.round(0.1 * (L.length - 1))];
+    luz.max = nivelLuz(p90, luz.max, [0.1, 0.35]);
+    luz.min = nivelLuz(p10, luz.min, [0.18, 0.45]);
+    const d = document.documentElement.dataset, max = ["baja", "media"][luz.max], min = [null, "media", "alta"][luz.min];
+    if (max) d.luzMax = max; else delete d.luzMax;
+    if (min) d.luzMin = min; else delete d.luzMin;
+    luz.medida = { p90: +p90.toFixed(3), p10: +p10.toFixed(3) };
+  } catch {
+    quitarLuz(); // p. ej. la miniatura de la portada servida desde otro dominio sin CORS
+  }
+  luz.ms = Math.round((performance.now() - t0) * 100) / 100;
+  luz.n++;
+}
+/** Tras pintar: mide si hay un cambio pendiente o si la vista se movió y lleva quieta un momento. */
+function quizaMedirLuz() {
+  if (int.transicion || int.captura || transparenciaReducida()) return;
+  const cam = estado.modo === "maqueta" ? maqueta.camara : camara;
+  const m = cam.matrixWorld.elements, v = luz.vista, ahora = performance.now();
+  let quieta = Math.abs(cam.fov - v[16]) < 1e-3;
+  for (let i = 0; i < 16; i++) { if (Math.abs(m[i] - v[i]) > 1e-4) quieta = false; v[i] = m[i]; }
+  v[16] = cam.fov;
+  if (!quieta) { luz.movida = true; luz.quietaDesde = ahora; }
+  if (luz.pendiente || (luz.movida && ahora - luz.quietaDesde > 250 && ahora - luz.ultima > 1000)) {
+    luz.pendiente = luz.movida = false;
+    luz.ultima = ahora;
+    medirLuz(lienzo);
+  }
+}
+
 // ------------------------------------------------------------------ interfaz del núcleo
 function mostrarCarga(si, frac) {
-  $("#carga").hidden = !si;
-  if (frac != null) $("#carga .barra div").style.width = `${Math.round(frac * 100)}%`;
+  const c = $("#carga");
+  c.hidden = !si;
+  c.classList.toggle("determinado", frac != null);
+  c.querySelector(".barra div").style.width = frac != null ? `${Math.round(frac * 100)}%` : "";
 }
 let tAviso;
 function aviso(txt, ms = 4500, { reintentar } = {}) {
@@ -1501,8 +1592,13 @@ function mostrarFicha(p) {
   media.replaceChildren();
   const img = srcSegura(p.imagen);
   if (img) { const i = new Image(); i.src = img; i.alt = texto(p.titulo); media.append(i); }
-  if (urlSegura(p.video)) { const a = document.createElement("a"); a.href = urlSegura(p.video); a.target = "_blank"; a.rel = "noopener"; a.textContent = `▶ ${tr("punto.video")}`; media.append(a); }
-  if (urlSegura(p.enlace)) { const a = document.createElement("a"); a.href = urlSegura(p.enlace); a.target = "_blank"; a.rel = "noopener"; a.textContent = `↗ ${tr("punto.mas_info")}`; media.append(a); }
+  for (const [u, txt] of [[p.video, `▶ ${tr("punto.video")}`], [p.enlace, `↗ ${tr("punto.mas_info")}`]]) {
+    if (!urlSegura(u)) continue;
+    const a = document.createElement("a");
+    a.href = urlSegura(u); a.target = "_blank"; a.rel = "noopener"; a.textContent = txt;
+    a.className = "c8-boton c8-boton--secundario c8-boton--s";
+    media.append(a);
+  }
   f.hidden = false;
   f.querySelector(".cerrar").focus({ preventScroll: true });
 }
@@ -1996,11 +2092,10 @@ function aplicarMarca() {
   // Color de marca validado; se quita si el tour nuevo no trae (al cambiar de tour en el Estudio).
   const raiz = document.documentElement.style;
   const sobre = textoSobreColor(m.color);
-  if (sobre) {
-    for (const v of ["--acento", "--c-acento"]) raiz.setProperty(v, m.color);
-    for (const v of ["--acento-texto", "--c-sobre-acento"]) raiz.setProperty(v, sobre);
-  } else for (const v of ["--acento", "--c-acento", "--acento-texto", "--c-sobre-acento"]) raiz.removeProperty(v);
-  int.acento = ""; // el radar vuelve a leer el acento
+  if (sobre) { raiz.setProperty("--c-acento", m.color); raiz.setProperty("--c-sobre-acento", sobre); }
+  else for (const v of ["--c-acento", "--c-sobre-acento"]) raiz.removeProperty(v);
+  colorearTema();
+  radar.retema(); planoGrande.retema(); // el radar y el plano releen el acento en el próximo dibujo
   const logo = $("#logo"), src = srcSegura(m.logo);
   logo.onerror = () => { logo.hidden = true; };
   if (src) { logo.src = src; logo.alt = texto(m.nombre); logo.hidden = false; } else { logo.removeAttribute("src"); logo.hidden = true; }
@@ -2052,7 +2147,8 @@ function fondoPortada(fuente) {
   const w = fuente?.naturalWidth || fuente?.width, h = fuente?.naturalHeight || fuente?.height;
   if (!c || !w || !h) return;
   c.width = 320; c.height = Math.max(1, Math.round((320 * h) / w));
-  try { c.getContext("2d").drawImage(fuente, 0, 0, c.width, c.height); c.classList.add("visible"); } catch { /* sin fondo */ }
+  try { c.getContext("2d").drawImage(fuente, 0, 0, c.width, c.height); c.classList.add("visible"); } catch { return; /* sin fondo */ }
+  if (!transparenciaReducida()) medirLuz(c);
 }
 function fondoMiniatura(n) {
   const src = n && srcSegura(n.miniatura);
@@ -2116,6 +2212,7 @@ function portadaLista() {
 function soltarPortada(animar = true) {
   if (!int.portada) return false;
   int.portada = false;
+  luz.pendiente = true;
   document.body.classList.remove("con-portada");
   for (const hijo of $("#app").children) hijo.inert = false;
   if (portada) {
@@ -2154,6 +2251,11 @@ function refrescarTextos() {
   actualizarBtnMas();
   $("#aviso-juego").textContent = tr("juego.aviso");
   if (!$("#tarjeta-juego").hidden) $("#tarjeta-juego").textContent = tr("juego.tarjeta");
+  // N-14: el precio, discreto, bajo el radar mientras dura el modo juego (los paneles se ocultan)
+  const precio = int.tour.inmueble ? precioPortada(int.tour.inmueble) : "";
+  $("#precio-juego").textContent = precio;
+  $("#precio-juego").hidden = !precio;
+  $("#ficha .cerrar").setAttribute("aria-label", tr("comun.cerrar"));
   lienzo.setAttribute("aria-label", `${texto(int.tour.titulo) || tr("titulo.defecto")} · ${tr("aviso.arrastra")}`);
   cortinilla.dataset.antes = tr("comparar.antes");
   cortinilla.dataset.despues = tr("comparar.despues");
@@ -2195,6 +2297,7 @@ Object.assign(visor, {
     if (si && estado.modo === "maqueta") return;
     estado.midiendo = !!si;
     medicion.activar(estado.midiendo);
+    medirTira();
     if (si) {
       $("#pista").hidden = true;
       tarjetaJuego(false);
@@ -2221,11 +2324,17 @@ Object.assign(visor, {
     visor.emitir("idioma", { idioma: cod });
   },
   ajustes(obj = {}) {
-    Object.assign(int.ajustes, obj);
-    // Solo se guardan las preferencias que el usuario ha cambiado (no se congela prefers-reduced-motion).
-    almacen.guardar("visor:ajustes", { ...almacen.leer("visor:ajustes", {}), ...obj });
-    if ("fov" in obj) redimensionar();
-    return { ...int.ajustes };
+    const { reducirMovimiento, ...resto } = obj ?? {};
+    // Alias de la fase 3: el movimiento lo guarda tema.js (una sola fuente de verdad para el visor, el Estudio y la Guía).
+    if (reducirMovimiento !== undefined) {
+      if (window.cre8Tema?.fijar) window.cre8Tema.fijar("movimiento", reducirMovimiento ? "reducido" : "auto");
+      else movimientoSinTema = !!reducirMovimiento;
+    }
+    Object.assign(int.ajustes, resto);
+    // Solo se guardan las preferencias que el usuario ha cambiado.
+    if (Object.keys(resto).length) almacen.guardar("visor:ajustes", { ...almacen.leer("visor:ajustes", {}), ...resto });
+    if ("fov" in resto) redimensionar();
+    return { ...int.ajustes, reducirMovimiento: reducido() };
   },
   /** Captura de la vista actual (sin interfaz), con una franja de marca y la estancia. */
   capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.88, marca = true } = {}) {
@@ -2396,7 +2505,7 @@ async function obtenerTour() {
     const el = document.createElement("div");
     el.id = "error-carga";
     el.setAttribute("role", "alert");
-    el.innerHTML = `<div class="marca-cre8">cre8<span>eight</span></div><p></p><button type="button"></button>`;
+    el.innerHTML = `<div class="tarjeta c8-vidrio c8-vidrio--texto"><div class="marca-cre8">cre8<span>eight</span></div><p></p><button type="button" class="c8-boton c8-boton--primario"></button></div>`;
     el.querySelector("p").textContent = `${tr("aviso.error_carga", { x: url })}`;
     el.querySelector("button").textContent = tr("aviso.reintentar");
     el.querySelector("button").onclick = () => location.reload();
@@ -2476,6 +2585,7 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   int.actual = null; int.fuenteActual = null;
   U.mezcla.value = 0;
   $("#vacio")?.remove();
+  document.body.classList.remove("vista-vacia");
   int.tour = normalizar(t);
   enlazar(int.tour);
   radar.invalidar();
@@ -2513,6 +2623,7 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
       el.id = "vacio";
       el.textContent = tr("aviso.vista_vacia");
       $("#app").append(el);
+      document.body.classList.add("vista-vacia");
     } else aviso(tr("aviso.error_carga", { x: texto(t.titulo) || "tour" }), 600000, { reintentar: () => location.reload() });
     visor.emitir("tour", {});
     return;
@@ -2554,6 +2665,7 @@ const fps = { t: 0, n: 0 };
 function renderizar() {
   if (!renderer) return;
   if (estado.modo === "maqueta") renderer.render(maqueta.escena(), maqueta.camara);
+  else if (estado.modo === "tour" && !int.actual) renderer.clear();
   else renderer.render(estado.modo === "libre" ? escenaLibre : escena360, camara);
   emitirBase("frame"); // sin CustomEvent: se emite en cada fotograma (grabación de vídeo)
 }
@@ -2576,7 +2688,7 @@ function bucle() {
     else camara.rotation.set(estado.cabeceo, -estado.rumbo, 0);
     estado.fov = camara.fov;
     camara.updateMatrixWorld();
-    if (pintar) { renderizar(); actualizarEtiquetas(); }
+    if (pintar) { renderizar(); actualizarEtiquetas(); quizaMedirLuz(); }
     tMapa += dt;
     if (pintar && tMapa > 0.033) { tMapa = 0; dibujarRadar(); }
     tVista += dt;
@@ -2592,10 +2704,10 @@ function bucle() {
     cabeceoTeclado(dt);
     moverLibre(dt);
     camara.updateMatrixWorld();
-    if (pintar) renderizar();
+    if (pintar) { renderizar(); quizaMedirLuz(); }
   } else {
     maqueta.cuadro();
-    if (pintar) renderizar();
+    if (pintar) { renderizar(); quizaMedirLuz(); }
   }
   medicion?.cuadro();
   // Interfaz que se oculta tras 3,5 s sin interacción (vuelve al mover el ratón o tocar). Quedan el radar y la tarjeta.

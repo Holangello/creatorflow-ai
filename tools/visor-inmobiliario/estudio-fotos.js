@@ -2,7 +2,7 @@
 // y orden de la visita.
 import { dimensiones, leerMetadatos, describirCamara, fechaExif, norm180 } from "./estudio-util.js";
 import { app, h, $, icono, cambiar, emitir, on, toast, dialogo, confirmar, guardarArchivo, urlDe, idLibre, elegirArchivos,
-  textoDe, fijarTexto, colocado, pano, fmtMB, calcularEnlaces, tienePlano } from "./estudio-nucleo.js";
+  textoDe, fijarTexto, colocado, pano, fmtMB, calcularEnlaces, tienePlano, VIDRIO } from "./estudio-nucleo.js";
 import { campoTexto } from "./estudio-campos.js";
 import { avisoPerfil } from "./estudio-perfil.js";
 
@@ -43,6 +43,8 @@ export function procesar(blob, opciones, progreso) {
 const cola = [];
 let procesando = false;
 app.cola = cola;
+/** ¿Se están importando fotos (o versiones de una foto)? Mientras tanto, cerrar la pestaña pregunta antes (estudio.js). */
+app.importando = () => cola.some((x) => x.foto && (x.estado === "espera" || x.estado === "procesando")) || (app.procesandoVariantes ?? 0) > 0;
 function encolar(tarea) {
   cola.push(tarea);
   emitir("cola");
@@ -179,11 +181,11 @@ export function avisoVideo(nombres) {
     titulo: "Esto es vídeo 360",
     texto: `${nombres.slice(0, 3).join(", ")}${nombres.length > 3 ? "…" : ""}: los archivos .OSV de la Osmo 360 (y los MP4/MOV) son vídeo, no fotos.`,
     cuerpo: h("div", { class: "suave" },
-      h("ol", { style: { paddingLeft: "20px", margin: "0 0 8px" } },
+      h("ol", { class: "dialogo-lista" },
         h("li", {}, "Ábrelo en ", h("b", { text: "DJI Studio" }), " (ordenador) o ", h("b", { text: "DJI Mimo" }), " (móvil)."),
         h("li", {}, "Expórtalo como ", h("b", { text: "MP4 equirectangular 8K" }), " (proyección 360, sin reencuadre)."),
         h("li", {}, "Úsalo para entrenar un Gaussian Splat del paseo libre (Postshot, Brush, RealityScan) o extrae fotogramas con extraer_fotogramas.py.")),
-      h("p", { style: { margin: 0 } }, "Para el recorrido 360 usa el modo ", h("b", { text: "Foto panorámica" }), " de la cámara (JPG 15520×7760). ", h("a", { href: "asistente-osmo.html#paseo-libre", target: "_blank", rel: "noopener", text: "Guía Osmo 360" }))),
+      h("p", { class: "texto-sec" }, "Para el recorrido 360 usa el modo ", h("b", { text: "Foto panorámica" }), " de la cámara (JPG 15520×7760). ", h("a", { href: "asistente-osmo.html#paseo-libre", target: "_blank", rel: "noopener", text: "Guía Osmo 360" }))),
     botones: [{ texto: "Entendido", primario: true }],
   });
 }
@@ -200,19 +202,19 @@ export async function anadirFotos(archivos, { render = false } = {}) {
   const raras = info.filter(({ dim }) => dim && Math.abs(dim.w / dim.h - 2) > 0.02);
   let aceptadas = info;
   if (raras.length) {
-    const lista = h("ul", {}, raras.map(({ f, dim, exif }) => h("li", {}, `${f.name}: ${dim.w}×${dim.h} (relación ${(dim.w / dim.h).toFixed(2)}:1)${/dji/i.test(exif?.marca ?? "") ? " · DJI" : ""}`)));
+    const lista = h("ul", { class: "dialogo-lista" }, raras.map(({ f, dim, exif }) => h("li", {}, `${f.name}: ${dim.w}×${dim.h} (relación ${(dim.w / dim.h).toFixed(2)}:1)${/dji/i.test(exif?.marca ?? "") ? " · DJI" : ""}`)));
     const r = await dialogo({
       titulo: raras.length === 1 ? "Esta foto no parece una 360 completa" : `${raras.length} fotos no parecen 360 completas`,
       texto: "Esta foto no parece una 360 completa. Expórtala desde DJI Mimo como “Foto panorámica 360”. Si la añades así, el visor la deformará.",
-      cuerpo: h("div", {}, lista, h("div", { class: "suave", style: { fontSize: "13px" } },
-        h("p", { style: { margin: "8px 0 4px" } }, h("b", { text: "¿Cómo exportarla bien desde la Osmo 360?" })),
-        h("ul", { style: { margin: 0, paddingLeft: "18px" } },
+      cuerpo: h("div", {}, lista, h("div", { class: "texto-sec" },
+        h("p", { class: "texto-sec" }, h("b", { text: "¿Cómo exportarla bien desde la Osmo 360?" })),
+        h("ul", { class: "dialogo-lista" },
           h("li", { text: "Si ves dos círculos (ojo de pez doble), está sin coser: ábrela en DJI Mimo o DJI Studio y exporta «Foto panorámica 360» (equirectangular)." }),
           h("li", { text: "Si es una foto recortada o con efecto “planeta”, vuelve a exportarla desde DJI Mimo como “Foto panorámica 360”, sin reencuadrar." }),
           h("li", { text: "Una foto normal (móvil, réflex) súbela a la galería en «Más herramientas → Extras», no como estancia 360." })),
-        h("p", { style: { margin: "8px 0 0" } }, h("a", { href: "asistente-osmo.html#problemas", target: "_blank", rel: "noopener", text: "Problemas frecuentes en la Guía Osmo 360" })))),
+        h("p", { class: "texto-sec" }, h("a", { href: "asistente-osmo.html#problemas", target: "_blank", rel: "noopener", text: "Problemas frecuentes en la Guía Osmo 360" })))),
       botones: [{ texto: "Omitir esas fotos", valor: "omitir", primario: true }, { texto: "Añadir igualmente", valor: "todas" }],
-      ancho: "min(560px, calc(100vw - 32px))",
+      ancho: "min(35rem, calc(100vw - 2rem))",
     });
     if (!r) return;
     if (r === "omitir") aceptadas = info.filter((x) => !raras.includes(x));
@@ -228,7 +230,7 @@ export async function anadirFotos(archivos, { render = false } = {}) {
     const rumbo = Number.isFinite(exif?.rumbo) ? exif.rumbo : null;
     if (rumbo != null) conBrujula++;
     encolar({
-      nombre: f.name, estado: "espera", progreso: 0, fase: "En cola",
+      nombre: f.name, estado: "espera", progreso: 0, fase: "En cola", foto: true,
       ejecutar: async (progreso) => {
         const r = await procesar(f, { tamanos: [8192, 4096, 512], calidad: 0.85 }, progreso);
         const id = idLibre(nombre, [...app.tour.panoramas.map((p) => p.id), ...app.archivos.keys()].map((x) => x));
@@ -319,7 +321,7 @@ function pintar() {
     h("div", {}, h("h1", { text: "Fotos 360" }),
       h("p", { text: vacio ? "Las fotos panorámicas de la DJI Osmo 360 (JPG 2:1). Se optimizan en tu ordenador, se les quita la ubicación GPS y se ordenan por hora de disparo."
         : "El orden de la lista es el de la visita guiada. Cámbialo con ↑ ↓ o arrastrando las filas." })),
-    t.panoramas.length ? h("div", { class: "acciones" }, h("button", { class: "btn", onclick: elegir }, icono("mas", 16), "Añadir fotos")) : null);
+    t.panoramas.length ? h("div", { class: "acciones" }, h("button", { type: "button", class: "c8-boton c8-boton--secundario", onclick: elegir }, icono("mas", 16), "Añadir fotos")) : null);
   const zonaSoltar = (el) => {
     el.addEventListener("dragover", (e) => { if ([...e.dataTransfer.types].includes("Files")) { e.preventDefault(); el.classList.add("sobre"); } });
     el.addEventListener("dragleave", () => el.classList.remove("sobre"));
@@ -329,16 +331,16 @@ function pintar() {
   const partes = [cab, avisoGuia()];
   if (vacio) {
     // Primera visita (S-3): un solo botón principal y una sola entrada a la Guía.
-    partes.push(zonaSoltar(h("div", { class: "vacio-grande" },
+    partes.push(zonaSoltar(h("div", { class: `vacio-grande ${VIDRIO}` },
       icono("fotos", 42),
       h("h3", { text: "Empieza con las fotos 360 del inmueble" }),
       h("p", { text: "Una foto por estancia, a 1,5 m de altura en el centro de cada espacio. Puedes soltar aquí varias a la vez (o una copia de seguridad en ZIP)." }),
-      h("button", { class: "btn primario grande", onclick: elegir }, icono("subir", 18), "Elegir fotos"),
+      h("button", { type: "button", class: "c8-boton c8-boton--primario c8-boton--l", onclick: elegir }, icono("subir", 18), "Elegir fotos"),
       h("a", { class: "enlace-guia", href: "asistente-osmo.html", target: "_blank", rel: "noopener" }, icono("guia", 16), "¿Aún no tienes las fotos? Guía Osmo 360"))),
     avisoPerfil());
   } else {
     partes.push(zonaSoltar(h("div", { class: "zona-soltar" }, icono("subir", 22),
-      h("div", { class: "relleno" }, h("b", { text: "Suelta más fotos aquí" }), h("div", { class: "tenue", text: "También una copia de seguridad (ZIP)." })))));
+      h("div", { class: "relleno" }, h("b", { text: "Suelta más fotos aquí" }), h("div", { class: "texto-sec", text: "También una copia de seguridad (ZIP)." })))));
   }
   partes.push(pintarCola());
   if (t.panoramas.length) partes.push(pintarLista());
@@ -357,7 +359,7 @@ function pintarCola() {
     const barra = h("div", {}, null);
     barra.style.width = `${Math.round((x.progreso ?? 0) * 100)}%`;
     x.el = barra;
-    x.elFase = h("span", { class: x.estado === "error" ? "chip error" : "tenue", text: x.estado === "error" ? `Error: ${x.error}` : x.estado === "hecho" ? "Listo" : x.fase ?? "" });
+    x.elFase = h("span", { class: x.estado === "error" ? "chip error" : "texto-pie", text: x.estado === "error" ? `Error: ${x.error}` : x.estado === "hecho" ? "Listo" : x.fase ?? "" });
     c.append(h("div", { class: "item-cola" }, h("span", { text: x.nombre }), x.elFase, h("div", { class: "progreso" }, barra)));
   }
   return c;
@@ -368,7 +370,7 @@ on("progreso", (t) => { if (t.el) t.el.style.width = `${Math.round(t.progreso * 
 function pintarLista() {
   const t = app.tour;
   const { vecinos } = calcularEnlaces();
-  const lista = h("div", { class: "lista-fotos", role: "list" });
+  const lista = h("div", { class: `lista-fotos ${VIDRIO}`, role: "list" });
   let arrastrado = null;
   const conPlano = t.panoramas.some(colocado) || tienePlano(t);
   const subirBajar = (p, i, d) => {
@@ -386,12 +388,12 @@ function pintarLista() {
       h("span", { class: "chip", text: `#${i + 1}` }),
       no2a1 ? h("span", { class: "chip error", text: `No es 360 completa (${meta.w}×${meta.h})`, title: "Las fotos 360 son el doble de anchas que de altas (2:1)" }) : null,
       !conPlano ? null : colocado(p) ? h("span", { class: "chip ok", text: t.plantas.length > 1 ? `En el plano · ${textoDe(planta?.nombre)}` : "En el plano" })
-        : h("button", { class: "chip aviso", style: { border: 0, cursor: "pointer" }, text: "Sin colocar en el plano", onclick: () => emitir("ir", { seccion: "plano" }) }),
+        : h("button", { type: "button", class: "chip aviso", text: "Sin colocar en el plano", onclick: () => emitir("ir", { seccion: "plano" }) }),
       colocado(p) && !(vecinos.get(p.id)?.length) && t.panoramas.length > 1 ? h("span", { class: "chip error", text: "Sin conectar" }) : null,
       p.variantes?.length ? h("span", { class: "chip acento", text: `${p.variantes.length} ${p.variantes.length === 1 ? "variante" : "variantes"}` }) : null,
       p.puntos?.length ? h("span", { class: "chip", text: `${p.puntos.length} ${p.puntos.length === 1 ? "nota" : "notas"}` }) : null,
       meta?.render || p.origen === "render" ? h("span", { class: "chip acento", text: "Render 360" }) : null,
-      conPlano && meta?.brujula != null && !meta.brujulaRevisada ? h("button", { class: "chip aviso", style: { border: 0, cursor: "pointer" }, text: "Orientación por brújula: revísala",
+      conPlano && meta?.brujula != null && !meta.brujulaRevisada ? h("button", { type: "button", class: "chip aviso", text: "Orientación por brújula: revísala",
         title: `${meta.brujulaFuente ?? "XMP"} = ${meta.brujula}°`, onclick: () => { app.nodo = p.id; emitir("nodo", {}); emitir("ir", { seccion: "orientacion" }); } }) : null,
     ];
     const tecnico = meta ? [meta.camara, `${meta.w}×${meta.h}`, meta.bytes ? fmtMB(meta.bytes) : null, meta.fecha ? `disparada el ${meta.fecha}` : null].filter(Boolean).join(" · ") : "";
@@ -406,11 +408,11 @@ function pintarLista() {
         h("div", { class: "meta" }, chips)),
       h("div", { class: "acc" },
         h("div", { class: "orden-btns" },
-          h("button", { class: "btn fantasma", "data-orden": "subir", title: "Subir en el orden de la visita", "aria-label": `Subir ${textoDe(p.nombre) || p.id}`, disabled: i === 0, onclick: () => subirBajar(p, i, -1) }, "↑"),
-          h("button", { class: "btn fantasma", "data-orden": "bajar", title: "Bajar en el orden de la visita", "aria-label": `Bajar ${textoDe(p.nombre) || p.id}`, disabled: i === t.panoramas.length - 1, onclick: () => subirBajar(p, i, 1) }, "↓")),
-        h("button", { class: `btn fantasma icono-btn btn-estrella ${inicio ? "activo" : ""}`, title: inicio ? "Estancia inicial del recorrido" : "Empezar el recorrido aquí", "aria-label": "Estancia inicial", "aria-pressed": String(inicio),
+          h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", "data-orden": "subir", title: "Subir en el orden de la visita", "aria-label": `Subir ${textoDe(p.nombre) || p.id}`, disabled: i === 0, onclick: () => subirBajar(p, i, -1) }, "↑"),
+          h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", "data-orden": "bajar", title: "Bajar en el orden de la visita", "aria-label": `Bajar ${textoDe(p.nombre) || p.id}`, disabled: i === t.panoramas.length - 1, onclick: () => subirBajar(p, i, 1) }, "↓")),
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono btn-estrella", title: inicio ? "Estancia inicial del recorrido" : "Empezar el recorrido aquí", "aria-label": "Estancia inicial", "aria-pressed": String(inicio),
           onclick: () => cambiar((tt) => { tt.inicio = p.id; }) }, icono("estrella", 17)),
-        h("button", { class: "btn fantasma icono-btn", title: "Eliminar foto", "aria-label": "Eliminar foto", onclick: async () => {
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono", title: "Eliminar foto", "aria-label": "Eliminar foto", onclick: async () => {
           if (await confirmar("Eliminar foto", `Se quitará «${textoDe(p.nombre) || p.id}» del recorrido (puedes deshacerlo con Ctrl+Z).`)) borrarFoto(p.id);
         } }, icono("basura", 17))));
     fila.addEventListener("dragstart", (e) => { arrastrado = p.id; fila.classList.add("arrastrando"); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/x-foto", p.id); });
@@ -440,7 +442,7 @@ function pintarLista() {
     });
     lista.append(fila);
   });
-  return h("div", {}, lista, h("p", { class: "tenue", style: { fontSize: "12.5px", marginTop: "10px" } }, "Con el teclado: ", h("kbd", { text: "Alt" }), " + ", h("kbd", { text: "↑" }), h("kbd", { text: "↓" }), " desde un nombre."));
+  return h("div", {}, lista, h("p", { class: "nota-fotos" }, "Con el teclado: ", h("kbd", { text: "Alt" }), " + ", h("kbd", { text: "↑" }), h("kbd", { text: "↓" }), " desde un nombre."));
 }
 function mover(id, destino, despues) {
   if (id === destino) return;

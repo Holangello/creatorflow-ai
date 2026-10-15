@@ -1,16 +1,77 @@
 // Radar y plano 2D: plantas, estancias con m², muros, enlaces, fotos y cono de visión.
 // modoMapa() "radar": centrado en el visitante y girando con su mirada (esquina); "plano": norte arriba («Estancias y plano»).
+// Colores, letra y tamaños salen de los tokens de tema.css, leídos del propio lienzo (está dentro de un vidrio, así que
+// el texto secundario es su versión para vidrio). Se releen y se repinta con el evento "cre8:tema" (tema, talla) y con
+// retema() (color de marca del tour). En claro, tinta oscura sobre vidrio claro; en oscuro, al revés.
 import { areaPoligono, puntoEtiqueta, puntoEnPoligono } from "./util.js";
+
+// Uso en el dibujo → token
+const TOKENS = {
+  texto: "--c-texto",              // nombres, muros, norte y puntos de las fotos
+  texto2: "--c-texto-2",           // m²
+  capa: "--c-capa-hover",          // relleno de las estancias
+  capaActiva: "--c-capa-activa",   // estancia bajo el puntero
+  separador: "--c-separador",      // anillos de distancia del radar
+  borde: "--c-borde-2",            // aro del radar
+  acento: "--c-acento",            // foto actual y posición del visitante
+  acentoTinta: "--c-acento-texto", // enlaces y cono de visión: se leen sobre el vidrio en los dos temas
+  sobreAcento: "--c-sobre-acento", // contorno de la posición y de la foto actual
+  contorno: "--c-fondo",           // contorno de los demás puntos
+};
+// Contingencia: sin tema.css (o con un color que el lienzo no entienda), los valores del tema oscuro.
+const RESERVA = { texto: [245, 245, 247, 1], texto2: [195, 199, 205, 1], capa: [255, 255, 255, 0.08], capaActiva: [255, 255, 255, 0.14],
+  separador: [255, 255, 255, 0.08], borde: [255, 255, 255, 0.18], acento: [207, 173, 102, 1], acentoTinta: [217, 184, 114, 1],
+  sobreAcento: [21, 17, 10, 1], contorno: [10, 11, 13, 1] };
+
+/** Color CSS (hex, rgb(), color-mix(), oklch(from …)…) → [r, g, b, a] en sRGB, pintando un píxel. null si no se entiende. */
+let pixel = null;
+function rgbaDe(valor) {
+  if (!valor) return null;
+  if (!pixel) {
+    const c = document.createElement("canvas");
+    c.width = c.height = 1;
+    pixel = c.getContext("2d", { willReadFrequently: true });
+  }
+  if (!pixel) return null;
+  pixel.fillStyle = "#010203";
+  pixel.fillStyle = valor;
+  if (pixel.fillStyle === "#010203" && !/^#010203$/i.test(valor)) return null;
+  pixel.clearRect(0, 0, 1, 1);
+  pixel.fillRect(0, 0, 1, 1);
+  const [r, g, b, a] = pixel.getImageData(0, 0, 1, 1).data;
+  return [r, g, b, Math.round((a / 255) * 1000) / 1000];
+}
 
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {object} ctx  { tour(), planta(), nodos(), nodoActual(), posicion(), acento(), modoMapa(), texto(v), formato(n), alElegirNodo(n), alElegirPunto(x, z) }
+ * @param {object} ctx  { tour(), planta(), nodos(), nodoActual(), posicion(), modoMapa(), texto(v), formato(n), alElegirNodo(n), alElegirPunto(x, z) }
  */
 export function crearPlano(canvas, ctx) {
   const g = canvas.getContext("2d");
   const imagenes = new Map();
   const marcos = new Map();
   let hover = null;
+  let paleta = null;
+
+  /** Tokens del tema vigente (en caché hasta el próximo cambio de tema, talla o color de marca). */
+  function leerPaleta() {
+    const cs = getComputedStyle(canvas);
+    const raiz = getComputedStyle(document.documentElement);
+    const p = {};
+    for (const [k, v] of Object.entries(TOKENS)) p[k] = rgbaDe(cs.getPropertyValue(v).trim()) ?? RESERVA[k];
+    const rem = parseFloat(raiz.fontSize) || 16;
+    const tam = (token, reserva) => { const v = raiz.getPropertyValue(token).trim(); const n = parseFloat(v); return n > 0 ? (v.endsWith("rem") ? n * rem : n) : reserva * rem; };
+    p.fuente = raiz.getPropertyValue("--fuente").trim() || "system-ui, sans-serif";
+    p.normal = raiz.getPropertyValue("--peso-normal").trim() || "400";
+    p.semi = raiz.getPropertyValue("--peso-semi").trim() || "600";
+    p.fuerte = raiz.getPropertyValue("--peso-fuerte").trim() || "700";
+    p.micro = tam("--t-micro", 0.6875);
+    p.pie = tam("--t-pie", 0.75);
+    p.sec = tam("--t-sec", 0.8125);
+    p.u = Math.min(1.6, Math.max(0.75, rem / 16)); // escala de puntos y cono (talla S/M/L)
+    return p;
+  }
+  const css = ([r, gr, b, a], alfa = 1) => `rgba(${r},${gr},${b},${Math.round(a * alfa * 1000) / 1000})`;
 
   function imagenPlanta(p) {
     const src = p?.plano?.imagen;
@@ -74,18 +135,19 @@ export function crearPlano(canvas, ctx) {
     const W = canvas.clientWidth, H = canvas.clientHeight;
     if (!W || !H) return;
     if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); }
+    const C = (paleta ??= leerPaleta());
+    const letra = (peso, px) => `${peso} ${Math.round(px * 10) / 10}px ${C.fuente}`;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
     const T = transform(p, W, H);
-    const acento = ctx.acento();
     const grande = W > 300;
+    const u = C.u;
 
     if (T.radar) {
+      // El fondo es el vidrio del disco (CSS); aquí solo los anillos de distancia, cada 2 m.
       g.save();
       g.beginPath(); g.arc(T.cx, T.cz, Math.min(W, H) / 2 - 2, 0, Math.PI * 2); g.clip();
-      g.fillStyle = "rgba(10,12,16,.55)"; g.fillRect(0, 0, W, H);
-      // anillos de distancia (cada 2 m)
-      g.strokeStyle = "rgba(255,255,255,.08)"; g.lineWidth = 1;
+      g.strokeStyle = css(C.separador); g.lineWidth = 1;
       for (let r = 2; r * T.esc < Math.max(W, H); r += 2) { g.beginPath(); g.arc(T.cx, T.cz, r * T.esc, 0, Math.PI * 2); g.stroke(); }
     }
     const img = imagenPlanta(p);
@@ -109,12 +171,12 @@ export function crearPlano(canvas, ctx) {
       g.beginPath();
       e.poligono.forEach(([x, z], i) => { const [px, pz] = T.a(x, z); i ? g.lineTo(px, pz) : g.moveTo(px, pz); });
       g.closePath();
-      g.fillStyle = e === hover ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.05)";
+      g.fillStyle = css(e === hover ? C.capaActiva : C.capa);
       g.fill();
     }
 
     if (p.muros?.length) {
-      g.strokeStyle = "#e3e6ea"; g.lineWidth = Math.max(2, T.esc * 0.12); g.lineCap = "square";
+      g.strokeStyle = css(C.texto, 0.9); g.lineWidth = Math.max(2, T.esc * 0.12); g.lineCap = "square";
       g.beginPath();
       for (const m of p.muros) { const [ax, az] = T.a(m[0], m[1]), [bx, bz] = T.a(m[2], m[3]); g.moveTo(ax, az); g.lineTo(bx, bz); }
       g.stroke();
@@ -124,23 +186,24 @@ export function crearPlano(canvas, ctx) {
     if (T.radar ? Math.min(W, H) >= 130 : grande || T.esc > 22) {
       g.textAlign = "center"; g.textBaseline = "middle";
       const pos0 = T.radar ? ctx.posicion() : null;
+      const nombre = T.radar ? C.micro : grande ? C.sec : C.micro, m2 = grande ? C.pie : C.micro * 0.92;
       for (const e of estancias) {
         // En el radar no se rotula la estancia donde está el visitante (ya figura en la tarjeta superior).
         if (pos0 && puntoEnPoligono([pos0.x, pos0.z], e.poligono)) continue;
         const [cx, cz] = T.a(...puntoEtiqueta(e.poligono));
-        g.font = `600 ${grande ? 13 : 10}px system-ui, sans-serif`;
-        g.fillStyle = "rgba(255,255,255,.85)";
-        g.fillText(ctx.texto(e.nombre), cx, T.radar ? cz : cz - 7);
+        g.font = letra(C.semi, nombre);
+        g.fillStyle = css(C.texto);
+        g.fillText(ctx.texto(e.nombre), cx, T.radar ? cz : cz - nombre * 0.55);
         if (T.radar) continue;
-        g.font = `${grande ? 12 : 9}px system-ui, sans-serif`;
-        g.fillStyle = "rgba(255,255,255,.6)";
-        g.fillText(`${ctx.formato(areaPoligono(e.poligono))} m²`, cx, cz + 8);
+        g.font = letra(C.normal, m2);
+        g.fillStyle = css(C.texto2);
+        g.fillText(`${ctx.formato(areaPoligono(e.poligono))} m²`, cx, cz + m2 * 0.7);
       }
     }
 
-    // Enlaces y nodos
+    // Enlaces y fotos
     const nodos = ctx.nodos().filter((n) => n.planta === p.id);
-    g.strokeStyle = hexAlfa(acento, 0.4); g.lineWidth = 1.5; g.setLineDash([3, 3]);
+    g.strokeStyle = css(C.acentoTinta, 0.5); g.lineWidth = 1.5; g.setLineDash([3, 3]);
     g.beginPath();
     for (const n of nodos) for (const v of n.vecinos) {
       if (v.planta !== p.id || v.id < n.id) continue;
@@ -151,17 +214,18 @@ export function crearPlano(canvas, ctx) {
     const actual = ctx.nodoActual();
     for (const n of nodos) {
       const [x, z] = T.a(n.x, n.z);
-      g.fillStyle = n === actual ? acento : "#ffffff";
-      g.beginPath(); g.arc(x, z, grande ? 6 : 5, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = "rgba(0,0,0,.5)"; g.lineWidth = 1; g.stroke();
+      const es = n === actual;
+      g.fillStyle = css(es ? C.acento : C.texto);
+      g.beginPath(); g.arc(x, z, (grande ? 6 : 5) * u, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = css(es ? C.sobreAcento : C.contorno, es ? 1 : 0.85); g.lineWidth = 1.5; g.stroke();
     }
 
     // Norte (solo si se conoce): flecha en la esquina del plano; en el radar, una «N» en el borde que gira con la vista.
     const norte = ctx.tour().norte;
     if (norte != null && !T.radar) {
-      g.save(); g.translate(W - 18, 18); g.rotate((-norte * Math.PI) / 180);
-      g.fillStyle = "rgba(255,255,255,.85)"; g.beginPath(); g.moveTo(0, -9); g.lineTo(5, 5); g.lineTo(0, 2); g.lineTo(-5, 5); g.closePath(); g.fill();
-      g.font = "600 9px system-ui"; g.textAlign = "center"; g.fillText("N", 0, -12);
+      g.save(); g.translate(W - 18 * u, 20 * u); g.rotate((-norte * Math.PI) / 180); g.scale(u, u);
+      g.fillStyle = css(C.texto, 0.9); g.beginPath(); g.moveTo(0, -9); g.lineTo(5, 5); g.lineTo(0, 2); g.lineTo(-5, 5); g.closePath(); g.fill();
+      g.font = letra(C.semi, 9); g.textAlign = "center"; g.textBaseline = "alphabetic"; g.fillText("N", 0, -12);
       g.restore();
     }
 
@@ -171,21 +235,21 @@ export function crearPlano(canvas, ctx) {
       const [x, z] = T.a(pos.x, pos.z);
       const media = Math.min(pos.fovH / 2, 1.2);
       const dirPantalla = T.radar ? 0 : pos.rumbo; // en radar, la mirada siempre apunta arriba
-      const rad = grande ? 70 : 46;
+      const rad = (grande ? 70 : 46) * u;
       const grd = g.createRadialGradient(x, z, 0, x, z, rad);
-      grd.addColorStop(0, hexAlfa(acento, 0.55)); grd.addColorStop(1, hexAlfa(acento, 0));
+      grd.addColorStop(0, css(C.acentoTinta, 0.55)); grd.addColorStop(1, css(C.acentoTinta, 0));
       g.fillStyle = grd;
       g.beginPath(); g.moveTo(x, z); g.arc(x, z, rad, dirPantalla - Math.PI / 2 - media, dirPantalla - Math.PI / 2 + media); g.closePath(); g.fill();
-      g.fillStyle = acento; g.strokeStyle = "#111"; g.lineWidth = 2;
-      g.beginPath(); g.arc(x, z, 7, 0, Math.PI * 2); g.fill(); g.stroke();
+      g.fillStyle = css(C.acento); g.strokeStyle = css(C.sobreAcento); g.lineWidth = 2;
+      g.beginPath(); g.arc(x, z, 7 * u, 0, Math.PI * 2); g.fill(); g.stroke();
     }
     if (T.radar) {
       g.restore();
-      g.strokeStyle = "rgba(255,255,255,.25)"; g.lineWidth = 1.5;
+      g.strokeStyle = css(C.borde); g.lineWidth = 1.5;
       g.beginPath(); g.arc(T.cx, T.cz, Math.min(W, H) / 2 - 2, 0, Math.PI * 2); g.stroke();
       if (norte != null) {
-        const a = T.rot - (norte * Math.PI) / 180, r = Math.min(W, H) / 2 - 9;
-        g.font = "700 9px system-ui"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "rgba(255,255,255,.9)";
+        const a = T.rot - (norte * Math.PI) / 180, r = Math.min(W, H) / 2 - C.micro * 0.9;
+        g.font = letra(C.fuerte, C.micro * 0.85); g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = css(C.texto);
         g.fillText("N", T.cx + r * Math.sin(a), T.cz - r * Math.cos(a));
       }
     }
@@ -225,13 +289,15 @@ export function crearPlano(canvas, ctx) {
     if (h !== hover) { hover = h; dibujar(); }
   });
   canvas.addEventListener("pointerleave", () => { if (hover) { hover = null; dibujar(); } });
+  // Tema, talla o transparencia nuevos: otros colores y otra letra.
+  document.addEventListener("cre8:tema", () => { paleta = null; dibujar(); });
 
-  return { dibujar, invalidar: () => marcos.clear() };
-}
-
-function hexAlfa(hex, a) {
-  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(hex ?? "").trim());
-  if (!m) return `rgba(207,173,102,${a})`;
-  const n = parseInt(m[1].length === 3 ? m[1].replace(/./g, (c) => c + c) : m[1], 16);
-  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  return {
+    dibujar,
+    invalidar: () => marcos.clear(),
+    /** Tras cambiar el color de marca (--c-acento): relee los colores en el próximo dibujo. */
+    retema: () => { paleta = null; },
+    /** Colores vigentes (pruebas y depuración). */
+    get paleta() { return (paleta ??= leerPaleta()); },
+  };
 }

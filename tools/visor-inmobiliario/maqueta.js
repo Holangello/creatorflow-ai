@@ -1,11 +1,17 @@
 // Vista "maqueta" (dollhouse): la vivienda vista desde arriba en 3D, con estancias, m² y
 // pines de las fotos 360. Usa el modelo real (demo/GLB) si existe o un esquema extruido
 // a partir de los muros del plano (con las estancias coloreadas encima).
+// La vivienda flota sobre el fondo del tema (--c-sup-2: claro en claro, oscuro en oscuro); se repinta con "cre8:tema".
 import * as THREE from "three";
 import { areaPoligono, puntoEtiqueta } from "./util.js";
 
 const ALTO_MURO = 2.5;
 const COLORES = [0xe9dcc6, 0xd6e2d3, 0xd9dbe8, 0xeed9cf, 0xdfe7ea, 0xe8e2c9, 0xe2d4e6];
+/** Fondo de la maqueta según el tema. Contingencia: sin tema.css, el gris oscuro de siempre. */
+function colorFondo() {
+  const v = getComputedStyle(document.documentElement).getPropertyValue("--c-sup-2").trim();
+  return new THREE.Color(/^#[0-9a-f]{3,6}$/i.test(v) ? v : "#1a1d22");
+}
 
 export function crearMaqueta(ctx) {
   const camara = new THREE.PerspectiveCamera(45, 1, 0.1, 400);
@@ -29,7 +35,7 @@ export function crearMaqueta(ctx) {
   capa.hidden = true;
   ctx.contenedor.append(capa);
 
-  let escena = null, usaModelo = false, construida = false;
+  let escena = null, usaModelo = false, construida = false, activa = false, fondoPrevio;
   const etiquetas = [];
   const superficies = [];
   const rayo = new THREE.Raycaster();
@@ -48,7 +54,7 @@ export function crearMaqueta(ctx) {
     usaModelo = !!modelo;
     escena = usaModelo ? ctx.escenaLibre : new THREE.Scene();
     if (!usaModelo) {
-      escena.background = new THREE.Color(0x15181d);
+      escena.background = colorFondo();
       escena.add(new THREE.HemisphereLight(0xffffff, 0x404040, 2.2));
       const sol = new THREE.DirectionalLight(0xffffff, 1.4);
       sol.position.set(8, 20, 6);
@@ -82,7 +88,7 @@ export function crearMaqueta(ctx) {
       escena.add(s);
       const [cx, cz] = puntoEtiqueta(e.poligono);
       const el = document.createElement("div");
-      el.className = "maq-estancia";
+      el.className = "maq-estancia c8-vidrio c8-vidrio--texto";
       el.innerHTML = `<b></b><span></span>`;
       el.querySelector("b").textContent = ctx.texto(e.nombre);
       el.querySelector("span").textContent = `${ctx.formato(areaPoligono(e.poligono))} m²`;
@@ -140,6 +146,8 @@ export function crearMaqueta(ctx) {
     hover = h;
   }
 
+  document.addEventListener("cre8:tema", () => { if (activa && escena) escena.background = colorFondo(); });
+
   return {
     camara,
     /** Solo con muros o con modelo 3D: con polígonos sueltos la maqueta serían manchas planas (N4). */
@@ -155,11 +163,17 @@ export function crearMaqueta(ctx) {
       if (controles) controles.enabled = si;
       capa.hidden = !si;
       if (usaModelo) ctx.ocultarTecho(si);
+      // Con el modelo del paseo libre, el fondo del tema solo mientras se ve la maqueta (luego vuelve el suyo).
+      if (si && !activa) { fondoPrevio = escena.background; escena.background = colorFondo(); }
+      else if (!si && activa && usaModelo) escena.background = fondoPrevio ?? null;
+      activa = !!si;
       ctx.lienzo[si ? "addEventListener" : "removeEventListener"]("pointermove", alMover);
     },
     redimensionar(aspecto) { camara.aspect = aspecto; camara.updateProjectionMatrix(); },
     cuadro,
     reiniciar() {
+      if (activa && usaModelo && escena) escena.background = fondoPrevio ?? null;
+      activa = false;
       hover = null;
       superficies.forEach((s) => { s.parent?.remove(s); s.geometry.dispose(); s.material.dispose(); });
       if (escena && !usaModelo) escena.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose?.(); } });
