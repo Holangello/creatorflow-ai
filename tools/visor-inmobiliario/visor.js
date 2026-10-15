@@ -2256,8 +2256,9 @@ function rellenarPortada() {
 }
 function portadaLista() {
   if (!int.portada || !portada) return;
+  if (renderer && int.actual) precompilar();
   if (int.tour?.portada === false) { empezar({ automatica: true }); return; }
-  if (renderer && int.actual) { precompilar(); renderizar(); fondoPortada(lienzo); }
+  if (renderer && int.actual) { renderizar(); fondoPortada(lienzo); }
   progresoPortada(1);
   rellenarPortada();
   portada.classList.add("lista");
@@ -2803,6 +2804,7 @@ async function iniciar() {
   await cargarEnVisor(t);
   const modoPedido = params.get("modo");
   if (modoPedido && modosDisponibles().includes(modoPedido)) await cambiarModo(modoPedido);
+  if (renderer && int.actual && !int.portada) precompilar(); // sin portada (?embed): antes del primer fotograma
   if (renderer) renderer.setAnimationLoop(bucle);
   import("./paneles.js").then((m) => m.iniciarPaneles?.(visor)).catch((e) => console.info("Paneles no disponibles:", e.message));
   visor.listo = true;

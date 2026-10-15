@@ -1408,7 +1408,7 @@ function pantallaPegar() {
     : env.copiaOk ? tr("contacto.copiada_n", { n, total }) : tr("contacto.copiando");
   const instruccion = esTactil() ? tr("contacto.wa_paso3_tactil") : tr("contacto.wa_paso3_teclado", { x: atajoPegar() });
   const boton = (k, primario, icono, texto, onclick) => h("button", { type: "button", "data-k": k, autofocus: primario || null, onclick,
-    class: primario ? "c8-boton c8-boton--primario c8-boton--bloque" : "c8-boton c8-boton--secundario" }, ic(icono), texto);
+    class: primario ? "c8-boton c8-boton--primario c8-boton--l c8-boton--bloque" : "c8-boton c8-boton--secundario" }, ic(icono), texto);
   const terminar = (primario) => boton("terminado", primario, "ok", tr("contacto.terminado"), () => {
     ui.envio = { estado: "exito", porWhatsapp: "confirmado" }; rehacerDialogo(); vaciarCapturas(); pintarContador();
   });
@@ -1544,7 +1544,7 @@ function dlgContacto() {
       h("div", { class: "pn-fila" },
         h("button", { type: "submit", class: "c8-boton c8-boton--secundario", "data-k": "reintentar" }, tr("comun.reintentar")),
         wa ? h("button", { type: "button", class: "c8-boton c8-boton--whatsapp", "data-k": "enviar-wa", onclick: (e) => enviarContacto(e.currentTarget.form, "whatsapp") }, ic("whatsapp"), tr("contacto.enviar_whatsapp")) : null)) : null,
-    env.estado === "error" ? null : h("button", { type: "submit", class: `c8-boton ${viaWhatsApp ? "c8-boton--whatsapp" : "c8-boton--primario"} c8-boton--bloque pn-enviar`, "data-k": "enviar", disabled: enviando, "aria-busy": enviando ? "true" : null },
+    env.estado === "error" ? null : h("button", { type: "submit", class: `c8-boton ${viaWhatsApp ? "c8-boton--whatsapp" : "c8-boton--primario"} c8-boton--l c8-boton--bloque pn-enviar`, "data-k": "enviar", disabled: enviando, "aria-busy": enviando ? "true" : null },
       ic(viaWhatsApp ? "whatsapp" : "chat"), enviando ? tr("contacto.enviando") : viaWhatsApp ? tr("contacto.enviar_whatsapp") : tr("contacto.enviar")),
     // WhatsApp directo, sin formulario: enlace secundario
     wa && env.estado !== "error" ? h("p", { class: "pn-nota pn-centro pn-directo" }, tr("contacto.directo"), " ",

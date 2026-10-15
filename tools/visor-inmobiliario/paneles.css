@@ -330,7 +330,8 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-check input { width: 1.375rem; height: 1.375rem; margin: 0.0625rem 0 0; accent-color: var(--c-acento, #cfad66); flex: none; }
 .pn-check label { flex: 1; color: var(--c-texto, #f5f5f7); line-height: var(--lh-ui, 1.3); padding-top: 0.125rem; }
 .pn-check .pn-error { flex-basis: 100%; }
-.pn-error { display: flex; gap: 0.375rem; align-items: center; color: var(--c-error, #ff7b72); font-size: var(--t-pie, 0.75rem); font-weight: var(--peso-medio, 510); }
+/* textos de estado: las variantes -texto de tema.css (AA también sobre el vidrio claro en su peor fondo) */
+.pn-error { display: flex; gap: 0.375rem; align-items: center; color: var(--c-error-texto, var(--c-error, #ff7b72)); font-size: var(--t-pie, 0.75rem); font-weight: var(--peso-medio, 510); }
 .pn-chips { display: flex; flex-wrap: wrap; gap: var(--e-2, 0.5rem); margin-bottom: var(--e-1, 0.25rem); }
 /* sugerencias de pregunta: una fila que se desliza (el borde derecho se difumina para indicarlo) */
 .pn-form .pn-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 0.125rem 1.5rem 0.125rem 0.125rem; margin-inline: -0.125rem;
@@ -353,7 +354,6 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
   transition: transform var(--d-2, 220ms) var(--muelle, ease-out); }
 .pn-rgpd[open] summary::before { transform: rotate(45deg); }
 .pn-rgpd p { margin-top: var(--e-1, 0.25rem); padding: var(--e-2) var(--e-3); border-radius: var(--r-2, 0.625rem); background: var(--c-capa-hover, rgba(255, 255, 255, 0.06)); line-height: var(--lh-texto, 1.5); }
-.pn-enviar { min-height: max(3rem, var(--toque-minimo, 44px)); }
 .pn-directo { margin-top: calc(-1 * var(--e-2, 0.5rem)); }
 .pn-estado { display: grid; gap: var(--e-3, 0.75rem); padding: var(--e-4, 1rem); border-radius: var(--r-3, 0.875rem); }
 .pn-estado p { display: flex; gap: var(--e-2, 0.5rem); align-items: flex-start; }
@@ -365,7 +365,7 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-estado-pegar { justify-items: stretch; text-align: left; padding: var(--e-1) 0; }
 .pn-guia { display: flex; gap: var(--e-2, 0.5rem); align-items: flex-start; }
 .pn-guia .pn-ic { color: var(--c-acento-texto, #d9b872); margin-top: 0.125rem; }
-.pn-aviso { display: flex; gap: var(--e-2, 0.5rem); align-items: center; font-size: var(--t-sec, 0.8125rem); color: var(--c-aviso, #f2c14e); }
+.pn-aviso { display: flex; gap: var(--e-2, 0.5rem); align-items: center; font-size: var(--t-sec, 0.8125rem); color: var(--c-aviso-texto, var(--c-aviso, #f2c14e)); }
 .pn-giro { width: 1.125rem; height: 1.125rem; border-radius: 50%; border: 0.125rem solid currentColor; border-right-color: transparent; animation: pn-giro 0.8s linear infinite; flex: none; }
 @keyframes pn-giro { to { transform: rotate(360deg); } }
 
@@ -470,7 +470,9 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 /* estilo y luz */
 .pn-grupo { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: var(--e-2, 0.5rem); }
 .pn-grupo + .pn-grupo { padding-top: var(--e-3, 0.75rem); border-top: 1px solid var(--c-separador, rgba(255, 255, 255, 0.08)); }
-.pn-grupo legend { padding: 0; margin-bottom: var(--e-2, 0.5rem); font-size: var(--t-micro, 0.6875rem); font-weight: var(--peso-semi, 590); letter-spacing: var(--track-mayus, 0.08em);
+/* la leyenda, flotada, es un elemento más de la rejilla: así la línea que separa los grupos queda encima del título en vez
+   de atravesarlo (como en Ajustes); el fieldset sigue tomando de ella su nombre accesible */
+.pn-grupo > legend { float: left; width: 100%; padding: 0; margin: 0; font-size: var(--t-micro, 0.6875rem); font-weight: var(--peso-semi, 590); letter-spacing: var(--track-mayus, 0.08em);
   text-transform: uppercase; color: var(--c-texto-2, #a9adb5); }
 .pn-grupo legend .pn-suave { text-transform: none; letter-spacing: 0; font-weight: var(--peso-normal, 400); }
 .pn-grupo[disabled] .pn-muestras { opacity: 0.4; }

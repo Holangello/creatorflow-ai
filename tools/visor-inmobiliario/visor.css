@@ -192,7 +192,7 @@ body:is(.modo-libre, .modo-maqueta, .midiendo) #galeria { display: none; }
 @keyframes carga { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
 :root[data-movimiento="reducido"] #carga:not(.determinado) .barra div { animation: none; width: 100%; opacity: 0.5; }
 #pista, #tarjeta-juego { position: absolute; z-index: calc(var(--z-hud) + 2); left: 50%; top: 50%; translate: -50% -50%; max-width: min(30rem, calc(100vw - 2 * var(--hud)));
-  padding: var(--e-3) var(--e-5); border-radius: var(--r-pastilla); text-align: center; font: var(--peso-medio) var(--t-cuerpo) / 1.35 var(--fuente); color: var(--c-texto); }
+  padding: var(--e-3) var(--e-5); border-radius: var(--r-5); text-align: center; font: var(--peso-medio) var(--t-cuerpo) / 1.35 var(--fuente); color: var(--c-texto); text-wrap: balance; }
 #pista { pointer-events: none; animation: pista 2.2s var(--suave) 2; }
 @keyframes pista { 50% { scale: 1.04; } }
 #tarjeta-juego { border-radius: var(--r-4); padding: var(--e-4) var(--e-5); }
@@ -263,7 +263,7 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
 #portada .acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-3); margin-top: var(--e-3); }
 #portada .acciones .c8-boton { min-height: 3rem; padding: 0 var(--e-6); font-size: var(--t-cuerpo); }
 #portada .idiomas { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-1); }
-#portada .idiomas .c8-boton { min-width: 2.75rem; letter-spacing: 0.06em; }
+#portada .idiomas .c8-boton { min-width: max(2.75rem, var(--alto-control-s)); letter-spacing: 0.06em; } /* nunca más alto que ancho (táctil: 44 px) */
 #portada .credito { position: absolute; left: 50%; translate: -50% 0; bottom: calc(var(--e-4) + var(--seg-inf)); margin: 0; font-weight: var(--peso-normal); }
 #portada .credito b { margin-left: 0.25em; font-weight: var(--peso-semi); }
 

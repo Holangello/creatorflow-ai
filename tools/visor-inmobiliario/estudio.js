@@ -247,7 +247,7 @@ function fueraApariencia(e) { if (!e.target.closest(".menu-apariencia, #btn-apar
 function menuApariencia() {
   if (document.querySelector(".menu-apariencia")) return cerrarApariencia();
   const T = window.cre8Tema, boton = $("#btn-apariencia");
-  if (!T) return toast("No se ha podido cargar el tema: se usa el del sistema", "aviso");
+  if (!T) return toast("No se ha podido cargar la apariencia (tema.js): el Estudio sigue con el tema oscuro", "aviso");
   const grupo = (clave, etiqueta, opciones) => h("div", { class: "grupo" }, h("span", { class: "c8-mayus", id: `ap-${clave}`, text: etiqueta }),
     h("div", { class: "c8-segmentado", role: "radiogroup", "aria-labelledby": `ap-${clave}`, "data-pref": clave }, opciones.map(([v, t, titulo]) => {
       const r = h("input", { type: "radio", name: `ap-${clave}`, value: v });
