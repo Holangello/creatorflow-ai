@@ -124,8 +124,105 @@
     else marcarTodos();
   }
 
+  // ---------------------------------------------------------------- Vidrio adaptativo por pieza (tema.css)
+  // Una página que mide la foto que hay detrás de una pieza de vidrio (el visor: percentiles 10 y 90 de la luminancia
+  // bajo la pieza) le pone su propia alfa (--vidrio-a). Aquí se calcula: la mínima para que todo lo que se lee en la
+  // pieza cumpla (4,5:1 el texto; 3:1 los iconos y el texto grande) con un 10 % de holgura, porque la medida es de pocos
+  // píxeles y el fondo se aproxima como un gris. La mezcla es en sRGB, como la hace el navegador.
+  var HOLGURA = 1.1;
+  var canal = function (c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  var luminancia = function (c) { return 0.2126 * canal(c[0]) + 0.7152 * canal(c[1]) + 0.0722 * canal(c[2]); };
+  var razon = function (a, b) { var x = luminancia(a), y = luminancia(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  var mezclar = function (arriba, alfa, abajo) { return [0, 1, 2].map(function (i) { return alfa * arriba[i] + (1 - alfa) * abajo[i]; }); };
+  var gris = function (l) { var c = l <= 0.0031308 ? 12.92 * l : 1.055 * Math.pow(l, 1 / 2.4) - 0.055; c = Math.max(0, Math.min(255, c * 255)); return [c, c, c]; };
+  var lienzoColor = null, colores = {};
+  /** Cualquier color CSS (rgb, oklch, color-mix…) → [r, g, b, a] en sRGB 0-255; null si no hay lienzo. */
+  function aRgb(css) {
+    if (colores[css]) return colores[css];
+    if (!lienzoColor) { try { var cv = document.createElement("canvas"); cv.width = cv.height = 1; lienzoColor = cv.getContext("2d", { willReadFrequently: true }); } catch (e) { return null; } }
+    if (!lienzoColor) return null;
+    lienzoColor.clearRect(0, 0, 1, 1); lienzoColor.fillStyle = "#000"; lienzoColor.fillStyle = css; lienzoColor.fillRect(0, 0, 1, 1);
+    var d = lienzoColor.getImageData(0, 0, 1, 1).data;
+    return (colores[css] = [d[0], d[1], d[2], d[3] / 255]);
+  }
+  var analisis = typeof WeakMap === "function" ? new WeakMap() : null;
+  /** Lo que tiene que leerse sobre el vidrio de una pieza: el color de cada texto y de cada icono que va directamente
+      sobre él (no sobre un relleno opaco, como un botón de color, que ya contrasta por sí mismo), con su mínimo y las capas
+      translúcidas que haya entre medias (el relleno de un botón al pasar, la opción elegida de un segmentado…). Cuenta
+      también lo oculto solo a la vista (en reposo) y la ficha plegada: al volver a verse, la alfa ya vale. */
+  function exigencias(pieza) {
+    var cs0 = getComputedStyle(pieza);
+    var firma = [raiz.getAttribute("data-tema"), cs0.getPropertyValue("--c-acento"), pieza.className, pieza.childElementCount, pieza.textContent.length, pieza.hasAttribute("data-sin-rotulos")].join("|");
+    var previo = analisis && analisis.get(pieza);
+    if (previo && previo.firma === firma) return previo.lista;
+    var lista = [], vistos = {};
+    var anadir = function (css, minimo, capas) {
+      var c = aRgb(css); if (!c || c[3] < 0.05) return;
+      var k = c.join(",") + "|" + minimo + "|" + capas.map(function (x) { return x.join(","); }).join(";");
+      if (!vistos[k]) { vistos[k] = 1; lista.push({ color: c, minimo: minimo, capas: capas }); }
+    };
+    var capasHasta = function (el) {
+      var capas = [];
+      for (var n = el; n && n !== pieza; n = n.parentElement) {
+        var f = aRgb(getComputedStyle(n).backgroundColor);
+        if (f && f[3] >= 0.9) return null;          // relleno opaco: su texto contrasta con él, no con el vidrio
+        if (f && f[3] > 0.02) capas.unshift(f);
+      }
+      return capas;
+    };
+    var elegida = function (el) { // la opción elegida de un segmentado se pinta con su ::after debajo
+      var l = el.closest && el.closest(".c8-segmentado > label");
+      if (!l || !(l.classList.contains("c8-elegido") || (l.querySelector("input") || {}).checked)) return [];
+      var f = aRgb(getComputedStyle(l.parentElement, "::after").backgroundColor);
+      return f && f[3] > 0.02 ? [f] : [];
+    };
+    // un lienzo (el radar) dibuja sus trazos y rótulos con el color de la pieza; data-sin-rotulos: solo trazos
+    if (pieza.querySelector("canvas")) anadir(cs0.color, pieza.hasAttribute("data-sin-rotulos") ? 3 : 4.5, []);
+    (function recorrer(el) {
+      if (el.hidden || el.tagName === "TEMPLATE" || el.tagName === "CANVAS") return;
+      var cs = getComputedStyle(el);
+      if (cs.display === "none") return;
+      var nombre = el.tagName.toLowerCase();
+      if (nombre === "svg") { var ci = capasHasta(el); if (ci) anadir(cs.color, 3, ci.concat(elegida(el))); return; }
+      var texto = nombre === "input" || nombre === "textarea" || nombre === "select";
+      for (var h = el.firstChild; !texto && h; h = h.nextSibling) if (h.nodeType === 3 && /\S/.test(h.nodeValue)) texto = true;
+      if (texto && cs.visibility !== "hidden") {
+        var ct = capasHasta(el);
+        if (ct) {
+          var tam = parseFloat(cs.fontSize) || 16, peso = parseFloat(cs.fontWeight) || 400;
+          anadir(cs.color, tam >= 24 || (tam >= 18.66 && peso >= 700) ? 3 : 4.5, ct.concat(elegida(el)));
+        }
+      }
+      for (var k = el.firstElementChild; k; k = k.nextElementSibling) recorrer(k);
+    })(pieza);
+    if (analisis) analisis.set(pieza, { firma: firma, lista: lista });
+    return lista;
+  }
+  /** Alfa mínima del tinte (entre suelo y techo) para que todo lo de `lista` se lea con un fondo de luminancia l10 (lo
+      más oscuro detrás de la pieza) y l90 (lo más claro). Si ni el techo (el peor caso de tema.css) basta, el techo. */
+  function alfaVidrio(lista, tinte, l10, l90, suelo, techo) {
+    var fondos = [gris(l10), gris(l90)];
+    var cumple = function (a) {
+      return lista.every(function (t) {
+        return fondos.every(function (f) {
+          var c = mezclar(tinte, a, f);
+          t.capas.forEach(function (capa) { c = mezclar(capa, capa[3], c); });
+          var letra = t.color[3] < 1 ? mezclar(t.color, t.color[3], c) : t.color;
+          return razon(letra, c) >= t.minimo * HOLGURA;
+        });
+      });
+    };
+    if (!lista.length || cumple(suelo)) return suelo;
+    if (!cumple(techo)) return techo;
+    var bajo = suelo, alto = techo;
+    for (var i = 0; i < 12; i++) { var m = (bajo + alto) / 2; if (cumple(m)) alto = m; else bajo = m; }
+    return alto;
+  }
+
   window.cre8Tema = {
     OPCIONES: OPCIONES,
+    /** Vidrio adaptativo por pieza: exigencias(pieza) → lista; alfa(lista, tinte, l10, l90, suelo, techo) → alfa. */
+    vidrio: { exigencias: exigencias, alfa: alfaVidrio, aRgb: aRgb, razon: razon, HOLGURA: HOLGURA },
     get preferencias() { return preferencias(); },
     get efectivo() { return efectivo(); },
     /** Lo elige el visitante: se guarda y se aplica en todas las páginas abiertas. */

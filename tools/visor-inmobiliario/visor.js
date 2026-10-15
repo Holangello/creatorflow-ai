@@ -171,8 +171,8 @@ if (renderer) {
 }
 visor.lienzo = lienzo;
 Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, maqueta: maqueta?.camara.position.toArray().map((x) => +x.toFixed(2)), programas: renderer?.info.programs?.map((x) => String(x.cacheKey)) ?? [],
-  luz: { ...luz.medida, max: luz.max, min: luz.min, ms: luz.ms, n: luz.n,
-    detalle: luz.zonas?.map((z) => [z.el ? z.el.id || z.el.className.split(" ")[0] : "vista", +z.p10.toFixed(3), +z.p90.toFixed(3)]) } }) });
+  luz: { ...luz.medida, ms: luz.ms, n: luz.n,
+    detalle: luz.zonas?.map((z) => [z.el ? z.el.id || z.el.className.split(" ")[0] : "vista", +z.p10.toFixed(3), +z.p90.toFixed(3), alfasVidrio.get(z.el)?.a1 ?? null]) } }) });
 
 // ------------------------------------------------------------------ escena 360
 const escena360 = new THREE.Scene();
@@ -438,25 +438,67 @@ function asignar(slot, s) {
 }
 
 // ------------------------------------------------------------------ puntos de salto (auto hotspots)
-// Flecha del suelo (fase 4, transparencias): aro fino y translúcido con un contorno oscuro fino a los dos lados; la flecha
-// central lleva su propio contorno. Aro frente a su contorno ≥ 3:1 en cualquier suelo (blanco puro: 3,17:1). Las opacidades
-// cambian con el estado de la interfaz (opacidadFlechas) y el tamaño con la distancia y la pantalla (escalarFlecha).
-const OPACIDAD_FLECHAS = { aro: 0.75, contorno: 0.52, contornoResalte: 0.65, reposo: 0.5 };
-const geoAro = new THREE.RingGeometry(0.3, 0.355, 64).rotateX(-Math.PI / 2);
+// Flecha del suelo de vidrio (fase 4, segunda ronda: «quiero ver las transparencias»). Un aro de cristal que deja ver el
+// suelo (cuerpo al 30 %), con dos cantos de luz finos, una flecha casi opaca y una sombra suave alrededor que la despega
+// de cualquier suelo. Todo en un sombreador con distancias con signo sobre un cuadrado: los cantos y la sombra miden lo
+// mismo en píxeles a cualquier distancia, con antialias, y sin geometría de más. Contraste: el canto (blanco) frente a la
+// sombra que lo rodea ≥ 3:1 también sobre un suelo blanco puro; sobre lo oscuro, el blanco. Las opacidades cambian con el
+// estado de la interfaz (opacidadFlechas) y el tamaño con la distancia y la pantalla (escalarFlecha).
+const LADO_FLECHA = 1; // el cuadrado (m) cubre el aro (0,355 m de radio) y su sombra a cualquier distancia
+const OPACIDAD_FLECHAS = { cuerpo: 0.3, canto: 0.95, flecha: 0.92, sombra: 0.46, reposo: 0.5 };
+const RESALTE_FLECHAS = { cuerpo: 0.62, canto: 1, flecha: 1, sombra: 0.5 };
+const geoVidrioFlecha = new THREE.PlaneGeometry(LADO_FLECHA, LADO_FLECHA).rotateX(-Math.PI / 2);
 const geoDisco = new THREE.CircleGeometry(0.6, 32).rotateX(-Math.PI / 2);
-const geoHalo = new THREE.RingGeometry(0.275, 0.38, 64).rotateX(-Math.PI / 2);
-const formaFlecha = (() => {
-  const s = new THREE.Shape();
-  s.moveTo(0, -0.2); s.lineTo(0.16, 0.06); s.lineTo(0.06, 0.06); s.lineTo(0.06, 0.2);
-  s.lineTo(-0.06, 0.2); s.lineTo(-0.06, 0.06); s.lineTo(-0.16, 0.06); s.closePath();
-  return s;
-})();
-const geoFlecha = new THREE.ShapeGeometry(formaFlecha).scale(0.72, 0.72, 1).rotateX(-Math.PI / 2);
-const geoFlechaHalo = new THREE.ShapeGeometry(formaFlecha).scale(0.95, 0.95, 1).rotateX(-Math.PI / 2); // contorno de la flecha
-const matHalo = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: OPACIDAD_FLECHAS.contorno, depthTest: false });
-const matHaloHover = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: OPACIDAD_FLECHAS.contornoResalte, depthTest: false });
-const matAro = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: OPACIDAD_FLECHAS.aro, depthTest: false });
-const matAroHover = new THREE.MeshBasicMaterial({ color: 0xcfad66, transparent: true, opacity: 1, depthTest: false }); // color: --c-acento (colorResalte)
+const SOMBREADOR_FLECHA = {
+  vertexShader: /* glsl */ `
+    varying vec2 vP;
+    void main() { vP = (uv - 0.5) * ${LADO_FLECHA.toFixed(1)}; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: /* glsl */ `
+    uniform float uCuerpo, uCanto, uFlecha, uSombra, uOpaco;
+    uniform vec3 uColor;
+    varying vec2 vP;
+    // flecha de la forma original al 72 % (distancia con signo a un polígono, de Íñigo Quílez)
+    float sdFlecha(vec2 p) {
+      vec2 v[7] = vec2[7](vec2(0.0, -0.144), vec2(0.1152, 0.0432), vec2(0.0432, 0.0432), vec2(0.0432, 0.144),
+        vec2(-0.0432, 0.144), vec2(-0.0432, 0.0432), vec2(-0.1152, 0.0432));
+      float d = dot(p - v[0], p - v[0]), s = 1.0;
+      for (int i = 0, j = 6; i < 7; j = i, i++) {
+        vec2 e = v[j] - v[i], w = p - v[i];
+        vec2 b = w - e * clamp(dot(w, e) / dot(e, e), 0.0, 1.0);
+        d = min(d, dot(b, b));
+        bvec3 c = bvec3(p.y >= v[i].y, p.y < v[j].y, e.x * w.y > e.y * w.x);
+        if (all(c) || all(not(c))) s *= -1.0;
+      }
+      return s * sqrt(d);
+    }
+    vec4 sobre(vec4 a, vec4 b) {
+      float al = a.a + b.a * (1.0 - a.a);
+      return vec4(al > 0.0 ? (a.rgb * a.a + b.rgb * b.a * (1.0 - a.a)) / al : vec3(0.0), al);
+    }
+    void main() {
+      float dA = abs(length(vP) - 0.3275) - 0.0275; // aro de 0,30 a 0,355 m
+      float dF = sdFlecha(vP);
+      float d = min(dA, dF);
+      float px = max(length(vec2(dFdx(d), dFdy(d))), 1e-6); // metros por píxel
+      float enA = clamp(0.5 - dA / px, 0.0, 1.0), enF = clamp(0.5 - dF / px, 0.0, 1.0), fuera = 1.0 - clamp(0.5 - d / px, 0.0, 1.0);
+      float canto = enA * (1.0 - smoothstep(0.9, 2.1, -dA / px));            // ~1,3 px de luz dentro de cada borde del aro
+      float sombra = fuera * (1.0 - smoothstep(1.5, 5.5, d / px));          // meseta de 1,5 px y se apaga en 4 px
+      sombra = mix(sombra, fuera * (1.0 - smoothstep(2.0, 2.6, d / px)), uOpaco); // «Reducir transparencia»: contorno de 2 px
+      vec4 c = vec4(0.0, 0.0, 0.0, sombra * uSombra);
+      c = sobre(vec4(uColor, enA * uCuerpo), c);
+      c = sobre(vec4(1.0, 1.0, 1.0, canto * uCanto), c);
+      c = sobre(vec4(1.0, 1.0, 1.0, enF * uFlecha), c);
+      gl_FragColor = c;
+      #include <colorspace_fragment>
+    }`,
+};
+const materialFlecha = (v, color) => new THREE.ShaderMaterial({
+  ...SOMBREADOR_FLECHA, transparent: true, depthTest: false, depthWrite: false,
+  uniforms: { uCuerpo: { value: v.cuerpo }, uCanto: { value: v.canto }, uFlecha: { value: v.flecha }, uSombra: { value: v.sombra }, uOpaco: { value: 0 },
+    uColor: { value: new THREE.Color(color) } },
+});
+const matFlecha = materialFlecha(OPACIDAD_FLECHAS, 0xffffff);
+const matFlechaHover = materialFlecha(RESALTE_FLECHAS, 0xcfad66); // uColor: --c-acento (colorResalte)
 const matInvisible = new THREE.MeshBasicMaterial({ visible: false });
 
 const etiquetas = $("#etiquetas");
@@ -486,16 +528,12 @@ function construirPuntos() {
     const g = new THREE.Group();
     g.position.set((dx / dist) * r, -alt, (dz / dist) * r);
     g.rotation.y = -rumbo(dx, dz) + Math.PI;
-    const halo = new THREE.Mesh(geoHalo, matHalo);
-    const flechaHalo = new THREE.Mesh(geoFlechaHalo, matHalo);
-    halo.renderOrder = flechaHalo.renderOrder = 1;
-    g.add(halo, flechaHalo);
-    const aro = new THREE.Mesh(geoAro, matAro);
-    const flecha = new THREE.Mesh(geoFlecha, matAro);
+    const vidrio = new THREE.Mesh(geoVidrioFlecha, matFlecha);
+    vidrio.renderOrder = 2;
+    vidrio.raycast = () => {}; // se apunta con el disco de toque, no con el cuadrado
     const hit = new THREE.Mesh(geoDisco, matInvisible);
-    aro.renderOrder = flecha.renderOrder = 2;
-    g.add(aro, flecha, hit);
-    g.userData = { destino, partes: [aro, flecha], halos: [halo, flechaHalo], hit, dist: Math.hypot(r, alt) };
+    g.add(vidrio, hit);
+    g.userData = { destino, vidrio, hit, dist: Math.hypot(r, alt) };
     grupoFlechas.add(g);
     const etq = document.createElement("button");
     etq.type = "button";
@@ -1141,45 +1179,44 @@ function hover(e) {
     (vertical: campo de visión horizontal corto) todas al 78 %; la resaltada, +12 %. El disco de toque no baja del 75 %. */
 function escalarFlecha(g) {
   const k = THREE.MathUtils.clamp(g.userData.dist / 3.4, 0.62, 1) * (camara.aspect < 0.8 ? 0.78 : 1);
-  const kv = k * (g === hoverActual ? 1.12 : 1);
-  for (const m of [...g.userData.halos, ...g.userData.partes]) m.scale.setScalar(kv);
+  g.userData.vidrio.scale.setScalar(k * (g === hoverActual ? 1.12 : 1));
   g.userData.hit.scale.setScalar(Math.max(k, 0.75));
 }
-/** Resalte (ratón sobre el aro o su rótulo, o foco de teclado en el rótulo): aro y flecha en el acento, contorno más
-    oscuro, +12 % y el rótulo en acento. Una sola flecha resaltada a la vez. */
+/** Resalte (ratón sobre el aro o su rótulo, o foco de teclado en el rótulo): el cristal del aro se tiñe del acento, la
+    sombra se marca un poco más, +12 % y el rótulo en acento. Una sola flecha resaltada a la vez. */
 function resaltarFlecha(g) {
   g ??= null; // apuntar() devuelve undefined fuera de las flechas
   if (g === hoverActual) return;
   const previo = hoverActual;
   hoverActual = g;
   if (previo) {
-    previo.userData.partes.forEach((m) => (m.material = matAro));
-    previo.userData.halos.forEach((m) => (m.material = matHalo));
+    previo.userData.vidrio.material = matFlecha;
     previo.userData.etq.classList.remove("resaltada");
     escalarFlecha(previo);
   }
   if (g) {
-    g.userData.partes.forEach((m) => (m.material = matAroHover));
-    g.userData.halos.forEach((m) => (m.material = matHaloHover));
+    g.userData.vidrio.material = matFlechaHover;
     g.userData.etq.classList.add("resaltada");
     escalarFlecha(g);
   }
   tocarEscena();
 }
-/** Opacidad según el estado: despierta 0,75 / 0,52; con la interfaz en reposo (ui-inactiva), la mitad, con un fundido
-    de 380 ms (--d-3); con «Reducir transparencia», opacas y sin atenuar; con «Reducir movimiento», sin fundido. */
+/** Opacidad según el estado: despierta (cuerpo 0,3, cantos 0,95, flecha 0,92, sombra 0,46); con la interfaz en reposo
+    (ui-inactiva), la mitad, con un fundido de 380 ms (--d-3); con «Reducir transparencia», opacas, con un contorno negro
+    nítido y sin atenuar; con «Reducir movimiento», sin fundido. */
 let fundidoFlechas = 0;
 function opacidadFlechas() {
   const opacas = transparenciaReducida();
   const f = !opacas && document.body.classList.contains("ui-inactiva") ? OPACIDAD_FLECHAS.reposo : 1;
-  const fin = { aro: opacas ? 1 : OPACIDAD_FLECHAS.aro * f, halo: opacas ? 1 : OPACIDAD_FLECHAS.contorno * f };
-  matHaloHover.opacity = opacas ? 1 : OPACIDAD_FLECHAS.contornoResalte;
+  const claves = ["cuerpo", "canto", "flecha", "sombra"], U0 = matFlecha.uniforms, nombre = (k) => `u${k[0].toUpperCase()}${k.slice(1)}`;
+  const fin = Object.fromEntries(claves.map((k) => [k, opacas ? 1 : OPACIDAD_FLECHAS[k] * f]));
+  for (const m of [matFlecha, matFlechaHover]) m.uniforms.uOpaco.value = opacas ? 1 : 0;
+  for (const k of claves) matFlechaHover.uniforms[nombre(k)].value = opacas ? 1 : RESALTE_FLECHAS[k];
   cancelAnimationFrame(fundidoFlechas);
-  const ini = { aro: matAro.opacity, halo: matHalo.opacity }, t0 = performance.now(), dur = reducido() ? 0 : 380;
+  const ini = Object.fromEntries(claves.map((k) => [k, U0[nombre(k)].value])), t0 = performance.now(), dur = reducido() ? 0 : 380;
   const paso = (ahora) => {
     const x = dur ? Math.min(1, (ahora - t0) / dur) : 1, e = x * (2 - x);
-    matAro.opacity = ini.aro + (fin.aro - ini.aro) * e;
-    matHalo.opacity = ini.halo + (fin.halo - ini.halo) * e;
+    for (const k of claves) U0[nombre(k)].value = ini[k] + (fin[k] - ini[k]) * e;
     tocarEscena();
     if (x < 1) fundidoFlechas = requestAnimationFrame(paso);
   };
@@ -1190,7 +1227,7 @@ function opacidadFlechas() {
     blanco, para distinguirse del aro en reposo (≤ 0,75). El champán por defecto (0,44) no cambia. */
 const hslResalte = { h: 0, s: 0, l: 0 };
 function colorResalte(acento) {
-  const c = matAroHover.color.set(acento); // canales lineales (three r152+): la luminancia relativa es su media ponderada
+  const c = matFlechaHover.uniforms.uColor.value.set(acento); // canales lineales (three r152+): la luminancia relativa es su media ponderada
   const lum = () => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
   c.getHSL(hslResalte, THREE.SRGBColorSpace);
   const paso = (d) => c.setHSL(hslResalte.h, hslResalte.s, (hslResalte.l = THREE.MathUtils.clamp(hslResalte.l + d, 0, 1)), THREE.SRGBColorSpace);
@@ -1586,31 +1623,69 @@ document.addEventListener("cre8:tema", () => {
 });
 opacidadFlechas();
 
-// Vidrio adaptativo (tema.css, «Vidrio adaptativo»): el vidrio se vuelve más transparente cuando la foto lo permite.
-// En el recorrido 360, tras cada cambio de estancia, estilo o momento, y como mucho una vez por segundo si la vista se
-// movió y ya está quieta, se mide la luminancia relativa de la vista en 32×18 píxeles, solo donde hay vidrio encima: cada
-// pieza de vidrio (HUD, rótulos de las flechas, puntos «i», tarjeta de los paneles…) es una zona con sus percentiles y
-// manda la más exigente. Percentil 90 → data-luz-max (manda en oscuro: lo difícil es una zona clara detrás del vidrio);
-// percentil 10 → data-luz-min (manda en claro). Así el vidrio se aclara si detrás del vidrio hay pared clara aunque en el
-// centro haya un sofá oscuro. Histéresis de ±0,03 para que no parpadee. Con «Reducir transparencia» no se mide.
+// Vidrio adaptativo por pieza (tema.css y tema.js, «Vidrio adaptativo por pieza»): cada pieza de vidrio que flota sobre la
+// foto lleva su propia alfa, la mínima para que lo que se lee en ella cumpla AA con lo que tiene detrás. En el recorrido
+// 360, tras cada cambio de estancia, estilo o momento, cada 0,7 s mientras la vista se mueve y en cuanto se para, se mide
+// la luminancia relativa de la vista en 32×18 píxeles: cada pieza (HUD, rótulos de las flechas, puntos «i», tarjeta y
+// diálogos de los paneles…) es una zona con sus percentiles 10 y 90, y cre8Tema.vidrio calcula su alfa con el color de
+// texto más exigente que lleva. Oscurecer es inmediato (220 ms); aclarar, solo si compensa (≥ 0,04) y despacio (620 ms):
+// no parpadea. Con «Reducir transparencia» no se mide.
 // La escena no se copia del lienzo (drawImage del WebGL espera a la GPU y lee el fotograma entero: 180-560 ms en esta
 // máquina): se vuelve a pintar igual en 32×18 y se lee sin esperar (PBO + fence, readRenderTargetPixelsAsync). La foto
 // de la portada, que es una imagen, sí se copia a 32×18. En el paseo libre y la maqueta (modelos 3D, no la foto) no se
 // mide: medir estrenaría allí otros programas (≈1 s de bloqueo con WebGL por software) y vale el peor caso.
 // Contingencia: si la lectura falla, se quitan los atributos y queda el peor caso, que siempre cumple AA.
 const LINEAL = Float32Array.from({ length: 256 }, (_, i) => { const c = i / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
-const luz = { g: null, rt: null, px: new Uint8Array(32 * 18 * 4), leyendo: false, max: null, min: null, medida: null, zonas: null, ms: 0, n: 0,
+const luz = { g: null, rt: null, px: new Uint8Array(32 * 18 * 4), leyendo: false, medida: null, zonas: null, ms: 0, n: 0,
   pendiente: true, movida: false, quietaDesde: 0, ultima: -1e9, vista: new Float64Array(17) };
-/** Cuántos umbrales (de menor a mayor) supera v, con histéresis respecto al nivel actual. */
-function nivelLuz(v, actual, umbrales, h = 0.03) {
-  let n = 0;
-  umbrales.forEach((u, i) => { if (v > u + (actual == null ? 0 : actual > i ? -h : h)) n = i + 1; });
-  return n;
-}
+/** Alfa de cada pieza: { a (la que tiene), de, a1 (objetivo), t0, dur }. */
+const alfasVidrio = new Map();
+let fundidoVidrio = 0;
+const conDesenfoque = (() => { try { return CSS.supports("backdrop-filter", "blur(1px)") || CSS.supports("-webkit-backdrop-filter", "blur(1px)"); } catch { return false; } })();
 function quitarLuz() {
-  const d = document.documentElement.dataset;
-  delete d.luzMax; delete d.luzMin;
-  luz.max = luz.min = luz.medida = luz.zonas = null;
+  luz.medida = luz.zonas = null;
+  for (const el of alfasVidrio.keys()) el.style.removeProperty("--vidrio-a");
+  alfasVidrio.clear();
+}
+/** Lleva la alfa de una pieza hacia `objetivo`: oscurecer, enseguida; aclarar, solo si compensa y despacio. La primera
+    vez parte del peor caso (`techo`), que es lo que la pieza tenía sin medida. */
+function fijarAlfa(el, objetivo, techo) {
+  const s = alfasVidrio.get(el), actual = s ? s.a : techo;
+  if (s && (objetivo > actual ? objetivo - actual < 0.01 : actual - objetivo < 0.04)) return;
+  alfasVidrio.set(el, { a: actual, de: actual, a1: objetivo, t0: performance.now(), dur: reducido() ? 0 : objetivo > actual ? 220 : 620 });
+  if (!fundidoVidrio) fundidoVidrio = requestAnimationFrame(pasoAlfas);
+}
+function pasoAlfas(ahora) {
+  fundidoVidrio = 0;
+  let sigue = false;
+  for (const [el, s] of alfasVidrio) {
+    if (s.a === s.a1 && el.style.getPropertyValue("--vidrio-a")) continue;
+    const x = s.dur ? Math.min(1, (ahora - s.t0) / s.dur) : 1;
+    s.a = x >= 1 ? s.a1 : s.de + (s.a1 - s.de) * x * (2 - x);
+    el.style.setProperty("--vidrio-a", s.a.toFixed(3));
+    if (x < 1) sigue = true;
+  }
+  if (sigue) fundidoVidrio = requestAnimationFrame(pasoAlfas);
+}
+/** Con los percentiles de cada zona, la alfa de cada pieza (cre8Tema.vidrio, en tema.js). Sin tema.js o sin
+    backdrop-filter, nada: el peor caso. Los suelos dejan el vidrio siempre visible como vidrio; los techos son el peor
+    caso de tema.css (--vidrio-a-*). */
+function aplicarAlfas() {
+  const V = window.cre8Tema?.vidrio;
+  if (!V || !luz.zonas || !conDesenfoque || transparenciaReducida()) return quitarLuz();
+  const cs = getComputedStyle(document.documentElement), num = (v, x) => parseFloat(cs.getPropertyValue(v)) || x;
+  const tinte = V.aRgb(`rgb(${cs.getPropertyValue("--vidrio-tinte").trim() || "20 22 26"})`);
+  if (!tinte) return quitarLuz();
+  const techo = { icono: num("--vidrio-a-icono", 0.56), texto: num("--vidrio-a-texto", 0.78), denso: num("--vidrio-a-denso", 0.9) };
+  const vivas = new Set();
+  for (const z of luz.zonas) {
+    if (!z.el) continue;
+    const lista = V.exigencias(z.el);
+    const [suelo, tope] = z.el.classList.contains("c8-vidrio--denso") ? [0.6, techo.denso] : lista.some((x) => x.minimo > 3) ? [0.24, techo.texto] : [0.2, techo.icono];
+    fijarAlfa(z.el, V.alfa(lista, tinte, z.p10, z.p90, suelo, tope), tope);
+    vivas.add(z.el);
+  }
+  for (const el of [...alfasVidrio.keys()]) if (!vivas.has(el)) { el.style.removeProperty("--vidrio-a"); alfasVidrio.delete(el); }
 }
 /** Zonas con vidrio encima: para cada pieza `.c8-vidrio` que se ve sobre `marco` (el rectángulo de la pantalla que ocupa
     la rejilla de 32×18), las celdas cuyo centro tapa (la del centro de la pieza si es más pequeña que una celda). Las
@@ -1653,13 +1728,9 @@ function calcularLuz(px, lineal, zonas = []) {
     p10 = Math.min(p10, z.p10);
     return z;
   });
-  luz.max = nivelLuz(p90, luz.max, [0.1, 0.35]);
-  luz.min = nivelLuz(p10, luz.min, [0.18, 0.45]);
-  const d = document.documentElement.dataset, max = ["baja", "media"][luz.max], min = [null, "media", "alta"][luz.min];
-  if (max) d.luzMax = max; else delete d.luzMax;
-  if (min) d.luzMin = min; else delete d.luzMin;
   luz.medida = { p90: +p90.toFixed(3), p10: +p10.toFixed(3), zonas: zonas.length };
   luz.n++;
+  aplicarAlfas();
 }
 /** Imagen o lienzo 2D (la foto de la portada): se copia a 32×18 la parte que se ve y se mide. */
 function medirImagen(fuente) {
@@ -1736,7 +1807,7 @@ function quizaMedirLuz() {
   for (let i = 0; i < 16; i++) { if (Math.abs(m[i] - v[i]) > 1e-4) quieta = false; v[i] = m[i]; }
   v[16] = camara.fov;
   if (!quieta) { luz.movida = true; luz.quietaDesde = ahora; }
-  if (luz.pendiente || (luz.movida && ahora - luz.quietaDesde > 250 && ahora - luz.ultima > 1000)) {
+  if (luz.pendiente || (luz.movida && ahora - luz.ultima > (ahora - luz.quietaDesde > 250 ? 400 : 700))) {
     luz.pendiente = luz.movida = false;
     luz.ultima = ahora;
     medirEscena();

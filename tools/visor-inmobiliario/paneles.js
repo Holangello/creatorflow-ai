@@ -719,14 +719,21 @@ function fijarAltura(nombre) {
   aplicarEstadoFicha();
   colocarHoja(true);
 }
+/** Alto de la hoja entera (paneles.css: la tarjeta flota y su alto es lo que se ve): el 90 % de la pantalla menos lo que
+    queda por debajo de la tarjeta (el margen y la zona segura). */
+function totalHoja(t) {
+  const abajo = Math.max(0, innerHeight - (t.getBoundingClientRect().bottom || innerHeight));
+  return Math.max(0, Math.round(innerHeight * 0.9 - abajo));
+}
 function colocarHoja(animar) {
   const t = raiz?.querySelector(".pn-tarjeta"); if (!t) return;
   const libre = document.body.classList.contains("modo-libre");
   raiz.classList.toggle("pn-libre", libre);
   if (libre && ui.altura !== "peek") { ui.altura = "peek"; ui.ficha = false; aplicarEstadoFicha(); }
-  const total = t.getBoundingClientRect().height || innerHeight * 0.9;
+  const total = totalHoja(t) || innerHeight * 0.9;
   const vis = Math.min(total, alturaVisible(ui.altura));
   t.classList.toggle("pn-sin-anim", !animar);
+  t.style.setProperty("--pn-total", `${total}px`);
   t.style.setProperty("--pn-desp", `${total - vis}px`);
   t.style.setProperty("--pn-oculto", `${total - vis}px`);
   t.dataset.altura = ui.altura;
@@ -742,7 +749,7 @@ function prepararArrastre(t) {
   const zona = (e) => e.target.closest(".pn-t-cab") && !e.target.closest("button:not([data-k='ficha'])");
   t.addEventListener("pointerdown", (e) => {
     if (!zona(e) || e.button > 0) return;
-    ini = { y: e.clientY, t: performance.now(), desp: parseFloat(t.style.getPropertyValue("--pn-desp")) || 0, total: t.getBoundingClientRect().height, movido: false, id: e.pointerId };
+    ini = { y: e.clientY, t: performance.now(), desp: parseFloat(t.style.getPropertyValue("--pn-desp")) || 0, total: totalHoja(t), movido: false, id: e.pointerId };
   });
   t.addEventListener("pointermove", (e) => {
     if (!ini || e.pointerId !== ini.id) return;

@@ -128,14 +128,17 @@
   --velo-foto: rgba(0, 0, 0, 0.62);
   --ce-a: #00a651; --ce-b: #4cb848; --ce-c: #bfd730; --ce-d: #e8d900; --ce-e: #fdb913; --ce-f: #f37021; --ce-g: #ed1c24;
 
-  /* Vidrio: parámetros comunes */
-  --vidrio-desenfoque: 22px;
-  --vidrio-saturacion: 170%;
+  /* Vidrio: parámetros comunes (material «liquid glass»: mucho desenfoque y color, filo finísimo) */
+  --vidrio-desenfoque: 40px;
+  --vidrio-saturacion: 190%;
+  --filo: 1px;                  /* borde del vidrio: 1 px, y 0,5 px en pantallas de alta densidad */
 
   /* Luz especular que sigue al puntero (la actualiza tema.js) */
   --luz-x: 50vw;
   --luz-y: -20vh;
 }
+
+@media (min-resolution: 2dppx) { :root { --filo: 0.5px; } }
 
 @supports not (transition-timing-function: linear(0, 1)) {
   :root {
@@ -192,24 +195,29 @@ html[data-talla="l"] { --talla: 1.18; }
   /* Texto de estado sobre su fondo tintado (chips «calibrado», «sin conectar»…) */
   --c-ok-texto: var(--c-ok); --c-aviso-texto: var(--c-aviso); --c-error-texto: var(--c-error); --c-info-texto: var(--c-info);
 
-  /* Vidrio: alfa mínima calculada para el peor fondo (pared blanca) */
-  --vidrio: rgba(22, 24, 28, 0.56);         /* controles solo icono: ≥ 3:1 */
-  --vidrio-texto: rgba(20, 22, 26, 0.78);   /* paneles con texto: ≥ 4,5:1 (AA) incluso el secundario */
-  --vidrio-ambiente: rgba(20, 22, 26, 0.55);/* sobre el ambiente conocido (Estudio, Guía): toma su color, texto ≥ 7:1 */
+  /* Vidrio: un tinte (rgb sin alfa) y las alfas del peor fondo posible (pared blanca detrás). Cada pieza que flota sobre
+     una foto lleva su propia alfa medida (--vidrio-a, «Vidrio adaptativo» más abajo); sin medida, estas, que siempre
+     cumplen. --vidrio, --vidrio-texto y --vidrio-denso salen de aquí (abajo, en :root y en cada .c8-vidrio). */
+  --vidrio-tinte: 20 22 26;
+  --vidrio-a-icono: 0.56;                   /* controles solo icono: ≥ 3:1 */
+  --vidrio-a-texto: 0.78;                   /* paneles con texto: ≥ 4,5:1 (AA) incluso el secundario */
+  --vidrio-a-denso: 0.9;                    /* menús y diálogos */
+  --vidrio-ambiente: rgba(20, 22, 26, 0.4); /* sobre el ambiente conocido (Estudio, Guía): toma su color, texto ≥ 4,5:1 */
   --c-borde-campo: rgba(255, 255, 255, 0.42);/* borde de campos y casillas: ≥ 3:1 (WCAG 1.4.11) */
-  --c-texto-2-vidrio: #c3c7cd;              /* 5,3:1 en el peor caso (vidrio sobre blanco) */
-  --c-texto-3-vidrio: #b8bcc3;              /* 4,7:1 */
-  --vidrio-denso: rgba(18, 20, 24, 0.9);    /* menús y diálogos */
-  --vidrio-borde: rgba(255, 255, 255, 0.14);
-  --vidrio-reflejo-1: rgba(255, 255, 255, 0.36);
-  --vidrio-reflejo-2: rgba(255, 255, 255, 0.07);
-  --vidrio-brillo: rgba(255, 255, 255, 0.1);
-  --vidrio-luz: rgba(255, 255, 255, 0.5);
+  /* Texto secundario sobre el vidrio, «vibrante» (más cerca del principal): deja aclarar el vidrio sin bajar de AA */
+  --c-texto-2-vidrio: #d0d3d8;              /* 6,0:1 en el peor caso (vidrio sobre blanco) */
+  --c-texto-3-vidrio: #c3c6cc;              /* 5,3:1 */
+  --vidrio-borde: rgba(255, 255, 255, 0.1); /* filo finísimo */
+  --vidrio-reflejo-1: rgba(255, 255, 255, 0.3);
+  --vidrio-reflejo-2: rgba(255, 255, 255, 0.05);
+  --vidrio-brillo: rgba(255, 255, 255, 0.07);
+  --vidrio-luz: rgba(255, 255, 255, 0.35);
   --velo: rgba(0, 0, 0, 0.5);
 
-  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.22);
-  --sombra-2: 0 2px 6px rgba(0, 0, 0, 0.26), 0 16px 44px rgba(0, 0, 0, 0.36);
-  --sombra-3: 0 4px 12px rgba(0, 0, 0, 0.3), 0 30px 80px rgba(0, 0, 0, 0.5);
+  /* Sombras suaves y difusas: el vidrio flota, no pesa */
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.14), 0 8px 24px rgba(0, 0, 0, 0.18);
+  --sombra-2: 0 2px 6px rgba(0, 0, 0, 0.12), 0 18px 48px rgba(0, 0, 0, 0.26);
+  --sombra-3: 0 4px 12px rgba(0, 0, 0, 0.16), 0 32px 80px rgba(0, 0, 0, 0.36);
   --sombra-texto: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
@@ -249,23 +257,24 @@ html[data-talla="l"] { --talla: 1.18; }
   --c-info-fondo: rgba(37, 99, 201, 0.1);
   --c-ok-texto: #17663f; --c-aviso-texto: #6e4800; --c-error-texto: #a42c25; --c-info-texto: #1d4fa3;
 
-  --vidrio: rgba(255, 255, 255, 0.5);       /* ≥ 3:1 sobre negro */
-  --vidrio-texto: rgba(255, 255, 255, 0.78);/* ≥ 4,5:1 sobre negro, también el secundario */
-  --vidrio-ambiente: rgba(255, 255, 255, 0.55);
+  --vidrio-tinte: 255 255 255;
+  --vidrio-a-icono: 0.5;                    /* ≥ 3:1 sobre negro */
+  --vidrio-a-texto: 0.78;                   /* ≥ 4,5:1 sobre negro, también el secundario */
+  --vidrio-a-denso: 0.9;
+  --vidrio-ambiente: rgba(255, 255, 255, 0.42);
   --c-borde-campo: rgba(0, 0, 0, 0.45);
-  --c-texto-2-vidrio: #4a4a51;              /* 5,2:1 en el peor caso (vidrio sobre negro) */
-  --c-texto-3-vidrio: #505057;
-  --vidrio-denso: rgba(255, 255, 255, 0.9);
-  --vidrio-borde: rgba(255, 255, 255, 0.7);
-  --vidrio-reflejo-1: rgba(255, 255, 255, 0.95);
-  --vidrio-reflejo-2: rgba(255, 255, 255, 0.4);
-  --vidrio-brillo: rgba(255, 255, 255, 0.65);
-  --vidrio-luz: rgba(255, 255, 255, 0.9);
+  --c-texto-2-vidrio: #3d3d43;              /* 6,4:1 en el peor caso (vidrio sobre negro) */
+  --c-texto-3-vidrio: #45454b;              /* 5,6:1 */
+  --vidrio-borde: rgba(0, 0, 0, 0.07);      /* filo oscuro finísimo: dibuja el borde sobre fondos claros */
+  --vidrio-reflejo-1: rgba(255, 255, 255, 0.85);
+  --vidrio-reflejo-2: rgba(255, 255, 255, 0.3);
+  --vidrio-brillo: rgba(255, 255, 255, 0.5);
+  --vidrio-luz: rgba(255, 255, 255, 0.7);
   --velo: rgba(24, 24, 28, 0.28);
 
-  --sombra-1: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(15, 20, 30, 0.08), 0 4px 14px rgba(15, 20, 30, 0.1);
-  --sombra-2: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(15, 20, 30, 0.08), 0 16px 44px rgba(15, 20, 30, 0.16);
-  --sombra-3: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(15, 20, 30, 0.1), 0 30px 80px rgba(15, 20, 30, 0.24);
+  --sombra-1: 0 1px 2px rgba(15, 20, 30, 0.05), 0 8px 24px rgba(15, 20, 30, 0.08);
+  --sombra-2: 0 2px 6px rgba(15, 20, 30, 0.05), 0 18px 48px rgba(15, 20, 30, 0.12);
+  --sombra-3: 0 4px 12px rgba(15, 20, 30, 0.07), 0 32px 80px rgba(15, 20, 30, 0.18);
   --sombra-texto: none;
 }
 
@@ -294,31 +303,32 @@ html[data-talla="l"] { --talla: 1.18; }
    Sin backdrop-filter (navegadores antiguos o desactivado), el vidrio pasa a ser casi opaco para que se lea igual.
    Sin máscaras compuestas, el canto especular se quita (si no, cubriría todo el panel). */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .c8-vidrio, .c8-vidrio.c8-vidrio--texto, .c8-vidrio.c8-vidrio--denso { background: var(--vidrio-denso); }
+  .c8-vidrio, .c8-vidrio.c8-vidrio--texto, .c8-vidrio.c8-vidrio--denso { background: rgb(var(--vidrio-tinte) / var(--vidrio-a-denso)); }
 }
 @supports not ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
   .c8-vidrio::before { display: none; }
 }
 
-/* ------------------------------------------------------------------ Vidrio adaptativo («liquid glass»)
-   Las alfas de arriba son para el peor fondo posible (pared blanca en oscuro, zona negra en claro). Si la página mide la
-   foto que hay detrás (el visor lo hace con el fotograma), el vidrio se vuelve más transparente cuando el fondo lo
-   permite, sin bajar nunca de AA (pruebas/contraste.mjs comprueba cada nivel en su peor caso):
-     data-luz-max en <html>: luminancia de las zonas más claras de la foto (percentil 90): baja ≤ 0,10 · media ≤ 0,35
-     data-luz-min en <html>: luminancia de las zonas más oscuras (percentil 10): alta ≥ 0,45 · media ≥ 0,18
-   En oscuro manda luz-max (texto claro: lo difícil es una zona clara detrás); en claro, luz-min. Sin medir, peor caso.
-   «Reducir transparencia» siempre gana. */
-:root[data-tema="oscuro"][data-luz-max="media"]:not([data-transparencia="reducida"]) {
-  --vidrio: rgba(22, 24, 28, 0.44); --vidrio-texto: rgba(20, 22, 26, 0.64); --vidrio-denso: rgba(18, 20, 24, 0.8);
+/* ------------------------------------------------------------------ Vidrio adaptativo por pieza («liquid glass»)
+   Las alfas de arriba (--vidrio-a-*) son las del peor fondo posible (pared blanca en oscuro, zona negra en claro). La
+   página que mide la foto que hay detrás de cada pieza (el visor lo hace con el fotograma) le pone a esa pieza su propia
+   alfa, --vidrio-a, la mínima para que el texto más exigente que lleva siga en AA (4,5:1; 3:1 si solo lleva iconos):
+   la calcula tema.js (cre8Tema.vidrio) y pruebas/contraste.mjs la comprueba. Sin medida (otra página, sin WebGL, paseo
+   libre, maqueta, un fallo), la pieza usa el peor caso. «Reducir transparencia» siempre gana: superficies opacas. */
+:root {
+  --vidrio: rgb(var(--vidrio-tinte) / var(--vidrio-a-icono));
+  --vidrio-texto: rgb(var(--vidrio-tinte) / var(--vidrio-a-texto));
+  --vidrio-denso: rgb(var(--vidrio-tinte) / var(--vidrio-a-denso));
 }
-:root[data-tema="oscuro"][data-luz-max="baja"]:not([data-transparencia="reducida"]) {
-  --vidrio: rgba(22, 24, 28, 0.32); --vidrio-texto: rgba(20, 22, 26, 0.42); --vidrio-denso: rgba(18, 20, 24, 0.62);
+.c8-vidrio {
+  --vidrio: rgb(var(--vidrio-tinte) / var(--vidrio-a, var(--vidrio-a-icono)));
+  --vidrio-texto: rgb(var(--vidrio-tinte) / var(--vidrio-a, var(--vidrio-a-texto)));
+  --vidrio-denso: rgb(var(--vidrio-tinte) / var(--vidrio-a, var(--vidrio-a-denso)));
 }
-:root[data-tema="claro"][data-luz-min="media"]:not([data-transparencia="reducida"]) {
-  --vidrio: rgba(255, 255, 255, 0.4); --vidrio-texto: rgba(255, 255, 255, 0.62); --vidrio-denso: rgba(255, 255, 255, 0.8);
-}
-:root[data-tema="claro"][data-luz-min="alta"]:not([data-transparencia="reducida"]) {
-  --vidrio: rgba(255, 255, 255, 0.3); --vidrio-texto: rgba(255, 255, 255, 0.44); --vidrio-denso: rgba(255, 255, 255, 0.62);
+/* Sobre el vidrio, el acento de los textos y enlaces también es «vibrante» (más luz en oscuro, menos en claro) */
+@supports (color: oklch(from red l c h)) {
+  .c8-vidrio, :root[data-tema="oscuro"] .c8-vidrio { --c-acento-texto: oklch(from var(--c-acento) max(l, 0.84) c h); }
+  :root[data-tema="claro"] .c8-vidrio { --c-acento-texto: oklch(from var(--c-acento) min(l, 0.4) c h); }
 }
 
 /* ------------------------------------------------------------------ Ambiente
@@ -341,7 +351,8 @@ html[data-talla="l"] { --talla: 1.18; }
 .logo-e.grande { width: 3rem; height: 3rem; border-radius: var(--r-3); font-size: var(--t-destacado); }
 
 /* ------------------------------------------------------------------ Accesibilidad: transparencia y movimiento */
-:root[data-transparencia="reducida"] {
+:root[data-transparencia="reducida"],
+:root[data-transparencia="reducida"] .c8-vidrio {
   --vidrio: var(--c-sup-2);
   --vidrio-texto: var(--c-sup-1);
   --vidrio-ambiente: var(--c-sup-1);
@@ -420,25 +431,26 @@ html[data-talla="l"] { --talla: 1.18; }
   background: var(--vidrio);
   -webkit-backdrop-filter: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion));
   backdrop-filter: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion));
-  border: 1px solid var(--vidrio-borde);
-  box-shadow: var(--sombra-1), inset 0 1px 0 var(--vidrio-brillo);
+  border: var(--filo) solid var(--vidrio-borde);
+  box-shadow: var(--sombra-1);
 }
-.c8-vidrio.c8-vidrio--texto { background: var(--vidrio-texto); box-shadow: var(--sombra-2), inset 0 1px 0 var(--vidrio-brillo); }
-.c8-vidrio.c8-vidrio--denso { background: var(--vidrio-denso); box-shadow: var(--sombra-3), inset 0 1px 0 var(--vidrio-brillo); }
+.c8-vidrio.c8-vidrio--texto { background: var(--vidrio-texto); box-shadow: var(--sombra-2); }
+.c8-vidrio.c8-vidrio--denso { background: var(--vidrio-denso); box-shadow: var(--sombra-3); }
 /* Barra a todo el ancho (cabecera o pie): sin radio ni canto especular, que sin bordes laterales sobresaldría 1 px
    y daría desplazamiento horizontal. Solo el filo de abajo (cabecera) o de arriba (pie): border-width en la página. */
 .c8-vidrio.c8-vidrio--barra { border-radius: 0; }
 .c8-vidrio.c8-vidrio--barra::before { display: none; }
-/* Borde especular: más intenso arriba a la izquierda, como un canto de cristal pulido */
+/* Canto especular: una luz fina arriba (como el cristal pulido de iOS) que se apaga por los lados; abajo, un reflejo leve.
+   Es el único canto marcado del vidrio: el borde (--filo) es casi invisible. */
 .c8-vidrio::before {
   content: "";
   position: absolute;
-  inset: -1px;
+  inset: calc(-1 * var(--filo));
   z-index: -1;
   border-radius: inherit;
   padding: 1px;
   pointer-events: none;
-  background: linear-gradient(140deg, var(--vidrio-reflejo-1) 0%, transparent 34%, transparent 66%, var(--vidrio-reflejo-2) 100%);
+  background: linear-gradient(170deg, var(--vidrio-reflejo-1) 0%, transparent 30%, transparent 78%, var(--vidrio-reflejo-2) 100%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
@@ -448,7 +460,7 @@ html[data-talla="l"] { --talla: 1.18; }
   .c8-vidrio::before {
     background:
       radial-gradient(14rem circle at var(--luz-x) var(--luz-y), var(--vidrio-luz), transparent 70%) fixed,
-      linear-gradient(140deg, var(--vidrio-reflejo-1) 0%, transparent 34%, transparent 66%, var(--vidrio-reflejo-2) 100%);
+      linear-gradient(170deg, var(--vidrio-reflejo-1) 0%, transparent 30%, transparent 78%, var(--vidrio-reflejo-2) 100%);
   }
 }
 
@@ -568,9 +580,10 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-pastilla > .c8-separador { width: 1px; align-self: stretch; margin: var(--e-2) var(--e-1); background: var(--c-borde-2); }
 .c8-pastilla .c8-boton { --b-fondo: transparent; }
 .c8-pastilla .c8-boton:hover { --b-fondo: var(--c-capa-hover); }
-.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
-/* En claro el champán apenas se separa del vidrio: el estado pulsado lleva además un aro (WCAG 1.4.11) */
-:root[data-tema="claro"] .c8-pastilla .c8-boton[aria-pressed="true"] { box-shadow: inset 0 0 0 1.5px var(--c-acento-texto); }
+.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento-suave); --b-texto: var(--c-acento-texto); }
+/* Pulsado, como en iOS: icono teñido del acento y un relleno suave; el aro fino del acento lo distingue también sin color
+   (≥ 3:1 sobre el vidrio, WCAG 1.4.11, A7) */
+.c8-pastilla .c8-boton[aria-pressed="true"] { box-shadow: inset 0 0 0 1.5px var(--c-acento-texto); }
 
 /* ------------------------------------------------------------------ Control segmentado (radios), hasta 6 opciones
    <div class="c8-segmentado" role="radiogroup"><label><input type="radio" name="x"><span>Día</span></label>…</div> */
@@ -616,7 +629,7 @@ html[data-talla="l"] { --talla: 1.18; }
 /* La opción elegida se distingue también por su aro, no solo por el relleno (WCAG 1.4.11) */
 .c8-segmentado::after { box-shadow: inset 0 0 0 1px var(--c-acento-texto), var(--sombra-1); }
 .c8-segmentado.c8-vidrio::after { box-shadow: inset 0 0 0 1px var(--c-acento-texto), inset 0 1px 0 var(--vidrio-brillo), var(--sombra-1); }
-.c8-segmentado.c8-vidrio > label { color: var(--c-texto-2); text-shadow: var(--sombra-texto); }
+.c8-segmentado.c8-vidrio > label { color: var(--c-texto); text-shadow: var(--sombra-texto); }
 .c8-segmentado.c8-vidrio > label:has(input:checked) { color: var(--c-texto); }
 .c8-segmentado > label {
   display: grid;

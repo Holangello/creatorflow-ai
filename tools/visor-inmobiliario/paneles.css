@@ -139,16 +139,20 @@
 .pn-accion:active { transform: scale(0.96); }
 .pn-accion:is([aria-pressed="true"], [aria-expanded="true"]) { background: var(--c-acento-suave, rgba(207, 173, 102, 0.16)); color: var(--c-acento-texto, #d9b872); }
 
-/* ---------------------------------------------------------------- móvil y tablet en vertical: una fila abajo que sube como hoja */
+/* ---------------------------------------------------------------- móvil y tablet en vertical: tarjeta flotante que sube como hoja
+   Flota separada de los bordes y con las cuatro esquinas redondeadas, como las barras flotantes de iOS 26. Su alto es lo
+   que se ve: el de la hoja entera (--pn-total, 90 % de la pantalla) menos lo plegado (--pn-desp); los pone paneles.js.
+   Plegada, solo la cabecera. */
 .pn-disp-hoja .pn-tarjeta {
-  left: var(--pn-izq); right: var(--pn-der); bottom: 0; height: 90dvh; max-width: 47.5rem; margin-inline: auto;
-  border-radius: var(--r-5, 1.75rem) var(--r-5, 1.75rem) 0 0; border-bottom-width: 0;
-  transform: translateY(var(--pn-desp, calc(100% - 4.5rem))); transition: transform var(--d-3, 380ms) var(--muelle, cubic-bezier(0.2, 0.9, 0.25, 1)); will-change: transform;
+  left: calc(var(--pn-margen) + var(--pn-izq)); right: calc(var(--pn-margen) + var(--pn-der)); bottom: calc(var(--pn-margen) + var(--pn-inf));
+  height: calc(var(--pn-total, 90dvh) - var(--pn-desp, calc(var(--pn-total, 90dvh) - 4.5rem))); max-width: 47.5rem; margin-inline: auto;
+  border-radius: var(--r-5, 1.75rem);
+  transition: height var(--d-3, 380ms) var(--muelle, cubic-bezier(0.2, 0.9, 0.25, 1));
 }
 .pn-tarjeta.pn-sin-anim { transition: none !important; }
-/* (el relleno de abajo es 0,625rem + la zona segura: paneles.js, segInf(), lo descuenta) */
+/* (la zona segura queda fuera de la tarjeta, que flota encima: el relleno de abajo es solo 0,625rem; paneles.js, segInf()) */
 .pn-disp-hoja .pn-t-cab { display: flex; align-items: center; gap: var(--e-2, 0.5rem); touch-action: none;
-  padding: calc(var(--e-3, 0.75rem) + 0.125rem) var(--e-3, 0.75rem) calc(0.625rem + var(--pn-inf)) var(--e-4, 1rem); }
+  padding: calc(var(--e-3, 0.75rem) + 0.125rem) var(--e-3, 0.75rem) 0.625rem var(--e-4, 1rem); }
 .pn-asa { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 4rem; height: 0.875rem; display: grid; place-items: center; pointer-events: none; }
 .pn-asa span { width: 2.25rem; height: 0.25rem; border-radius: var(--r-pastilla, 999px); background: var(--c-borde-2, rgba(255, 255, 255, 0.18)); }
 .pn-disp-hoja .pn-t-resumen, .pn-disp-compacta .pn-t-resumen { flex: 1; }
@@ -197,14 +201,14 @@ body.ui-inactiva .pn-raiz.pn-disp-compacta:not(.pn-con-dialogo):not(.pn-con-menu
 /* Hoja del móvil en reposo: la misma píldora a la derecha que en el paseo libre («349.000 € · Contactar»), que deja ver la foto a lo ancho */
 body.ui-inactiva .pn-raiz.pn-disp-hoja:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) {
   left: auto; right: calc(var(--pn-margen) + var(--pn-der)); bottom: calc(var(--pn-margen) + var(--pn-inf)); width: auto; height: auto;
-  max-width: calc(100vw - 2 * var(--pn-margen)); margin: 0; transform: none; transition: none; border-radius: var(--r-5, 1.75rem); border-bottom-width: 1px; }
+  max-width: calc(100vw - 2 * var(--pn-margen)); margin: 0; transform: none; transition: none; border-radius: var(--r-5, 1.75rem); border-bottom-width: var(--filo, 1px); }
 body.ui-inactiva .pn-raiz.pn-disp-hoja:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) .pn-t-cab {
   padding: var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-4, 1rem); }
 body.ui-inactiva .pn-raiz.pn-disp-hoja:not(.pn-con-dialogo):not(.pn-con-menu):not(.pn-capturando) .pn-tarjeta:not(.pn-abierto):not(:focus-within) :is(.pn-asa, .pn-panel) { display: none; }
 
 /* Paseo libre en el móvil: una píldora a la derecha («349.000 € · Contactar») que no roba toques al joystick */
 .pn-disp-hoja.pn-libre .pn-tarjeta { left: auto; right: calc(var(--pn-margen) + var(--pn-der)); bottom: calc(var(--pn-margen) + var(--pn-inf)); width: auto; height: auto;
-  max-width: calc(100vw - 2 * var(--pn-margen)); margin: 0; transform: none; border-radius: var(--r-5, 1.75rem); border-bottom-width: 1px; }
+  max-width: calc(100vw - 2 * var(--pn-margen)); margin: 0; transform: none; border-radius: var(--r-5, 1.75rem); border-bottom-width: var(--filo, 1px); }
 .pn-disp-hoja.pn-libre .pn-t-cab { padding: var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-2, 0.5rem) var(--e-4, 1rem); touch-action: auto; }
 .pn-disp-hoja.pn-libre :is(.pn-asa, .pn-panel, .pn-t-datos, .pn-t-boton) { display: none; }
 
@@ -223,7 +227,7 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-panel-cab .pn-marca { flex: 1; min-width: 0; }
 .pn-panel-cuerpo { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 var(--e-5, 1.25rem) var(--e-6, 1.5rem);
   scrollbar-width: thin; scrollbar-color: var(--c-scroll, rgba(255, 255, 255, 0.22)) transparent; }
-.pn-disp-hoja .pn-panel-cuerpo { padding-bottom: calc(var(--e-6, 1.5rem) + var(--pn-inf) + var(--pn-oculto, 0px)); }
+.pn-disp-hoja .pn-panel-cuerpo { padding-bottom: var(--e-6, 1.5rem); }
 .pn-panel-cuerpo:focus { outline: none; }
 .pn-marca, .pn-marca-enlace { display: flex; align-items: center; gap: var(--e-2, 0.5rem); min-width: 0; text-decoration: none; color: inherit; }
 .pn-logo { height: 1.75rem; max-width: 7rem; object-fit: contain; }
@@ -434,11 +438,12 @@ body.raton-capturado .pn-disp-lateral .pn-t-cab { display: block; padding: var(-
 .pn-disp-lateral .pn-dialogo-contacto { width: min(26rem, calc(100vw - var(--pn-columna, 25rem) - 2 * var(--pn-margen))); }
 /* Ajustes y Estilo y luz, algo más anchos: «Automatique · Clair · Sombre» y «Contemporáneo» caben sin cortarse (V5) */
 .pn-disp-lateral :is(.pn-dialogo-ajustes, .pn-dialogo-estilo) { width: min(24rem, calc(100vw - var(--pn-columna, 25rem) - 2 * var(--pn-margen))); }
-/* móvil en vertical: hoja inferior; «Estilo y luz» como mucho el 40 % del alto, para que se vea la escena */
-.pn-disp-hoja .pn-dialogo { left: var(--pn-izq); right: var(--pn-der); bottom: 0; max-width: 47.5rem; margin-inline: auto; max-height: 88dvh;
-  border-radius: var(--r-5, 1.75rem) var(--r-5, 1.75rem) 0 0; border-bottom-width: 0; }
+/* móvil en vertical: hoja flotante, separada de los bordes como la tarjeta; «Estilo y luz» como mucho el 40 % del alto,
+   para que se vea la escena */
+.pn-disp-hoja .pn-dialogo { left: calc(var(--pn-margen) + var(--pn-izq)); right: calc(var(--pn-margen) + var(--pn-der)); bottom: calc(var(--pn-margen) + var(--pn-inf));
+  max-width: 47.5rem; margin-inline: auto; max-height: calc(88dvh - var(--pn-margen) - var(--pn-inf)); border-radius: var(--r-5, 1.75rem); }
 .pn-disp-hoja .pn-dialogo.pn-entra { animation-name: pn-sube; }
-.pn-disp-hoja .pn-dlg-cuerpo { padding-bottom: calc(var(--e-5, 1.25rem) + var(--pn-inf)); }
+.pn-disp-hoja .pn-dlg-cuerpo { padding-bottom: var(--e-5, 1.25rem); }
 .pn-disp-hoja .pn-dialogo-estilo { max-height: 40dvh; }
 .pn-disp-hoja .pn-dialogo-estilo .pn-dlg-cab { min-height: 3rem; }
 .pn-disp-hoja .pn-dialogo-estilo .pn-dlg-cuerpo { gap: var(--e-3, 0.75rem); padding-top: var(--e-3, 0.75rem); }
