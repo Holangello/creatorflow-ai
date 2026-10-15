@@ -26,7 +26,8 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
   "marca": {
     "nombre": "Inmobiliaria Ejemplo",
     "logo": "marca/logo.svg",
-    "color": "#c8a24a",                 // color de acento (botones, flechas, plano)
+    "color": "#1f6f5c",                 // opcional: color de la inmobiliaria (botones, flechas, plano). Sin él, el champán
+                                        // del tema (claro u oscuro). El texto de acento y el foco se ajustan solos para AA
     "web": "https://www.ejemplo.com",
     "pie_legal": "Texto"                // p. ej. nº de registro de agente (AICAT…)
   },
@@ -330,4 +331,6 @@ El Estudio guarda en `tour._estudio` lo que necesita para trabajar; `soloPublico
 
 - **Zonas automáticas:** si no hay `secciones` ni `sinZonas`, el Estudio las propone y las publica cuando salen dos o más y hay una sola planta.
 - **Anclas:** `estudio.html#fotos`, `#plano`, `#datos`, `#publicar` (alias `#revisar` y `#exportar`), `#orientacion`, `#estilo` y `#extras`. Las antiguas `#orientar`, `#variantes` y `#material` siguen funcionando. La Guía abre `estudio.html#fotos&estancias=…&tomas=…`.
-- **Proyectos antiguos:** se borra `_estudio.modo` (ya no hay modos Rápido y Completo) y el paso guardado `revisar` o `exportar` pasa a `publicar`.
+- **Proyectos antiguos:** se borra `_estudio.modo` (ya no hay modos Rápido y Completo) y el paso guardado `revisar` o `exportar` pasa a `publicar`. Un `marca.color` igual a `#c8a24a` (el valor por defecto antiguo, sin distinguir mayúsculas) se borra: el visor usa el champán del tema.
+- **Renombrar:** al cambiar en español el nombre de una zona, planta o estilo se borran solo sus traducciones automáticas; las escritas a mano se conservan.
+- **Mi inmobiliaria** (`localStorage` `cre8eight:perfil`, del Estudio, no del tour): `marca.color` vacío equivale al champán y `#c8a24a` se lee como vacío. `traducciones.{pie_legal, texto_privacidad}.{en, fr, de}` vale mientras no cambie el español y se aplica a `marca.pie_legal` y `contacto.texto_privacidad` (tipo Texto) de cada proyecto.

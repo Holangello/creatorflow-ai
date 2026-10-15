@@ -75,6 +75,14 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Llega una recarga mientras la vista previa cambia de estancia | Se espera a que el visor confirme la estancia |
 | La inmobiliaria no tiene web | No se escribe `url_publica` ni hay QR de ejemplo; «Descargar QR» queda desactivado |
 | No carga `exportar.js` | La copia de seguridad sigue disponible |
+| No carga `tema.js` | El Estudio queda en el oscuro por defecto de `tema.css`; «Apariencia» lo avisa en vez de abrir el menú |
+| Un color del tema no se puede leer en un lienzo | Gris neutro de reserva; al cambiar de tema se vuelve a leer y se repinta |
+| Se cierra la pestaña mientras se importan fotos | El navegador pide confirmación (solo entonces) |
+| Proyecto o perfil con el antiguo `#c8a24a` | Se lee como «sin color»: champán del tema. Cualquier otro color se respeta |
+| Se renombra en español un texto con traducciones automáticas | Se borran solo esas; las escritas a mano se conservan (el visor muestra el español mientras falten) |
+| Cambia el pie legal o la privacidad en Mi inmobiliaria | Sus traducciones guardadas se vacían |
+| Columna de trabajo estrecha (iPad, 1024 px con talla L, móvil) | Fotos y paradas pasan a dos líneas (`@container`); sin consultas de contenedor, se desplaza el área de trabajo |
+| Chromium no repinta entero el lienzo del plano al cambiar de tema | El lienzo tiene capa propia (`will-change`) |
 
 ### Exportación
 
