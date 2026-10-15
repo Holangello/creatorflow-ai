@@ -1,4 +1,4 @@
-# Primeros comentarios · 13 piezas · generado el 15-10-2026
+# Primeros comentarios · 14 piezas · generado el 15-10-2026
 
 **Esto existe porque el primer comentario no viaja por CSV en Buffer.** Se pega en el
 compositor, pieza a pieza, en el mismo orden que el CSV. Es una sentada de media hora en
@@ -12,10 +12,16 @@ Un dato de contexto sobre el 90%: no es un estudio, es mi observación de campo 
 Así que si tu marca está en el 10% restante, es probable que yo nunca te vea. Me interesa más el caso contrario: los que gastan cada mes y no saben qué contestar cuando dirección pregunta qué ha traído ese gasto.
 ```
 
-## 2026-10-22 12:30 · jue17 · Oferta
+## 2026-10-22 12:30 · jue · Oferta
 
 ```
-La cuenta, por si quieres rehacerla: 45.000 € de coste empresa entre 1.800 horas al año = 25 €/h. Nueve horas por pieza = 225 €. Herramientas y tiempo muerto, +75 €. Si se publican siete de cada diez, divide 3.000 € entre siete piezas = 430 €. Con ocho publicadas al mes, 3.400 €. Si me escribes «sistema» te pido tres datos (sueldos, horas por pieza y piezas publicadas el mes pasado) y te devuelvo tu cifra en 24 horas. Cómo trabajamos: agenciamakers.com
+Cómo funciona el siguiente paso, sin misterio:
+
+Escribes "sistema" por privado. Te devuelvo tres preguntas por mensaje: qué producís al mes, quién decide y qué pasa si no se publica.
+
+Con eso ya sé si tiene sentido. Si encaja, agendamos 30 minutos de diagnóstico. Si no encaja, te lo digo por mensaje y te ahorro la llamada.
+
+El método completo está en agenciamakers.com
 ```
 
 ## 2026-10-26 12:30 · mar06 · Prueba
@@ -44,10 +50,10 @@ Lo que aprendí es que el "y luego ya vemos" no es indecisión. Es un presupuest
 Por si alguien se lo lleva a lo personal: la directora de aquella sala tenía razón en lo suyo. Su trabajo era llegar a la siguiente reunión con el puesto intacto. El problema no es ella. Es un sistema donde el vídeo se evalúa por quién lo firmó y no por qué produjo. Y un matiz: un briefing corto no es un briefing vago. Es más difícil de escribir. Una página obliga a elegir.
 ```
 
-## 2026-11-05 12:30 · jue24 · Oferta
+## 2026-11-05 12:30 · jue17 · Oferta
 
 ```
-Qué pasa exactamente cuando escribes «sistema»: te hago tres preguntas por mensaje. Cuántas piezas necesitáis publicar al mes, quién decide y cuál es el plazo real. Si encaja, 30 minutos de diagnóstico. Si no encaja, te lo digo el mismo día y te digo por qué. Nadie debería perder un trimestre por educación. Cómo trabajamos: agenciamakers.com
+La cuenta, por si quieres rehacerla: 45.000 € de coste empresa entre 1.800 horas al año = 25 €/h. Nueve horas por pieza = 225 €. Herramientas y tiempo muerto, +75 €. Si se publican siete de cada diez, divide 3.000 € entre siete piezas = 430 €. Con ocho publicadas al mes, 3.400 €. Si me escribes «sistema» te pido tres datos (sueldos, horas por pieza y piezas publicadas el mes pasado) y te devuelvo tu cifra en 24 horas. Cómo trabajamos: agenciamakers.com
 ```
 
 ## 2026-11-09 09:30 · vie02 · Humano
@@ -66,10 +72,10 @@ El coste de la IA sin sistema no es el de la suscripción. Es el tiempo del equi
 Ese tiempo no aparece en ninguna factura. Por eso nadie lo mide.
 ```
 
-## 2026-11-16 12:30 · jue01 · Oferta
+## 2026-11-16 12:30 · jue24 · Oferta
 
 ```
-El orden importa más que el contenido. Primero el calendario, porque decide la producción. Después las piezas, porque ya no hay que discutir qué se hace. Y al final el informe, que no cierra el mes: abre el siguiente. Si llega en otro orden, lo que tienes es un proveedor con buena entrega, no un sistema. Cómo trabajamos por dentro: agenciamakers.com
+Qué pasa exactamente cuando escribes «sistema»: te hago tres preguntas por mensaje. Cuántas piezas necesitáis publicar al mes, quién decide y cuál es el plazo real. Si encaja, 30 minutos de diagnóstico. Si no encaja, te lo digo el mismo día y te digo por qué. Nadie debería perder un trimestre por educación. Cómo trabajamos: agenciamakers.com
 ```
 
 ## 2026-11-19 09:30 · vie09 · Humano
@@ -92,16 +98,10 @@ La fuente, para que no te quedes con mi resumen: «El impacto de la IA en la ind
 Léelo tú. Es lo único que pido con un informe: que la cifra que vas a defender en una reunión la hayas visto en su sitio, no en un titular.
 ```
 
-## 2026-11-26 12:30 · jue08 · Oferta
+## 2026-11-26 12:30 · jue01 · Oferta
 
 ```
-Desarrollo la tercera opción, que es la que más se malinterpreta.
-
-La continuidad no es "lo mismo pero más veces". Cambia la unidad de compra: dejas de comprar una pieza y empiezas a comprar capacidad de producir la siguiente.
-
-Lo que se decide ahí no es volumen. Es quién mantiene el criterio entre pieza y pieza, y si eso vive dentro o fuera de tu equipo.
-
-Pregunta para quien firme presupuestos: ¿compras piezas o compras calendario? Porque el documento que te mandan debería cambiar entero según la respuesta.
+El orden importa más que el contenido. Primero el calendario, porque decide la producción. Después las piezas, porque ya no hay que discutir qué se hace. Y al final el informe, que no cierra el mes: abre el siguiente. Si llega en otro orden, lo que tienes es un proveedor con buena entrega, no un sistema. Cómo trabajamos por dentro: agenciamakers.com
 ```
 
 ## 2026-11-30 09:30 · lun05 · Autoridad
@@ -112,4 +112,16 @@ Fuente, con todas las cifras y el detalle del producto: runwayml.com/news/introd
 Un dato que no cabía arriba y que me parece el más relevante del anuncio: localiza cada pieza por reglas que fija el equipo, incluido el texto en pantalla y las capturas de producto, no solo la locución. Y redimensiona a cada formato.
 
 Eso es el trabajo que más horas se come en una productora. Que se automatice no me asusta. Que alguien crea que ahí estaba el valor, sí.
+```
+
+## 2026-12-03 12:30 · jue08 · Oferta
+
+```
+Desarrollo la tercera opción, que es la que más se malinterpreta.
+
+La continuidad no es "lo mismo pero más veces". Cambia la unidad de compra: dejas de comprar una pieza y empiezas a comprar capacidad de producir la siguiente.
+
+Lo que se decide ahí no es volumen. Es quién mantiene el criterio entre pieza y pieza, y si eso vive dentro o fuera de tu equipo.
+
+Pregunta para quien firme presupuestos: ¿compras piezas o compras calendario? Porque el documento que te mandan debería cambiar entero según la respuesta.
 ```

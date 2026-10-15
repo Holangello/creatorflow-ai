@@ -81,25 +81,21 @@
   {
     "id": "jue",
     "date": "Jue 10 sept",
-    "short": "El sistema, regalado",
-    "chosen": 1,
+    "short": "Lo que no nos interesa venderte",
+    "chosen": 0,
     "hora": "12:30",
     "pilar": "Oferta · Captación",
-    "formato": "Carrusel PDF · 10 slides",
+    "formato": "Solo texto · el carrusel queda cancelado",
     "tono": "metodo",
-    "metrica": "Mensajes privados con la palabra «sistema» en 7 días. Mínimo: 3",
-    "media": {
-      "tag": "Carrusel · slide 1 de 10",
-      "title": "SISTEMA MAKERS",
-      "note": "Seis fases para dejar de producir piezas sueltas. Una fase por slide, tipografía pura, sin fotografía."
-    },
-    "data": "En la versión B elegida hay un [DATO: nº] de días de rodaje por mes. Es un dato vuestro, no de cliente: confírmalo o quita esa frase. La versión C además pide cuántos proyectos entran este trimestre.",
+    "metrica": "Mensajes privados con la palabra «sistema» en 7 días. **Ojo: tres piezas publicables más usan esa misma palabra (17-09, 24-09, 01-10), así que dos de ellas a menos de 8 días hacen que ningún DM sea atribuible a ninguna. El exportador ya separa las que comparten palabra.**",
+    "media": null,
+    "data": "**RECUPERADA EL 15-10-2026, y era la única pieza del almacén muerta por un defecto corregible.** Llevaba desde el 10-09 marcada «no utilizable» por dos motivos: el cuerpo nombraba un carrusel que no se va a producir, y arrastraba un `[DATO]` abierto. **Se recupera cambiando la versión elegida de la B a la A**, y eso resuelve los dos motivos de golpe: la A no tiene ningún `[DATO]` —el número de días de rodaje vivía solo en la B, y el de proyectos del trimestre en la C, así que las dos siguen irrecuperables sin un dato de Angello— y mencionaba el carrusel **una sola vez**. Corregido: «Seis fases, en el carrusel» pasa a «Seis fases, en este orden», que además dice algo que la pieza no decía — el valor está en la secuencia, no en las seis palabras. **Redecidida como pieza de solo texto**, banda 900-1.600, con 964 caracteres sin hashtags: esto NO es una degradación en la puerta, así que no se acoge a la exención del 14-10; el carrusel se cancela y la banda se redeclara hoy. El brief visual de 10 slides queda sin producir y sin fecha. Cero `[DATO]`, cero cifras, gancho de 128 caracteres.",
     "alts": [
       {
         "name": "Confesión del modelo",
         "tag": "A",
         "why": "Abre acusando al modelo de negocio y se acusa a sí misma en la tercera línea. La venta llega por vergüenza compartida.",
-        "text": "A las agencias no nos interesa venderte un sistema.\nUn sistema se vende una vez. Las piezas sueltas se facturan todos los meses.\n\nLo digo incluyéndome. Makers también ha facturado así.\n\nEl vídeo suelto es cómodo para el proveedor y caro para ti.\nPagas cada pieza como si fuera la primera. Y empiezas de cero otra vez.\n\nPor eso montamos el SISTEMA MAKERS. Seis fases, en el carrusel:\n\n1. Inmersión estratégica\n2. Diseño del sistema\n3. Dirección creativa\n4. Producción audiovisual\n5. Implementación digital\n6. Escalado con IA\n\nPara quién es:\n• Tienes calendario de contenido y no llegas.\n• Apruebas el presupuesto y respondes por él.\n• Quieres continuidad, no un pico de actividad.\n\nPara quién no es:\nPara quien busca \"un vídeo\".\nPara quien compara proveedores solo por precio.\nAhí siempre habrá alguien más barato que yo. Y lo pagarás dos veces.\n\nUna pieza se olvida en dos semanas. Un sistema te aguanta el año.\n\nEscríbeme \"sistema\" por privado y te digo si encaja.\n\n#DireccionCreativa #ContenidoB2B #SistemaMakers",
+        "text": "A las agencias no nos interesa venderte un sistema.\nUn sistema se vende una vez. Las piezas sueltas se facturan todos los meses.\n\nLo digo incluyéndome. Makers también ha facturado así.\n\nEl vídeo suelto es cómodo para el proveedor y caro para ti.\nPagas cada pieza como si fuera la primera. Y empiezas de cero otra vez.\n\nPor eso montamos el SISTEMA MAKERS. Seis fases, en este orden:\n\n1. Inmersión estratégica\n2. Diseño del sistema\n3. Dirección creativa\n4. Producción audiovisual\n5. Implementación digital\n6. Escalado con IA\n\nPara quién es:\n• Tienes calendario de contenido y no llegas.\n• Apruebas el presupuesto y respondes por él.\n• Quieres continuidad, no un pico de actividad.\n\nPara quién no es:\nPara quien busca \"un vídeo\".\nPara quien compara proveedores solo por precio.\nAhí siempre habrá alguien más barato que yo. Y lo pagarás dos veces.\n\nUna pieza se olvida en dos semanas. Un sistema te aguanta el año.\n\nEscríbeme \"sistema\" por privado y te digo si encaja.\n\n#DireccionCreativa #ContenidoB2B #SistemaMakers",
         "comment": "Cómo funciona el siguiente paso, sin misterio:\n\nEscribes \"sistema\" por privado. Te devuelvo tres preguntas por mensaje: qué producís al mes, quién decide y qué pasa si no se publica.\n\nCon eso ya sé si tiene sentido. Si encaja, agendamos 30 minutos de diagnóstico. Si no encaja, te lo digo por mensaje y te ahorro la llamada.\n\nEl método completo está en agenciamakers.com"
       },
       {

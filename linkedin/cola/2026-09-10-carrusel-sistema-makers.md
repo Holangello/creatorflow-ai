@@ -153,3 +153,39 @@ antes que «6 fases», la jerarquía está mal.
    importantes. Pero el acento ya trabaja en la etiqueta y en la barra: añadirlo al titular satura
    seis slides seguidos y mata la fuerza de «sistema» en el slide 10, que es la única palabra que
    tiene que producir un mensaje privado.
+
+## Recuperada el 15-10-2026 · deja de ser «no utilizable»
+
+**Era la única pieza del almacén muerta por un defecto corregible, y llevaba cinco semanas así.**
+`cola/README.md` le imputaba dos motivos: el cuerpo nombraba un carrusel que no se va a producir, y
+arrastraba un `[DATO]` abierto desde el 10 de septiembre.
+
+**Se recupera cambiando la versión elegida de la B a la A, y eso cierra los dos motivos a la vez.** La B
+depende de un `[DATO: nº]` de días de rodaje al mes y la C de un número de proyectos del trimestre: las dos
+siguen irrecuperables sin un dato que solo tiene Angello. **La A no tiene ninguno**, y mencionaba el
+carrusel una sola vez.
+
+**La corrección es una línea:** «Por eso montamos el SISTEMA MAKERS. Seis fases, en el carrusel:» pasa a
+**«Seis fases, en este orden:»**. Un carácter menos y un argumento más: el valor está en la secuencia, no
+en las seis palabras. Barrido de las cinco palabras prohibidas por la regla 5 de `04-guia-diseno.md`
+—carrusel, slide, desliza, abajo, documento—: **cero ocurrencias** en el cuerpo y cero en el primer
+comentario de la A, que no es el que hablaba del carrusel (ese era el de la B).
+
+**Redecidida como pieza de solo texto, y esto hay que declararlo o la próxima auditoría la marca mal.** Se
+escribió como carrusel, o sea banda 400-700, y mide **964 caracteres sin hashtags**. Eso no es una
+degradación en la puerta de producción, así que **no se acoge a la exención del 14-10**: fallaría su
+condición 1, banda declarada antes de la puerta. Lo que pasa aquí es otra cosa — el carrusel se cancela y
+la pieza se redeclara hoy como solo texto, banda 900-1.600. Dentro, con 64 caracteres de margen sobre el
+suelo. **El brief de 10 slides queda sin producir y sin fecha**, y no bloquea nada.
+
+**Y una colisión que llevaba cinco semanas sin verse, que es de métrica y no de estilo.** Su CTA pide
+escribir «sistema» por privado, y **otras tres piezas publicables usan la misma palabra**: el 17-09, el
+24-09 —que tiene franja el jueves 22-10— y el 01-10. Si dos caen a menos de ocho días, sus ventanas de
+siete días se solapan y **ningún mensaje es atribuible a ninguna de las dos**. Con cero publicadas, esa
+sería la primera medición del sistema, así que no es un detalle. **El exportador al programador ya separa
+las piezas que comparten palabra de DM**, y el 15-10 no entra en el conflicto: usa «mitad», que su ficha ya
+había comprobado contra «sistema» y «alcance».
+
+**Checklist, medido:** 964 sin hashtags (banda 900-1.600) · gancho 128 (≤210) · un solo CTA · cero enlaces
+en el cuerpo, la web va en el primer comentario · 3 hashtags · cero `[DATO]` · cero cifras sin autor, los
+únicos dígitos son los ordinales de la lista · ninguna frase por encima de 15 palabras, la más larga 12.

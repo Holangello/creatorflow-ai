@@ -29,9 +29,11 @@ SALIDA = RAIZ / "salida"
 
 # Por que cada pieza queda fuera. La razon va escrita: una exclusion sin motivo
 # vuelve a entrar sola dentro de dos semanas.
+# El 10-09 («jue») estuvo aqui cinco semanas como «no utilizable» y se recupero el
+# 15-10: cambiando la version elegida de la B a la A desaparecen sus dos motivos
+# —la A no tiene ningun [DATO] y solo mencionaba el carrusel una vez—.
 EXCLUIDAS = {
     "mie":   "archivada por caducidad (09-09, la API de Sora)",
-    "jue":   "no utilizable: el cuerpo nombra el carrusel y arrastra un [DATO] abierto",
     "caso":  "bloqueada: espera cliente autorizado y cifras reales",
     "mie16": "archivada por caducidad (16-09, Adobe en la linea de tiempo)",
 }
@@ -63,8 +65,33 @@ PENDIENTES = {"mie23": "una frase por confirmar: que el habito de lectura del pa
 # Orden recomendado: rota pilares para que no salgan dos del mismo seguidas.
 PRIORIDAD = ["Autoridad", "Oferta", "Prueba", "Humano", "Actualidad"]
 
+# Palabra de DM que pide cada pieza en su CTA. Cuatro piezas piden «sistema», y la
+# ventana de medicion es de 7 dias: si dos caen a menos de 8, sus ventanas se
+# solapan y ningun mensaje es atribuible a ninguna de las dos. Con cero piezas
+# publicadas esa seria la primera medicion del sistema, asi que el reparto las
+# separa en vez de confiar en que coincidan lejos por suerte.
+PALABRA_DM = {
+    "jue": "sistema", "jue17": "sistema", "jue24": "sistema", "jue01": "sistema",
+    "jue15": "mitad", "jue08": "alcance",
+}
+SEPARACION_DM = 8  # dias minimos entre dos piezas que piden la misma palabra
+
+# Piezas escritas en banda de carrusel (400-700) que salen en texto. Quedan por
+# debajo del suelo de 900 y es correcto: la banda se fija al escribir y no se
+# recalcula al publicar. Regla cerrada el 14-10 en 03-guia-copywriting.md.
+BANDA_CARRUSEL = {"jue01", "jue15"}
+
 HORA = {"Autoridad": "09:30", "Actualidad": "09:30", "Humano": "09:30",
         "Prueba": "12:30", "Oferta": "12:30"}
+
+
+def sin_hashtags(texto):
+    """La convencion de cola/README.md es contar el cuerpo sin hashtags: el bloque
+    final de etiquetas no es cuerpo y falsea la comparacion con las bandas."""
+    partes = texto.rstrip().rsplit("\n\n", 1)
+    if len(partes) == 2 and partes[1].lstrip().startswith("#"):
+        return partes[0]
+    return texto
 
 
 def pilar(entrada):
@@ -83,6 +110,40 @@ def ordenar(piezas):
             if por_pilar.get(p):
                 orden.append(por_pilar[p].pop(0))
     return orden
+
+
+def asignar(orden, dias):
+    """Coloca cada pieza en un dia respetando la separacion entre palabras de DM.
+
+    Recorre los dias y, para cada uno, coge la primera pieza del orden
+    recomendado cuya palabra de DM no se haya usado en los ultimos
+    SEPARACION_DM dias. Si ninguna cumple, coloca la primera y avisa: es mejor
+    publicar con la medicion contaminada que dejar un hueco vacio, pero hay que
+    saberlo."""
+    pendientes = list(orden)
+    ultima_vez = {}
+    asignado, choques = [], []
+    for dia in dias:
+        if not pendientes:
+            break
+        elegida = None
+        for pieza in pendientes:
+            palabra = PALABRA_DM.get(pieza["id"])
+            previo = ultima_vez.get(palabra)
+            if palabra is None or previo is None or (dia - previo).days >= SEPARACION_DM:
+                elegida = pieza
+                break
+        if elegida is None:
+            elegida = pendientes[0]
+            palabra = PALABRA_DM.get(elegida["id"])
+            choques.append(f"{elegida['id']} el {dia:%d-%m} repite la palabra «{palabra}» a menos de "
+                           f"{SEPARACION_DM} dias: su medicion de DM no sera atribuible")
+        pendientes.remove(elegida)
+        palabra = PALABRA_DM.get(elegida["id"])
+        if palabra:
+            ultima_vez[palabra] = dia
+        asignado.append((elegida, dia))
+    return asignado, choques
 
 
 def fechas(desde, cadencia, cuantas):
@@ -126,10 +187,11 @@ def main():
 
     orden = ordenar(piezas)
     dias = fechas(desde, args.cadencia, len(orden))
+    asignado, choques = asignar(orden, dias)
 
     SALIDA.mkdir(exist_ok=True)
     filas, avisos = [], []
-    for pieza, dia in zip(orden, dias):
+    for pieza, dia in asignado:
         alt = pieza["alts"][pieza["chosen"]]
         p = pilar(pieza)
         tope = CADUCA.get(pieza["id"])
@@ -144,7 +206,7 @@ def main():
             "pilar": p,
             "version": alt.get("name", ""),
             "id": pieza["id"],
-            "caracteres": len(alt["text"]),
+            "caracteres": len(sin_hashtags(alt["text"])),
         })
 
     csv_path = SALIDA / "programador-posts.csv"
@@ -177,9 +239,14 @@ def main():
     for fila in filas:
         if fila["id"] in PENDIENTES:
             print(f"   PENDIENTE · {fila['id']} «{fila['fecha']}»: {PENDIENTES[fila['id']]}")
-        if fila["caracteres"] > 1600:
+        if fila["caracteres"] < 900 and fila["id"] not in BANDA_CARRUSEL:
+            print(f"   PENDIENTE · {fila['id']}: {fila['caracteres']} caracteres, por debajo del "
+                  f"suelo de 900 y sin banda de carrusel declarada")
+        if fila["caracteres"] > 1600:  # cuerpo sin hashtags, como la tabla canonica
             print(f"   PENDIENTE · {fila['id']}: {fila['caracteres']} caracteres, por encima "
                   f"del techo de 1.600")
+    for choque in choques:
+        print(f"   AVISO · {choque}")
     for aviso in avisos:
         print(f"   AVISO · {aviso}")
 

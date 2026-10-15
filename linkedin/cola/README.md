@@ -26,9 +26,16 @@ contar el texto del banco.
 
 ## Inventario, al 14-10-2026 · **y esta tabla queda congelada**
 
-**22 escritas · 2 archivadas · 1 bloqueada · 1 no utilizable · 18 publicables · 0 PUBLICADAS.**
-De las 18, **10 tienen franja asignada** y **8 son inventario limpio sin fecha**, disponibles para
+**22 escritas · 2 archivadas · 1 bloqueada · 0 no utilizables · 19 publicables · 0 PUBLICADAS.**
+De las 19, **10 tienen franja asignada** y **9 son inventario limpio sin fecha**, disponibles para
 cualquier franja de su pilar.
+
+**Actualizado el 15-10, y es la excepción que la congelación permite: un cambio de estado real, no un
+recuento.** La pieza del 10-09 deja de ser «no utilizable» y pasa a publicable. **Era la única del almacén
+muerta por un defecto corregible**, y se recupera cambiando la versión elegida de la B a la A: la A no
+tiene ningún `[DATO]` y mencionaba el carrusel una sola vez, así que una línea cierra los dos motivos que
+la bloqueaban. Mide 964 sin hashtags y se redeclara como pieza de solo texto. La B y la C siguen
+irrecuperables: dependen de un número de días de rodaje y de proyectos que solo tiene Angello.
 
 **Corregido el 14-10, y el error es el mejor argumento de la decisión que viene debajo.** Esta cabecera
 decía «9 con franja y 9 sin fecha» y seguía fechada al 09-10. Se quedó atrás el 13-10, cuando la pieza del
@@ -47,7 +54,7 @@ que pase a publicada.
 | --- | --- | --- | --- | --- | --- |
 | 08-09 · Los tres síntomas | B | 1.246 | publicable | sin fecha | — |
 | 09-09 · Sora caduca en quince días | B+ | 1.516 | **archivada** | — | Caducidad. No se recupera |
-| 10-09 · Te regalo el método | B | 1.129 | **no utilizable** | — | El cuerpo nombra el carrusel. Sin PDF no hay pieza. Arrastra además un `[DATO]` |
+| 10-09 · Lo que no nos interesa venderte | **A** | 964 | **publicable · recuperada el 15-10** | — | El cuerpo nombra el carrusel. Sin PDF no hay pieza. Arrastra además un `[DATO]` |
 | 11-09 · El no que retuvo criterio | D | 1.267 | publicable | vie 23-10 | — |
 | 14-09 · La frase | B | 1.432 | publicable | lun 19-10 | — |
 | 15-09 · Tu agencia no te engaña | — | — | **bloqueada** | — | Sin versión elegida. Espera cliente autorizado y cifras reales |
