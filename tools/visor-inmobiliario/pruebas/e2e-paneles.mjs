@@ -9,6 +9,9 @@
 // Fase 3 (fase3-plan.md §3.3 y §4.2): la tarjeta del inmueble sustituye a la pestaña, la hoja de vista previa y el dock;
 // «Contactar» adjunta sola la vista actual (PA1) y «Enviar por WhatsApp» copia la foto y abre el chat en el mismo gesto;
 // Compartir, Idioma y Ajustes van en «Más»; «Estilo y luz» depende de estado_obra (PA3).
+// Fase 4 (fase4-plan.md §1.4 y §2.2): Apariencia, Tamaño y Reducir transparencia en Ajustes con las preferencias comunes de
+// tema.js (cre8eight:*, compartidas con el Estudio y la Guía); el movimiento tiene una sola fuente de verdad; contraste del
+// vidrio en claro y oscuro; sin desplazamiento horizontal; iconos que se dibujan y nada animado con movimiento reducido.
 import { servir, lanzar, contexto, abrir } from "./comun.mjs";
 import { crearInforme, erroresDe, esperar } from "./e2e-util.mjs";
 
@@ -24,6 +27,9 @@ const SEL = {
   mas: ["#btn-mas", ".pn-tarjeta [data-k='mas']"], masItem: (id) => `#menu-mas [data-id='${id}'], .pn-menu [data-k='mas-${id}']`,
   compartirFicha: "[data-k='compartir-ficha']", qr: ".pn-qr-img svg", compartirNativo: "[data-k='sh-nativo']", compartirWa: "[data-k='sh-wa']", copiarEnlace: "[data-k='copiar']",
   musica: "[data-k='aj-musica']", volumen: "[data-k='aj-volumen']", volumenTxt: "[data-k='aj-vol-txt']", movimiento: "[data-k='aj-movimiento']",
+  // Ajustes de la fase 4: «Apariencia: Automático · Claro · Oscuro», «Tamaño: S · M · L» y «Reducir transparencia»
+  apariencia: (v) => `[data-k='aj-tema-${v}']`, talla: (v) => `[data-k='aj-talla-${v}']`, transparencia: "[data-k='aj-transparencia']",
+  iconoApariencia: ".pn-ic-apariencia", restablecer: "[data-k='aj-reset']", dialogoAjustes: ".pn-dialogo-ajustes",
   creditoMusica: ".pn-musica-credito", creditoApp: ".pn-credito",
   idiomaX: (c) => `[data-k='idioma-${c}']`,
   guiada: "[data-k='guiada']", medir: "[data-k='medir']", hipoteca: ".pn-hip", precioCabecera: ".pn-t-precio", titulo: ".pn-titulo", marca: ".pn-marca-nombre",
@@ -55,12 +61,14 @@ const inf = crearInforme("e2e · Paneles del visor");
 const { base, cerrar } = await servir();
 const navegador = await lanzar();
 
-/** Visor simulado con la red de WhatsApp y del CRM interceptada. red: { wa: [url], hook: [cuerpo], falla } */
-async function simulado({ ancho = 1280, alto = 800, tactil = false, query = "", init = null, permisos = [] } = {}) {
+/** Visor simulado con la red de WhatsApp y del CRM interceptada. red: { wa: [url], hook: [cuerpo], falla }.
+ *  sinTema: sin tema.js (página antigua o que no lo carga): los paneles deben seguir funcionando con sus reservas. */
+async function simulado({ ancho = 1280, alto = 800, tactil = false, query = "", init = null, permisos = [], sinTema = false } = {}) {
   const ctx = await contexto(navegador, { ancho, alto, movil: tactil, escala: tactil ? 2 : 1 });
   inf.cerrarAlFinal.push(ctx);
   if (permisos.length) await ctx.grantPermissions(permisos);
   if (init) await ctx.addInitScript(init);
+  if (sinTema) await ctx.route(/\/tema\.js(\?|$)/, (r) => r.fulfill({ status: 404, body: "" }));
   const red = { wa: [], hook: [], falla: false };
   await ctx.route(/wa\.me/, (r) => { red.wa.push(r.request().url()); r.fulfill({ body: "<h1>wa</h1>", contentType: "text/html" }); });
   await ctx.route(/hook\.example\.com/, async (r) => {
@@ -119,6 +127,31 @@ const fotosEnBarra = (p, n, ms = 5000) => esperar(p, ([s, n]) => document.queryS
 const foco = (p) => p.evaluate(() => document.activeElement?.dataset?.k ?? document.activeElement?.className ?? "");
 const enFoco = (p, k) => esperar(p, (k) => document.activeElement?.dataset?.k === k, k, 3000).then(() => true, () => false);
 const IGNORAR = [/status of 500/];
+/** Sin desplazamiento horizontal de la página (un vidrio de borde a borde no debe sobresalir). */
+const sinDesbordeX = (p) => p.evaluate(() => ({ ok: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+  scroll: document.documentElement.scrollWidth, ancho: document.documentElement.clientWidth }));
+/**
+ * Contraste WCAG del texto de una pieza de vidrio en el PEOR caso: su fondo translúcido compuesto sobre una foto blanca
+ * pura y sobre una negra pura (con el vidrio adaptativo sin medir, como aquí, el núcleo aplica ese peor caso).
+ * Los colores se pasan por un lienzo: así valen también los que el navegador da en oklch() o color().
+ * → { [selector]: contraste mínimo }
+ */
+const contrasteVidrio = (p, vidrio, selectores) => p.evaluate(([vidrio, selectores]) => {
+  const lienzo = document.createElement("canvas"); lienzo.width = lienzo.height = 1;
+  const g = lienzo.getContext("2d", { willReadFrequently: true });
+  const rgba = (css) => { g.clearRect(0, 0, 1, 1); g.fillStyle = "#000"; g.fillStyle = css; g.fillRect(0, 0, 1, 1); const d = g.getImageData(0, 0, 1, 1).data; return { c: [d[0], d[1], d[2]], a: d[3] / 255 }; };
+  const sobre = (f, fondo) => f.c.map((v, i) => v * f.a + fondo[i] * (1 - f.a));
+  const lum = (c) => c.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+  const fondo = rgba(getComputedStyle(document.querySelector(vidrio)).backgroundColor);
+  const r = {};
+  for (const s of selectores) {
+    const el = document.querySelector(s); if (!el) { r[s] = 0; continue; }
+    const texto = rgba(getComputedStyle(el).color);
+    r[s] = Math.round(Math.min(...[[255, 255, 255], [0, 0, 0]].map((foto) => { const bajo = sobre(fondo, foto); return ratio(sobre(texto, bajo), bajo); })) * 100) / 100;
+  }
+  return r;
+}, [vidrio, selectores]);
 /** Objetivos táctiles visibles de menos de 44 px dentro de los paneles (y del menú «Más» del núcleo). */
 const objetivosPequenos = (p) => p.evaluate(() => {
   const malos = [];
@@ -148,7 +181,11 @@ try {
       // el acceso directo a WhatsApp ya no está fuera: es un enlace secundario dentro del diálogo de contacto (PA2)
       inf.ok(!(await p.$("#paneles a[href*='wa.me']")), `${n}: sin acceso directo a WhatsApp fuera del diálogo de contacto`);
       if (disp === "hoja") inf.ok(parseFloat(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--reserva-inferior"))) > 50, `${n}: la hoja reserva su alto para que el núcleo no quede debajo (--reserva-inferior)`);
+      const dx0 = await sinDesbordeX(p);
+      inf.ok(dx0.ok, `${n}: sin desplazamiento horizontal con la tarjeta`, dx0);
       await abrirContacto(p);
+      const dx1 = await sinDesbordeX(p);
+      inf.ok(dx1.ok, `${n}: sin desplazamiento horizontal con el diálogo de contacto abierto`, dx1);
       const v = await p.evaluate((S) => {
         const d = document.querySelector(S.dialogo), f = document.querySelector(S.hacerFoto), z = document.querySelector(S.zona), cuerpo = d.querySelector(S.cuerpoDialogo).getBoundingClientRect();
         const rd = d.getBoundingClientRect(), rf = f.getBoundingClientRect(), c = document.querySelector(S.contacto).getBoundingClientRect();
@@ -316,10 +353,14 @@ try {
     inf.ok(await p.evaluate(() => !window.visor.estado.guionActivo), "y se detiene");
     await p.click(SEL.medir);
     inf.ok(await p.evaluate(() => window.visor.estado.midiendo === true), "«Medir» activa la medición");
-    // fuera «Invertir eje» (P-4): los ajustes los guarda el núcleo con visor.ajustes()
+    // fuera «Invertir eje» (P-4). Fase 4: el movimiento tiene una sola fuente de verdad, la preferencia común de tema.js
+    // (cre8eight:movimiento), que el núcleo lee; visor.ajustes({ reducirMovimiento }) queda como alias (bloque 14)
     await elegirMas(p, "pn-ajustes");
     await p.click(SEL.movimiento);
-    inf.ok(await p.evaluate(() => window.__registro.some(([e, o]) => e === "ajustes" && o?.reducirMovimiento === true)), "los ajustes («Reducir movimiento») se envían al núcleo para guardarse (visor.ajustes)");
+    const mov = await p.evaluate(() => ({ guardado: localStorage.getItem("cre8eight:movimiento"), html: document.documentElement.dataset.movimiento,
+      nucleo: window.visor.ajustes({}).reducirMovimiento }));
+    inf.ok(mov.guardado === "reducido" && mov.html === "reducido" && mov.nucleo === true,
+      "los ajustes («Reducir movimiento») llegan al núcleo: se guardan en la preferencia común (cre8eight:movimiento) que el visor lee", mov);
   });
 
   // ================================================================== 6 · francés, trámite y hoja táctil
@@ -523,6 +564,124 @@ try {
     inf.ok(await enFoco(p, "hacer-foto") && (await p.$$(SEL.tira)).length === 2, "Escape vuelve al formulario con la foto hecha (junto a la vista adjunta)");
     await p.keyboard.press("Escape");
     inf.ok(await enFoco(p, "contactar"), "Escape cierra el contacto y devuelve el foco al botón");
+  });
+
+  // ================================================================== 12 b · Apariencia y Tamaño (fase 4)
+  await inf.bloque("Apariencia, Tamaño y Reducir transparencia: se aplican, se guardan, se comparten y se respetan al recargar", async () => {
+    const { p, ctx } = await simulado({ permisos: ["clipboard-read", "clipboard-write"] });
+    if (!(await inf.requiere(p, { "«Más»": SEL.mas }, "Apariencia y Tamaño en Ajustes"))) return;
+    const html = () => p.evaluate(() => ({ ...document.documentElement.dataset, letra: parseFloat(getComputedStyle(document.documentElement).fontSize) }));
+    const guardado = () => p.evaluate(() => Object.fromEntries(["tema", "talla", "transparencia", "movimiento"].map((k) => [k, localStorage.getItem(`cre8eight:${k}`)])));
+    const marcados = () => p.evaluate((S) => [...document.querySelectorAll(`${S.dialogoAjustes} [data-pref] input:checked`)].map((r) => r.value).join(","), SD);
+    const ini = await html();
+    inf.ok(ini.tema === "oscuro" && ini.talla === "m", "sin preferencias guardadas: «Automático» sigue al dispositivo (aquí, oscuro) y la talla es M", ini);
+    // contraste del texto principal y secundario de la tarjeta en el peor fondo (oscuro)
+    const cOscuro = await contrasteVidrio(p, SEL.tarjeta, [".pn-t-precio", ".pn-t-datos", ".pn-t-sobre"]);
+    inf.ok(Object.values(cOscuro).every((x) => x >= 4.5), "oscuro: precio, datos y tipo de la tarjeta con contraste AA (≥ 4,5:1) sobre una foto blanca o negra", cOscuro);
+    await elegirMas(p, "pn-ajustes");
+    if (!(await inf.requiere(p, { "«Apariencia»": SEL.apariencia("claro"), "«Tamaño»": SEL.talla("l"), "«Reducir transparencia»": SEL.transparencia }, "controles de Apariencia y Tamaño"))) return;
+    inf.ok(await marcados() === "auto,m" && await p.getAttribute(SEL.iconoApariencia, "data-v") === "auto", "Ajustes muestra «Automático» y «M» elegidos, con el icono de círculo a medio llenar");
+    // el dialogo no se repinta al cambiar la apariencia: se marca el nodo para comprobar que sigue siendo el mismo
+    await p.evaluate((s) => { document.querySelector(s).__mismo = true; }, SEL.dialogoAjustes);
+    await p.click(SEL.apariencia("claro"));
+    await esperar(p, () => document.documentElement.dataset.tema === "claro", null, 3000).catch(() => {});
+    const claro = { html: await html(), guardado: await guardado(), icono: await p.getAttribute(SEL.iconoApariencia, "data-v") };
+    inf.ok(claro.html.tema === "claro" && claro.guardado.tema === "claro" && claro.icono === "claro", "«Claro» se aplica (data-tema en <html>) y se guarda en cre8eight:tema", claro);
+    const cClaro = await contrasteVidrio(p, SEL.tarjeta, [".pn-t-precio", ".pn-t-datos", ".pn-t-sobre"]);
+    inf.ok(Object.values(cClaro).every((x) => x >= 4.5), "claro: precio, datos y tipo de la tarjeta con contraste AA (≥ 4,5:1) sobre una foto blanca o negra", cClaro);
+    const cDlg = await contrasteVidrio(p, SEL.dialogoAjustes, [`${SEL.dialogoAjustes} .pn-dlg-tit`, `${SEL.dialogoAjustes} .pn-sec-tit`, `${SEL.dialogoAjustes} .pn-fila-texto small`]);
+    inf.ok(Object.values(cDlg).every((x) => x >= 4.5), "claro: título, encabezados y notas de Ajustes con contraste AA sobre una foto blanca o negra", cDlg);
+    await p.click(SEL.talla("l"));
+    await esperar(p, () => document.documentElement.dataset.talla === "l", null, 3000).catch(() => {});
+    const grande = { html: await html(), guardado: await guardado() };
+    inf.ok(grande.html.talla === "l" && grande.guardado.talla === "l" && grande.html.letra > ini.letra * 1.12, `«L» se aplica (data-talla), se guarda (cre8eight:talla) y agranda la interfaz (${ini.letra} → ${grande.html.letra} px)`, grande);
+    await p.click(SEL.transparencia);
+    const opaco = await p.evaluate((S) => ({ html: document.documentElement.dataset.transparencia, guardado: localStorage.getItem("cre8eight:transparencia"),
+      fondo: getComputedStyle(document.querySelector(S.tarjeta)).backgroundColor }), SD);
+    inf.ok(opaco.html === "reducida" && opaco.guardado === "reducida" && !/rgba\(.*,\s*0?\.\d+\)$/.test(opaco.fondo), "«Reducir transparencia» se aplica (paneles opacos) y se guarda en cre8eight:transparencia", opaco);
+    await p.click(SEL.transparencia);
+    inf.ok(await p.evaluate((S) => document.querySelector(S.dialogoAjustes)?.__mismo === true && !!document.activeElement?.closest(S.dialogoAjustes), SD),
+      "cambiar la apariencia no repinta Ajustes ni le quita el foco");
+    // se respeta al recargar
+    await p.reload(); await p.waitForSelector(SEL.raiz);
+    const tras = await html();
+    inf.ok(tras.tema === "claro" && tras.talla === "l" && tras.transparencia === "normal", "al recargar se respetan Claro y L", tras);
+    await elegirMas(p, "pn-ajustes");
+    inf.ok(await marcados() === "claro,l", "y Ajustes los muestra elegidos");
+    // la clave es común: otra página del producto (misma web) la aplica, y un cambio allí llega aquí en vivo
+    const otra = await ctx.newPage();
+    await otra.goto(`${base}tema-muestra.html`);
+    const enOtra = await otra.evaluate(() => ({ ...document.documentElement.dataset }));
+    inf.ok(enOtra.tema === "claro" && enOtra.talla === "l", "la preferencia es común: otra página del producto se abre ya en claro y en L", enOtra);
+    await p.evaluate((s) => { document.querySelector(s).__mismo = true; }, SEL.dialogoAjustes);
+    await otra.evaluate(() => { window.cre8Tema.fijar("tema", "oscuro"); window.cre8Tema.fijar("talla", "s"); });
+    const vivo = await esperar(p, (S) => document.documentElement.dataset.tema === "oscuro" && document.documentElement.dataset.talla === "s"
+      && [...document.querySelectorAll(`${S.dialogoAjustes} [data-pref] input:checked`)].map((r) => r.value).join() === "oscuro,s"
+      && document.querySelector(S.iconoApariencia)?.dataset.v === "oscuro" && document.querySelector(S.dialogoAjustes).__mismo === true, SD, 5000).then(() => true, () => false);
+    inf.ok(vivo, "un cambio hecho en otra pestaña se refleja en vivo: <html> y los controles de Ajustes, sin repintarlo");
+    await otra.close();
+    // ?tema= y ?talla= en la URL (p. ej. al incrustar el tour) mandan sobre lo guardado y Ajustes lo refleja
+    const q = await ctx.newPage();
+    await q.goto(`${base}pruebas/fixtures/paneles.html?tema=claro&talla=m`); await q.waitForSelector(SEL.raiz);
+    await elegirMas(q, "pn-ajustes");
+    const url = await q.evaluate((S) => ({ tema: document.documentElement.dataset.tema, talla: document.documentElement.dataset.talla,
+      marcados: [...document.querySelectorAll(`${S.dialogoAjustes} [data-pref] input:checked`)].map((r) => r.value).join() }), SD);
+    inf.ok(url.tema === "claro" && url.talla === "m" && url.marcados === "claro,m", "?tema=claro&talla=m en la URL mandan sobre lo guardado y Ajustes lo muestra", url);
+    // «Restablecer» vuelve a lo de fábrica: Automático, M, transparencia y movimiento automáticos
+    await q.click(SEL.restablecer);
+    const fabrica = await q.evaluate(() => Object.fromEntries(["tema", "talla", "transparencia", "movimiento"].map((k) => [k, localStorage.getItem(`cre8eight:${k}`)])));
+    inf.ok(fabrica.tema === "auto" && fabrica.talla === "m" && fabrica.transparencia === "auto" && fabrica.movimiento === "auto", "«Restablecer» devuelve Apariencia, Tamaño, transparencia y movimiento a automático y M", fabrica);
+    await q.close();
+    // en el móvil, las opciones de Apariencia y Tamaño son objetivos de 44 px
+    const m = await simulado({ ancho: 390, alto: 844, tactil: true });
+    await elegirMas(m.p, "pn-ajustes");
+    await estable(m.p);
+    const peq = await objetivosPequenos(m.p);
+    inf.ok(!peq.length, "390×844: objetivos ≥ 44 px en Apariencia y Tamaño", peq.join(", "));
+    const dx = await sinDesbordeX(m.p);
+    inf.ok(dx.ok, "390×844: sin desplazamiento horizontal con Ajustes abierto", dx);
+    // el aviso de «Enlace copiado» es solo texto (antes un aviso sin botón añadía «null») y el icono pasa a una marca
+    await elegirMas(p, "pn-compartir");
+    await p.click(SEL.copiarEnlace);
+    const copiado = await esperar(p, () => document.querySelector(".pn-toast.pn-visible")?.textContent === "Enlace copiado", null, 3000).then(() => true, () => false);
+    inf.ok(copiado && !!(await p.$(".pn-dialogo [data-k='copiar'] .pn-dibujar")), "«Copiar enlace»: aviso «Enlace copiado» (sin «null») y el icono pasa a una marca que se dibuja",
+      await p.evaluate(() => document.querySelector(".pn-toast")?.textContent));
+    const err = erroresDe(p, IGNORAR);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
+
+  // ================================================================== 12 c · sin tema.js: reservas
+  await inf.bloque("Sin tema.js: Ajustes sin Apariencia y «Reducir movimiento» por el alias del núcleo (visor.ajustes)", async () => {
+    const { p } = await simulado({ sinTema: true });
+    if (!(await inf.requiere(p, { "«Más»": SEL.mas }, "Ajustes sin tema.js"))) return;
+    await elegirMas(p, "pn-ajustes");
+    await p.waitForSelector(SEL.movimiento);
+    inf.ok(await p.evaluate(([a, t]) => !window.cre8Tema && !document.querySelector(a) && !document.querySelector(t), [SEL.apariencia("auto"), SEL.transparencia]),
+      "sin tema.js no se ofrecen Apariencia, Tamaño ni Reducir transparencia (no harían nada)");
+    await p.click(SEL.movimiento);
+    const r = await p.evaluate(() => ({ alias: window.__registro.some(([e, o]) => e === "ajustes" && o?.reducirMovimiento === true), clase: document.documentElement.classList.contains("pn-sin-movimiento") }));
+    inf.ok(r.alias && r.clase, "los ajustes («Reducir movimiento») se envían al núcleo para guardarse (visor.ajustes) y los paneles dejan de animarse", r);
+  });
+
+  // ================================================================== 12 d · iconos animados y movimiento reducido
+  await inf.bloque("Iconos animados: se dibujan al aparecer y, con «Reducir movimiento», nada se anima", async () => {
+    const { p } = await simulado({ query: "?modo=whatsapp" });
+    if (!(await inf.requiere(p, piezas("contacto"), "iconos animados"))) return;
+    await p.evaluate(() => localStorage.removeItem("cre8eight:movimiento"));
+    await pulsar(p, SEL.contacto); await p.waitForSelector(SEL.dialogo);
+    const dibujo = await p.evaluate(() => {
+      const trazo = document.querySelector(".pn-dialogo .pn-dlg-cab .pn-ic.pn-dibujar path");
+      return { animacion: trazo ? getComputedStyle(trazo).animationName : null, largo: trazo?.getAttribute("pathLength") };
+    });
+    inf.ok(dibujo.animacion === "pn-dibujar" && dibujo.largo === "1", "al abrir un diálogo, el trazo de su icono se dibuja (pathLength 1)", dibujo);
+    await cerrarDialogo(p);
+    await elegirMas(p, "pn-ajustes");
+    await p.click(SEL.movimiento);
+    await cerrarDialogo(p);
+    await pulsar(p, SEL.contacto); await p.waitForSelector(SEL.dialogo);
+    const largas = await p.evaluate(() => document.getAnimations().filter((a) => a.effect?.target?.closest?.("#paneles") && a.animationName !== "pn-giro")
+      .map((a) => { const t = a.effect.getComputedTiming(); return [a.animationName ?? a.transitionProperty, t.duration, t.delay]; }).filter(([, d, e]) => d > 1 || e > 0));
+    inf.ok(!largas.length, "con «Reducir movimiento», ninguna animación de los paneles dura más de 1 ms ni espera su turno (dibujo, entrada, latido…)", largas);
   });
 
   // ================================================================== 13 · núcleo real

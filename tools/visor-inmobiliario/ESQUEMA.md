@@ -180,10 +180,11 @@ visor.pistaAudio(true|false)    // MediaStreamTrack de la música para grabar v�
 visor.tiempoReal(true|false)  visor.renderizar()  visor.tamanoCaptura(w, h | null)  visor.sello()   // grabación de vídeo
 visor.estanciaActual()          // { id, nombre } de la estancia (polígono) en la que está el visitante, o null
 visor.ajustes({ … })            // ajustes del visitante (se guardan); devuelve los vigentes:
-                                //   sensibilidad, sensibilidadTactil, invertirY, reducirMovimiento, fov,
+                                //   sensibilidad, sensibilidadTactil, invertirY, fov,
                                 //   atajos (true: atajos de una letra; WCAG 2.1.4),
                                 //   modoJuegoWASD (true: W A S D entra en el modo juego con ratón),
-                                //   capturaConClic (false: un clic en la escena del recorrido NO captura el ratón)
+                                //   capturaConClic (false: un clic en la escena del recorrido NO captura el ratón),
+                                //   reducirMovimiento: alias (fase 4), ver «Movimiento» abajo
 visor.on(evento, fn) / visor.off(evento, fn)
 
 // Fase 3 (organización del visor)
@@ -200,6 +201,20 @@ visor.mas.agregar({ id, texto, icono, accion, orden = 50, donde = "siempre", mar
 visor.mas.quitar(id)            // menú «Más» (lo pinta y gestiona el núcleo: teclado, Esc y foco)
 visor.mas.abrir() / .cerrar()
 ```
+
+**Movimiento (fase 4): una sola fuente de verdad.** «Reducir movimiento» lo guarda `tema.js` (`cre8eight:movimiento`, común
+al visor, el Estudio y la Guía) y el visor lee `cre8Tema.efectivo.movimiento`, que ya incluye `prefers-reduced-motion`; lo
+aplica en el momento (transiciones entre estancias, visita guiada, desplazamientos) y en CSS con `data-movimiento` en
+`<html>`. `visor.ajustes({ reducirMovimiento: true|false })` sigue funcionando como alias de
+`cre8Tema.fijar("movimiento", si ? "reducido" : "auto")` y ya no se guarda en `visor:ajustes`; `visor.ajustes()` devuelve
+`reducirMovimiento` según el valor efectivo. Un `reducirMovimiento: true` guardado por la fase 3 se pasa a `tema.js` una vez.
+Los ajustes de apariencia (tema, talla, transparencia, movimiento) se cambian con `cre8Tema.fijar` (paneles, Ajustes).
+
+**Vidrio adaptativo (fase 4).** El núcleo mide la luz de la vista (32×18 píxeles, tras cada cambio de estancia, estilo o
+momento y como mucho una vez por segundo con la vista quieta) y pone en `<html>` `data-luz-max` (`baja` | `media`; percentil
+90 de la luminancia) y `data-luz-min` (`media` | `alta`; percentil 10), con histéresis de ±0,03. `tema.css` vuelve el vidrio
+más transparente cuando la foto lo permite, siempre con AA. Sin atributos (no se pudo medir, sin WebGL, «Reducir
+transparencia»), el vidrio es el del peor caso.
 
 **Menú «Más».** Lo pinta el núcleo (`#btn-mas` en la barra de vista y `#menu-mas`, `role="menu"`); los paneles solo aportan
 los elementos. Sin elementos visibles, el botón no se ve. Cada elemento se pinta al abrir el menú como un `button` con
@@ -251,11 +266,20 @@ los elementos. Sin elementos visibles, el botón no se ve. Cada elemento se pint
 | `#guion-barra` | Único control de la visita guiada en curso (pausa, n/total, progreso y ✕). Ocupa el sitio de `#modos` mientras dura |
 | `#portada` | Agencia, título, precio y 3 datos, progreso real, «Empezar visita» (gesto que deja sonar la música), «▶ Visita guiada» (con 3 estancias o más) e idiomas (con 2 o más). Sin portada con `?embed`; `tour.portada: false` entra directo al terminar la carga |
 | `#aviso-juego`, `#tarjeta-juego` | Aviso fijo del modo juego y tarjeta «Haz clic para caminar…» del paseo libre |
+| `#precio-juego` | N-14: el precio (el de la portada), discreto bajo el radar, solo en el modo juego (los paneles se ocultan). Sin precio, oculto |
+| `#estado-vista` | Bajo la barra superior: el sello legal de la imagen (`#sello-ia`) y la carga (`#carga`), apilados sin taparse |
+| `#medir-barra` | Barra de vidrio de la medición, abajo en el centro (la tira se oculta mientras se mide); abajo a la izquierda en el teléfono en horizontal |
 | `#paneles` | Donde montan los paneles. Publican `--reserva-inferior` (alto ocupado abajo) y `--ancho-dock` (ancho a la derecha) |
 
 Clases de `body` que pone el núcleo: `tactil`, `embed`, `con-portada`, `ui-inactiva` (3,5 s sin interacción: se ocultan
 `#lugar`, `#modos`, `#barra-vista` y `#galeria`; quedan el radar y la tarjeta), `raton-capturado`, `modo-libre`,
-`modo-maqueta`, `guion-activo`, `midiendo`, `sin-webgl`. Variable `--alto-tira`: alto de la tira de estancias (0 si no se ve).
+`modo-maqueta`, `guion-activo`, `midiendo`, `sin-webgl`, `vista-vacia` (vista previa del Estudio sin fotos: sin lienzo).
+Variable `--alto-tira`: alto de la tira de estancias (0 si no se ve).
+
+Todo lo que flota sobre la foto es vidrio de `tema.css` (`.c8-vidrio`; `--texto` si lleva texto, `--denso` en menús y
+diálogos), en claro y en oscuro: HUD, nombres de las flechas, puntos «i» y su nota, subtítulos, medición, comparador,
+sello, carga, rótulo de la estancia, portada y error. El radar y el plano dibujan con los tokens (`plano.js` los relee con
+`cre8:tema`) y la maqueta flota sobre el fondo del tema.
 
 Eventos (`visor.on`), también emitidos como `CustomEvent("visor:<evento>")` en `window` y enviados a
 `window.dataLayer` si existe (analítica):

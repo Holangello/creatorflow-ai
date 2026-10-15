@@ -4,19 +4,25 @@
 // !== false). «Cambiar solo en este inmueble» lo desenlaza y guarda un contacto propio en ese proyecto.
 // Contingencias: sin almacenamiento, el perfil se aplica solo al proyecto abierto; con el perfil vacío (p. ej. una copia
 // de seguridad restaurada en otro ordenador) nunca se borran los datos del proyecto.
+// Color de marca: vacío = el champán del tema (claro u oscuro). El antiguo valor por defecto (#c8a24a) se lee como vacío.
+// Traducciones (fase 4): el pie legal y el texto de privacidad se escriben en español aquí y se traducen en Datos →
+// «Idiomas y traducciones»; las traducciones se guardan en perfil.traducciones.{pie_legal,texto_privacidad}.{en,fr,de}
+// y valen para todos los recorridos mientras el texto en español no cambie.
 import { slug } from "./estudio-util.js";
-import { app, h, icono, cambiar, toast, dialogo, guardarArchivo, urlPermitida, textoDe, textoExacto, emitir, elegirArchivos } from "./estudio-nucleo.js";
+import { app, h, icono, cambiar, toast, dialogo, guardarArchivo, urlPermitida, textoDe, textoExacto, emitir, elegirArchivos, VIDRIO, COLOR_ANTIGUO, coloresTema } from "./estudio-nucleo.js";
 
 const CLAVE = "cre8eight:perfil";
 const CLAVE_AVISO = "cre8eight:perfil-aviso";
-const COLOR_DEF = "#c8a24a";
 const MODOS = [["whatsapp", "WhatsApp"], ["webhook", "Mi CRM"], ["ambos", "Los dos"]];
-const MUESTRAS = ["#c8a24a", "#1f6f5c", "#2b4c7e", "#b5473a", "#222222"];
+const MUESTRAS = ["#1f6f5c", "#2b4c7e", "#b5473a", "#222222"]; // colores de marca de ejemplo (datos); la primera muestra es el champán del tema
+const TRADUCIBLES = ["pie_legal", "texto_privacidad"];
+const IDIOMAS_TRAD = ["en", "fr", "de"];
 
 const vacio = () => ({
-  marca: { nombre: "", web: "", color: COLOR_DEF, logo: "", pie_legal: "" },
+  marca: { nombre: "", web: "", color: "", logo: "", pie_legal: "" },
   agente: { nombre: "", telefono: "", email: "", foto: "" },
   contacto: { modo: "whatsapp", whatsapp: "", url_privacidad: "", texto_privacidad: "", webhook: "", webhook_formato: "multipart" },
+  traducciones: { pie_legal: {}, texto_privacidad: {} },
 });
 const cad = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const imagenValida = (v) => (typeof v === "string" && v.length < 1_500_000 && /^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(v) ? v : "");
@@ -26,12 +32,17 @@ export function normalizarPerfil(p) {
   const r = vacio();
   if (!p || typeof p !== "object") return r;
   const M = p.marca ?? {}, A = p.agente ?? {}, C = p.contacto ?? {};
+  const color = /^#[0-9a-f]{6}$/i.test(M.color ?? "") ? M.color.toLowerCase() : "";
   Object.assign(r.marca, { nombre: cad(M.nombre, 120), web: cad(M.web, 300), pie_legal: cad(M.pie_legal, 500), logo: imagenValida(M.logo),
-    color: /^#[0-9a-f]{6}$/i.test(M.color ?? "") ? M.color.toLowerCase() : COLOR_DEF });
+    color: color === COLOR_ANTIGUO ? "" : color });
   Object.assign(r.agente, { nombre: cad(A.nombre, 120), telefono: cad(A.telefono, 40), email: cad(A.email, 160), foto: imagenValida(A.foto) });
   Object.assign(r.contacto, { modo: MODOS.some(([m]) => m === C.modo) ? C.modo : "whatsapp", whatsapp: cad(C.whatsapp, 40),
     url_privacidad: cad(C.url_privacidad, 300), texto_privacidad: cad(C.texto_privacidad, 2000), webhook: cad(C.webhook, 500),
     webhook_formato: C.webhook_formato === "json" ? "json" : "multipart" });
+  for (const k of TRADUCIBLES) {
+    const t = p.traducciones?.[k];
+    r.traducciones[k] = Object.fromEntries(IDIOMAS_TRAD.map((l) => [l, cad(t?.[l], k === "pie_legal" ? 500 : 2000)]).filter(([, v]) => v));
+  }
   return r;
 }
 export function leerPerfil() {
@@ -95,7 +106,15 @@ export async function reducirImagen(blob, { lado = 600, foto = false } = {}) {
 }
 
 // ------------------------------------------------------------------ perfil ⇄ tour
-const conservarTexto = (antiguo, nuevo) => (!nuevo ? undefined : textoExacto(antiguo) === nuevo && antiguo && typeof antiguo === "object" ? antiguo : { es: nuevo });
+/**
+ * Texto traducible del perfil para el tour: el español del perfil, las traducciones que el proyecto ya tenía para ese
+ * mismo texto y, encima, las del perfil. Si el español cambia, las traducciones antiguas ya no valen y no se copian.
+ */
+const textoPerfil = (antiguo, es, traducciones = {}) => {
+  if (!es) return undefined;
+  const r = antiguo && typeof antiguo === "object" && textoExacto(antiguo) === es ? { ...antiguo } : {};
+  return { ...r, ...traducciones, es };
+};
 const sinVacios = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v != null && v !== ""));
 /**
  * Copia el perfil en el tour del proyecto ABIERTO (marca, agente y contacto); el logo y la foto pasan a archivos del
@@ -112,10 +131,11 @@ export function aplicarPerfil(t, p) {
     return r;
   };
   const M = p.marca, A = p.agente, C = p.contacto;
-  t.marca = sinVacios({ nombre: M.nombre, color: M.color || COLOR_DEF, web: M.web, logo: ruta(M.logo, "marca/logo"), pie_legal: conservarTexto(t.marca?.pie_legal, M.pie_legal) });
+  const T = p.traducciones ?? {};
+  t.marca = sinVacios({ nombre: M.nombre, color: M.color, web: M.web, logo: ruta(M.logo, "marca/logo"), pie_legal: textoPerfil(t.marca?.pie_legal, M.pie_legal, T.pie_legal) });
   t.agente = sinVacios({ nombre: A.nombre, telefono: A.telefono, email: A.email, foto: ruta(A.foto, "marca/agente") });
   t.contacto = sinVacios({ modo: C.modo, whatsapp: C.whatsapp, url_privacidad: C.url_privacidad,
-    texto_privacidad: conservarTexto(t.contacto?.texto_privacidad, C.texto_privacidad), webhook: C.modo === "whatsapp" ? "" : C.webhook,
+    texto_privacidad: textoPerfil(t.contacto?.texto_privacidad, C.texto_privacidad, T.texto_privacidad), webhook: C.modo === "whatsapp" ? "" : C.webhook,
     webhook_formato: C.webhook_formato === "json" ? "json" : "" });
   return JSON.stringify([t.marca, t.agente, t.contacto, firmas]) !== antes;
 }
@@ -123,11 +143,24 @@ export function aplicarPerfil(t, p) {
 export async function perfilDeTour(t = app.tour) {
   const M = t?.marca ?? {}, A = t?.agente ?? {}, C = t?.contacto ?? {};
   const img = async (ruta, foto) => { const b = ruta && app.archivos.get(ruta); if (!b) return ""; try { return await reducirImagen(b, { lado: foto ? 320 : 600, foto }); } catch { return ""; } };
+  const traducciones = (v) => (v && typeof v === "object" ? Object.fromEntries(IDIOMAS_TRAD.map((l) => [l, v[l]])) : {});
   return normalizarPerfil({
     marca: { nombre: M.nombre, web: M.web, color: M.color, pie_legal: textoExacto(M.pie_legal), logo: await img(M.logo, false) },
     agente: { nombre: A.nombre, telefono: A.telefono, email: A.email, foto: await img(A.foto, true) },
     contacto: { modo: C.modo, whatsapp: C.whatsapp, url_privacidad: C.url_privacidad, texto_privacidad: textoExacto(C.texto_privacidad), webhook: C.webhook, webhook_formato: C.webhook_formato },
+    traducciones: { pie_legal: traducciones(M.pie_legal), texto_privacidad: traducciones(C.texto_privacidad) },
   });
+}
+/**
+ * Traducción de un texto del perfil (pie legal o privacidad) escrita en Datos → «Idiomas y traducciones» de un proyecto
+ * que usa Mi inmobiliaria: se guarda también en el perfil, para los próximos recorridos (si el español es el mismo).
+ */
+export function traducirPerfil(grupo, clave, idioma, valor) {
+  if (!enlazado() || !TRADUCIBLES.includes(clave) || !IDIOMAS_TRAD.includes(idioma)) return;
+  const p = leerPerfil();
+  if (!p[grupo]?.[clave] || p[grupo][clave] !== textoExacto(app.tour?.[grupo]?.[clave])) return;
+  if (valor.trim()) p.traducciones[clave][idioma] = valor.trim(); else delete p.traducciones[clave][idioma];
+  guardarPerfil(p);
 }
 /** Al abrir o crear un proyecto enlazado: copia «Mi inmobiliaria» si tiene algo. → ¿ha cambiado el proyecto? */
 export function sincronizarAlAbrir() {
@@ -261,14 +294,28 @@ function formulario(perfil, foco) {
     pintar();
     return cont;
   };
+  // Color de la marca: vacío = el champán del tema (se adapta a claro y oscuro). La primera muestra lo deja así.
   const color = () => {
-    const sel = h("input", { type: "color", value: datos.marca.color, "aria-label": "Color de tu marca" });
-    const hex = h("input", { type: "text", value: datos.marca.color, "aria-label": "Color en hexadecimal", class: "hex", spellcheck: "false" });
-    const fijar = (v) => { if (/^#[0-9a-f]{6}$/i.test(v)) { datos.marca.color = v.toLowerCase(); sel.value = v; hex.value = v; } };
+    const sel = h("input", { type: "color", "aria-label": "Color de tu marca" });
+    const hex = h("input", { type: "text", "aria-label": "Color en hexadecimal (vacío: el champán del tema)", class: "hex", spellcheck: "false", placeholder: "Champán" });
+    const muestras = [
+      h("button", { type: "button", class: "muestra tema", title: "Champán (del tema)", "aria-label": "Usar el champán del tema", "data-color": "", onclick: () => fijar("") }),
+      ...MUESTRAS.map((c) => h("button", { type: "button", class: "muestra", style: { background: c }, title: c, "aria-label": `Usar ${c}`, "data-color": c, onclick: () => fijar(c) })),
+    ];
+    const pintarColor = () => {
+      const c = datos.marca.color;
+      const tema = coloresTema({ acento: "--c-acento" }).acento;
+      sel.value = c || (/^#[0-9a-f]{6}$/i.test(tema) ? tema : "#000000");
+      if (document.activeElement !== hex) hex.value = c;
+      for (const b of muestras) b.setAttribute("aria-pressed", String(b.dataset.color === c));
+    };
+    const fijar = (v) => { v = v.trim().toLowerCase(); if (v === "" || /^#[0-9a-f]{6}$/.test(v)) { datos.marca.color = v; pintarColor(); } };
     sel.oninput = () => fijar(sel.value);
-    hex.oninput = () => fijar(hex.value.trim());
+    hex.oninput = () => fijar(hex.value);
+    hex.onchange = () => { hex.value = datos.marca.color; };
+    pintarColor();
     return h("div", { class: "c8-campo", "data-campo": "color" }, h("span", { class: "c8-campo-etiqueta", text: "Color de tu marca" }),
-      h("div", { class: "fila-color" }, sel, hex, ...MUESTRAS.map((c) => h("button", { type: "button", class: "muestra", style: { background: c }, title: c, "aria-label": `Usar ${c}`, onclick: () => fijar(c) }))));
+      h("div", { class: "fila-color" }, sel, hex, ...muestras));
   };
   // Cómo llegan las consultas: WhatsApp, CRM o los dos
   const zonaWa = h("div");
@@ -297,7 +344,7 @@ function formulario(perfil, foco) {
     h("div", { class: "c8-campo", "data-campo": "webhook_formato" }, h("label", { text: "Formato de envío" }), formato),
     h("div", { class: "fila-prueba" },
       h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => probarCRM(datos.contacto.webhook.trim(), datos.contacto.webhook_formato, conFoto.checked, res) }, "Enviar una consulta de prueba"),
-      h("label", { class: "check-c8" }, conFoto, "con una foto")),
+      h("label", { class: "check" }, conFoto, "con una foto")),
     res));
 
   const el = h("div", { class: "form-perfil" },
@@ -344,7 +391,7 @@ export async function abrirPerfil({ modo = "perfil", foco } = {}) {
   const form = formulario(base, foco);
   const selFoco = foco ? `[data-campo="${foco}"] :is(input:not([type=radio]), textarea, select, button), [data-campo="${foco}"] input:checked` : null;
   const r = await dialogo({
-    c8: true, clase: "dialogo-perfil", ancho: "min(760px, calc(100vw - 32px))", foco: selFoco,
+    clase: "dialogo-perfil", ancho: "min(47.5rem, calc(100vw - 2rem))", foco: selFoco,
     titulo: deInmueble ? "Contacto de este inmueble" : "Mi inmobiliaria",
     texto: deInmueble ? "Solo para este inmueble: el resto de tus recorridos siguen usando Mi inmobiliaria."
       : "Se escribe una vez y se usa en todos tus recorridos: tu marca, cómo te escriben los clientes y tu política de privacidad.",
@@ -358,6 +405,8 @@ export async function abrirPerfil({ modo = "perfil", foco } = {}) {
   if (r === "perfil") return usarPerfil();
   if (r !== "guardar") return;
   const p = normalizarPerfil(form.datos());
+  // Si cambia el texto en español, sus traducciones ya no corresponden.
+  for (const [g, k] of [["marca", "pie_legal"], ["contacto", "texto_privacidad"]]) if (p[g][k] !== base[g][k]) p.traducciones[k] = {};
   if (deInmueble) {
     cambiar((t) => { aplicarPerfil(t, p); t._estudio.perfil = false; }, { tipo: "datos" });
     toast("Contacto propio guardado para este inmueble", "ok");
@@ -413,7 +462,7 @@ export function tarjetaContacto() {
     texto = "";
     acciones = [boton("Editar Mi inmobiliaria", () => abrirPerfil()), boton("Cambiar solo en este inmueble", () => abrirPerfil({ modo: "inmueble" }))];
   }
-  return h("section", { class: "tarjeta-contacto", "data-campo": "contacto", "aria-label": titulo },
+  return h("section", { class: `tarjeta-contacto ${VIDRIO}`, "data-campo": "contacto", "aria-label": titulo },
     h("div", { class: "cab-contacto" }, icono("inmobiliaria", 20), h("h2", { text: titulo })),
     texto ? h("p", { class: "c8-sec", text: texto }) : null,
     datosVisibles.length && (propio || !vacioP || tieneDatosPropios(t)) ? h("ul", { class: "datos-contacto" }, datosVisibles) : null,

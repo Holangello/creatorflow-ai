@@ -80,7 +80,7 @@ function ic(nombre, clase = "pn-ic") {
   s.append(p);
   return s;
 }
-// «Apariencia»: un círculo que se llena según lo elegido (vacío: claro · mitad: automático · lleno: oscuro). Nunca un
+// «Apariencia»: un círculo a medio llenar; lo oscuro crece según lo elegido (claro ¼ · automático ½ · oscuro ¾). Nunca un
 // sol ni una luna, que son la luz de la vivienda (fase3-organizacion.md §7). El relleno se desliza con muelle (CSS).
 function icApariencia(valor) {
   const id = nuevoId("ap");
@@ -516,12 +516,17 @@ function aviso(texto, { accion, alPulsar } = {}) {
   clearTimeout(aviso.t); aviso.t = setTimeout(ocultarAviso, accion ? 6000 : 2600);
 }
 const ocultarAviso = () => toast?.classList.remove("pn-visible");
-// En el móvil, con una hoja de diálogo abierta, el aviso sube por encima de ella (no tapa sus botones)
+// El aviso nunca tapa un diálogo abierto: en el móvil sube por encima de la hoja; en el escritorio y en el móvil en
+// horizontal, si cae encima, se centra en la escena libre que queda a la izquierda del diálogo
 function colocarAviso() {
   if (!toast || !raiz) return;
-  const d = ui.disp === "hoja" ? raiz.querySelector(".pn-dialogo")?.getBoundingClientRect() : null;
-  if (d?.height) toast.style.setProperty("--pn-aviso-abajo", `${Math.round(innerHeight - d.top + 12)}px`);
-  else toast.style.removeProperty("--pn-aviso-abajo");
+  toast.style.removeProperty("--pn-aviso-abajo"); toast.style.removeProperty("--pn-aviso-x");
+  const d = raiz.querySelector(".pn-dialogo")?.getBoundingClientRect();
+  if (!d?.height) return;
+  if (ui.disp === "hoja") { toast.style.setProperty("--pn-aviso-abajo", `${Math.round(innerHeight - d.top + 12)}px`); return; }
+  const t = toast.getBoundingClientRect();
+  const cruza = t.width && t.left < d.right && d.left < t.right && t.top < d.bottom && d.top < t.bottom;
+  if (cruza && d.left > t.width + 24) toast.style.setProperty("--pn-aviso-x", `${Math.round(d.left / 2)}px`);
 }
 
 function destello() {
@@ -543,16 +548,19 @@ function cerrarTodo() {
 // tamaño, «Estilo y luz» o las acciones con texto. La ficha se despliega desde la propia tarjeta, que hace de cabecera.
 function tarjeta() {
   const lateral = ui.disp === "lateral";
+  const fotoVista = botonIconoTexto("foto-vista", "camara", tr("contacto.hacer_foto"), fotoDeLaVista, { oculto: !puedeCapturar() });
   const t = h("aside", { class: "pn-tarjeta c8-vidrio c8-vidrio--texto", id: "pn-tarjeta", "aria-label": tr("tarjeta.titulo") },
     h("div", { class: "pn-t-cab" },
       ui.disp === "hoja" ? h("span", { class: "pn-asa", "aria-hidden": "true" }, h("span")) : null,
       botonResumen(),
-      lateral ? null : botonIconoTexto("foto-vista", "camara", tr("contacto.hacer_foto"), fotoDeLaVista, { oculto: !puedeCapturar() }),
-      lateral || !hayEstiloLuz() ? null : botonIconoTexto("estilo-luz", "pincel", tr("personalizar.titulo"), (e) => alternarDialogo("estilo", e.currentTarget),
-        { "aria-haspopup": "dialog", "aria-expanded": String(ui.dialogo === "estilo") }),
-      botonContactar(),
-      lateral ? botonIconoTexto("foto-vista", "camara", tr("contacto.hacer_foto"), fotoDeLaVista, { oculto: !puedeCapturar() }) : null,
-      !lateral && !masDelNucleo() ? botonIconoTexto("mas", "mas", tr("mas.titulo"), (e) => alternarMenu(e.currentTarget), { "aria-haspopup": "menu", "aria-expanded": String(ui.menu) }) : null),
+      // escritorio: «Contactar» y «Foto de la vista» en dos columnas; móvil: una fila de botones que, si con la talla
+      // elegida no cabe junto al precio, pasa entera a una segunda fila (paneles.css)
+      lateral ? [botonContactar(), fotoVista] : h("div", { class: "pn-t-botones" },
+        fotoVista,
+        hayEstiloLuz() ? botonIconoTexto("estilo-luz", "pincel", tr("personalizar.titulo"), (e) => alternarDialogo("estilo", e.currentTarget),
+          { "aria-haspopup": "dialog", "aria-expanded": String(ui.dialogo === "estilo") }) : null,
+        botonContactar(),
+        masDelNucleo() ? null : botonIconoTexto("mas", "mas", tr("mas.titulo"), (e) => alternarMenu(e.currentTarget), { "aria-haspopup": "menu", "aria-expanded": String(ui.menu) }))),
     lateral ? acciones() : null,
     panel());
   if (ui.disp === "hoja") prepararArrastre(t);

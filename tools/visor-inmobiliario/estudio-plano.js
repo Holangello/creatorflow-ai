@@ -64,8 +64,9 @@ function render(cont) {
   const bz = (titulo, fn, ...hijos) => h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s", title: titulo, "aria-label": titulo.replace(/ \(0\)$/, ""), onclick: fn }, ...hijos);
   lienzoCont.append(S.lienzo, pista, avisoEscala, h("div", { class: "zoom c8-vidrio" },
     bz("Acercar", () => zoom(1.25), icono("mas", 16)), bz("Alejar", () => zoom(0.8), icono("menos", 16)), bz("Encuadrar todo (0)", ajustar, icono("ajustar", 16))));
-  lado = h("aside", { class: "plano-lado" });
-  raiz.append(h("div", { class: `editor-plano ${VIDRIO}` },
+  // El plano es el contenido (lienzo opaco con los controles de vidrio flotando encima); el panel lateral, la tarjeta de vidrio.
+  lado = h("aside", { class: `plano-lado ${VIDRIO}` });
+  raiz.append(h("div", { class: "editor-plano" },
     h("div", { class: "plano-centro" }, h("div", { class: "barra-plantas", id: "barra-plantas" }), h("div", { class: "herramientas", id: "herramientas" }), lienzoCont),
     lado));
   S.ro = new ResizeObserver(() => { dimensionar(); if (!S.ajustado) ajustar(); marcar(); });
@@ -575,7 +576,7 @@ function pal() {
   PAL = { ...c, claro,
     linea: claro ? c.acentoTexto : c.acento,          // conexiones y trazos de acento (en claro, el champán oscuro: se ve sobre el papel)
     nodo: claro ? c.texto : c.sup3, numNodo: claro ? c.fondo : c.texto, // las fotos, disco oscuro con número claro en los dos temas
-    papel: claro ? 1 : 0.84,                          // en oscuro el papel del plano se atenúa para no deslumbrar
+    papel: claro ? 1 : 0.78,                          // en oscuro el papel del plano se atenúa para no deslumbrar
     f: { nombre: fuenteLienzo(600, 0.78), dato: fuenteLienzo(500, 0.75), num: fuenteLienzo(700, 0.69), rotulo: fuenteLienzo(600, 0.75),
       etiqueta: fuenteLienzo(700, 0.81), peq: fuenteLienzo(600, 0.72), norte: fuenteLienzo(700, 0.63) } };
   return PAL;
@@ -644,7 +645,7 @@ function dibujar() {
     g.font = P.f.nombre; const wn = g.measureText(nom).width;
     g.font = P.f.dato; const wa = g.measureText(ar).width;
     const ancho = Math.max(wn, wa) + 16;
-    g.fillStyle = P.rotulo; redondo(g, sx - ancho / 2, sy - 19, ancho, 38, 8); g.fill();
+    rotulo(g, sx - ancho / 2, sy - 19, ancho, 38, 8);
     g.fillStyle = P.texto2; g.fillText(ar, sx, sy + 8);
     g.font = P.f.nombre; g.fillStyle = P.texto; g.fillText(nom, sx, sy - 7);
     if (selE) for (const [x, z] of e.poligono) { const [vx, vy] = aPantalla(x, z); g.fillStyle = P.rotulo; g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); g.arc(vx, vy, 5.5, 0, 7); g.fill(); g.stroke(); }
@@ -698,7 +699,7 @@ function dibujar() {
     g.fillStyle = actual ? P.sobreAcento : aislado ? P.fondo : P.numNodo; g.font = P.f.num; g.fillText(String(i + 1), sx, sy + 0.5);
     g.font = P.f.rotulo;
     const nom = nombreDe(p); const wn = g.measureText(nom).width + 12;
-    g.fillStyle = P.rotulo; redondo(g, sx - wn / 2, sy + 15, wn, 20, 7); g.fill();
+    rotulo(g, sx - wn / 2, sy + 15, wn, 20, 7);
     g.fillStyle = P.texto; g.fillText(nom, sx, sy + 25.5);
   });
   // Borrador de estancia / muro
@@ -751,12 +752,14 @@ function dibujar() {
   g.textAlign = "center";
 }
 function redondo(g, x, y, w, hh, r) { g.beginPath(); g.roundRect ? g.roundRect(x, y, w, hh, r) : g.rect(x, y, w, hh); }
+/** Rótulo (vidrio denso con un filo fino): se distingue también sobre el papel blanco del plano. */
+function rotulo(g, x, y, w, hh, r) { const P = pal(); g.fillStyle = P.rotulo; redondo(g, x, y, w, hh, r); g.fill(); g.strokeStyle = P.rejilla; g.lineWidth = 1; g.stroke(); }
 /** Medida sobre el lienzo (m² del borrador, longitudes): rótulo de vidrio denso con texto. */
 function etiqueta(g, txt, x, y, peq) {
   const P = pal();
   g.font = peq ? P.f.peq : P.f.etiqueta;
   const w = g.measureText(txt).width + 14;
-  g.fillStyle = P.rotulo; redondo(g, x - w / 2, y - 11, w, 22, 7); g.fill();
+  rotulo(g, x - w / 2, y - 11, w, 22, 7);
   g.fillStyle = P.texto; g.fillText(txt, x, y + 0.5);
 }
 
@@ -1070,7 +1073,7 @@ function colocarEn(id, [x, z]) {
   toast(v.length ? `${nombreDe(pano(id))} colocada · conectada con ${v.map((x2) => nombreDe(pano(x2))).join(", ")}` : `${nombreDe(pano(id))} colocada (sin conectar: acércala a otra foto o usa «Conectar»)`, v.length ? "ok" : "aviso", 3500);
   // Siguiente foto pendiente: se puede seguir colocando sin volver a la lista.
   const sig = app.tour.panoramas.find((p) => !colocado(p));
-  if (sig && lado?.querySelector(".ficha-arrastre")) requestAnimationFrame(() => lado?.querySelector(".ficha-arrastre .btn")?.focus());
+  if (sig && lado?.querySelector(".ficha-arrastre")) requestAnimationFrame(() => lado?.querySelector(".ficha-arrastre button")?.focus());
 }
 
 // Arrastrar una foto desde la lista lateral hasta el plano

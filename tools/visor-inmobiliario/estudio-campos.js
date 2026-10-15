@@ -103,33 +103,14 @@ export function numeroES(texto) {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Campo booleano tri-estado «Sin indicar · Sí · No» como grupo de opciones (radiogroup accesible con flechas). */
+/** Campo booleano tri-estado «Sin indicar · Sí · No»: control segmentado del sistema de diseño (radios reales: flechas y Tab). */
 export function campoSiNo(obj, clave, etiqueta) {
   const id = uid();
-  const g = h("div", { class: "segmentado", role: "radiogroup", "aria-labelledby": `${id}-l` });
-  const opciones = [["", "Sin indicar"], [true, "Sí"], [false, "No"]];
-  const elegir = (val, foco) => {
-    cambiar(() => { const o = obj(); if (val === "") delete o[clave]; else o[clave] = val; }, { tipo: "datos", render: false });
-    pintar(foco);
-  };
-  const pintar = (foco = false) => {
-    const v = obj()?.[clave];
-    const actual = opciones.findIndex(([val]) => v === val || (val === "" && v == null));
-    g.replaceChildren(...opciones.map(([val, t], i) => {
-      const b = h("button", {
-        type: "button", role: "radio", text: t, "aria-checked": String(i === actual), tabindex: i === actual ? "0" : "-1",
-        onclick: () => elegir(val, true),
-      });
-      b.addEventListener("keydown", (e) => {
-        const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
-        if (!d) return;
-        e.preventDefault(); e.stopPropagation();
-        elegir(opciones[(i + d + opciones.length) % opciones.length][0], true);
-      });
-      return b;
-    }));
-    if (foco) g.querySelector('[aria-checked="true"]')?.focus();
-  };
-  pintar();
+  const actual = () => { const v = obj()?.[clave]; return v === true ? "si" : v === false ? "no" : ""; };
+  const g = h("div", { class: "c8-segmentado", role: "radiogroup", "aria-labelledby": `${id}-l` }, [["", "Sin indicar"], ["si", "Sí"], ["no", "No"]].map(([v, t]) => {
+    const r = h("input", { type: "radio", name: id, value: v, checked: actual() === v });
+    r.onchange = () => { if (r.checked) cambiar(() => { const o = obj(); if (v === "") delete o[clave]; else o[clave] = v === "si"; }, { tipo: "datos", render: false }); };
+    return h("label", {}, r, h("span", { text: t }));
+  }));
   return h("div", { class: "campo", "data-campo": clave }, h("span", { id: `${id}-l`, text: etiqueta }), g);
 }

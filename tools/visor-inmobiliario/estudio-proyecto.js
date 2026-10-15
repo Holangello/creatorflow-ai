@@ -2,7 +2,7 @@
 import { db } from "./estudio-db.js";
 import { leerZip, tipoMime } from "./estudio-util.js";
 import { app, emitir, h, icono, toast, dialogo, confirmar, tourNuevo, importarEnlaces, reiniciarHistorial, limpiarUrls, cargando,
-  guardarAhora, guardarArchivo, rutasUsadas, textoDe, reiniciarGuardado, archivosSinGuardar, IDIOMAS, referenciaNueva, cerrarDialogo } from "./estudio-nucleo.js";
+  guardarAhora, guardarArchivo, rutasUsadas, textoDe, reiniciarGuardado, archivosSinGuardar, IDIOMAS, referenciaNueva, cerrarDialogo, COLOR_ANTIGUO } from "./estudio-nucleo.js";
 import { anadirFotos, generarDerivadosFaltantes } from "./estudio-fotos.js";
 import { sincronizarAlAbrir, tieneDatosPropios } from "./estudio-perfil.js";
 
@@ -124,6 +124,8 @@ export function normalizarTour(t) {
   if (typeof e.perfil !== "boolean") e.perfil = !tieneDatosPropios(t);
   // Referencia automática: solo en proyectos aún sin fotos (los ya publicados conservan su carpeta /tours/…/).
   if (!e.ref && !t.panoramas.length) e.ref = referenciaNueva();
+  // Color de marca (fase 4, decisión A): el antiguo valor por defecto no lo eligió nadie; sin color, el visor usa el champán del tema.
+  if (String(t.marca?.color ?? "").toLowerCase() === COLOR_ANTIGUO) delete t.marca.color;
   return t;
 }
 
@@ -268,7 +270,7 @@ export async function dialogoProyectos() {
   };
   pintar();
   await dialogo({
-    c8: true, titulo: "Mis proyectos", ancho: "min(620px, calc(100vw - 32px))",
+    titulo: "Mis proyectos", ancho: "min(38.75rem, calc(100vw - 2rem))",
     texto: "Se guardan solos en este ordenador. Para llevarlos a otro, usa «Proyecto ▾ → Copia de seguridad».",
     cuerpo: cont, botones: [{ texto: "Cerrar", valor: null }],
   });

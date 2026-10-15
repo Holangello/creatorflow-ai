@@ -48,7 +48,10 @@ export function crearMedicion(ctx) {
   const bDeshacer = boton(deshacer, "", '<path d="M9 7 4.5 11.5 9 16"/><path d="M5 11.5h9.5a5 5 0 0 1 0 10H12"/>');
   const bBorrar = boton(borrar, "", '<path d="M5 7h14M10 7V5h4v2M7 7l1 12.5h8L17 7"/>');
   const bCerrar = boton(() => ctx.desactivar(), "", '<path d="M7 7l10 10M17 7 7 17"/>');
-  barra.append(pista, grupo, bMarcar, bDeshacer, bBorrar, bCerrar);
+  const controles = document.createElement("div");
+  controles.className = "controles";
+  controles.append(grupo, bMarcar, bDeshacer, bBorrar, bCerrar);
+  barra.append(pista, controles);
 
   function render() {
     const tr = ctx.tr;

@@ -80,7 +80,7 @@ body.raton-capturado #lienzo { cursor: none; }
 body.modo-maqueta :is(#radar, #btn-radar) { display: none; }
 /* N-14: el precio, discreto, solo en el modo juego (los paneles se ocultan) */
 #precio-juego { display: none; margin: 0; min-height: 1.75rem; padding: 0 var(--e-3); font-size: var(--t-sec); }
-body.raton-capturado #precio-juego { display: inline-flex; animation: c8-aparecer var(--d-4) var(--muelle) both; }
+body.raton-capturado #precio-juego { display: inline-flex; }
 
 /* ---------------- arriba en el centro: modos ---------------- */
 #modos { position: absolute; z-index: var(--z-hud); top: var(--arriba); left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 2 * var(--hud)); }
@@ -159,7 +159,7 @@ body.con-portada #barra-vista .c8-icono * { animation-play-state: paused; }
 #galeria .estancia img { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* Nombre sobre la miniatura: blanco sobre el velo de la foto (6,2:1 incluso sobre una foto blanca), igual en los dos temas */
 #galeria .estancia span { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.375rem 0.3125rem 0.125rem; font-size: var(--t-pie); text-align: left; color: var(--foto-trazo);
-  background: linear-gradient(transparent, var(--foto-halo) 45%); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  background: linear-gradient(transparent, var(--foto-halo) 0.375rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* el texto, entero sobre el velo */
 #galeria .estancia[aria-current="true"] { border-color: var(--c-acento); }
 #galeria .guiada { display: none; flex: none; align-self: stretch; height: auto; }
 body.guion-activo #galeria { opacity: 0.4; }
@@ -313,11 +313,13 @@ body.modo-maqueta #estancia { display: none; }
 
 /* ---------------- medición: barra de vidrio abajo (sitio de la tira), mira y medidas ---------------- */
 #medir-barra { position: absolute; z-index: calc(var(--z-hud) + 5); left: 50%; translate: -50% 0; bottom: var(--abajo);
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--e-2); width: max-content; max-width: calc(100vw - 2 * var(--hud));
+  display: flex; flex-direction: column; align-items: center; gap: var(--e-2); width: max-content; max-width: calc(100vw - 2 * var(--hud));
   padding: var(--e-2); border-radius: var(--r-5); animation: c8-aparecer var(--d-4) var(--muelle) both; }
-#medir-barra .pista { flex: 1 0 100%; margin: 0; padding: var(--e-1) var(--e-2) 0; text-align: center; font: var(--peso-medio) var(--t-sec) / var(--lh-ui) var(--fuente); color: var(--c-texto); }
+#medir-barra .pista { margin: 0; padding: var(--e-1) var(--e-2) 0; text-align: center; font: var(--peso-medio) var(--t-sec) / var(--lh-ui) var(--fuente); color: var(--c-texto); }
 #medir-barra .pista small { color: var(--c-texto-2); font-weight: var(--peso-normal); font-size: inherit; }
-#medir-barra .c8-segmentado { flex: none; }
+#medir-barra .controles { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--e-2); }
+/* Dentro del vidrio, el segmentado sin relleno propio: con él, la opción elegida bajaba a 4,4:1 en oscuro sobre una foto blanca */
+#medir-barra .c8-segmentado { flex: none; background: transparent; }
 #medir-barra .c8-segmentado > label { padding: 0 var(--e-3); }
 #mira { position: absolute; z-index: calc(var(--z-hud) - 4); left: 50%; top: 50%; width: 1.875rem; height: 1.875rem; translate: -50% -50%; pointer-events: none; }
 #mira::before, #mira::after { content: ""; position: absolute; inset: 0; margin: auto; border-radius: 1px; background: var(--foto-trazo); box-shadow: 0 0 0 1px var(--foto-halo); }
@@ -402,9 +404,10 @@ body.embed #btn-pantalla { display: none; }
 @media (max-height: 540px) and (orientation: landscape) {
   :root { --radar: 5.25rem; }
   /* medir: abajo a la izquierda (arriba están el título y la barra de vista; abajo a la derecha, la tarjeta) */
-  #medir-barra { bottom: calc(var(--hud) + var(--seg-inf)); left: calc(var(--hud) + var(--seg-izq)); translate: none; justify-content: flex-start;
+  #medir-barra { bottom: calc(var(--hud) + var(--seg-inf)); left: calc(var(--hud) + var(--seg-izq)); translate: none; align-items: flex-start;
     max-width: calc(100vw - var(--ancho-dock, 0px) - 3 * var(--hud)); }
   #medir-barra .pista { text-align: left; }
+  #medir-barra .controles { justify-content: flex-start; }
   #esquina { max-width: calc(50vw - 10.5rem); gap: var(--e-1); }
   #lugar { min-height: var(--alto-control); padding-block: 0.125rem; }
   #logo { height: 1.5rem; max-width: 4rem; }

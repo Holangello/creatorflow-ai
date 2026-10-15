@@ -166,7 +166,8 @@ if (renderer) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 }
 visor.lienzo = lienzo;
-Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, luz: { ...luz.medida, max: luz.max, min: luz.min, ms: luz.ms, n: luz.n } }) });
+Object.defineProperty(visor, "_debug", { get: () => ({ texturas: renderer?.info.memory.textures, cache: cache.size, programas: renderer?.info.programs?.map((x) => String(x.cacheKey)) ?? [],
+  luz: { ...luz.medida, max: luz.max, min: luz.min, ms: luz.ms, n: luz.n } }) });
 
 // ------------------------------------------------------------------ escena 360
 const escena360 = new THREE.Scene();
@@ -979,7 +980,7 @@ function interaccion(ev) {
   int.yaInteractuo = true;
   // Primer gesto real (no un simple movimiento): ya se puede reproducir sonido. Con portada, lo arranca «Empezar visita».
   if (!int.portada && !sonido.iniciado && sonido.activo && sonido.el && ev && ev.type !== "pointermove" && ev.type !== "wheel"
-      && int.tour?.audio?.musica?.autoplay !== false && !btnSonido.contains(ev.target)) arrancarSonido();
+      && int.tour?.audio?.musica?.autoplay !== false && !(ev.target instanceof Node && btnSonido.contains(ev.target))) arrancarSonido(); // el destino puede ser window
   if (document.body.classList.contains("ui-inactiva")) document.body.classList.remove("ui-inactiva");
 }
 ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) => addEventListener(ev, interaccion, { passive: true }));
@@ -1493,12 +1494,16 @@ document.addEventListener("cre8:tema", () => {
 
 // Vidrio adaptativo (tema.css, «Vidrio adaptativo»): el vidrio se vuelve más transparente cuando la foto lo permite.
 // Tras cada cambio de estancia, estilo o momento, y como mucho una vez por segundo si la vista se movió y ya está quieta,
-// el fotograma se copia a un lienzo de 32×18 justo después de pintarlo (como capturar) y se mide la luminancia relativa
-// de cada píxel: percentil 90 → data-luz-max (manda en oscuro: lo difícil es una zona clara detrás del vidrio);
-// percentil 10 → data-luz-min (manda en claro). Histéresis de ±0,03 para que no parpadee. Con «Reducir transparencia»
-// no se mide. Contingencia: si la lectura falla, se quitan los atributos y queda el peor caso, que siempre cumple AA.
+// se mide la luminancia relativa de la vista en 32×18 píxeles: percentil 90 → data-luz-max (manda en oscuro: lo difícil
+// es una zona clara detrás del vidrio); percentil 10 → data-luz-min (manda en claro). Histéresis de ±0,03 para que no
+// parpadee. Con «Reducir transparencia» no se mide.
+// La escena no se copia del lienzo (drawImage del WebGL espera a la GPU y lee el fotograma entero: 180-560 ms en esta
+// máquina): se vuelve a pintar igual en 32×18 y se lee sin esperar (PBO + fence, readRenderTargetPixelsAsync). La foto
+// de la portada, que es una imagen, sí se copia a 32×18.
+// Contingencia: si la lectura falla, se quitan los atributos y queda el peor caso, que siempre cumple AA.
 const LINEAL = Float32Array.from({ length: 256 }, (_, i) => { const c = i / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
-const luz = { g: null, max: null, min: null, medida: null, ms: 0, n: 0, pendiente: true, movida: false, quietaDesde: 0, ultima: -1e9, vista: new Float64Array(17) };
+const luz = { g: null, rt: null, px: new Uint8Array(32 * 18 * 4), leyendo: false, max: null, min: null, medida: null, ms: 0, n: 0,
+  pendiente: true, movida: false, quietaDesde: 0, ultima: -1e9, vista: new Float64Array(17) };
 /** Cuántos umbrales (de menor a mayor) supera v, con histéresis respecto al nivel actual. */
 function nivelLuz(v, actual, umbrales, h = 0.03) {
   let n = 0;
@@ -1510,32 +1515,66 @@ function quitarLuz() {
   delete d.luzMax; delete d.luzMin;
   luz.max = luz.min = luz.medida = null;
 }
-function medirLuz(fuente) {
+/** Percentiles 90 y 10 de la luminancia de 32×18 píxeles RGBA (lineales si vienen del render, sRGB si de una imagen). */
+function calcularLuz(px, lineal) {
+  if (!px[3]) throw new Error("sin imagen"); // contexto gráfico perdido: transparente
+  const L = new Float32Array(px.length / 4);
+  for (let i = 0, j = 0; i < px.length; i += 4, j++) {
+    L[j] = lineal ? (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) / 255 : 0.2126 * LINEAL[px[i]] + 0.7152 * LINEAL[px[i + 1]] + 0.0722 * LINEAL[px[i + 2]];
+  }
+  L.sort();
+  const p90 = L[Math.round(0.9 * (L.length - 1))], p10 = L[Math.round(0.1 * (L.length - 1))];
+  luz.max = nivelLuz(p90, luz.max, [0.1, 0.35]);
+  luz.min = nivelLuz(p10, luz.min, [0.18, 0.45]);
+  const d = document.documentElement.dataset, max = ["baja", "media"][luz.max], min = [null, "media", "alta"][luz.min];
+  if (max) d.luzMax = max; else delete d.luzMax;
+  if (min) d.luzMin = min; else delete d.luzMin;
+  luz.medida = { p90: +p90.toFixed(3), p10: +p10.toFixed(3) };
+  luz.n++;
+}
+/** Imagen o lienzo 2D (la foto de la portada): se copia a 32×18 y se mide. */
+function medirImagen(fuente) {
   const t0 = performance.now();
   try {
-    if (!luz.g) { const c = document.createElement("canvas"); c.width = 32; c.height = 18; luz.g = c.getContext("2d"); }
+    if (!luz.g) { const c = document.createElement("canvas"); c.width = 32; c.height = 18; luz.g = c.getContext("2d", { willReadFrequently: true }); }
     luz.g.drawImage(fuente, 0, 0, 32, 18);
-    const px = luz.g.getImageData(0, 0, 32, 18).data;
-    if (!px[3]) throw new Error("sin imagen"); // contexto gráfico perdido: el lienzo queda transparente
-    const L = new Float32Array(px.length / 4);
-    for (let i = 0, j = 0; i < px.length; i += 4, j++) L[j] = 0.2126 * LINEAL[px[i]] + 0.7152 * LINEAL[px[i + 1]] + 0.0722 * LINEAL[px[i + 2]];
-    L.sort();
-    const p90 = L[Math.round(0.9 * (L.length - 1))], p10 = L[Math.round(0.1 * (L.length - 1))];
-    luz.max = nivelLuz(p90, luz.max, [0.1, 0.35]);
-    luz.min = nivelLuz(p10, luz.min, [0.18, 0.45]);
-    const d = document.documentElement.dataset, max = ["baja", "media"][luz.max], min = [null, "media", "alta"][luz.min];
-    if (max) d.luzMax = max; else delete d.luzMax;
-    if (min) d.luzMin = min; else delete d.luzMin;
-    luz.medida = { p90: +p90.toFixed(3), p10: +p10.toFixed(3) };
+    calcularLuz(luz.g.getImageData(0, 0, 32, 18).data, false);
   } catch {
-    quitarLuz(); // p. ej. la miniatura de la portada servida desde otro dominio sin CORS
+    quitarLuz(); // p. ej. una miniatura de otro dominio sin CORS
   }
   luz.ms = Math.round((performance.now() - t0) * 100) / 100;
-  luz.n++;
+}
+/** La escena (recorrido, paseo libre o maqueta): se pinta igual en 32×18 y se lee sin esperar a la GPU. */
+function medirEscena() {
+  // Con splats (Spark) no se repinta en otro tamaño: queda el peor caso.
+  if (estado.modo === "libre" && escenaLibre.children.some((o) => o.userData.esSplat)) return quitarLuz();
+  const t0 = performance.now(), previo = renderer.getRenderTarget(), ancho = U.resolucion.value.x, alto = U.resolucion.value.y;
+  try {
+    luz.rt ??= new THREE.WebGLRenderTarget(32, 18);
+    U.resolucion.value.set(32, 18); // el corte del comparador, en píxeles del lienzo pequeño
+    renderer.setRenderTarget(luz.rt);
+    pintarEscena();
+  } catch {
+    return quitarLuz();
+  } finally {
+    renderer.setRenderTarget(previo); // pase lo que pase, el siguiente fotograma vuelve a la pantalla
+    U.resolucion.value.set(ancho, alto);
+  }
+  luz.leyendo = true;
+  const sincrono = performance.now() - t0;
+  renderer.readRenderTargetPixelsAsync(luz.rt, 0, 0, 32, 18, luz.px)
+    .then((px) => {
+      if (transparenciaReducida()) return;
+      const t1 = performance.now();
+      calcularLuz(px, true);
+      luz.ms = Math.round((sincrono + performance.now() - t1) * 100) / 100;
+    })
+    .catch(() => quitarLuz())
+    .finally(() => { luz.leyendo = false; });
 }
 /** Tras pintar: mide si hay un cambio pendiente o si la vista se movió y lleva quieta un momento. */
 function quizaMedirLuz() {
-  if (int.transicion || int.captura || transparenciaReducida()) return;
+  if (luz.leyendo || int.transicion || int.captura || transparenciaReducida()) return;
   const cam = estado.modo === "maqueta" ? maqueta.camara : camara;
   const m = cam.matrixWorld.elements, v = luz.vista, ahora = performance.now();
   let quieta = Math.abs(cam.fov - v[16]) < 1e-3;
@@ -1545,7 +1584,7 @@ function quizaMedirLuz() {
   if (luz.pendiente || (luz.movida && ahora - luz.quietaDesde > 250 && ahora - luz.ultima > 1000)) {
     luz.pendiente = luz.movida = false;
     luz.ultima = ahora;
-    medirLuz(lienzo);
+    medirEscena();
   }
 }
 
@@ -2148,7 +2187,8 @@ function fondoPortada(fuente) {
   if (!c || !w || !h) return;
   c.width = 320; c.height = Math.max(1, Math.round((320 * h) / w));
   try { c.getContext("2d").drawImage(fuente, 0, 0, c.width, c.height); c.classList.add("visible"); } catch { return; /* sin fondo */ }
-  if (!transparenciaReducida()) medirLuz(c);
+  if (transparenciaReducida()) return;
+  if (fuente === lienzo) medirEscena(); else medirImagen(c);
 }
 function fondoMiniatura(n) {
   const src = n && srcSegura(n.miniatura);
@@ -2347,10 +2387,14 @@ Object.assign(visor, {
     // Nombre para el visitante: en el recorrido, el de la foto que ve (el mismo del título, aunque esté dentro de una
     // estancia mayor del plano, p. ej. «Salón» dentro de «Salón-comedor»); en el paseo libre, la estancia del plano.
     const est = estado.modo === "tour" && int.actual ? { id: int.actual.id, nombre: int.actual.nombre } : visor.estanciaActual();
+    // Franja y sello sobre la foto: blanco sobre el velo de tema.css (igual en los dos temas), con la letra del sistema.
+    const cs = getComputedStyle(document.documentElement);
+    const velo = cs.getPropertyValue("--velo-foto").trim() || "rgba(0,0,0,.62)", tinta = cs.getPropertyValue("--c-sobre-foto").trim() || "#fff";
+    const fuente = cs.getPropertyValue("--fuente").trim() || "system-ui, sans-serif";
     if (marca) {
       const h = Math.round(alto * 0.07);
-      g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(0, alto - h, ancho, h);
-      g.fillStyle = "#fff"; g.font = `600 ${Math.round(h * 0.42)}px system-ui, sans-serif`; g.textBaseline = "middle";
+      g.fillStyle = velo; g.fillRect(0, alto - h, ancho, h);
+      g.fillStyle = tinta; g.font = `600 ${Math.round(h * 0.42)}px ${fuente}`; g.textBaseline = "middle";
       const izq = [texto(int.tour.marca?.nombre) || "cre8eight", int.tour.inmueble?.referencia, est && texto(est.nombre)].filter(Boolean).join(" · ");
       g.fillText(izq, h * 0.4, alto - h / 2);
     }
@@ -2358,10 +2402,10 @@ Object.assign(visor, {
     const sello = estado.modo === "tour" ? actualizarSello() : "";
     if (sello) {
       const t = Math.round(alto * 0.03);
-      g.font = `600 ${t}px system-ui, sans-serif`;
+      g.font = `600 ${t}px ${fuente}`;
       const w = g.measureText(sello).width + t * 1.4;
-      g.fillStyle = "rgba(0,0,0,.6)"; g.fillRect(ancho - w - t, t, w, t * 1.9);
-      g.fillStyle = "#fff"; g.textBaseline = "middle"; g.fillText(sello, ancho - w - t + t * 0.7, t * 1.95);
+      g.fillStyle = velo; g.fillRect(ancho - w - t, t, w, t * 1.9);
+      g.fillStyle = tinta; g.textBaseline = "middle"; g.fillText(sello, ancho - w - t + t * 0.7, t * 1.95);
     }
     const vista = visor.vista();
     const enlace = visor.enlaceVista();
@@ -2662,11 +2706,15 @@ addEventListener("resize", redimensionar);
 
 let tMapa = 0, tVista = 0, ultimaVista = "";
 const fps = { t: 0, n: 0 };
-function renderizar() {
-  if (!renderer) return;
+/** Pinta la escena del modo actual (sin foto todavía: el fondo del tema, no la esfera blanca de la textura vacía). */
+function pintarEscena() {
   if (estado.modo === "maqueta") renderer.render(maqueta.escena(), maqueta.camara);
   else if (estado.modo === "tour" && !int.actual) renderer.clear();
   else renderer.render(estado.modo === "libre" ? escenaLibre : escena360, camara);
+}
+function renderizar() {
+  if (!renderer) return;
+  pintarEscena();
   emitirBase("frame"); // sin CustomEvent: se emite en cada fotograma (grabación de vídeo)
 }
 

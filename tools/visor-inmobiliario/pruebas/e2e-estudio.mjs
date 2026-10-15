@@ -15,6 +15,12 @@
 //    en un navegador limpio.
 // 4. iPad (objetivos ≥ 44 px, cajón de vista previa) y «Colocar» sin arrastrar a 1024×768.
 // 5. Fallo de guardado (cuota), atajos de una tecla desactivables desde «?» y prueba del CRM en Mi inmobiliaria.
+// 6. Fase 4 · pantallas: 1440, 1280 y 1024 con ratón (y tamaño L), 820 y 390 táctiles: sin desplazamiento horizontal, barra
+//    superior entera, botones de 44 px en táctil, menús y Mi inmobiliaria en pantalla, aviso del móvil; nunca vidrio en vidrio.
+// 7. Fase 4 · Apariencia (automático · claro · oscuro, tamaño, transparencia; compartida con el visor), aviso al cerrar la
+//    pestaña solo mientras se importan fotos y traducciones automáticas que se borran al renombrar.
+// 8. Proyectos y perfiles antiguos (modos, idiomas, momentos, documentos, color de marca #c8a24a → champán del tema),
+//    traducciones de Mi inmobiliaria (pie legal, privacidad) y la lista de la Guía por enlace (#fotos&estancias=…).
 // Las imágenes, PDF, DXF, GLB y WAV se generan al vuelo (e2e-util.mjs). Sale con código 1 si algo falla.
 import { servir, lanzar, contexto, abrir } from "./comun.mjs";
 import { crearInforme, FaltaPieza, erroresDe, esperar, subir, descargar, leerZip, jsonDe, archivo, mediosEstudio, asegurarBuild } from "./e2e-util.mjs";
@@ -70,6 +76,16 @@ const SEL = {
   htmlAutonomo: "text=Crear el archivo", video: "text=Grabar vídeo", estadoVideo: ".exporte:has(h3:has-text('Vídeo')) [role=status]",
   tourJson: "text=Descargar tour.json",
   hoja: ".hoja", hojaTitulos: ".hoja h2", hojaQr: ".qr svg", hojaPlanos: "img.plano", boton: ":is(.btn, .c8-boton)",
+  // fase 4: pantallas, Apariencia (tema.js), aviso del móvil, Guía por enlace y traducciones de Mi inmobiliaria
+  barraSup: "#barra-sup", trabajo: "#trabajo", objetivos: "#barra-sup :is(button, a), #pasos button, #trabajo .c8-boton",
+  vidrioEnVidrio: ".c8-vidrio .c8-vidrio", menuProyecto: ".menu-proyecto", formPerfil: "dialog[open] .form-perfil", botonesDialogo: "dialog[open] .botones",
+  apariencia: "#btn-apariencia", menuApariencia: ".menu-apariencia", opcionApariencia: (pref, v) => `.menu-apariencia [data-pref=${pref}] label:has(input[value="${v}"])`,
+  temaElegido: ".menu-apariencia [data-pref=tema] input:checked", transparencia: ".menu-apariencia label[for=ap-transparencia]",
+  avisoMovil: "dialog.aviso-movil", noUsarGuia: ".aviso-guia button:text-is('No usar')", textoGuia: ".aviso-guia .aviso-texto",
+  idiomasDatos: "[data-campo=idiomas] > summary", ingles: "[data-campo=idiomas] .check:has-text('English') input",
+  traduccion: (etiqueta) => `.fila-trad:has(.original small:text-is("${etiqueta}")) :is(input, textarea)`,
+  muestraTema: "dialog[open] [data-campo=color] .muestra.tema", muestraColor: (c) => `dialog[open] [data-campo=color] .muestra[data-color="${c}"]`,
+  comprobacionesError: ".antes-publicar .comprobacion.error b",
 };
 const SD = JSON.parse(JSON.stringify(SEL)); // sin las funciones: es lo que se inyecta en la página como __SEL
 // Pasos por su #ancla. La fase 3 junta Revisar y Publicar en «#publicar» (con #revisar y #exportar como alias) y convierte
@@ -738,6 +754,246 @@ try {
     inf.ok(/rechazado la consulta \(error 500\)/.test(ko), "si el CRM responde con error, se explica (error 500)", ko);
     const err = erroresDe(p, [...IGNORAR, /Error de almacenamiento/, /QuotaExceededError/]);
     inf.ok(!err.length, "sin errores de consola inesperados", err.slice(0, 3).join(" | "));
+  });
+
+  // ================================================================== 6 · pantallas de la fase 4
+  const SECCIONES = ["fotos", "plano", "datos", "publicar", "orientacion", "estilo", "extras"];
+  /** Recorre los 7 pasos a la anchura actual: sin desplazamiento horizontal (página y área de trabajo), barra superior entera
+   *  y, en táctil, objetivos de 44 px. Devuelve los vidrios dentro de otro vidrio que encuentre. */
+  async function revisarPantalla(p, nombre, tactil = false) {
+    const mal = { desborde: [], barra: [], pequenos: [], vidrio: [] };
+    for (const sec of SECCIONES) {
+      await ir(p, sec);
+      await p.waitForTimeout(150);
+      const r = await p.evaluate((tactil) => {
+        const doc = document.documentElement, b = document.querySelector(__SEL.barraSup), tr = document.querySelector(__SEL.trabajo);
+        const visible = (x) => x.offsetParent && x.getBoundingClientRect().width > 0;
+        const fuera = [...b.querySelectorAll("button, a")].filter(visible).filter((x) => { const q = x.getBoundingClientRect(); return q.right > innerWidth + 1 || q.left < -1; })
+          .map((x) => x.id || x.textContent.trim());
+        const peq = tactil ? [...document.querySelectorAll(__SEL.objetivos)].filter((x) => visible(x) && x.getBoundingClientRect().height < 43.5)
+          .map((x) => `${(x.textContent || x.getAttribute("aria-label") || x.className).trim().slice(0, 22)} ${Math.round(x.getBoundingClientRect().height)}px`) : [];
+        return { doc: doc.scrollWidth - doc.clientWidth, trabajo: tr.scrollWidth - tr.clientWidth, barra: b.scrollWidth - b.clientWidth, fuera, peq,
+          vidrio: [...document.querySelectorAll(__SEL.vidrioEnVidrio)].map((x) => x.className.split(" ")[0]) };
+      }, tactil);
+      if (r.doc > 0 || r.trabajo > 1) mal.desborde.push(`${sec}: página ${r.doc} px, trabajo ${r.trabajo} px`);
+      if (r.barra > 1 || r.fuera.length) mal.barra.push(`${sec}: ${r.fuera.join(", ") || `${r.barra} px`}`);
+      if (r.peq.length) mal.pequenos.push(`${sec}: ${r.peq.slice(0, 4).join(", ")}`);
+      if (r.vidrio.length) mal.vidrio.push(`${nombre} · ${sec}: ${r.vidrio.join(", ")}`);
+    }
+    inf.ok(!mal.desborde.length, `${nombre}: sin desplazamiento horizontal en los 7 pasos (scrollWidth ≤ clientWidth)`, mal.desborde);
+    inf.ok(!mal.barra.length, `${nombre}: la barra superior cabe entera`, mal.barra);
+    if (tactil) inf.ok(!mal.pequenos.length, `${nombre}: botones de 44 px o más en los 7 pasos`, mal.pequenos);
+    return mal.vidrio;
+  }
+  /** Mi inmobiliaria (con sus botones a la vista), «Proyecto ▾» y Apariencia caben en pantalla. */
+  async function revisarMenus(p, nombre) {
+    const cabe = (sel) => p.evaluate((s) => { const r = document.querySelector(s)?.getBoundingClientRect();
+      return !!r && r.width > 0 && r.left >= -1 && r.right <= innerWidth + 1 && r.top >= -1 && r.bottom <= innerHeight + 1; }, sel);
+    await p.click(SEL.perfil);
+    await p.waitForSelector(SEL.formPerfil);
+    const perfil = (await cabe(SEL.dialogo)) && (await cabe(SEL.botonesDialogo));
+    await p.keyboard.press("Escape");
+    await esperar(p, () => !document.querySelector(__SEL.dialogo));
+    await p.click(SEL.proyecto);
+    await p.waitForSelector(SEL.menuProyecto);
+    const proyecto = await cabe(SEL.menuProyecto);
+    await p.keyboard.press("Escape");
+    await p.click(SEL.apariencia);
+    await p.waitForSelector(SEL.menuApariencia);
+    const apariencia = await cabe(SEL.menuApariencia);
+    await p.keyboard.press("Escape");
+    inf.ok(perfil && proyecto && apariencia, `${nombre}: Mi inmobiliaria (con sus botones), «Proyecto ▾» y Apariencia caben en pantalla`, { perfil, proyecto, apariencia });
+  }
+  await inf.bloque("Pantallas: 1440, 1280 y 1024 con ratón; 820 y 390 táctiles (sin desbordes, 44 px, aviso del móvil)", async () => {
+    const anidados = [];
+    {
+      const { ctx, p } = await estudio();
+      await fotos(p, ["salon.jpg", "cocina.jpg", "pasillo.jpg"], 3);
+      for (const [ancho, alto] of [[1440, 900], [1280, 800], [1024, 768]]) {
+        await p.setViewportSize({ width: ancho, height: alto });
+        anidados.push(...(await revisarPantalla(p, `${ancho}×${alto}`)));
+      }
+      await revisarMenus(p, "1024×768");
+      await p.evaluate(() => window.cre8Tema.fijar("talla", "l"));
+      anidados.push(...(await revisarPantalla(p, "1024×768 con el tamaño L")));
+      const err = erroresDe(p, IGNORAR);
+      inf.ok(!err.length, "sin errores de consola (ratón)", err.slice(0, 3).join(" | "));
+      await ctx.close();
+    }
+    {
+      const { p } = await estudio({ ancho: 390, alto: 844, movil: true, escala: 2 });
+      await p.waitForSelector(`${SEL.avisoMovil}[open]`);
+      const b = await p.$$eval(`${SEL.avisoMovil} :is(button, a)`, (xs) => xs.filter((x) => x.offsetParent).map((x) => x.textContent.trim()));
+      inf.ok(/necesita un ordenador o un iPad/.test(await p.textContent(`${SEL.avisoMovil} h1`)) && b.join("|") === "Enviarme el enlace|Abrir la Guía Osmo 360|Seguir aquí de todos modos",
+        "390 px: «El Estudio necesita un ordenador o un iPad» con sus 3 opciones", b);
+      await p.click(`${SEL.avisoMovil} >> text=Enviarme el enlace`);
+      const wa = await p.getAttribute(`${SEL.avisoMovil} a:has-text('WhatsApp')`, "href");
+      inf.ok(!!wa?.startsWith("https://wa.me/?text=") && decodeURIComponent(wa).includes("estudio.html"), "sin «compartir» nativo: WhatsApp, email y copiar el enlace", wa);
+      await p.click(`${SEL.avisoMovil} >> text=Seguir aquí de todos modos`);
+      await esperar(p, () => !document.querySelector(__SEL.avisoMovil));
+      await p.reload();
+      await esperar(p, () => window.__estudio?.tour && document.querySelector(__SEL.pasos));
+      await p.waitForTimeout(300);
+      inf.ok(!(await p.$(SEL.avisoMovil)), "«Seguir aquí de todos modos» no vuelve a avisar en esta sesión");
+      await fotos(p, ["salon.jpg", "cocina.jpg", "pasillo.jpg"], 3);
+      anidados.push(...(await revisarPantalla(p, "390×844 táctil", true)));
+      await revisarMenus(p, "390×844 táctil");
+      await p.setViewportSize({ width: 820, height: 1180 });
+      anidados.push(...(await revisarPantalla(p, "820×1180 táctil", true)));
+      const err = erroresDe(p, IGNORAR);
+      inf.ok(!err.length, "sin errores de consola (táctil)", err.slice(0, 3).join(" | "));
+    }
+    inf.ok(!anidados.length, "nunca un vidrio dentro de otro (.c8-vidrio .c8-vidrio) en los 7 pasos", anidados.slice(0, 6));
+  });
+
+  // ================================================================== 7 · Apariencia, aviso al cerrar y traducciones automáticas
+  await inf.bloque("Apariencia (automático · claro · oscuro, tamaño, transparencia) y aviso al cerrar solo al importar", async () => {
+    const { p } = await estudio({ ancho: 1280, alto: 800, esquema: "light" });
+    const d = await p.evaluate(() => ({ tema: document.documentElement.dataset.tema, pref: window.cre8Tema.preferencias.tema, guardada: localStorage.getItem("cre8eight:tema") }));
+    inf.ok(d.tema === "claro" && d.pref === "auto" && d.guardada === null, "sin preferencia guardada, el Estudio sigue al sistema (claro): ya no fuerza el oscuro", d);
+    await p.emulateMedia({ colorScheme: "dark" });
+    await esperar(p, () => document.documentElement.dataset.tema === "oscuro");
+    inf.ok(true, "con «Automático», si el sistema pasa a oscuro el Estudio cambia sin recargar");
+    await p.click(SEL.apariencia);
+    await p.waitForSelector(SEL.menuApariencia);
+    const op = await p.$$eval(`${SEL.menuApariencia} [data-pref] label`, (xs) => xs.map((x) => x.textContent.trim()).join(","));
+    const abierto = await p.evaluate(() => document.querySelector(__SEL.apariencia).getAttribute("aria-expanded") === "true" && document.querySelector(__SEL.temaElegido)?.value === "auto");
+    inf.ok(op === "Automático,Claro,Oscuro,S,M,L" && abierto && (await p.isVisible(SEL.transparencia)),
+      "Apariencia: Automático (elegido) · Claro · Oscuro, tamaño S · M · L y «Reducir transparencia»", op);
+    await p.click(SEL.opcionApariencia("tema", "claro"));
+    await p.click(SEL.opcionApariencia("talla", "l"));
+    await p.click(SEL.transparencia);
+    await esperar(p, () => { const d = document.documentElement.dataset; return d.tema === "claro" && d.talla === "l" && d.transparencia === "reducida"; });
+    const ls = await p.evaluate(() => ["tema", "talla", "transparencia"].map((k) => localStorage.getItem(`cre8eight:${k}`)).join());
+    inf.ok(ls === "claro,l,reducida", "se guardan en las preferencias comunes de tema.js (cre8eight:tema, talla y transparencia)", ls);
+    await esperar(p, () => { const d = document.querySelector(__SEL.iframe).contentDocument?.documentElement.dataset; return d?.tema === "claro" && d?.talla === "l"; }, null, 10000);
+    inf.ok(true, "la vista previa (el visor) cambia a la vez");
+    await p.evaluate(() => document.querySelector(__SEL.iframe).contentWindow.cre8Tema.fijar("tema", "oscuro"));
+    await esperar(p, () => document.documentElement.dataset.tema === "oscuro" && document.querySelector(__SEL.temaElegido)?.value === "oscuro");
+    inf.ok(true, "un cambio hecho en el visor se refleja en el Estudio y en el menú abierto (cre8Tema.alCambiar)");
+    await p.keyboard.press("Escape");
+    await esperar(p, () => !document.querySelector(__SEL.menuApariencia) && document.activeElement?.id === "btn-apariencia");
+    inf.ok(true, "Escape cierra Apariencia y devuelve el foco a su botón");
+
+    // Aviso al cerrar la pestaña: solo mientras se importan fotos (una tarea de la cola simulada; las recargas de estas
+    // pruebas, siempre con la cola vacía, no lo ven nunca).
+    const avisa = () => p.evaluate(() => { const e = new Event("beforeunload", { cancelable: true }); dispatchEvent(e); return e.defaultPrevented; });
+    const sinImportar = await avisa();
+    await p.evaluate(() => window.__estudio.cola.push({ nombre: "simulada.jpg", estado: "procesando", foto: true, simulada: true }));
+    const importando = await avisa();
+    await p.evaluate(() => { const c = window.__estudio.cola; c.splice(c.findIndex((x) => x.simulada), 1); });
+    inf.ok(!sinImportar && importando && !(await avisa()), "cerrar la pestaña solo pide confirmación mientras se importan fotos", { sinImportar, importando });
+
+    const zona = await p.evaluate(async () => {
+      const { fijarTexto } = await import("./estudio-nucleo.js");
+      const z = { nombre: { es: "Zona de día", en: "Living area", fr: "Coin salon", de: "Wohnbereich" } };
+      fijarTexto(z, "nombre", "es", "Zona de estar");
+      return JSON.stringify(z.nombre);
+    });
+    inf.ok(zona === '{"es":"Zona de estar","fr":"Coin salon"}', "renombrar una zona borra sus traducciones automáticas y conserva las escritas a mano", zona);
+    const err = erroresDe(p, IGNORAR);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
+  });
+
+  // ================================================================== 8 · proyectos antiguos, Mi inmobiliaria traducida y Guía por enlace
+  await inf.bloque("Proyectos y perfiles antiguos, traducciones de Mi inmobiliaria y lista de la Guía por enlace", async () => {
+    // Una sola página: proyectos de la fase 3 → perfil de la fase 3 en un proyecto nuevo → enlaces de la Guía.
+    const { p } = await estudio();
+    const jpg = M["salon.jpg"].buffer.toString("base64");
+    await p.evaluate(async ({ jpg }) => {
+      const blob = new Blob([Uint8Array.from(atob(jpg), (c) => c.charCodeAt(0))], { type: "image/jpeg" });
+      const pano = (id) => ({ id, nombre: { es: id[0].toUpperCase() + id.slice(1) }, planta: "p0", imagen: `panos/${id}.jpg`, imagen_movil: `panos/${id}.jpg`, miniatura: `panos/${id}.jpg`, yaw: 0 });
+      const viejo = (id, modo, color) => ({ id, nombre: id, actualizado: Date.now(), nFotos: 3, miniatura: null, tour: {
+        version: 2, titulo: { es: "" }, idioma: "it", idiomas: ["es", "en", "it", "pt"], marca: { nombre: "Agencia Antigua", color }, agente: {},
+        contacto: { modo: "whatsapp", whatsapp: "34911222333" }, momentos: ["dia", "atardecer", "noche"],
+        inmueble: { operacion: "venta", tipo: "piso", estado_obra: "construido", moneda: "EUR", certificado_energetico: { consumo_letra: "B", emisiones_letra: "B" }, caracteristicas: [],
+          documentos: [{ nombre: "Memoria", url: "docs/memoria.pdf" }, { nombre: "Folleto", url: "https://example.com/folleto.pdf" }] },
+        altura_camara: 1.5, radio_enlace_auto: 4.5, norte: 0, plantas: [{ id: "p0", nombre: { es: "Planta principal" } }], estancias: [],
+        estilos: [{ id: "original" }], panoramas: ["salon", "cocina", "bano"].map(pano), _estudio: { manuales: [], quitados: [], meta: {}, modo } } });
+      const db = await new Promise((ok, mal) => { const r = indexedDB.open("estudio-visor-inmobiliario", 1); r.onsuccess = () => ok(r.result); r.onerror = () => mal(r.error); });
+      const tx = db.transaction(["proyectos", "archivos"], "readwrite");
+      tx.objectStore("proyectos").put(viejo("viejo-rapido", "rapido", "#c8a24a"));
+      tx.objectStore("proyectos").put(viejo("viejo-completo", "completo", "#2B4C7E"));
+      for (const pid of ["viejo-rapido", "viejo-completo"]) {
+        for (const id of ["salon", "cocina", "bano"]) tx.objectStore("archivos").put({ clave: `${pid}::panos/${id}.jpg`, proyecto: pid, ruta: `panos/${id}.jpg`, blob });
+        tx.objectStore("archivos").put({ clave: `${pid}::docs/memoria.pdf`, proyecto: pid, ruta: "docs/memoria.pdf", blob: new Blob(["%PDF-1.4"], { type: "application/pdf" }) });
+      }
+      await new Promise((ok) => { tx.oncomplete = ok; });
+      localStorage.setItem("estudio:publicar", JSON.stringify({ web: "https://www.agencia-antigua.es", calidad: "movil" }));
+    }, { jpg });
+    for (const [id, color] of [["viejo-rapido", undefined], ["viejo-completo", "#2b4c7e"]]) {
+      await p.evaluate((id) => { localStorage.setItem("estudio:ultimo", id); localStorage.setItem("estudio:seccion", "revisar"); }, id);
+      // sin ancla: manda el paso guardado («revisar» de antes → Publicar); no hace falta esperar a que cargue la vista previa
+      await p.goto(`${base}estudio.html`, { waitUntil: "domcontentloaded" });
+      await esperar(p, () => window.__estudio?.tour?.panoramas?.length === 3);
+      const t = await T(p);
+      inf.ok(!("modo" in t._estudio) && t.idiomas.join() === "es,en" && t.idioma === "es", `${id}: abre sin modo y con idiomas es/en (it y pt fuera)`, [t.idiomas, t.idioma]);
+      inf.ok(t._estudio.nocheSimulada === false && !("momentos" in t), `${id}: los momentos por defecto no activan la noche simulada`);
+      inf.ok(!t.inmueble.documentos && t.documentacion?.length === 2 && t.documentacion.every((d) => d.publico), `${id}: los documentos de la ficha pasan a la lista única, públicos`);
+      inf.ok(t._estudio.perfil === false && t.contacto.whatsapp === "34911222333", `${id}: con contacto propio, sigue usándolo (Mi inmobiliaria no lo pisa)`);
+      inf.ok(t.marca.color?.toLowerCase() === color, color ? `${id}: un color de marca elegido se conserva (${color})` : `${id}: el antiguo color por defecto (#c8a24a) se quita: el visor usa el champán del tema`, t.marca);
+      inf.ok(await p.evaluate(() => window.__estudio.seccion === "publicar"), `${id}: el paso guardado «revisar» abre Publicar`);
+      const errores = await p.$$eval(SEL.comprobacionesError, (xs) => xs.map((x) => x.textContent));
+      inf.ok(!errores.some((x) => /sin conectar/.test(x)), `${id}: las fotos sin colocar se conectan en orden`, errores);
+    }
+    const prefs = await p.evaluate(() => ({ pub: JSON.parse(localStorage.getItem("estudio:publicar")), perfil: JSON.parse(localStorage.getItem("cre8eight:perfil") ?? "null") }));
+    inf.ok(!("web" in prefs.pub) && prefs.perfil?.marca?.web === "https://www.agencia-antigua.es", "la web que se escribía en Publicar pasa a Mi inmobiliaria", prefs);
+
+    // Mi inmobiliaria guardada con la fase 3: color antiguo por defecto y una traducción del pie legal ya escrita
+    await p.evaluate(() => localStorage.setItem("cre8eight:perfil", JSON.stringify({
+      marca: { nombre: "Inmobiliaria Prueba", color: "#c8a24a", pie_legal: "Inscrita en el Registro Mercantil de Madrid" },
+      contacto: { modo: "whatsapp", whatsapp: "34 600 111 222", url_privacidad: "https://www.inmo-prueba.es/privacidad", texto_privacidad: "Tus datos solo se usan para responderte." },
+      traducciones: { pie_legal: { en: "Registered in the Madrid Commercial Register" } } })));
+    await p.click(SEL.proyecto);
+    await p.click(SEL.proyectoNuevo);
+    await esperar(p, () => window.__estudio.tour.panoramas.length === 0 && window.__estudio.tour.marca?.nombre === "Inmobiliaria Prueba");
+    let t = await T(p);
+    inf.ok(!("color" in t.marca) && t.marca.pie_legal?.en === "Registered in the Madrid Commercial Register",
+      "perfil antiguo en un proyecto nuevo: sin el color #c8a24a (champán del tema) y con la traducción guardada del pie legal", t.marca);
+    await p.click(SEL.perfil);
+    await p.waitForSelector(SEL.formPerfil);
+    inf.ok((await p.getAttribute(SEL.muestraTema, "aria-pressed")) === "true", "Mi inmobiliaria: la primera muestra, «Champán (del tema)», está elegida");
+    await p.click(SEL.muestraColor("#2b4c7e"));
+    await guardarPerfil(p);
+    await esperar(p, () => window.__estudio.tour.marca.color === "#2b4c7e");
+    await p.click(SEL.perfil);
+    await p.click(SEL.muestraTema);
+    await guardarPerfil(p);
+    await esperar(p, () => !("color" in window.__estudio.tour.marca));
+    inf.ok(true, "elegir un color lo aplica al recorrido y «Champán (del tema)» lo quita");
+    await ir(p, "datos");
+    await p.click(SEL.idiomasDatos);
+    await p.click(SEL.ingles);
+    await p.waitForSelector(SEL.traduccion("Texto de privacidad"));
+    inf.ok((await p.inputValue(SEL.traduccion("Pie legal"))) === "Registered in the Madrid Commercial Register",
+      "«Idiomas y traducciones» ofrece el pie legal y el texto de privacidad de Mi inmobiliaria");
+    const priv = p.locator(SEL.traduccion("Texto de privacidad"));
+    await priv.fill("Your data is only used to reply to you.");
+    await priv.press("Tab");
+    await esperar(p, () => JSON.parse(localStorage.getItem("cre8eight:perfil")).traducciones?.texto_privacidad?.en === "Your data is only used to reply to you.");
+    t = await T(p);
+    inf.ok(t.contacto.texto_privacidad?.en === "Your data is only used to reply to you.", "la traducción se guarda en el recorrido y en Mi inmobiliaria (para los próximos)");
+
+    // Lista de la Guía por enlace: nombres con tildes, comas y tomas; recargar la vuelve a ofrecer; «Usar» limpia el enlace
+    await p.evaluate(() => { location.hash = "#fotos&estancias=Entrada,Sal%C3%B3n,Coma%2C%20s%C3%AD&tomas=Sal%C3%B3n:2,Coma%2C%20s%C3%AD:x"; });
+    await p.waitForSelector(SEL.ofertaGuia);
+    const txt = await p.textContent(SEL.textoGuia);
+    inf.ok(/Entrada, Salón \(2\), Coma, sí/.test(txt), "el Estudio enseña la lista de la Guía (con «Salón (2)» y una coma dentro de un nombre)", txt);
+    await p.reload({ waitUntil: "domcontentloaded" });
+    await p.waitForSelector(SEL.ofertaGuia);
+    await p.click(SEL.usarGuia);
+    await esperar(p, () => !document.querySelector(__SEL.ofertaGuia) && location.hash === "#fotos");
+    inf.ok(true, "si aún no se ha decidido, recargar la vuelve a ofrecer; «Usar» quita el aviso y limpia el enlace (#fotos)");
+    const nombres = (await T(p))._estudio.nombresGuia?.join("|"); // las fotos los toman en orden de disparo (bloque 3)
+    inf.ok(nombres === "Entrada|Salón|Salón 2|Coma, sí", "la lista queda lista para nombrar las fotos en orden de disparo (con las tomas)", nombres);
+    await p.evaluate(() => { location.hash = "#fotos&estancias=%E0%A4%A,,%20,Cocina&tomas=Cocina:0,:3"; });
+    await p.waitForSelector(SEL.ofertaGuia);
+    const roto = await p.textContent(SEL.ofertaGuia);
+    await p.click(SEL.noUsarGuia);
+    await esperar(p, () => !document.querySelector(__SEL.ofertaGuia) && location.hash === "#fotos");
+    inf.ok(/Cocina/.test(roto) && !/%E0/.test(roto), "un enlace con datos rotos se queda con lo válido; «No usar» también limpia el enlace", roto);
+    const err = erroresDe(p, IGNORAR);
+    inf.ok(!err.length, "sin errores de consola", err.slice(0, 3).join(" | "));
   });
 } catch (e) {
   inf.ok(false, "excepción no controlada", e.message);

@@ -4,7 +4,7 @@
 // La copia de seguridad está en «Proyecto ▾». La web es la de «Mi inmobiliaria»; con web se escribe `url_publica`.
 import { slug, norm360, zipAlmacenado } from "./estudio-util.js";
 import { app, h, icono, emitir, on, toast, textoDe, colocado, calcularEnlaces, tourParaExportar, archivosParaExportar, rutasUsadas,
-  fmtMB, archivosFaltantes, urlsNoValidas, urlPermitida, MENSAJE_URL, tienePlano, textosTraducibles, textoExacto, referenciaDe } from "./estudio-nucleo.js";
+  fmtMB, archivosFaltantes, urlsNoValidas, urlPermitida, MENSAJE_URL, tienePlano, textosTraducibles, textoExacto, referenciaDe, VIDRIO } from "./estudio-nucleo.js";
 import { problemaVariante, nombreEstilo, origenDe } from "./estudio-variantes.js";
 import { fijarWeb, migrarWebAntigua } from "./estudio-perfil.js";
 
@@ -153,7 +153,7 @@ function antesDePublicar() {
     icono(c.nivel === "ok" ? "ok" : c.nivel === "error" ? "error" : "aviso", 20),
     h("div", {}, h("b", { text: c.titulo }), c.detalle ? h("p", { text: c.detalle }) : null),
     c.nivel !== "ok" && c.ir ? h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => emitir("ir", c.ir) }, c.nivel === "error" ? "Corregir" : "Ver") : h("span"));
-  return h("section", { class: `antes-publicar ${estado}`, id: "antes-de-publicar", tabindex: "-1", "aria-labelledby": "titulo-antes", "data-campo": "revisar" },
+  return h("section", { class: `antes-publicar ${estado} ${VIDRIO}`, id: "antes-de-publicar", tabindex: "-1", "aria-labelledby": "titulo-antes", "data-campo": "revisar" },
     h("div", { class: "cab-antes" }, icono(estado === "ok" ? "ok" : estado === "error" ? "error" : "aviso", 22),
       h("div", {}, h("h2", { id: "titulo-antes", text: "Antes de publicar" }), h("p", { role: "status", text: resumen }))),
     [...errores, ...avisos].length ? h("ul", { class: "comprobaciones" }, [...errores, ...avisos].map(fila)) : null,
@@ -191,27 +191,27 @@ function datosPublicos() {
 function accion({ boton, necesita, fn, primario = true }) {
   const barra = h("div");
   const prog = h("div", { class: "progreso", hidden: true }, barra);
-  const estado = h("span", { class: "tenue", role: "status", style: { fontSize: "12.5px" } });
+  const estado = h("span", { class: "texto-pie estado-accion", role: "status" });
   const disponible = !necesita || (EXP && necesita.every((f) => typeof EXP[f] === "function"));
   const motivo = !disponible ? (errorExp || EXP ? "Esta opción no está disponible en esta versión." : "Cargando…") : "";
-  const b = h("button", { class: `btn ${primario ? "primario" : ""}`, disabled: !disponible, title: motivo }, boton);
+  const b = h("button", { type: "button", class: `c8-boton ${primario ? "c8-boton--primario" : "c8-boton--secundario"}`, disabled: !disponible, title: motivo }, boton);
   b.onclick = async () => {
-    b.disabled = true; prog.hidden = false; barra.style.width = "4%"; estado.textContent = "Preparando…"; estado.style.color = "";
+    b.disabled = true; prog.hidden = false; barra.style.width = "4%"; estado.textContent = "Preparando…"; delete estado.dataset.tipo;
     try {
       const r = await fn((f) => { barra.style.width = `${Math.round(Math.max(0.04, f) * 100)}%`; }, estado);
       barra.style.width = "100%";
-      estado.textContent = r ?? "Listo"; estado.style.color = "var(--ok)";
+      estado.textContent = r ?? "Listo"; estado.dataset.tipo = "ok";
     } catch (e) {
       console.error(e);
-      estado.textContent = e?.name === "AbortError" ? "Cancelado" : `No se pudo completar: ${e.message}`; estado.style.color = "var(--error)";
+      estado.textContent = e?.name === "AbortError" ? "Cancelado" : `No se pudo completar: ${e.message}`; estado.dataset.tipo = "error";
     } finally { b.disabled = false; setTimeout(() => { prog.hidden = true; }, 1500); }
   };
   return { b, prog, estado, disponible, motivo };
 }
 function tarjeta({ ic, titulo, texto, controles = [], boton, fn, necesita, extra, primario = false }) {
   const a = accion({ boton, necesita, fn, primario });
-  return h("div", { class: "exporte" }, h("h3", {}, icono(ic, 18), titulo), h("p", { text: texto }), ...controles,
-    h("div", { class: "fila" }, a.b, !a.disponible ? h("span", { class: "tenue", style: { fontSize: "12px" }, text: a.motivo }) : null), a.prog, a.estado, extra ?? null);
+  return h("div", { class: `exporte ${VIDRIO}` }, h("h3", {}, icono(ic, 18), titulo), h("p", { text: texto }), ...controles,
+    h("div", { class: "fila" }, a.b, !a.disponible ? h("span", { class: "texto-pie", text: a.motivo }) : null), a.prog, a.estado, extra ?? null);
 }
 function sel(opciones, valor, onch, etq) {
   const s = h("select", { "aria-label": etq }, opciones.map(([v, t]) => h("option", { value: v, text: t })));
@@ -251,7 +251,7 @@ function pintarPublicar() {
   const url = urlPublica();
   const op = { calidad: prefs.calidad ?? "movil", planta: t.plantas.find((pl) => pl.plano?.imagen || pl.muros?.length)?.id ?? t.plantas[0]?.id, medidas: true };
   const copiar = (txt) => async () => { try { await navigator.clipboard.writeText(txt); toast("Copiado", "ok"); } catch { toast("No se pudo copiar: selecciónalo y usa Ctrl+C", "aviso"); } };
-  const qrSVG = (margen) => QR.qrSVG(url, { margen, color: "#000000", fondo: "#ffffff" });
+  const qrSVG = (margen) => QR.qrSVG(url, { margen, color: "#000000", fondo: "#ffffff" }); // el QR es un dato: negro sobre blanco en cualquier tema
 
   // 1 · Tu web
   const zipWeb = accion({ boton: "Descargar mi recorrido (ZIP)", necesita: ["exportarZIP"], fn: async (prog) => {
@@ -274,17 +274,18 @@ function pintarPublicar() {
     const qr = h("div", { class: "qr", "aria-label": `Código QR del enlace ${url}`, role: "img" });
     if (QR?.qrSVG) qr.innerHTML = qrSVG(2);
     const codigo = `<iframe src="${url}" width="100%" height="600" style="border:0;border-radius:12px" allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking" allowfullscreen loading="lazy" title="Recorrido virtual ${ref}"></iframe>`;
+    const copiarBoton = (etq, txt) => h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--icono c8-boton--s", "aria-label": etq, title: etq, onclick: copiar(txt) }, icono("copiar", 14));
     enlace = h("div", { class: "pasos-publicar" },
-      h("div", { style: { display: "flex", flexDirection: "column", gap: "8px", minWidth: 0 } },
-        h("div", { class: "codigo" }, h("code", { text: url }), h("button", { class: "btn peq icono-btn", "aria-label": "Copiar enlace", title: "Copiar enlace", onclick: copiar(url) }, icono("copiar", 14))),
-        h("details", {}, h("summary", { class: "suave", style: { cursor: "pointer" }, text: "Código para incrustarlo en tu web (WordPress, Wix…)" }),
-          h("div", { class: "codigo", style: { marginTop: "6px" } }, h("code", { text: codigo }), h("button", { class: "btn peq icono-btn", "aria-label": "Copiar código", onclick: copiar(codigo) }, icono("copiar", 14))))),
+      h("div", {},
+        h("div", { class: "codigo" }, h("code", { text: url }), copiarBoton("Copiar enlace", url)),
+        h("details", { class: "codigo-incrustar" }, h("summary", { class: "suave", text: "Código para incrustarlo en tu web (WordPress, Wix…)" }),
+          h("div", { class: "codigo" }, h("code", { text: codigo }), copiarBoton("Copiar código", codigo)))),
       qr);
   } else enlace = h("p", { class: "nota-c8", role: "note", text: "Escribe tu web para ver el enlace y el QR." });
   const tuWeb = destino("1", "Tu web", "Tres pasos para tenerlo en tu web y compartir el enlace.",
-    h("ol", { class: "pasos-web" },
+    h("ol", { class: `pasos-web ${VIDRIO}` },
       h("li", {}, h("b", { text: "Descarga tu recorrido. " }), "Es una carpeta comprimida lista para tu web (sin los documentos privados del proyecto).",
-        h("div", { class: "fila", style: { marginTop: "8px" } }, zipWeb.b), zipWeb.prog, zipWeb.estado),
+        h("div", { class: "fila" }, zipWeb.b), zipWeb.prog, zipWeb.estado),
       h("li", {}, h("b", { text: "Súbelo a tu web. " }), "Descomprímelo y súbelo con el gestor de archivos de tu hosting (o por FTP) a la carpeta ", h("code", { text: `/tours/${ref}/` }), ". Dentro deben quedar index.html, tour.json y la carpeta panos."),
       h("li", {}, h("b", { text: "Comparte el enlace." }),
         h("div", { class: "c8-campo campo-web", "data-campo": "web" }, h("label", { for: "web-publicar", text: "Tu web (la de Mi inmobiliaria)" }), web, errWeb),
@@ -324,7 +325,7 @@ function pintarPublicar() {
       descargar(b, `${ref}-plano${t.plantas.length > 1 ? "-" + op.planta : ""}.png`);
       return `Descargado (${fmtMB(b.size)})`;
     } }) : null;
-  const tablaPortales = h("details", { class: "avanzado", style: { marginTop: "12px" } }, h("summary", { text: "¿Qué subo a cada portal?" }),
+  const tablaPortales = h("details", { class: `avanzado ${VIDRIO}` }, h("summary", { text: "¿Qué subo a cada portal?" }),
     h("div", { class: "contenido" }, h("table", { class: "tabla-portales" },
       h("thead", {}, h("tr", {}, h("th", { text: "Dónde" }), h("th", { text: "Qué subir" }))),
       h("tbody", {},
@@ -356,9 +357,9 @@ function pintarPublicar() {
       descargar(b, `${ref}.html`);
       return b.superaLimite ? `Descargado, pero pesa ${fmtMB(b.tamano ?? b.size)}: puede ir lento. Prueba la calidad estándar.` : `Descargado (${fmtMB(b.tamano ?? b.size)})`;
     } });
-  const qrCliente = h("div", { class: "exporte" }, h("h3", {}, icono("descargar", 18), "Código QR del recorrido"),
+  const qrCliente = h("div", { class: `exporte ${VIDRIO}` }, h("h3", {}, icono("descargar", 18), "Código QR del recorrido"),
     h("p", { text: url ? "Para carteles, escaparates y folletos. Lleva al enlace de tu web." : "Escribe tu web en «1 · Tu web» para crear el QR (nunca se genera uno de ejemplo)." }),
-    h("div", { class: "fila" }, h("button", { class: "btn", disabled: !url || !QR, onclick: () => descargar(new Blob([qrSVG(4)], { type: "image/svg+xml" }), `${ref}-qr.svg`) }, icono("descargar", 14), "Descargar QR")));
+    h("div", { class: "fila" }, h("button", { type: "button", class: "c8-boton c8-boton--secundario", disabled: !url || !QR, onclick: () => descargar(new Blob([qrSVG(4)], { type: "image/svg+xml" }), `${ref}-qr.svg`) }, icono("descargar", 14), "Descargar QR")));
   const clientes = destino("3", "Para tus clientes", "", h("div", { class: "exportes" }, dossier, unArchivo, qrCliente));
 
   // Avanzado
@@ -372,7 +373,7 @@ function pintarPublicar() {
     h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Publicar" }),
       h("p", { text: "Primero, tu web. Después, lo que necesites para los portales, las redes y tus clientes. Todo se prepara en tu ordenador." }))),
     antesDePublicar(),
-    !EXP && errorExp ? h("div", { class: "comprobacion aviso", style: { marginBottom: "16px" } }, icono("aviso", 20), h("div", {}, h("b", { text: "Algunas descargas no están disponibles" }), h("p", { text: "Recarga la página. Mientras tanto puedes descargar la copia de seguridad (Proyecto ▾) y el archivo de configuración." })), h("span")) : null,
+    !EXP && errorExp ? h("div", { class: `comprobacion aviso ${VIDRIO}` }, icono("aviso", 20), h("div", {}, h("b", { text: "Algunas descargas no están disponibles" }), h("p", { text: "Recarga la página. Mientras tanto puedes descargar la copia de seguridad (Proyecto ▾) y el archivo de configuración." })), h("span")) : null,
     tuWeb, portales, clientes, avanzado,
   ].filter(Boolean));
 }
@@ -422,8 +423,8 @@ function tarjetaVideo(op, tieneMusica) {
       const k = Math.min((innerWidth - 40) / cw, (innerHeight - 120) / ch, 1);
       document.body.classList.add("grabando");
       Object.assign(ifr.style, { width: `${cw}px`, height: `${ch}px`, transform: `scale(${k})` });
-      const cancelar = h("button", { class: "btn peligro", style: { position: "fixed", top: "16px", right: "16px", zIndex: 41 }, onclick: () => control.abort() }, "Cancelar grabación");
-      const rotulo = h("div", { class: "vista-modo", style: { position: "fixed", zIndex: 41 }, text: `Grabando ${op.formato}…` });
+      const cancelar = h("button", { type: "button", class: "c8-boton c8-boton--peligro grabacion-control cancelar", onclick: () => control.abort() }, "Cancelar grabación");
+      const rotulo = h("div", { class: "vista-modo grabacion-control", text: `Grabando ${op.formato}…` });
       document.body.append(cancelar, rotulo);
       try {
         await new Promise((r) => setTimeout(r, 600));

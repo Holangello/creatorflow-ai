@@ -327,6 +327,7 @@ export function enviarTour() {
   clearTimeout(vp.tCarga);
   const vacio = !app.tour?.panoramas.length;
   $("#vista-vacia").hidden = !vacio;
+  $("#vista").classList.toggle("sin-fotos", vacio);
   if (vacio) return;
   if (pedidoVivo()) { vp.tCarga = setTimeout(enviarTour, 250); return; } // sin recargar a mitad de un cambio de estancia
   // La vista previa muestra lo mismo que se publicará (sin documentación privada).

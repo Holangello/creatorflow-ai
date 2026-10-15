@@ -732,7 +732,7 @@ export const confirmar = (titulo, texto, si = "Eliminar") =>
 
 export function elegirArchivos({ aceptar = "image/*", multiple = false, carpeta = false } = {}) {
   return new Promise((ok) => {
-    const i = h("input", { type: "file", accept: aceptar, multiple, style: { display: "none" } });
+    const i = h("input", { type: "file", accept: aceptar, multiple, hidden: true });
     if (carpeta) i.webkitdirectory = true;
     i.onchange = () => { ok([...i.files]); i.remove(); };
     i.oncancel = () => { ok([]); i.remove(); };
@@ -754,9 +754,9 @@ export function cargando(texto) {
 // ------------------------------------------------------------------ colores de los lienzos (tokens de tema.css)
 let sonda = null, prueba = null;
 /**
- * Colores del tema actual para pintar en un <canvas>: tokens { nombre: ["--c-acento", reserva] } → { nombre: color }.
+ * Colores del tema actual para pintar en un <canvas>: { nombre: "--c-acento" } (o ["--c-acento", reserva]) → { nombre: color }.
  * El navegador resuelve el token (claro u oscuro, color-mix, color relativo…); si el lienzo no entiende el resultado
- * (navegadores antiguos), se usa la reserva. Se vuelven a leer al recibir «cre8:tema» (alCambiarTema).
+ * (navegadores antiguos), se usa la reserva: gris neutro si no se indica otra. Se vuelven a leer con «cre8:tema» (alCambiarTema).
  */
 export function coloresTema(tokens) {
   if (!sonda) {
@@ -765,7 +765,8 @@ export function coloresTema(tokens) {
     prueba = document.createElement("canvas").getContext("2d");
   }
   const r = {};
-  for (const [k, [token, reserva]] of Object.entries(tokens)) {
+  for (const [k, def] of Object.entries(tokens)) {
+    const [token, reserva = "gray"] = [].concat(def);
     sonda.style.color = `var(${token})`;
     const c = getComputedStyle(sonda).color;
     prueba.fillStyle = "#010203";

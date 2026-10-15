@@ -185,6 +185,9 @@ export function crearPlano(canvas, ctx) {
     // Etiquetas de estancias cuando hay espacio: nombre y m² en el plano; en el radar solo el nombre, y solo si es grande.
     if (T.radar ? Math.min(W, H) >= 130 : grande || T.esc > 22) {
       g.textAlign = "center"; g.textBaseline = "middle";
+      // Halo del color de fondo: el rótulo se lee aunque lo crucen un enlace o un muro
+      g.lineJoin = "round"; g.lineWidth = 3; g.strokeStyle = css(C.contorno, 0.75);
+      const rotular = (txt, x, y) => { g.strokeText(txt, x, y); g.fillText(txt, x, y); };
       const pos0 = T.radar ? ctx.posicion() : null;
       const nombre = T.radar ? C.micro : grande ? C.sec : C.micro, m2 = grande ? C.pie : C.micro * 0.92;
       for (const e of estancias) {
@@ -193,11 +196,11 @@ export function crearPlano(canvas, ctx) {
         const [cx, cz] = T.a(...puntoEtiqueta(e.poligono));
         g.font = letra(C.semi, nombre);
         g.fillStyle = css(C.texto);
-        g.fillText(ctx.texto(e.nombre), cx, T.radar ? cz : cz - nombre * 0.55);
+        rotular(ctx.texto(e.nombre), cx, T.radar ? cz : cz - nombre * 0.55);
         if (T.radar) continue;
         g.font = letra(C.normal, m2);
         g.fillStyle = css(C.texto2);
-        g.fillText(`${ctx.formato(areaPoligono(e.poligono))} m²`, cx, cz + m2 * 0.7);
+        rotular(`${ctx.formato(areaPoligono(e.poligono))} m²`, cx, cz + m2 * 0.7);
       }
     }
 

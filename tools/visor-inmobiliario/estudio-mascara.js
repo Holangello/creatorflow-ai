@@ -1,6 +1,7 @@
 // Editor de máscara de superficies sobre la foto equirectangular (vista plana con zoom y desplazamiento).
 // Canal R = paredes, canal G = suelo (blanco = superficie). Varita mágica por tolerancia, pincel y goma, deshacer.
-import { app, h, icono, cambiar, emitir, toast, confirmar, guardarArchivo, rutaLibre, textoDe, pano } from "./estudio-nucleo.js";
+// Los colores de la capa (rojo = paredes, verde = suelo) son datos; el marco y el cursor salen de los tokens del tema.
+import { app, h, icono, cambiar, emitir, toast, confirmar, guardarArchivo, rutaLibre, textoDe, pano, coloresTema, alCambiarTema, deslizador } from "./estudio-nucleo.js";
 
 const W = 2048, H = 1024;
 
@@ -108,39 +109,48 @@ export async function abrirEditorMascara(pid, vi = null) {
   const lienzo = h("canvas", { "aria-label": "Foto con máscara" });
   const ctx = lienzo.getContext("2d");
   const zona = h("div", { class: "lienzo" }, lienzo);
-  const bHerr = {}, bCanal = {};
+  const bHerr = {}, rCanal = {};
   let bBorrar = null;
-  const herrBtn = (id, ic, txt, tecla) => (bHerr[id] = h("button", { class: "btn", onclick: () => fijarHerr(id), title: `${txt} (${tecla})` }, icono(ic, 16), txt, h("kbd", { text: tecla })));
-  const canalBtn = (id, txt, tecla) => (bCanal[id] = h("button", { class: `canal-${id}`, onclick: () => fijarCanal(id), title: `${txt} (${tecla})` }, txt));
-  const rango = (min, max, val, fn, etq) => { const r = h("input", { type: "range", min, max, value: val, "aria-label": etq }); const out = h("b", { text: val }); r.oninput = () => { out.textContent = r.value; fn(Number(r.value)); }; return h("label", {}, etq, r, out); };
+  // Marco y cursor del pincel: tokens (se releen al cambiar de tema). El cursor lleva halo: se ve sobre cualquier foto.
+  let P = null;
+  const pal = () => (P ??= coloresTema({ marco: "--c-borde-2", cursor: "--c-texto", halo: "--vidrio-denso" }));
+  const dejarTema = alCambiarTema(() => { P = null; marcar(); });
+  const herrBtn = (id, ic, txt, tecla) => (bHerr[id] = h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", "aria-pressed": "false", onclick: () => fijarHerr(id), title: `${txt} (${tecla})` }, icono(ic, 16), txt, h("kbd", { text: tecla })));
+  const canalRadio = (id, txt, tecla) => {
+    const r = (rCanal[id] = h("input", { type: "radio", name: "canal-mascara", value: id }));
+    r.onchange = () => { if (r.checked) fijarCanal(id); };
+    return h("label", { class: `canal canal-${id}`, title: `${txt} (${tecla})` }, r, h("span", {}, h("i", { "aria-hidden": "true" }), txt));
+  };
+  const rango = (min, max, val, fn, etq) => { const r = deslizador({ min, max, value: val, "aria-label": etq }); const out = h("b", { text: val }); r.oninput = () => { out.textContent = r.value; fn(Number(r.value)); }; return h("label", {}, etq, r, out); };
   const cerrar = async (guardar) => {
     if (!guardar && S.cambiado && !(await confirmar("Descartar cambios", "Hay cambios sin guardar en la máscara.", "Descartar"))) return;
     if (guardar) await guardarMascara();
-    cancelAnimationFrame(raf); ro?.disconnect(); removeEventListener("keydown", teclas, true); editor.remove();
+    cancelAnimationFrame(raf); ro?.disconnect(); dejarTema(); removeEventListener("keydown", teclas, true); editor.remove();
   };
   const titulo = `Máscara · ${textoDe(p.nombre) || p.id}${v ? ` · variante ${v.estilo ?? ""} ${v.momento ?? ""}` : ""}`;
   const editor = h("div", { class: "editor-mascara", role: "dialog", "aria-label": titulo },
-    h("div", { class: "cab" }, h("h2", { text: titulo }),
-      h("div", { class: "segmentado", role: "group", "aria-label": "Superficie" }, canalBtn("paredes", "Paredes", "1"), canalBtn("suelo", "Suelo", "2")),
-      h("div", { style: { flex: 1 } }),
-      h("button", { class: "btn icono-btn", title: "Deshacer (Ctrl+Z)", "aria-label": "Deshacer", onclick: deshacer }, icono("deshacer", 16)),
-      h("button", { class: "btn icono-btn", title: "Rehacer (Ctrl+Shift+Z)", "aria-label": "Rehacer", onclick: rehacer }, icono("rehacer", 16)),
-      h("button", { class: "btn", onclick: () => cerrar(false) }, "Cancelar"),
-      h("button", { class: "btn primario", onclick: () => cerrar(true) }, "Guardar máscara")),
+    h("div", { class: "cab c8-vidrio c8-vidrio--barra" }, h("h2", { text: titulo }),
+      h("div", { class: "c8-segmentado", role: "radiogroup", "aria-label": "Superficie" }, canalRadio("paredes", "Paredes", "1"), canalRadio("suelo", "Suelo", "2")),
+      h("div", { class: "relleno" }),
+      h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono", title: "Deshacer (Ctrl+Z)", "aria-label": "Deshacer", onclick: deshacer }, icono("deshacer", 16)),
+      h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono", title: "Rehacer (Ctrl+Shift+Z)", "aria-label": "Rehacer", onclick: rehacer }, icono("rehacer", 16)),
+      h("button", { type: "button", class: "c8-boton c8-boton--secundario", onclick: () => cerrar(false) }, "Cancelar"),
+      h("button", { type: "button", class: "c8-boton c8-boton--primario", onclick: () => cerrar(true) }, "Guardar máscara")),
     zona,
-    h("div", { class: "barra" },
+    h("div", { class: "barra c8-vidrio c8-vidrio--barra" },
       herrBtn("varita", "varita", "Varita", "W"), herrBtn("pincel", "pincel", "Pincel", "B"), herrBtn("goma", "goma", "Goma", "E"),
       rango(4, 80, 84 - S.tol, (x) => { S.tol = 84 - x; }, "Precisión"), // más precisión = la varita coge colores más parecidos
-      (() => { const c = h("input", { type: "checkbox", checked: true }); c.onchange = () => { S.contiguo = c.checked; }; return h("label", {}, c, "Solo zona continua"); })(),
+      (() => { const c = h("input", { type: "checkbox", checked: true }); c.onchange = () => { S.contiguo = c.checked; }; return h("label", { class: "check" }, c, "Solo zona continua"); })(),
       rango(2, 160, S.tam, (x) => { S.tam = x; marcar(); }, "Pincel"),
       rango(10, 90, Math.round(S.opac * 100), (x) => { S.opac = x / 100; marcar(); }, "Opacidad"),
-      (bBorrar = h("button", { class: "btn peq fantasma", onclick: () => { guardarHist(); mascaras[S.canal].fill(0); repintarCapa(); } }, "Borrar paredes")),
-      h("span", { class: "tenue", style: { fontSize: "12.5px", marginLeft: "auto" } }, h("kbd", { text: "Alt" }), "+clic resta · rueda = zoom · ", h("kbd", { text: "Espacio" }), "+arrastrar = mover")));
+      (bBorrar = h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: () => { guardarHist(); mascaras[S.canal].fill(0); repintarCapa(); } }, "Borrar paredes")),
+      h("span", { class: "ayuda-teclas" }, h("kbd", { text: "Alt" }), "+clic resta · rueda = zoom · ", h("kbd", { text: "Espacio" }), "+arrastrar = mover")));
   document.body.append(editor);
-  function fijarHerr(id) { S.herr = id; for (const [k, b] of Object.entries(bHerr)) b.classList.toggle("activo", k === id); marcar(); }
+  function fijarHerr(id) { S.herr = id; for (const [k, b] of Object.entries(bHerr)) b.setAttribute("aria-pressed", String(k === id)); marcar(); }
   function fijarCanal(id) {
     S.canal = id;
-    for (const [k, b] of Object.entries(bCanal)) b.setAttribute("aria-pressed", String(k === id));
+    for (const [k, r] of Object.entries(rCanal)) r.checked = k === id;
+    window.cre8Tema?.segmentados(editor);
     if (bBorrar) bBorrar.textContent = id === "paredes" ? "Borrar paredes" : "Borrar suelo";
   }
   fijarHerr("varita"); fijarCanal("paredes");
@@ -159,10 +169,11 @@ export async function abrirEditorMascara(pid, vi = null) {
     ctx.imageSmoothingEnabled = S.esc < 2;
     ctx.drawImage(base, S.ox, S.oy, W * S.esc, H * S.esc);
     ctx.globalAlpha = S.opac; ctx.drawImage(capa, S.ox, S.oy, W * S.esc, H * S.esc); ctx.globalAlpha = 1;
-    ctx.strokeStyle = "rgba(255,255,255,.25)"; ctx.strokeRect(S.ox, S.oy, W * S.esc, H * S.esc);
+    const c = pal();
+    ctx.strokeStyle = c.marco; ctx.lineWidth = 1; ctx.strokeRect(S.ox, S.oy, W * S.esc, H * S.esc);
     if (S.raton && S.herr !== "varita") {
-      ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.beginPath();
-      ctx.arc(S.raton[0], S.raton[1], Math.max(2, (S.tam / 2) * S.esc), 0, 7); ctx.stroke();
+      const radio = Math.max(2, (S.tam / 2) * S.esc);
+      for (const [color, ancho] of [[c.halo, 3.5], [c.cursor, 1.5]]) { ctx.strokeStyle = color; ctx.lineWidth = ancho; ctx.beginPath(); ctx.arc(S.raton[0], S.raton[1], radio, 0, 7); ctx.stroke(); }
     }
   }
   (function bucle() { if (sucio) { sucio = false; dibujar(); } raf = requestAnimationFrame(bucle); })();

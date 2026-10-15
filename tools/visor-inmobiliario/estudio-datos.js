@@ -3,9 +3,9 @@
 //   con el título y la referencia automáticos y editables; el resto, plegado en «Más datos del inmueble».
 //   Contacto: sale de «Mi inmobiliaria» (o, como excepción, uno propio de este inmueble).
 //   Idiomas y traducciones: el único sitio donde se traducen los textos (E11). Solo es, en, fr y de (E2).
-import { app, h, cambiar, emitir, on, textoDe, textoExacto, IDIOMAS, tituloAuto, textosTraducibles } from "./estudio-nucleo.js";
+import { app, h, cambiar, emitir, on, textoDe, textoExacto, IDIOMAS, tituloAuto, textosTraducibles, VIDRIO } from "./estudio-nucleo.js";
 import { campoTexto, campo, campoSiNo } from "./estudio-campos.js";
-import { tarjetaContacto } from "./estudio-perfil.js";
+import { tarjetaContacto, traducirPerfil } from "./estudio-perfil.js";
 
 const LETRAS = ["A", "B", "C", "D", "E", "F", "G"]; // colores oficiales de la etiqueta energética: variables --ce-a … --ce-g
 const SUGERENCIAS = ["Exterior", "Luminoso", "Armarios empotrados", "Cocina equipada", "Suelo radiante", "Ventanas con doble acristalamiento",
@@ -34,7 +34,7 @@ function pintar() {
     plegable("idiomas", "Idiomas y traducciones", idiomas, "idiomas"));
 }
 function plegable(id, titulo, fn, campoId) {
-  const d = h("details", { class: "avanzado plegable-datos", open: abiertas.has(id), "data-campo": campoId }, h("summary", { text: titulo }), h("div", { class: "contenido" }, fn()));
+  const d = h("details", { class: `avanzado plegable-datos ${VIDRIO}`, open: abiertas.has(id), "data-campo": campoId }, h("summary", { text: titulo }), h("div", { class: "contenido" }, fn()));
   d.addEventListener("toggle", () => { if (d.open) abiertas.add(id); else abiertas.delete(id); });
   return d;
 }
@@ -56,7 +56,7 @@ function esencial() {
   const refrescar = () => { const i = raiz?.querySelector('[data-campo="titulo"] input'); if (i) i.placeholder = auto(); };
   const num = (clave, etiqueta, extra = {}) => campo(I, clave, { etiqueta, tipo: "number", min: 0, alCambiar: refrescar, ...extra });
   const ref = app.tour._estudio.ref;
-  return h("div", { class: "tarjeta tarjeta-esencial" },
+  return h("div", { class: `tarjeta ${VIDRIO} tarjeta-esencial` },
     h("div", { class: "fila-operacion" },
       segmentado("operacion", [["venta", "Venta"], ["alquiler", "Alquiler"]], alquiler ? "alquiler" : "venta",
         (v) => { cambiar(() => { I().operacion = v; }, { tipo: "datos" }); pintar(); }, "Operación"),
@@ -80,12 +80,12 @@ function esencial() {
 /** Etiqueta energética: letras de consumo y emisiones + «en trámite» (los valores, en «Más datos»). */
 function certificado() {
   const CE = ob(["inmueble", "certificado_energetico"]);
-  const cont = h("div");
+  const cont = h("div", { class: "pila" });
   const pintarCE = () => {
     const letras = (clave, etq) => {
       const g = h("div", { class: "letras-ce", role: "group", "aria-label": etq });
       const pintarL = () => g.replaceChildren(...LETRAS.map((l) => h("button", {
-        type: "button", text: l, style: { background: `var(--ce-${l.toLowerCase()})` }, "aria-pressed": String(CE()[clave] === l), "aria-label": `${etq}: letra ${l}`,
+        type: "button", text: l, "data-l": l, style: { background: `var(--ce-${l.toLowerCase()})` }, "aria-pressed": String(CE()[clave] === l), "aria-label": `${etq}: letra ${l}`,
         onclick: () => { cambiar(() => { const o = CE(); if (o[clave] === l) delete o[clave]; else { o[clave] = l; delete o.en_tramite; } }, { tipo: "datos", render: false }); pintarL(); },
       })));
       pintarL();
@@ -93,9 +93,9 @@ function certificado() {
     };
     const trami = campo(CE, "en_tramite", { etiqueta: "Certificado en trámite", tipo: "check", alCambiar: () => pintarCE() });
     cont.replaceChildren(
-      CE().en_tramite ? h("p", { class: "suave", style: { marginTop: 0 }, text: "Se mostrará «Certificado energético en trámite»." }) : h("div", { class: "rejilla" },
+      CE().en_tramite ? h("p", { class: "texto-sec", text: "Se mostrará «Certificado energético en trámite»." }) : h("div", { class: "rejilla" },
         letras("consumo_letra", "Consumo"), letras("emisiones_letra", "Emisiones")),
-      h("div", { style: { marginTop: "8px" } }, trami));
+      h("div", {}, trami));
   };
   pintarCE();
   cont.dataset.campo = "certificado";
@@ -118,7 +118,7 @@ function masDatos() {
       campo(I, "terraza", { etiqueta: "Terraza (m²)", tipo: "number", min: 0 }),
       campo(I, "superficie_parcela", { etiqueta: "Parcela (m²)", tipo: "number", min: 0 })),
     h("h2", { class: "sub", text: "Equipamiento" }),
-    h("div", { class: "rejilla" },
+    h("div", { class: "rejilla rejilla-sino" },
       campoSiNo(I, "ascensor", "Ascensor"), campoSiNo(I, "aire_acondicionado", "Aire acondicionado"), campoSiNo(I, "garaje", "Garaje"),
       campoSiNo(I, "trastero", "Trastero"), campoSiNo(I, "piscina", "Piscina"), campoSiNo(I, "jardin", "Jardín")),
     h("h2", { class: "sub", text: "Valores del certificado energético" }),
@@ -126,9 +126,9 @@ function masDatos() {
       campo(CE, "consumo_valor", { etiqueta: "Consumo (kWh/m²·año)", tipo: "number", min: 0 }),
       campo(CE, "emisiones_valor", { etiqueta: "Emisiones (kg CO₂/m²·año)", tipo: "number", min: 0 })),
     h("h2", { class: "sub", text: "Descripción y características" }),
-    campoTexto(I, "descripcion", { etiqueta: "Descripción", multilinea: true, tipo: "datos", placeholder: "Describe el inmueble: distribución, calidades, entorno…" }),
-    h("div", { style: { height: "14px" } }),
-    chips(),
+    h("div", { class: "pila" },
+      campoTexto(I, "descripcion", { etiqueta: "Descripción", multilinea: true, tipo: "datos", placeholder: "Describe el inmueble: distribución, calidades, entorno…" }),
+      chips()),
     h("h2", { class: "sub", text: "Ubicación" }),
     h("div", { class: "rejilla" },
       h("div", { class: "ancho-2" }, campo(I, "direccion", { etiqueta: "Dirección", placeholder: "Calle Mayor 12, Madrid" })),
@@ -187,20 +187,25 @@ function idiomas() {
     for (const x of textos) { if (!grupos.has(x.grupo)) grupos.set(x.grupo, []); grupos.get(x.grupo).push(x); }
     traducciones = h("div", { class: "traducciones" },
       extra.length > 1 ? segmentado("idioma-trad", extra.map((c) => [c, `${IDIOMAS[c]}${faltan(c) ? ` (${faltan(c)})` : ""}`]), idiomaTrad, (v) => { idiomaTrad = v; pintar(); }, "Idioma que traduces") : null,
-      h("p", { class: "tenue", style: { fontSize: "12.5px", margin: "10px 0" }, text: faltan(idiomaTrad)
+      h("p", { class: "texto-pie nota-trad", text: faltan(idiomaTrad)
         ? `${faltan(idiomaTrad)} ${faltan(idiomaTrad) === 1 ? "texto sin traducir" : "textos sin traducir"} al ${IDIOMAS[idiomaTrad].toLowerCase()}: si falta la traducción, el visor muestra el español.`
         : `Todo traducido al ${IDIOMAS[idiomaTrad].toLowerCase()}.` }),
       textos.length ? [...grupos].map(([grupo, xs]) => h("div", { class: "grupo-trad" }, h("h3", { class: "c8-mayus", text: grupo }),
-        xs.map((x) => h("div", { class: "fila-trad" },
-          h("div", { class: "original" }, h("small", { class: "tenue", text: x.etiqueta }), h("span", { text: textoExacto(x.obj()?.[x.clave]) })),
-          campoTexto(x.obj, x.clave, { etiqueta: `${x.etiqueta} (${IDIOMAS[idiomaTrad]})`, compacto: true, multilinea: x.largo, idioma: idiomaTrad, tipo: "datos" })))))
+        xs.map((x) => {
+          const idioma = idiomaTrad;
+          const c = campoTexto(x.obj, x.clave, { etiqueta: `${x.etiqueta} (${IDIOMAS[idioma]})`, compacto: true, multilinea: x.largo, idioma, tipo: "datos" });
+          // Textos de Mi inmobiliaria (pie legal, privacidad): la traducción vale también para los próximos recorridos.
+          if (x.perfil) c.input.addEventListener("change", () => traducirPerfil(x.perfil, x.clave, idioma, c.input.value));
+          return h("div", { class: "fila-trad" },
+            h("div", { class: "original" }, h("small", { class: "tenue", text: x.etiqueta }), h("span", { text: textoExacto(x.obj()?.[x.clave]) })), c);
+        })))
         : h("p", { class: "tenue", text: "Aún no hay textos que traducir." }));
   }
-  return h("div", {},
+  return h("div", { class: "pila" },
     h("div", { class: "campo" }, h("span", { text: "Idiomas del visor" }), marcas),
-    extra.length ? h("div", { class: "rejilla", style: { marginTop: "12px" } },
+    extra.length ? h("div", { class: "rejilla" },
       campo(() => app.tour, "idioma", { etiqueta: "Idioma con el que se abre", tipo: "select", opciones: activos.map((c) => [c, IDIOMAS[c] ?? c]) })) : null,
-    h("p", { class: "tenue", style: { fontSize: "12.5px" }, text: extra.length ? "El título se traduce solo si es el automático. El resto de textos, aquí:" : "Activa otro idioma para traducir el título, la descripción, los nombres de las estancias y las notas." }),
+    h("p", { class: "texto-pie", text: extra.length ? "El título se traduce solo si es el automático. El resto de textos, aquí:" : "Activa otro idioma para traducir el título, la descripción, los nombres de las estancias y las notas." }),
     traducciones);
 }
 
