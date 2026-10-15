@@ -3,10 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d0f12">
+  <meta name="theme-color" content="#0a0b0d">
   <title>cre8eight · Recorrido 3D</title>
   <meta name="generator" content="cre8eight">
   <meta name="description" content="Recorrido virtual 360, paseo libre en 3D y maqueta interactiva del inmueble.">
+  <script src="tema.js"></script>
+  <link rel="stylesheet" href="tema.css">
   <link rel="stylesheet" href="visor.css">
   <link rel="stylesheet" href="paneles.css">
   <script type="importmap">
@@ -24,66 +26,55 @@
     <canvas id="lienzo" tabindex="0" role="application" aria-roledescription="visor 3D" aria-label="Recorrido virtual"></canvas>
     <div id="etiquetas"></div>
 
-    <header id="barra">
-      <img id="logo" alt="" hidden>
-      <div class="titulos">
-        <h1 id="titulo">Recorrido virtual</h1>
-        <p id="estancia" aria-live="polite"></p>
-      </div>
-    </header>
-    <nav id="modos" aria-label="Modo de visita">
-      <button type="button" data-modo="tour" aria-pressed="true">Recorrido 360</button>
-      <button type="button" data-modo="libre" aria-pressed="false">Modo libre 3D</button>
-      <button type="button" data-modo="maqueta" aria-pressed="false">Maqueta 3D</button>
-    </nav>
-
-    <div id="iconos">
-      <button id="btn-giro" type="button" class="icono" aria-label="Giroscopio" aria-pressed="false" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M3 9a10 10 0 0 0 0 6M21 9a10 10 0 0 1 0 6"/></svg>
+    <!-- Lugar (arriba a la izquierda): título y estancia; abre «Estancias y plano». Debajo, el radar. -->
+    <div id="esquina">
+      <button id="lugar" type="button" class="c8-vidrio c8-vidrio--texto" aria-haspopup="dialog" aria-controls="estancias-plano">
+        <img id="logo" alt="" hidden>
+        <span class="titulos"><span id="titulo">Recorrido virtual</span><span id="estancia"></span></span>
+        <svg class="c8-icono chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
       </button>
-      <button id="btn-radar" type="button" class="icono" aria-label="Mostrar u ocultar el mapa" aria-pressed="true">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
-      </button>
-      <div class="sonido" id="sonido" hidden>
-        <button id="btn-sonido" type="button" class="icono" aria-label="Silenciar música" aria-pressed="false">
-          <svg viewBox="0 0 24 24" aria-hidden="true" class="ic-sonido">
-            <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/>
-            <path class="onda o1" d="M15.5 9.2a4 4 0 0 1 0 5.6"/>
-            <path class="onda o2" d="M18.2 6.8a7.5 7.5 0 0 1 0 10.4"/>
-            <path class="tachado" d="M16 9l5 6M21 9l-5 6"/>
-          </svg>
+      <div id="radar" hidden>
+        <div class="disco c8-vidrio"><canvas id="mapa" aria-hidden="true"></canvas></div>
+        <button id="btn-ampliar" type="button" class="c8-boton c8-boton--icono c8-boton--s c8-vidrio" aria-haspopup="dialog" aria-controls="estancias-plano" aria-label="Estancias y plano">
+          <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>
         </button>
-        <div class="volumen" role="group" aria-label="Volumen">
-          <input id="vol-musica" type="range" min="0" max="100" step="1" aria-label="Volumen de la música">
-        </div>
       </div>
-      <button id="btn-ayuda" type="button" class="icono" aria-label="Controles">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 1 1 3.6 2.4c-.7.3-1.1.9-1.1 1.6v.6"/><circle cx="12" cy="17" r=".6"/></svg>
+    </div>
+    <p id="anuncio" class="c8-visualmente-oculto" aria-live="polite"></p>
+
+    <div id="modos" class="c8-segmentado c8-vidrio" role="radiogroup" aria-label="Modo de visita" hidden></div>
+
+    <!-- Barra de vista (arriba a la derecha): Radar · Modo juego · Música · Ayuda · Pantalla completa · Más -->
+    <div id="barra-vista" class="c8-pastilla c8-vidrio" role="toolbar" aria-label="Vista">
+      <button id="btn-radar" type="button" class="c8-boton c8-boton--icono" aria-label="Radar" aria-pressed="false">
+        <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 18.5 5.5"/></svg>
       </button>
-      <button id="btn-pantalla" type="button" class="icono" aria-label="Pantalla completa">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      <button id="btn-juego" type="button" class="c8-boton c8-boton--icono" aria-label="Modo juego" aria-pressed="false" hidden>
+        <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 7.5h10.8a4 4 0 0 1 3.9 4.8l-.9 4.3a2 2 0 0 1-3.5.9L15.4 16H8.6l-1.5 1.5a2 2 0 0 1-3.5-.9l-.9-4.3a4 4 0 0 1 3.9-4.8z"/><path d="M8 10.3v3.4M6.3 12h3.4M15.4 11h.01M17.4 13h.01"/></svg>
+      </button>
+      <button id="btn-sonido" type="button" class="c8-boton c8-boton--icono" aria-label="Música" aria-pressed="true" hidden>
+        <svg class="c8-icono ic-sonido" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3l4.5-4v13L7 14.5H4z"/><path class="onda o1" d="M15 9.5a3.5 3.5 0 0 1 0 5"/><path class="onda o2" d="M17.5 7a7 7 0 0 1 0 10"/><path class="tachado" d="M16 9l5 6M21 9l-5 6"/></svg>
+      </button>
+      <button id="btn-ayuda" type="button" class="c8-boton c8-boton--icono" aria-label="Ayuda y controles" aria-haspopup="dialog" aria-controls="ayuda">
+        <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17h.01"/></svg>
+      </button>
+      <button id="btn-pantalla" type="button" class="c8-boton c8-boton--icono" aria-label="Pantalla completa" aria-pressed="false" hidden>
+        <svg class="c8-icono ic-pantalla" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9"/><path d="M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9"/><path d="M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15"/><path d="M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/></svg>
+      </button>
+      <button id="btn-mas" type="button" class="c8-boton c8-boton--icono" aria-label="Más" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-mas" hidden>
+        <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>
       </button>
     </div>
+    <div id="menu-mas" class="c8-vidrio c8-vidrio--denso" role="menu" aria-labelledby="btn-mas" hidden></div>
 
-    <aside id="minimapa" aria-label="Plano">
-      <div id="plantas" role="group" aria-label="Plantas" hidden></div>
-      <canvas id="mapa" aria-hidden="true"></canvas>
-      <button id="btn-vista-mapa" type="button" class="mini mini-izq" aria-label="Cambiar entre radar y plano completo">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l3 7h-6zM5 21h14M12 10v11"/></svg>
-      </button>
-      <button id="btn-mapa" type="button" class="mini" aria-label="Ampliar plano" aria-expanded="false">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>
-      </button>
-    </aside>
-
-    <nav id="galeria" aria-label="Estancias"></nav>
+    <nav id="galeria" class="c8-vidrio" aria-label="Estancias"></nav>
 
     <div id="subtitulo" aria-live="polite" hidden></div>
-    <div id="guion-barra" role="group" aria-label="Visita guiada" hidden>
-      <button type="button" class="pausa" aria-label="Pausa">❚❚</button>
-      <span class="n"></span>
+    <div id="guion-barra" class="c8-pastilla c8-vidrio" role="group" aria-label="Visita guiada" hidden>
+      <button type="button" class="c8-boton c8-boton--icono c8-boton--s pausa" aria-label="Pausar visita guiada">❚❚</button>
+      <span class="n c8-num"></span>
       <div class="progreso" aria-hidden="true"><div></div></div>
-      <button type="button" class="parar" aria-label="Detener visita">✕</button>
+      <button type="button" class="c8-boton c8-boton--icono c8-boton--s parar" aria-label="Detener visita">✕</button>
     </div>
     <div id="rotulo" aria-hidden="true"><b></b><span></span></div>
     <div id="cortinilla" data-antes="Antes" data-despues="Después" hidden>
@@ -92,7 +83,10 @@
       </button>
     </div>
     <div id="joystick" aria-hidden="true"><div id="joystick-pomo"></div></div>
-    <div id="pista" role="status" hidden></div>
+    <div id="pista" class="c8-vidrio c8-vidrio--texto" role="status" hidden></div>
+    <button id="tarjeta-juego" type="button" class="c8-vidrio c8-vidrio--texto" hidden></button>
+    <div id="aviso-juego" class="c8-vidrio c8-vidrio--texto" role="status" hidden></div>
+    <div id="mira-juego" aria-hidden="true"></div>
 
     <div id="ficha" role="dialog" aria-modal="false" aria-labelledby="ficha-titulo" hidden>
       <button type="button" class="cerrar" aria-label="Cerrar">×</button>
@@ -101,17 +95,58 @@
       <div class="media"></div>
     </div>
 
-    <div id="ayuda" role="dialog" aria-modal="false" aria-labelledby="ayuda-titulo" hidden>
-      <button type="button" class="cerrar" aria-label="Cerrar">×</button>
-      <h2 id="ayuda-titulo">Controles</h2>
-      <div class="cols"></div>
-    </div>
+    <dialog id="ayuda" class="c8-dialogo c8-vidrio c8-vidrio--denso" aria-labelledby="ayuda-titulo">
+      <div class="dlg-cabecera">
+        <h2 id="ayuda-titulo" class="c8-panel-titulo">Ayuda y controles</h2>
+        <button type="button" class="c8-boton c8-boton--icono c8-boton--fantasma cerrar-dlg" aria-label="Cerrar">
+          <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="secciones"></div>
+    </dialog>
 
-    <div id="sello-ia" role="note" hidden></div>
-    <div id="mira-juego" aria-hidden="true"></div>
-    <div id="portada" aria-hidden="true"><div class="marca-cre8">cre8<span>eight</span></div><div class="barra"><div></div></div></div>
+    <dialog id="estancias-plano" class="c8-dialogo c8-vidrio c8-vidrio--denso" aria-labelledby="ep-titulo">
+      <div class="dlg-cabecera">
+        <h2 id="ep-titulo" class="c8-panel-titulo">Estancias y plano</h2>
+        <button type="button" class="c8-boton c8-boton--icono c8-boton--fantasma cerrar-dlg" aria-label="Cerrar">
+          <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="ep-cuerpo">
+        <div class="ep-plano" hidden>
+          <div class="ep-plantas c8-pastilla" role="group" aria-label="Plantas" hidden></div>
+          <canvas id="plano-grande" aria-hidden="true"></canvas>
+        </div>
+        <div class="ep-lista">
+          <button type="button" class="c8-boton c8-boton--secundario ep-guiada" hidden>
+            <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>Visita guiada</span>
+          </button>
+          <div class="ep-grupos"></div>
+        </div>
+      </div>
+    </dialog>
+
+    <div id="sello-ia" class="c8-etiqueta c8-vidrio" role="note" hidden></div>
+    <div id="portada" role="dialog" aria-modal="true" aria-label="Cargando el recorrido…" aria-busy="true">
+      <canvas class="fondo" aria-hidden="true"></canvas>
+      <div class="contenido">
+        <div class="marca" hidden><img alt="" hidden><span class="nombre"></span></div>
+        <h1 class="titulo" id="portada-titulo"></h1>
+        <p class="precio c8-num" hidden></p>
+        <p class="datos c8-num" hidden></p>
+        <div class="progreso" role="progressbar" aria-label="Cargando el recorrido…" aria-valuemin="0" aria-valuemax="100" aria-valuenow="5"><div></div></div>
+        <div class="acciones" hidden>
+          <button type="button" class="c8-boton c8-boton--primario empezar">Empezar visita</button>
+          <button type="button" class="c8-boton c8-boton--secundario guiada" hidden>
+            <svg class="c8-icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>Visita guiada</span>
+          </button>
+        </div>
+        <div class="idiomas" role="group" aria-label="Idioma" hidden></div>
+      </div>
+      <p class="credito">Creado con <b>cre8eight</b></p>
+    </div>
     <div id="carga" hidden><div class="barra"><div></div></div></div>
-    <div id="aviso" role="status" hidden></div>
+    <div id="aviso" class="c8-aviso c8-vidrio c8-vidrio--texto" role="status" hidden></div>
     <div id="paneles"></div>
     <noscript><p class="sin-js">Este recorrido necesita JavaScript.</p></noscript>
   </div>

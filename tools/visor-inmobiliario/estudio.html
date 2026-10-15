@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>cre8eight Estudio</title>
-  <meta name="description" content="Crea recorridos virtuales 360 para inmuebles sin tocar código: fotos, plano, enlaces, estilos y exportación.">
+  <meta name="description" content="Crea recorridos virtuales 360 para inmuebles sin tocar código: fotos, plano, datos y publicación.">
+  <script src="tema.js"></script>
+  <link rel="stylesheet" href="tema.css">
   <link rel="stylesheet" href="estudio.css">
   <script type="importmap">
     {
@@ -18,21 +20,23 @@
 <body class="seccion-fotos">
   <header id="barra-sup">
     <div class="marca-estudio" aria-label="cre8eight Estudio">
-      <span class="logo-e">c8</span>
+      <span class="logo-e" aria-hidden="true">c8</span>
       <span class="nombre-app">cre8<span class="acento-marca">eight</span> <em>Estudio</em></span>
     </div>
-    <button id="nombre-proyecto" class="nombre-proyecto" title="Proyectos guardados (Ctrl+O)">Proyecto sin título</button>
+    <button id="btn-proyecto" class="nombre-proyecto" type="button" aria-haspopup="menu" aria-expanded="false" title="Proyecto: mis proyectos, nuevo, copia de seguridad (Ctrl+O: mis proyectos)">
+      <span class="pre">Proyecto:</span> <span id="nombre-proyecto">Proyecto sin título</span>
+    </button>
     <span id="estado-guardado" class="estado-guardado" role="status" aria-live="polite"></span>
     <div class="relleno"></div>
     <div class="grupo-botones">
-      <button id="btn-deshacer" class="btn icono-btn" title="Deshacer (Ctrl+Z)" aria-label="Deshacer"></button>
-      <button id="btn-rehacer" class="btn icono-btn" title="Rehacer (Ctrl+Shift+Z)" aria-label="Rehacer"></button>
+      <button id="btn-deshacer" class="c8-boton c8-boton--fantasma c8-boton--icono" type="button" title="Deshacer (Ctrl+Z)" aria-label="Deshacer"></button>
+      <button id="btn-rehacer" class="c8-boton c8-boton--fantasma c8-boton--icono" type="button" title="Rehacer (Ctrl+Shift+Z)" aria-label="Rehacer"></button>
     </div>
-    <a id="btn-guia" class="btn" href="asistente-osmo.html" target="_blank" rel="noopener" title="Guía paso a paso para hacer las fotos con la DJI Osmo 360"><span>Guía Osmo 360</span></a>
-    <button id="btn-atajos" class="btn icono-btn" title="Atajos de teclado (?)" aria-label="Atajos de teclado"></button>
-    <button id="btn-vista" class="btn" aria-pressed="false" aria-controls="vista" title="Mostrar u ocultar la vista previa"></button>
-    <button id="btn-abrir" class="btn" title="Abrir proyecto, ZIP o carpeta (Ctrl+O)"></button>
-    <button id="btn-exportar" class="btn primario" title="Publicar y descargar (Ctrl+E)"></button>
+    <button id="btn-vista" class="c8-boton c8-boton--fantasma" type="button" aria-pressed="false" aria-controls="vista" title="Mostrar u ocultar la vista previa"><span class="texto">Vista previa</span></button>
+    <a id="btn-guia" class="c8-boton c8-boton--fantasma" href="asistente-osmo.html" target="_blank" rel="noopener" title="Guía Osmo 360: cómo hacer las fotos con la DJI Osmo 360"><span class="largo">Guía Osmo 360</span><span class="corto">Guía</span></a>
+    <button id="btn-ayuda" class="c8-boton c8-boton--fantasma c8-boton--icono" type="button" title="Ayuda y atajos (?)" aria-label="Ayuda y atajos"></button>
+    <button id="btn-perfil" class="c8-boton c8-boton--secundario" type="button" aria-label="Mi inmobiliaria"><span class="texto">Mi inmobiliaria</span></button>
+    <button id="btn-publicar" class="c8-boton c8-boton--secundario" type="button" title="Publicar (Ctrl+E)"><span class="texto">Publicar</span></button>
   </header>
 
   <nav id="pasos" aria-label="Pasos del recorrido"></nav>
@@ -42,14 +46,23 @@
   <aside id="vista" aria-label="Vista previa del recorrido">
     <div class="vista-cab">
       <span class="vista-titulo">Vista previa</span>
+      <div id="vista-dispositivo" class="c8-segmentado" role="radiogroup" aria-label="Ver la vista previa como en">
+        <label title="Como la verá un cliente en el móvil"><input type="radio" name="vista-dispositivo" value="movil"><span>Móvil</span></label>
+        <label title="Como la verá un cliente en el ordenador"><input type="radio" name="vista-dispositivo" value="ordenador" checked><span>Ordenador</span></label>
+      </div>
       <select id="vista-nodo" aria-label="Estancia en la vista previa"></select>
-      <button id="vista-recargar" class="btn icono-btn" title="Recargar vista previa" aria-label="Recargar vista previa"></button>
-      <button id="vista-plegar" class="btn icono-btn" title="Ampliar / reducir vista previa" aria-label="Ampliar vista previa"></button>
+      <button id="vista-plegar" class="btn icono-btn" type="button" title="Ampliar / reducir vista previa" aria-label="Ampliar vista previa"></button>
     </div>
     <div class="vista-marco">
       <iframe id="iframe-visor" src="index.html?embed&estudio" title="Vista previa del visor" allow="fullscreen; gyroscope; accelerometer"></iframe>
       <div id="vista-vacia" class="vista-vacia">
         <p>Añade fotos 360 para ver aquí el recorrido tal y como lo verán tus clientes.</p>
+      </div>
+      <div id="vista-error" class="vista-vacia" role="alert" hidden>
+        <div>
+          <p>La vista previa no responde.</p>
+          <button id="vista-reintentar" class="c8-boton c8-boton--secundario c8-boton--s" type="button">Recargar la vista previa</button>
+        </div>
       </div>
       <div id="vista-modo" class="vista-modo" hidden></div>
     </div>

@@ -1,7 +1,8 @@
-// Dirección y notas: giro (yaw) de cada foto con asistente de alineación, vista inicial y notas (puntos de información).
+// Orientación y notas: giro (yaw) de cada foto con «Alinear con una puerta», vista inicial y notas (puntos de información).
+// Alinear funciona también sin plano (E7): usa la posición que tendrá cada foto en el recorrido publicado (en fila).
 import { redondear, norm180, norm360, rumboDe } from "./estudio-util.js";
 import { app, h, icono, cambiar, emitir, on, toast, confirmar, guardarArchivo, urlDe, rutaLibre, elegirArchivos,
-  textoDe, colocado, pano, calcularEnlaces } from "./estudio-nucleo.js";
+  textoDe, pano, calcularEnlaces, posiciones } from "./estudio-nucleo.js";
 import { campoTexto, campo } from "./estudio-campos.js";
 
 const S = { objetivo: null, modoPunto: false, abierto: null };
@@ -31,15 +32,17 @@ function yawLocalVista() {
 export function alinear() {
   const p = actual(), x = pano(S.objetivo);
   if (!p || !x) return toast("Elige primero hacia qué estancia estás mirando", "aviso");
-  if (!colocado(p) || !colocado(x)) return toast("Las dos fotos deben estar colocadas en el plano", "aviso");
   const yl = yawLocalVista();
   if (yl == null) return toast("La vista previa se está cargando. Espera un segundo y pulsa Alinear otra vez.", "info", 4000);
-  const esperado = rumboDe(x.x - p.x, x.z - p.z);
+  // Posiciones del recorrido publicado: las del plano o, sin plano, la fila en el orden de la lista.
+  const pos = posiciones();
+  const [px, pz] = pos.get(p.id), [xx, xz] = pos.get(x.id);
+  const esperado = rumboDe(xx - px, xz - pz);
   // yaw = rumboEsperadoHaciaX − (rumboVistaActual − yawActual) = rumboEsperado − yawLocal
   fijarYaw(esperado - yl);
   const inf = raiz?.querySelector("#info-alinear");
-  if (inf) inf.textContent = `Hecho: la flecha hacia ${nombreDe(x)} ya coincide con el plano.`;
-  toast(`Dirección ajustada: la flecha hacia ${nombreDe(x)} coincide con el plano.`, "ok", 3500);
+  if (inf) inf.textContent = `Hecho: la flecha hacia ${nombreDe(x)} ya coincide con la puerta.`;
+  toast(`Orientación ajustada: la flecha hacia ${nombreDe(x)} coincide con la puerta.`, "ok", 3500);
 }
 function usarVistaInicial() {
   const p = actual(), v = app.vista;
@@ -57,7 +60,7 @@ function alternarModoPunto(forzar) {
   raiz?.querySelector("#btn-punto")?.classList.toggle("activo", S.modoPunto);
 }
 on("clic", (d) => {
-  if (!S.modoPunto || app.seccion !== "orientar") return;
+  if (!S.modoPunto || app.seccion !== "orientacion") return;
   const p = pano(d.nodo) ?? actual();
   if (!p) return;
   let yaw = d.yawLocal, pitch = d.pitchLocal;
@@ -81,29 +84,28 @@ function pintar() {
   if (!raiz) return;
   const t = app.tour, p = actual();
   if (!p) {
-    raiz.replaceChildren(h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Dirección y notas" }))),
+    raiz.replaceChildren(h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Orientación y notas" }))),
       h("div", { class: "vacio-grande" }, icono("orientar", 40), h("h3", { text: "Primero añade fotos" }), h("p", { text: "Cuando tengas fotos podrás ajustar hacia dónde mira cada una y añadir notas sobre la vista previa." }),
         h("button", { class: "btn primario", onclick: () => emitir("ir", { seccion: "fotos" }) }, "Ir a Fotos 360")));
     return;
   }
   const i = t.panoramas.indexOf(p);
   const { vecinos } = calcularEnlaces();
-  const cand = (vecinos.get(p.id) ?? []).map(pano).filter((x) => x && colocado(x));
+  const cand = (vecinos.get(p.id) ?? []).map(pano).filter(Boolean);
   if (!cand.some((x) => x.id === S.objetivo)) S.objetivo = cand[0]?.id ?? null;
   const objetivo = pano(S.objetivo);
 
   const nav = h("div", { class: "tarjeta nodo-actual" },
     h("button", { class: "btn icono-btn", title: "Anterior (B)", "aria-label": "Estancia anterior", onclick: () => saltar(-1) }, h("span", { text: "‹", style: { fontSize: "20px" } })),
     h("img", { src: urlDe(p.miniatura), alt: "" }),
-    h("div", { style: { flex: 1, minWidth: 0 } }, h("div", { class: "tenue", text: `Estancia ${i + 1} de ${t.panoramas.length}` }), h("b", { text: nombreDe(p), style: { fontSize: "16px" } }),
-      !colocado(p) ? h("div", {}, h("span", { class: "chip aviso", text: "Sin colocar en el plano" })) : null),
+    h("div", { style: { flex: 1, minWidth: 0 } }, h("div", { class: "tenue", text: `Estancia ${i + 1} de ${t.panoramas.length}` }), h("b", { text: nombreDe(p), style: { fontSize: "16px" } })),
     h("button", { class: "btn icono-btn", title: "Siguiente (N)", "aria-label": "Estancia siguiente", onclick: () => saltar(1) }, h("span", { text: "›", style: { fontSize: "20px" } })));
 
-  const slider = h("input", { type: "range", min: -180, max: 180, step: 1, value: p.yaw ?? 0, "aria-label": "Giro de la foto", "aria-valuetext": `${Math.round(p.yaw ?? 0)} grados`, id: "yaw-slider" });
+  const slider = h("input", { type: "range", min: -180, max: 180, step: 1, value: p.yaw ?? 0, "aria-label": "Girar la foto", "aria-valuetext": `${Math.round(p.yaw ?? 0)} grados`, id: "yaw-slider" });
   slider.oninput = () => fijarYaw(Number(slider.value));
   const orient = h("div", { class: "tarjeta" },
-    h("h2", { class: "sub", style: { marginTop: 0 }, text: "Giro de la foto" }),
-    h("p", { class: "suave", style: { marginTop: 0 }, text: "La foto tiene que «mirar» igual que el plano para que las flechas del suelo y el minimapa coincidan con las puertas reales. Lo más fácil es el asistente de abajo." }),
+    h("h2", { class: "sub", style: { marginTop: 0 }, text: "Girar la foto" }),
+    h("p", { class: "suave", style: { marginTop: 0 }, text: "Las flechas del suelo (y el radar) tienen que coincidir con las puertas reales. Lo más fácil es «Alinear con una puerta», abajo; si no, gira la foto a mano." }),
     h("div", { class: "yaw-ctl" },
       h("button", { class: "btn", onclick: () => girar(-10), title: "Shift + [" }, "−10°"),
       h("button", { class: "btn", onclick: () => girar(-1), title: "[" }, "−1°"),
@@ -111,20 +113,20 @@ function pintar() {
       h("button", { class: "btn", onclick: () => girar(1), title: "]" }, "+1°"),
       h("button", { class: "btn", onclick: () => girar(10), title: "Shift + ]" }, "+10°")),
     h("div", { style: { marginTop: "10px" } }, slider),
-    h("div", { class: "tenue", style: { fontSize: "12.5px", marginTop: "4px" } }, "Giro de la foto: 1° con ", h("kbd", { text: "[" }), h("kbd", { text: "]" }), ", 10° con ", h("kbd", { text: "Shift" }), "."));
+    h("div", { class: "tenue", style: { fontSize: "12.5px", marginTop: "4px" } }, "Con el teclado: 1° con ", h("kbd", { text: "[" }), h("kbd", { text: "]" }), ", 10° con ", h("kbd", { text: "Shift" }), "."));
 
   const sel = h("select", { "aria-label": "Estancia hacia la que miras", disabled: !cand.length },
     ...(cand.length ? cand.map((x) => h("option", { value: x.id, text: nombreDe(x), selected: x.id === S.objetivo })) : [h("option", { text: "No hay estancias conectadas" })]));
   sel.onchange = () => { S.objetivo = sel.value; dibujarMini(); actualizarAlinear(); };
   const asistente = h("div", { class: "tarjeta" },
-    h("h2", { class: "sub", style: { marginTop: 0 }, text: "Asistente de alineación" }),
+    h("h2", { class: "sub", style: { marginTop: 0 }, text: "Alinear con una puerta" }),
     h("ol", { class: "pasos-asistente" },
       h("li", {}, h("div", { class: "campo" }, h("span", { text: "¿Hacia qué estancia vas a mirar?" }), sel)),
       h("li", {}, h("div", {}, "En la vista previa, gira la cámara hasta que la ", h("b", { text: `puerta o el paso hacia ${objetivo ? nombreDe(objetivo) : "esa estancia"}` }), " quede justo en el centro.")),
       h("li", {}, h("div", { class: "fila" },
         h("button", { class: "btn primario", id: "btn-alinear", onclick: alinear }, icono("orientar", 16), "Alinear", app.atajos ? h("kbd", { text: "A" }) : null),
         h("span", { class: "tenue", style: { fontSize: "12.5px" }, id: "info-alinear", role: "status" })))),
-    h("canvas", { id: "mini-orientar", width: 520, height: 220, style: { width: "100%", height: "auto", marginTop: "12px", borderRadius: "8px", background: "var(--campo)", display: colocado(p) ? "block" : "none" } }));
+    h("canvas", { id: "mini-orientar", width: 520, height: 220, style: { width: "100%", height: "auto", marginTop: "12px", borderRadius: "8px", background: "var(--campo)", display: cand.length ? "block" : "none" } }));
 
   const inicial = h("div", { class: "tarjeta" },
     h("h2", { class: "sub", style: { marginTop: 0 }, text: "Vista inicial" }),
@@ -141,7 +143,7 @@ function pintar() {
       h("p", { class: "suave", style: { margin: 0 }, text: "Destaca lo que vende: ventanales, calidades, electrodomésticos, vistas… Pulsa «Añadir nota» y toca ese lugar en la vista previa." }));
 
   raiz.replaceChildren(
-    h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Dirección y notas" }), h("p", { text: "Ajusta hacia dónde mira cada foto y añade notas sobre la vista previa." }))),
+    h("div", { class: "cab-seccion" }, h("div", {}, h("h1", { text: "Orientación y notas" }), h("p", { text: "Que las flechas del suelo coincidan con las puertas, la vista con la que se entra en cada estancia y notas sobre lo que vende." }))),
     nav, orient, asistente, inicial, puntos);
   actualizarAlinear();
   dibujarMini();
@@ -154,11 +156,10 @@ function actualizarAlinear() {
   const p = actual(), x = pano(S.objetivo);
   const lista = yawLocalVista() != null;
   let msg = "";
-  if (!x) msg = "Conecta esta foto con otra en el plano para poder alinearla.";
-  else if (!colocado(p) || !colocado(x)) msg = "Coloca las dos fotos en el plano para poder alinearlas.";
+  if (!x) msg = "Esta foto no está conectada con ninguna otra.";
   else if (!lista) msg = "La vista previa se está cargando. Espera un segundo y pulsa Alinear otra vez.";
   else msg = `Cuando la puerta hacia ${nombreDe(x)} esté en el centro, pulsa Alinear.`;
-  const activo = !!x && colocado(p) && colocado(x) && lista;
+  const activo = !!x && lista;
   b.disabled = !activo;
   if (inf.textContent !== msg && !inf.textContent.startsWith("Hecho:")) inf.textContent = msg;
 }
@@ -171,19 +172,21 @@ function pintarYaw() {
 function dibujarMini() {
   const c = raiz?.querySelector("#mini-orientar");
   const p = actual();
-  if (!c || !p || !colocado(p)) return;
+  if (!c || !p) return;
   const g = c.getContext("2d");
   const W = c.width, H = c.height;
   g.clearRect(0, 0, W, H);
   const { vecinos } = calcularEnlaces();
-  const vs = (vecinos.get(p.id) ?? []).map(pano).filter((x) => x && colocado(x));
-  const R = Math.max(2, ...vs.map((x) => Math.hypot(x.x - p.x, x.z - p.z)));
+  const pos = posiciones();
+  const [px, pz] = pos.get(p.id);
+  const vs = (vecinos.get(p.id) ?? []).map(pano).filter(Boolean);
+  const R = Math.max(2, ...vs.map((x) => Math.hypot(pos.get(x.id)[0] - px, pos.get(x.id)[1] - pz)));
   const esc = (Math.min(W, H) / 2 - 34) / R;
   const cx = W / 2, cy = H / 2;
-  const P = (x, z) => [cx + (x - p.x) * esc, cy + (z - p.z) * esc];
+  const P = (x, z) => [cx + (x - px) * esc, cy + (z - pz) * esc];
   g.font = "600 13px system-ui"; g.textAlign = "center"; g.textBaseline = "middle";
   for (const v of vs) {
-    const [x, y] = P(v.x, v.z);
+    const [x, y] = P(...pos.get(v.id));
     const obj = v.id === S.objetivo;
     g.strokeStyle = obj ? "#ffb547" : "rgba(255,255,255,.25)"; g.lineWidth = obj ? 2.5 : 1.5; g.setLineDash(obj ? [] : [5, 4]);
     g.beginPath(); g.moveTo(cx, cy); g.lineTo(x, y); g.stroke(); g.setLineDash([]);
@@ -247,15 +250,14 @@ function fichaPunto(id, j) {
   return det;
 }
 
+/** Pie de la vista previa: solo «Nota aquí» (el giro está en su tarjeta, E10). */
 function pintarPie() {
   const pie = document.getElementById("vista-pie");
-  if (!pie || app.seccion !== "orientar") return;
+  if (!pie || app.seccion !== "orientacion") return;
   const p = actual();
   if (!p) { pie.replaceChildren(); return; }
   pie.replaceChildren(
-    h("span", {}, "Giro de la foto: ", h("b", { text: `${Math.round(p.yaw ?? 0)}°`, style: { color: "var(--texto)" } })),
-    h("button", { class: "btn peq", onclick: () => girar(-10) }, "−10°"), h("button", { class: "btn peq", onclick: () => girar(-1) }, "−1°"),
-    h("button", { class: "btn peq", onclick: () => girar(1) }, "+1°"), h("button", { class: "btn peq", onclick: () => girar(10) }, "+10°"),
+    h("span", {}, `${nombreDe(p)} · girada `, h("b", { text: `${Math.round(p.yaw ?? 0)}°`, style: { color: "var(--texto)" } })),
     h("div", { style: { flex: 1 } }),
     h("button", { class: `btn peq ${S.modoPunto ? "activo" : ""}`, onclick: () => alternarModoPunto() }, icono("info", 14), S.modoPunto ? "Cancelar nota" : "Nota aquí"));
 }
@@ -268,12 +270,11 @@ function saltar(d) {
 }
 
 export const seccionOrientar = {
-  id: "orientar", titulo: "Dirección y notas", corto: "Dirección",
+  id: "orientacion", titulo: "Orientación y notas", corto: "Orientación", icono: "orientar",
   resumen: () => {
     const ps = app.tour.panoramas;
     const n = ps.reduce((s, p) => s + (p.puntos?.length ?? 0), 0);
-    const orientadas = ps.filter((p) => { const m = app.tour._estudio.meta[p.imagen]; return (p.yaw ?? 0) !== 0 && !(m?.brujula != null && !m.brujulaRevisada); }).length;
-    return { texto: ps.length ? `${orientadas}/${ps.length} orientadas · ${n} notas` : "Dirección y notas", hecho: ps.length > 1 && orientadas >= ps.length - 1 };
+    return { texto: n ? `${n} ${n === 1 ? "nota" : "notas"}` : "Flechas y notas" };
   },
   render,
   actualizar: () => { if (!raiz?.contains(document.activeElement) || document.activeElement?.type === "range" || document.activeElement?.tagName === "BUTTON") pintar(); else pintarYaw(); },

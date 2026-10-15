@@ -1,9 +1,10 @@
-// Proyectos: nuevo, abrir (IndexedDB), importar ZIP / carpeta, soltar archivos.
+// Proyectos: nuevo, abrir (IndexedDB), importar ZIP / carpeta, soltar archivos y migración de proyectos antiguos.
 import { db } from "./estudio-db.js";
 import { leerZip, tipoMime } from "./estudio-util.js";
-import { app, emitir, h, icono, toast, dialogo, confirmar, tourNuevo, importarEnlaces, reiniciarHistorial, limpiarUrls,
-  guardarAhora, guardarArchivo, elegirArchivos, rutasUsadas, textoDe, reiniciarGuardado, archivosSinGuardar } from "./estudio-nucleo.js";
+import { app, emitir, h, icono, toast, dialogo, confirmar, tourNuevo, importarEnlaces, reiniciarHistorial, limpiarUrls, cargando,
+  guardarAhora, guardarArchivo, rutasUsadas, textoDe, reiniciarGuardado, archivosSinGuardar, IDIOMAS, referenciaNueva, cerrarDialogo } from "./estudio-nucleo.js";
 import { anadirFotos, generarDerivadosFaltantes } from "./estudio-fotos.js";
+import { sincronizarAlAbrir, tieneDatosPropios } from "./estudio-perfil.js";
 
 const nuevoId = () => (crypto.randomUUID?.() ?? Date.now().toString(36) + Math.random().toString(36).slice(2));
 const recordar = (id) => { try { localStorage.setItem("estudio:ultimo", id); } catch {} };
@@ -16,10 +17,14 @@ function activar(proyecto, tour, archivos) {
   app.nodo = tour.panoramas[0]?.id ?? null;
   app.planta = tour.plantas?.[0]?.id ?? "p0";
   app.vista = null;
+  // «Mi inmobiliaria»: un proyecto enlazado toma los datos del perfil al abrirse (si el perfil cambió entretanto).
+  let cambio = false;
+  try { cambio = sincronizarAlAbrir(); } catch (e) { console.warn("No se pudo aplicar Mi inmobiliaria", e); }
   reiniciarHistorial();
   reiniciarGuardado();
   recordar(proyecto.id);
   emitir("proyecto");
+  if (cambio) guardarAhora();
 }
 
 export async function iniciarProyecto() {
@@ -32,29 +37,16 @@ export async function iniciarProyecto() {
   } catch (e) {
     console.warn("IndexedDB no disponible", e);
   }
-  // Primera vez: proyecto en modo rápido (se puede cambiar a completo desde la barra lateral).
-  await nuevoProyecto({ silencioso: true, modo: "rapido" });
+  // Primera vez: proyecto nuevo (toma Mi inmobiliaria si ya existe).
+  await nuevoProyecto({ silencioso: true });
 }
 
-/** Pregunta cómo trabajar: Rápido (5 pasos, recomendado) o Completo (todas las herramientas). */
-export function elegirModo() {
-  const opcion = (modo, titulo, texto, recomendado) => h("button", { class: `btn opcion-modo ${recomendado ? "activo" : ""}`, "data-modo": modo, "aria-pressed": String(!!recomendado),
-    onclick: (e) => { e.currentTarget.closest("dialog").querySelectorAll(".opcion-modo").forEach((b) => { b.classList.toggle("activo", b === e.currentTarget); b.setAttribute("aria-pressed", String(b === e.currentTarget)); }); } },
-    h("b", { text: titulo }), h("span", { text: texto }));
-  const cuerpo = h("div", { class: "opciones-modo", role: "group", "aria-label": "Modo de trabajo" },
-    opcion("rapido", "Rápido (recomendado)", "5 pasos y unos 5 minutos: fotos, plano opcional, 8 datos, revisar y publicar.", true),
-    opcion("completo", "Completo", "Todas las herramientas: material del arquitecto, dirección de cada foto, notas, estilos, colores y vídeo."));
-  return dialogo({ titulo: "¿Cómo quieres trabajar?", texto: "Puedes cambiarlo cuando quieras desde la barra lateral.", cuerpo, ancho: "min(560px, calc(100vw - 32px))",
-    botones: [{ texto: "Cancelar", valor: null }, { texto: "Crear proyecto", primario: true, valor: () => cuerpo.querySelector(".opcion-modo.activo")?.dataset.modo ?? "rapido" }] });
-}
-
-export async function nuevoProyecto({ silencioso = false, modo } = {}) {
-  if (!modo) { modo = await elegirModo(); if (!modo) return; }
+export async function nuevoProyecto({ silencioso = false } = {}) {
   if (app.proyecto) await guardarAhora();
   if (!silencioso) app.seccion = "fotos";
-  activar({ id: nuevoId(), nombre: "Proyecto sin título" }, tourNuevo(modo), new Map());
+  activar({ id: nuevoId(), nombre: "Proyecto sin título" }, tourNuevo(), new Map());
   await guardarAhora();
-  if (!silencioso) toast(modo === "rapido" ? "Proyecto nuevo (modo rápido)" : "Proyecto nuevo (modo completo)", "ok");
+  if (!silencioso) toast("Proyecto nuevo", "ok");
 }
 
 export async function cargarProyecto(id, { silencioso = false } = {}) {
@@ -72,12 +64,16 @@ export async function cargarProyecto(id, { silencioso = false } = {}) {
   return true;
 }
 
-/** Completa un tour (importado o antiguo) con la estructura que espera el Estudio. */
+/**
+ * Completa un tour (importado o antiguo) con la estructura que espera el Estudio y migra los proyectos de antes de la
+ * fase 3: sin modo Rápido/Completo, solo es/en/fr/de, «noche simulada» explícita, una sola lista de documentos y
+ * «Mi inmobiliaria». Es idempotente: se puede aplicar a un proyecto ya migrado.
+ */
 export function normalizarTour(t) {
   const base = tourNuevo();
   t.version = 2;
   t.panoramas ??= [];
-  for (const k of ["idioma", "idiomas", "marca", "agente", "contacto", "inmueble", "altura_camara", "radio_enlace_auto", "norte", "estilos", "momentos", "personalizacion", "estancias"]) {
+  for (const k of ["idioma", "idiomas", "marca", "agente", "contacto", "inmueble", "altura_camara", "radio_enlace_auto", "norte", "estilos", "personalizacion", "estancias"]) {
     if (t[k] == null) t[k] = base[k];
   }
   if (t.titulo == null) t.titulo = { es: "" };
@@ -95,9 +91,39 @@ export function normalizarTour(t) {
     if (!t.estilos.some((e) => e.id === "original")) t.estilos.unshift({ id: "original", nombre: { es: "Original", en: "Original" } });
   }
   if (!t._estudio) importarEnlaces(t);
-  t._estudio.meta ??= {};
-  t._estudio.manuales ??= []; t._estudio.quitados ??= [];
-  t._estudio.modo ??= "completo"; // proyectos e importaciones anteriores al modo rápido
+  const e = t._estudio;
+  e.meta ??= {};
+  e.manuales ??= []; e.quitados ??= [];
+  // Sin modos Rápido/Completo (E3): las fotos sin colocar se conectan siempre en orden, así que el modo ya no cambia nada.
+  delete e.modo;
+  // Idiomas (E2): solo los que tiene el visor; el español siempre.
+  t.idiomas = (Array.isArray(t.idiomas) ? t.idiomas : []).filter((c, i, a) => c in IDIOMAS && a.indexOf(c) === i);
+  if (!t.idiomas.includes("es")) t.idiomas.unshift("es");
+  if (!t.idiomas.includes(t.idioma)) t.idioma = "es";
+  // Luz (E8): la lista de momentos que se guardaba por defecto no la eligió el agente. Si eligió noche sin foto, era simulada.
+  if (typeof e.nocheSimulada !== "boolean") {
+    const m = Array.isArray(t.momentos) ? t.momentos : [];
+    const porDefecto = m.length === 3 && ["dia", "atardecer", "noche"].every((x) => m.includes(x));
+    const conFoto = t.panoramas.some((p) => (p.variantes ?? []).some((v) => v.momento === "noche"));
+    e.nocheSimulada = m.includes("noche") && !porDefecto && !conFoto;
+  }
+  delete t.momentos;
+  // Documentos (E10): una sola lista (documentacion) con «Público». Los «documentos para la ficha» ya eran públicos.
+  if (Array.isArray(t.inmueble.documentos)) {
+    t.documentacion = Array.isArray(t.documentacion) ? t.documentacion : [];
+    for (const d of t.inmueble.documentos) {
+      const archivo = typeof d?.url === "string" ? d.url.trim() : "";
+      if (!archivo) continue;
+      const ya = t.documentacion.find((x) => x.archivo === archivo);
+      if (ya) ya.publico = true;
+      else t.documentacion.push({ nombre: d.nombre ?? "", archivo, tipo: "otro", publico: true });
+    }
+    delete t.inmueble.documentos;
+  }
+  // Mi inmobiliaria (E1): los proyectos con contacto propio lo conservan; los vacíos usan el perfil.
+  if (typeof e.perfil !== "boolean") e.perfil = !tieneDatosPropios(t);
+  // Referencia automática: solo en proyectos aún sin fotos (los ya publicados conservan su carpeta /tours/…/).
+  if (!e.ref && !t.panoramas.length) e.ref = referenciaNueva();
   return t;
 }
 
@@ -213,57 +239,38 @@ export async function importarArchivosSoltados(lista) {
   toast("Formato no reconocido. Suelta fotos JPG, un ZIP exportado o una carpeta con tour.json.", "aviso", 5000);
 }
 
-// ------------------------------------------------------------------ diálogo Abrir
-export async function dialogoAbrir() {
+// ------------------------------------------------------------------ «Mis proyectos» (Proyecto ▾ → Mis proyectos, Ctrl+O)
+/** Lista de proyectos guardados en este navegador: abrir o eliminar. Lo demás (nuevo, copia, restaurar) está en «Proyecto ▾». */
+export async function dialogoProyectos() {
   let lista = [];
   let errorDb = null;
   try { await guardarAhora(); lista = await db.listar(); } catch (e) { errorDb = e; }
   const urls = [];
-  const cont = h("div", { class: "lista-proyectos" });
+  const cont = h("div", { class: "lista-proyectos", role: "list" });
   const pintar = () => {
     cont.replaceChildren(...(lista.length ? lista.map((p) => {
       let img = h("div", { class: "ph" });
       if (p.miniatura instanceof Blob) { const u = URL.createObjectURL(p.miniatura); urls.push(u); img = h("img", { src: u, alt: "" }); }
-      const fila = h("div", { class: `proyecto-fila ${p.id === app.proyecto?.id ? "actual" : ""}`, role: "button", tabindex: 0 },
-        img,
-        h("div", {}, h("div", { text: p.nombre || "Sin título" }), h("small", { text: `${p.nFotos ?? 0} fotos · ${new Date(p.actualizado).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })}${p.id === app.proyecto?.id ? " · abierto" : ""}` })),
-        h("button", { class: "btn fantasma peq icono-btn", title: "Eliminar proyecto", "aria-label": "Eliminar proyecto", onclick: async (e) => {
-          e.stopPropagation();
+      const actual = p.id === app.proyecto?.id;
+      const abrir = async () => { cerrarDialogo(); if (!actual) await cargarProyecto(p.id); };
+      return h("div", { class: `proyecto-fila ${actual ? "actual" : ""}`, role: "listitem" },
+        h("button", { type: "button", class: "abrir-proyecto", onclick: abrir, "aria-label": `Abrir ${p.nombre || "Sin título"}` }, img,
+          h("span", { class: "datos" }, h("span", { class: "nombre", text: p.nombre || "Sin título" }),
+            h("small", { text: `${p.nFotos ?? 0} fotos · ${new Date(p.actualizado).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })}${actual ? " · abierto" : ""}` }))),
+        h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--icono c8-boton--s", title: "Eliminar proyecto", "aria-label": `Eliminar ${p.nombre || "proyecto"}`, onclick: async () => {
           if (!(await confirmar("Eliminar proyecto", `Se borrará «${p.nombre}» y sus imágenes de este navegador. No se puede deshacer.`))) return;
           await db.borrarProyecto(p.id).catch(() => {});
           lista = lista.filter((x) => x.id !== p.id);
-          if (p.id === app.proyecto?.id) { await nuevoProyecto({ silencioso: true }); lista = await db.listar().catch(() => []); }
+          if (actual) { await nuevoProyecto({ silencioso: true }); lista = await db.listar().catch(() => []); }
           pintar();
         } }, icono("basura", 16)));
-      const abrir = async () => { cerrar(); if (p.id !== app.proyecto?.id) await cargarProyecto(p.id); };
-      fila.onclick = abrir;
-      fila.onkeydown = (e) => { if (e.key === "Enter") abrir(); };
-      return fila;
-    }) : [h("p", { class: "suave", text: errorDb ? "Este navegador no permite guardar proyectos (almacenamiento bloqueado o modo privado)." : "Aún no hay proyectos guardados." })]));
+    }) : [h("p", { class: "c8-sec", text: errorDb ? "Este navegador no permite guardar proyectos (almacenamiento bloqueado o modo privado)." : "Aún no hay proyectos guardados." })]));
   };
   pintar();
-  let cerrar;
-  const opciones = h("div", { class: "opciones-abrir" },
-    h("button", { class: "btn", onclick: async () => { cerrar(); await nuevoProyecto(); } }, icono("nuevo", 22), "Proyecto nuevo"),
-    h("button", { class: "btn", onclick: async () => { const [f] = await elegirArchivos({ aceptar: ".zip,application/zip" }); if (f) { cerrar(); importarZip(f); } } }, icono("subir", 22), "Restaurar copia de seguridad o ZIP"),
-    h("button", { class: "btn", onclick: async () => {
-      const fs = await elegirArchivos({ aceptar: "", carpeta: true, multiple: true });
-      if (fs.length) { cerrar(); importarCarpeta(fs.map((f) => ({ archivo: f, ruta: f.webkitRelativePath || f.name }))); }
-    } }, icono("abrir", 22), "Importar carpeta con tour.json"),
-  );
-  const p = dialogo({
-    titulo: "Proyectos", ancho: "min(620px, calc(100vw - 32px))",
-    cuerpo: h("div", {}, h("p", { class: "suave", style: { margin: "0 0 10px" }, text: "Los proyectos se guardan solos en este ordenador. Para llevarlos a otro, usa Publicar → Copia de seguridad." }), cont, opciones),
-    botones: [{ texto: "Cerrar", valor: null }],
+  await dialogo({
+    c8: true, titulo: "Mis proyectos", ancho: "min(620px, calc(100vw - 32px))",
+    texto: "Se guardan solos en este ordenador. Para llevarlos a otro, usa «Proyecto ▾ → Copia de seguridad».",
+    cuerpo: cont, botones: [{ texto: "Cerrar", valor: null }],
   });
-  cerrar = () => { const d = document.querySelector("dialog.dialogo[open]"); d?.close(); d?.remove(); };
-  await p;
   urls.forEach((u) => URL.revokeObjectURL(u));
-}
-
-export function cargando(texto) {
-  const barra = h("div", { class: "progreso" }, h("div", { style: { width: "100%" } }));
-  const capa = h("div", { class: "cargando-global" }, h("div", {}, h("span", { text: texto }), barra));
-  document.body.append(capa);
-  return capa;
 }

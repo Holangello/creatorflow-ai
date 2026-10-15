@@ -1,57 +1,36 @@
 // Componentes de formulario enlazados al tour (con deshacer agrupado por campo).
-import { app, h, cambiar, textoDe, fijarTexto, IDIOMAS, urlPermitida, MENSAJE_URL } from "./estudio-nucleo.js";
+import { h, cambiar, textoExacto, fijarTexto, urlPermitida, MENSAJE_URL } from "./estudio-nucleo.js";
 
 let n = 0;
 const uid = () => `c${++n}`;
 
 /**
  * Campo de texto traducible (tipo Texto: cadena o {es, en}). obj: () => objeto actual del tour.
+ * Edita el español; las traducciones se escriben solo en Datos → «Idiomas y traducciones» (E11), que pasa `idioma`.
+ * campo: identificador para «Ver» / «Corregir» (data-campo; por defecto, la clave).
  */
-export function campoTexto(obj, clave, { etiqueta, multilinea = false, placeholder = "", compacto = false, tipo = "datos", alCambiar, ayuda } = {}) {
-  const idiomas = () => (app.tour.idiomas?.length ? app.tour.idiomas : ["es"]);
-  let idioma = idiomas()[0];
+export function campoTexto(obj, clave, { etiqueta, multilinea = false, placeholder = "", compacto = false, tipo = "datos", alCambiar, ayuda, idioma = "es", campo: dc } = {}) {
   const id = uid();
   const input = h(multilinea ? "textarea" : "input", { id, placeholder, rows: multilinea ? 4 : null });
-  const tabs = h("div", { class: "idiomas", role: "group", "aria-label": "Idioma" });
-  const leer = () => {
-    const t = obj()?.[clave];
-    return t == null ? "" : typeof t === "string" ? (idioma === idiomas()[0] ? t : "") : t[idioma] ?? "";
-  };
-  const pintarTabs = () => {
-    const ids = idiomas();
-    tabs.hidden = ids.length < 2;
-    tabs.replaceChildren(...ids.map((c) => {
-      const t = obj()?.[clave];
-      const vacio = !(typeof t === "string" ? c === ids[0] && t : t?.[c]);
-      return h("button", { type: "button", text: c, title: IDIOMAS[c] ?? c, "aria-pressed": String(c === idioma), class: vacio ? "vacio" : "",
-        onclick: () => { idioma = c; input.value = leer(); input.placeholder = c === ids[0] ? placeholder : textoDe(obj()?.[clave], ids[0]) || placeholder; pintarTabs(); input.focus(); } });
-    }));
-  };
-  input.value = leer();
+  if (idioma !== "es") input.lang = idioma;
+  input.value = textoExacto(obj()?.[clave], idioma);
   input.addEventListener("input", () => {
-    cambiar(() => {
-      const o = obj();
-      fijarTexto(o, clave, idioma, input.value);
-    }, { clave: `${id}:${idioma}`, tipo, render: false });
-    pintarTabs();
+    cambiar(() => fijarTexto(obj(), clave, idioma, input.value), { clave: `${id}:${idioma}`, tipo, render: false });
     alCambiar?.(input.value);
   });
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !multilinea) { e.preventDefault(); input.blur(); return; }
-    if (e.altKey && /^[1-9]$/.test(e.key)) { const c = idiomas()[+e.key - 1]; if (c) { e.preventDefault(); tabs.querySelector(`button:nth-child(${e.key})`)?.click(); } }
-  });
-  pintarTabs();
-  const envoltorio = h("div", { class: "campo texto-trad" },
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !multilinea) { e.preventDefault(); input.blur(); } });
+  const envoltorio = h("div", { class: "campo", "data-campo": dc ?? clave },
     etiqueta && !compacto ? h("label", { for: id, class: "etq-campo", text: etiqueta }) : null,
-    tabs, input, ayuda ? h("small", { text: ayuda }) : null);
+    input, ayuda ? h("small", { text: ayuda }) : null);
   if (compacto) { envoltorio.classList.add("compacto"); input.setAttribute("aria-label", etiqueta ?? clave); }
   envoltorio.input = input;
   return envoltorio;
 }
 
 /** Campo simple: tipo text/number/url/email/tel/select/check/color/textarea. */
-export function campo(obj, clave, { etiqueta, tipo = "text", placeholder = "", opciones, ayuda, min, max, paso, tipoCambio = "datos", clase = "", alCambiar, validar, urlInterna = false } = {}) {
+export function campo(obj, clave, { etiqueta, tipo = "text", placeholder = "", opciones, ayuda, min, max, paso, tipoCambio = "datos", clase = "", alCambiar, validar, urlInterna = false, campo: dc } = {}) {
   const id = uid();
+  const marca = dc ?? clave; // data-campo: «Ver» y «Corregir» llevan aquí
   const leer = () => obj()?.[clave];
   const escribir = (v) => cambiar(() => {
     const o = obj();
@@ -62,7 +41,7 @@ export function campo(obj, clave, { etiqueta, tipo = "text", placeholder = "", o
   if (tipo === "check") {
     input = h("input", { type: "checkbox", id, checked: !!leer() });
     input.onchange = () => { escribir(input.checked ? true : false); alCambiar?.(input.checked); };
-    return h("label", { class: `check ${clase}`, for: id }, input, h("span", { text: etiqueta }));
+    return h("label", { class: `check ${clase}`, for: id, "data-campo": marca }, input, h("span", { text: etiqueta }));
   }
   if (tipo === "select") {
     input = h("select", { id }, ...(opciones ?? []).map(([v, t]) => h("option", { value: v, text: t })));
@@ -108,9 +87,9 @@ export function campo(obj, clave, { etiqueta, tipo = "text", placeholder = "", o
       alCambiar?.(r.val);
     };
     if (v != null && v !== "") mostrar(comprobar(input.value).err);
-    return h("div", { class: `campo ${clase}` }, h("label", { for: id, text: etiqueta }), input, errorEl, ayuda ? h("small", { text: ayuda }) : null);
+    return h("div", { class: `campo ${clase}`, "data-campo": marca }, h("label", { for: id, text: etiqueta }), input, errorEl, ayuda ? h("small", { text: ayuda }) : null);
   }
-  return h("div", { class: `campo ${clase}` }, h("label", { for: id, text: etiqueta }), input, ayuda ? h("small", { text: ayuda }) : null);
+  return h("div", { class: `campo ${clase}`, "data-campo": marca }, h("label", { for: id, text: etiqueta }), input, ayuda ? h("small", { text: ayuda }) : null);
 }
 
 /** "6,5" → 6.5 · "349.000" → 349000 · "1.234,5" → 1234.5 · "abc" → null */
@@ -152,5 +131,5 @@ export function campoSiNo(obj, clave, etiqueta) {
     if (foco) g.querySelector('[aria-checked="true"]')?.focus();
   };
   pintar();
-  return h("div", { class: "campo" }, h("span", { id: `${id}-l`, text: etiqueta }), g);
+  return h("div", { class: "campo", "data-campo": clave }, h("span", { id: `${id}-l`, text: etiqueta }), g);
 }

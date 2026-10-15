@@ -1,9 +1,10 @@
-// Minimapa / plano 2D: plantas, estancias con m², muros, enlaces, fotos y cono de visión.
+// Radar y plano 2D: plantas, estancias con m², muros, enlaces, fotos y cono de visión.
+// modoMapa() "radar": centrado en el visitante y girando con su mirada (esquina); "plano": norte arriba («Estancias y plano»).
 import { areaPoligono, centroide, puntoEnPoligono } from "./util.js";
 
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {object} ctx  { tour(), planta(), nodos(), nodoActual(), posicion(), acento(), texto(v), formato(n), alElegirNodo(n), alElegirPunto(x, z) }
+ * @param {object} ctx  { tour(), planta(), nodos(), nodoActual(), posicion(), acento(), modoMapa(), texto(v), formato(n), alElegirNodo(n), alElegirPunto(x, z) }
  */
 export function crearPlano(canvas, ctx) {
   const g = canvas.getContext("2d");
@@ -119,8 +120,8 @@ export function crearPlano(canvas, ctx) {
       g.stroke();
     }
 
-    // Etiquetas de estancias (nombre + m²) cuando hay espacio
-    if (grande || T.esc > 22 || T.radar) {
+    // Etiquetas de estancias cuando hay espacio: nombre y m² en el plano; en el radar solo el nombre, y solo si es grande.
+    if (T.radar ? Math.min(W, H) >= 130 : grande || T.esc > 22) {
       g.textAlign = "center"; g.textBaseline = "middle";
       const pos0 = T.radar ? ctx.posicion() : null;
       for (const e of estancias) {
@@ -129,7 +130,8 @@ export function crearPlano(canvas, ctx) {
         const [cx, cz] = T.a(...centroide(e.poligono));
         g.font = `600 ${grande ? 13 : 10}px system-ui, sans-serif`;
         g.fillStyle = "rgba(255,255,255,.85)";
-        g.fillText(ctx.texto(e.nombre), cx, cz - 7);
+        g.fillText(ctx.texto(e.nombre), cx, T.radar ? cz : cz - 7);
+        if (T.radar) continue;
         g.font = `${grande ? 12 : 9}px system-ui, sans-serif`;
         g.fillStyle = "rgba(255,255,255,.6)";
         g.fillText(`${ctx.formato(areaPoligono(e.poligono))} m²`, cx, cz + 8);
@@ -154,10 +156,10 @@ export function crearPlano(canvas, ctx) {
       g.strokeStyle = "rgba(0,0,0,.5)"; g.lineWidth = 1; g.stroke();
     }
 
-    // Norte
+    // Norte (solo si se conoce): flecha en la esquina del plano; en el radar, una «N» en el borde que gira con la vista.
     const norte = ctx.tour().norte;
-    if (norte != null || T.radar) {
-      g.save(); g.translate(W - 18, 18); g.rotate((-(norte ?? 0) * Math.PI) / 180 + (T.radar ? T.rot : 0));
+    if (norte != null && !T.radar) {
+      g.save(); g.translate(W - 18, 18); g.rotate((-norte * Math.PI) / 180);
       g.fillStyle = "rgba(255,255,255,.85)"; g.beginPath(); g.moveTo(0, -9); g.lineTo(5, 5); g.lineTo(0, 2); g.lineTo(-5, 5); g.closePath(); g.fill();
       g.font = "600 9px system-ui"; g.textAlign = "center"; g.fillText("N", 0, -12);
       g.restore();
@@ -181,6 +183,11 @@ export function crearPlano(canvas, ctx) {
       g.restore();
       g.strokeStyle = "rgba(255,255,255,.25)"; g.lineWidth = 1.5;
       g.beginPath(); g.arc(T.cx, T.cz, Math.min(W, H) / 2 - 2, 0, Math.PI * 2); g.stroke();
+      if (norte != null) {
+        const a = T.rot - (norte * Math.PI) / 180, r = Math.min(W, H) / 2 - 9;
+        g.font = "700 9px system-ui"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "rgba(255,255,255,.9)";
+        g.fillText("N", T.cx + r * Math.sin(a), T.cz - r * Math.cos(a));
+      }
     }
   }
 
@@ -200,7 +207,12 @@ export function crearPlano(canvas, ctx) {
     ctx.alElegirPunto?.(x, z);
   }
 
+  // Solo un toque elige (no el final de un arrastre o de un desplazamiento).
+  let inicio = null;
+  canvas.addEventListener("pointerdown", (e) => { inicio = { x: e.clientX, y: e.clientY }; });
   canvas.addEventListener("pointerup", (e) => {
+    if (!inicio || Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) > 8) { inicio = null; return; }
+    inicio = null;
     const r = canvas.getBoundingClientRect();
     elegir(e.clientX - r.left, e.clientY - r.top);
   });
@@ -218,8 +230,8 @@ export function crearPlano(canvas, ctx) {
 }
 
 function hexAlfa(hex, a) {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex ?? "");
-  if (!m) return `rgba(255,181,71,${a})`;
-  const n = parseInt(m[1], 16);
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(hex ?? "").trim());
+  if (!m) return `rgba(207,173,102,${a})`;
+  const n = parseInt(m[1].length === 3 ? m[1].replace(/./g, (c) => c + c) : m[1], 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }

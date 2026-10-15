@@ -1,9 +1,11 @@
-// Paso 2 · Plano y plantas: imagen del plano, calibración de escala, colocación de fotos, estancias (polígonos),
-// muros, norte y enlaces entre fotos. Coordenadas en metros: x → derecha, z → abajo; rumbo 0 = arriba, horario.
-import { area, centroide, dentro, redondear, norm180, norm360, rumboDe, dimensiones } from "./estudio-util.js";
-import { app, h, $, icono, cambiar, emitir, on, toast, pedir, confirmar, guardarArchivo, urlDe, rutaLibre, idLibre, elegirArchivos,
-  textoDe, colocado, pano, calcularEnlaces, alternarEnlace, claveEnlace, fmtM2, esRapido } from "./estudio-nucleo.js";
+// Paso 2 · Plano (opcional): plano del arquitecto (PDF, DXF o imagen), calibración de escala, colocación de fotos,
+// estancias (polígonos) y conexiones. En «Avanzado»: norte, radio de conexión, altura de la cámara, zonas y muros.
+// Coordenadas en metros: x → derecha, z → abajo; rumbo 0 = arriba, horario.
+import { area, centroide, dentro, redondear, norm360, rumboDe, dimensiones } from "./estudio-util.js";
+import { app, h, $, icono, cambiar, emitir, on, toast, pedir, confirmar, dialogo, guardarArchivo, guardarDocumento, urlDe, rutaLibre, idLibre,
+  elegirArchivos, cargando, textoDe, colocado, pano, calcularEnlaces, alternarEnlace, claveEnlace, fmtM2, zonasSugeridas, zonasPublicadas, modoZonas } from "./estudio-nucleo.js";
 import { campoTexto, campo } from "./estudio-campos.js";
+import { leerDxf, sugerirUnidades, extension, aMetros, renderizar, FACTOR } from "./estudio-dxf.js";
 
 const HERRAMIENTAS = [
   { id: "sel", nombre: "Seleccionar", tecla: "V", icono: "cursor", pista: "Arrastra fotos y esquinas para ajustarlas. Rueda = zoom; arrastra el fondo para moverte. Supr borra lo seleccionado." },
@@ -86,23 +88,26 @@ function pintarPlantas() {
     })),
     h("button", { class: "btn fantasma peq", title: "Añadir planta", onclick: anadirPlanta }, icono("mas", 15), "Planta"),
     h("div", { class: "relleno", style: { flex: 1 } }),
-    h("button", { class: "btn peq", onclick: subirPlano, title: "Plano del arquitecto: PDF, DXF, PNG o JPG" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
-    (() => { const sig = app.pasoSiguiente?.("plano"); return sig ? h("button", { class: "btn peq primario", "data-continuar": sig.id, onclick: () => emitir("ir", { seccion: sig.id }) }, `Continuar → ${sig.titulo}`) : null; })(),
+    h("button", { class: "btn peq", onclick: subirPlano, title: "Plano del arquitecto: PDF, DXF (AutoCAD, Revit, ArchiCAD), PNG o JPG" }, icono("subir", 15), planta()?.plano?.imagen ? "Cambiar plano" : "Subir plano"),
+    (() => {
+      // Un solo botón para seguir: «Saltar» mientras no se use el plano; «Continuar» en cuanto se use.
+      const sig = app.pasoSiguiente?.("plano");
+      if (!sig || !app.tour.panoramas.length) return null;
+      const usado = app.tour.panoramas.some(colocado) || app.tour.plantas.some((pl) => pl.plano?.imagen);
+      return h("button", { class: `btn peq ${usado ? "primario" : ""}`, "data-continuar": sig.id, onclick: () => emitir("ir", { seccion: sig.id }) },
+        usado ? `Continuar → ${sig.titulo}` : `Saltar → ${sig.titulo}`);
+    })(),
   ].filter(Boolean));
 }
+/** Herramientas a la vista: Calibrar solo con imagen de plano; Muro (solo para la maqueta) en «Avanzado» salvo que ya haya muros. */
+const herramientaVisible = (t) => (t.id === "calibrar" ? !!planta()?.plano?.imagen : t.id === "muro" ? S.herr === "muro" || !!planta()?.muros?.length : true);
 function pintarHerramientas() {
   const b = $("#herramientas");
   if (!b) return;
-  const sinPlano = !planta()?.plano?.imagen;
-  b.replaceChildren(...HERRAMIENTAS.map((t) => {
-    const bloqueada = t.id === "calibrar" && sinPlano;
-    return h("button", {
-      class: `btn ${S.herr === t.id ? "activo" : "fantasma"}`, "aria-pressed": String(S.herr === t.id),
-      title: bloqueada ? "Calibrar · sube primero un plano" : `${t.nombre}${app.atajos ? ` (${t.tecla})` : ""}`,
-      "aria-disabled": bloqueada ? "true" : null, style: bloqueada ? { opacity: 0.45 } : null,
-      onclick: () => (bloqueada ? toast("Calibrar · sube primero un plano", "info") : fijarHerramienta(t.id)),
-    }, icono(t.icono, 16), h("span", { text: bloqueada ? "Calibrar" : t.nombre }), h("kbd", { text: t.tecla }));
-  }));
+  b.replaceChildren(...HERRAMIENTAS.filter(herramientaVisible).map((t) => h("button", {
+    class: `btn ${S.herr === t.id ? "activo" : "fantasma"}`, "aria-pressed": String(S.herr === t.id),
+    title: `${t.nombre}${app.atajos ? ` (${t.tecla})` : ""}`, onclick: () => fijarHerramienta(t.id),
+  }, icono(t.icono, 16), h("span", { text: t.nombre }), h("kbd", { text: t.tecla }))));
   const herr = HERRAMIENTAS.find((t) => t.id === S.herr);
   const hayPorColocar = app.tour.panoramas.some((p) => !colocado(p));
   pista.textContent = S.colocando ? `Toca en el plano el punto donde pusiste la cámara para «${nombreDe(pano(S.colocando))}» (Esc para cancelar).`
@@ -126,12 +131,10 @@ function pintarLado() {
   const t = app.tour, pl = planta();
   const { vecinos } = calcularEnlaces();
   const partes = [];
-  if (esRapido() && !t.panoramas.some(colocado)) {
-    const sig = app.pasoSiguiente?.("plano");
+  if (!t.panoramas.some(colocado) && !pl?.plano?.imagen) {
     partes.push(h("div", { class: "panel-sel", style: { marginTop: 0, marginBottom: "6px" } },
       h("b", { text: "El plano es opcional" }),
-      h("span", { class: "suave", style: { fontSize: "13px" }, text: "Sin plano, las fotos se conectan en el orden de la lista (1 → 2 → 3…). Con plano, el cliente ve dónde está y los m² de cada estancia." }),
-      sig ? h("button", { class: "btn peq", onclick: () => emitir("ir", { seccion: sig.id }) }, `Continuar sin plano → ${sig.titulo}`) : null));
+      h("span", { class: "suave", style: { fontSize: "13px" }, text: "Sin plano, las fotos se conectan en el orden de la lista (1 → 2 → 3…). Con plano, el cliente ve dónde está (radar) y los m² de cada estancia." })));
   }
   const sel = S.sel;
   // Selección
@@ -139,21 +142,19 @@ function pintarLado() {
     const p = pano(sel.id);
     partes.push(h("h3", { text: "Foto seleccionada" }), h("div", { class: "panel-sel" },
       h("div", { class: "fila", style: { flexWrap: "nowrap" } }, h("img", { src: urlDe(p.miniatura), alt: "", style: { width: "64px", height: "32px", borderRadius: "4px", objectFit: "cover" } }), h("b", { text: nombreDe(p), style: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } })),
-      h("div", { class: "fila" },
+      h("div", { class: "suave", style: { fontSize: "12.5px" } }, `Conectada con: ${(vecinos.get(p.id) ?? []).map((id) => nombreDe(pano(id))).join(", ") || "ninguna"}`),
+      h("details", { class: "posicion-exacta" }, h("summary", { text: "Posición exacta" }), h("div", { class: "fila" },
         campo(() => pano(sel.id), "x", { etiqueta: "x (m)", tipo: "number", paso: 0.05, tipoCambio: "todo", alCambiar: marcar }),
-        campo(() => pano(sel.id), "z", { etiqueta: "z (m)", tipo: "number", paso: 0.05, tipoCambio: "todo", alCambiar: marcar })),
-      h("div", { class: "suave", style: { fontSize: "12.5px" } }, `Enlaces: ${(vecinos.get(p.id) ?? []).map((id) => nombreDe(pano(id))).join(", ") || "ninguno"}`),
+        campo(() => pano(sel.id), "z", { etiqueta: "z (m)", tipo: "number", paso: 0.05, tipoCambio: "todo", alCambiar: marcar }))),
       h("div", { class: "fila" },
-        h("button", { class: "btn peq", onclick: () => emitir("ir", { seccion: "orientar" }) }, icono("orientar", 14), "Orientar"),
+        h("button", { class: "btn peq", onclick: () => emitir("ir", { seccion: "orientacion" }) }, icono("orientar", 14), "Orientar"),
         h("button", { class: "btn peq", onclick: () => { cambiar(() => { const q = pano(sel.id); delete q.x; delete q.z; }); S.sel = null; pintarLado(); } }, "Quitar del plano"))));
   } else if (sel?.tipo === "estancia") {
     const e = t.estancias.find((x) => x.id === sel.id);
     if (e) {
       partes.push(h("h3", { text: "Estancia seleccionada" }), h("div", { class: "panel-sel" },
         campoTexto(() => app.tour.estancias.find((x) => x.id === sel.id), "nombre", { etiqueta: "Nombre", tipo: "todo", alCambiar: marcar }),
-        h("div", { class: "fila" },
-          h("div", { class: "campo" }, h("span", { text: "Superficie" }), h("b", { text: fmtM2(area(e.poligono)), style: { fontSize: "16px" } })),
-          campo(() => app.tour.estancias.find((x) => x.id === sel.id), "altura_techo", { etiqueta: "Altura techo (m)", tipo: "number", paso: 0.05, placeholder: "2,60" })),
+        h("div", { class: "campo" }, h("span", { text: "Superficie" }), h("b", { text: fmtM2(area(e.poligono)), style: { fontSize: "16px" } })),
         h("small", { class: "tenue", text: "Arrastra los vértices para ajustar. Doble clic en un borde añade un vértice; Alt+clic en un vértice lo quita." }),
         h("button", { class: "btn peq peligro", onclick: borrarSeleccion }, icono("basura", 14), "Borrar estancia")));
     }
@@ -169,7 +170,6 @@ function pintarLado() {
   if (!t.panoramas.length) partes.push(h("p", { class: "tenue", style: { margin: 0, fontSize: "13px" }, text: "Primero sube las fotos 360 en el paso 1." }));
   else if (!sinColocar.length) partes.push(h("p", { class: "tenue", style: { margin: 0, fontSize: "13px" }, text: "Todas las fotos están en el plano." }));
   else {
-    partes.push(h("p", { class: "tenue", style: { margin: "0 0 6px", fontSize: "12.5px" }, text: "Arrastra cada foto al punto del plano donde pusiste la cámara, o pulsa «Colocar» y toca el plano." }));
     for (const p of sinColocar) {
       const f = h("div", { class: "ficha-arrastre", title: "Arrastra al plano" }, h("img", { src: urlDe(p.miniatura), alt: "", draggable: "false" }), h("span", { text: nombreDe(p), style: { flex: 1 } }),
         h("button", { class: `btn peq ${S.colocando === p.id ? "colocando" : ""}`, "aria-pressed": String(S.colocando === p.id), title: "Colocar sin arrastrar: pulsa y luego toca el plano",
@@ -205,29 +205,7 @@ function pintarLado() {
     partes.push(h("div", { class: "fila-lista", style: { cursor: "default", borderTop: "1px solid var(--borde)", borderRadius: 0, marginTop: "4px" } },
       h("span", { class: "nom", text: "Total útil aprox." }), h("b", { class: "val", text: fmtM2(total) })));
   }
-  // Norte
-  const aguja = anguloNorte();
-  const dial = h("div", { class: "dial-norte", title: "Arrastra la flecha hacia el norte del plano", role: "slider", "aria-label": "Dirección del norte en el plano", "aria-valuemin": 0, "aria-valuemax": 359, "aria-valuenow": aguja, "aria-valuetext": `${aguja} grados`, tabindex: 0 },
-    h("div", { class: "aguja", style: { transform: `rotate(${aguja}deg)` } }), h("div", { class: "centro" }));
-  eventosDial(dial);
-  const inpNorte = h("input", { type: "text", inputmode: "numeric", value: aguja, style: { width: "84px" }, "aria-label": "Norte en grados" });
-  inpNorte.oninput = () => { const v = Number(String(inpNorte.value).replace(",", ".")); if (Number.isFinite(v)) fijarNorte(v, false); };
-  partes.push(h("h3", { text: "Norte" }), h("div", { class: "fila", style: { flexWrap: "nowrap" } }, dial,
-    h("div", { class: "campo" }, h("span", { text: "Hacia dónde está el norte (°, 0 = arriba)" }), inpNorte, h("small", { text: "Para la orientación (sur, etc.) y la luz." }))));
-  // Enlaces
-  const radio = h("input", { type: "range", min: 1, max: 10, step: 0.5, value: t.radio_enlace_auto ?? 4.5, "aria-label": "Distancia para conectar fotos automáticamente" });
-  const metros = (v) => `${String(v).replace(".", ",")} m`;
-  const radioVal = h("b", { text: metros(t.radio_enlace_auto ?? 4.5) });
-  radio.setAttribute("aria-valuetext", metros(t.radio_enlace_auto ?? 4.5));
-  radio.oninput = () => { radioVal.textContent = metros(radio.value); radio.setAttribute("aria-valuetext", metros(radio.value)); cambiar((tt) => { tt.radio_enlace_auto = Number(radio.value); }, { clave: "radio", render: false }); marcar(); };
-  radio.onchange = () => pintarLado();
-  partes.push(h("h3", { text: "Conexiones entre fotos" }),
-    h("div", { class: "campo" }, h("span", {}, "Conectar fotos a menos de ", radioVal), radio),
-    h("div", { class: "suave", style: { fontSize: "12.5px", display: "flex", flexDirection: "column", gap: "4px", marginTop: "6px" } },
-      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2px dashed var(--acento)", verticalAlign: "middle", marginRight: "6px" } }), "automática (por distancia)"),
-      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2.5px solid var(--acento)", verticalAlign: "middle", marginRight: "6px" } }), "manual (herramienta Conectar)"),
-      h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: "2px dashed rgba(239,107,98,.7)", verticalAlign: "middle", marginRight: "6px" } }), "automática quitada")));
-  // Plano
+  // Imagen del plano
   if (pl?.plano?.imagen) {
     partes.push(h("h3", { text: "Imagen del plano" }),
       h("div", { class: "suave", style: { fontSize: "12.5px" } }, `${redondear(pl.plano.ancho_m, 2)} × ${redondear(pl.plano.alto_m, 2)} m · `,
@@ -237,15 +215,97 @@ function pintarLado() {
         h("button", { class: "btn peq fantasma", onclick: async () => { if (await confirmar("Quitar imagen del plano", "Las fotos, estancias y muros se mantienen.", "Quitar")) cambiar(() => { delete planta().plano; }); } }, "Quitar")));
   }
   if (app.tour.plantas.length > 1) partes.push(h("button", { class: "btn peq fantasma", style: { marginTop: "14px" }, onclick: borrarPlanta }, icono("basura", 14), "Eliminar esta planta"));
-  if (esRapido()) {
-    partes.push(h("h3", { text: "Opcional" }),
-      h("div", { style: { display: "flex", flexDirection: "column", gap: "6px" } },
-        h("button", { class: "btn peq", style: { justifyContent: "flex-start" }, onclick: () => emitir("ir", { seccion: "orientar" }) }, icono("orientar", 15), "Dirección de las fotos y notas"),
-        h("button", { class: "btn peq", style: { justifyContent: "flex-start" }, onclick: () => emitir("ir", { seccion: "variantes" }) }, icono("variantes", 15), "Estilos, noche y colores"),
-        h("button", { class: "btn peq", style: { justifyContent: "flex-start" }, onclick: () => emitir("ir", { seccion: "material" }) }, icono("abrir", 15), "Material del arquitecto y música")));
-  }
+  partes.push(panelAvanzado());
   lado.replaceChildren(...partes);
 }
+let avanzadoAbierto = (() => { try { return localStorage.getItem("estudio:plano-avanzado") === "si"; } catch { return false; } })();
+/** «Avanzado» del plano: lo que solo hace falta a veces (norte, radio de conexión, altura de la cámara, zonas y muros). */
+function panelAvanzado() {
+  const t = app.tour;
+  const det = h("details", { class: "avanzado-plano", open: avanzadoAbierto, "data-campo": "plano-avanzado" }, h("summary", { text: "Avanzado" }));
+  det.addEventListener("toggle", () => { avanzadoAbierto = det.open; try { localStorage.setItem("estudio:plano-avanzado", det.open ? "si" : "no"); } catch {} });
+  // Norte
+  const aguja = anguloNorte();
+  const dial = h("div", { class: "dial-norte", title: "Arrastra la flecha hacia el norte del plano", role: "slider", "aria-label": "Dirección del norte en el plano", "aria-valuemin": 0, "aria-valuemax": 359, "aria-valuenow": aguja, "aria-valuetext": `${aguja} grados`, tabindex: 0 },
+    h("div", { class: "aguja", style: { transform: `rotate(${aguja}deg)` } }), h("div", { class: "centro" }));
+  eventosDial(dial);
+  const inpNorte = h("input", { type: "text", inputmode: "numeric", value: aguja, style: { width: "84px" }, "aria-label": "Norte en grados" });
+  inpNorte.oninput = () => { const v = Number(String(inpNorte.value).replace(",", ".")); if (Number.isFinite(v)) fijarNorte(v, false); };
+  // Conexiones automáticas
+  const radio = h("input", { type: "range", min: 1, max: 10, step: 0.5, value: t.radio_enlace_auto ?? 4.5, "aria-label": "Distancia para conectar fotos automáticamente" });
+  const metros = (v) => `${String(v).replace(".", ",")} m`;
+  const radioVal = h("b", { text: metros(t.radio_enlace_auto ?? 4.5) });
+  radio.setAttribute("aria-valuetext", metros(t.radio_enlace_auto ?? 4.5));
+  radio.oninput = () => { radioVal.textContent = metros(radio.value); radio.setAttribute("aria-valuetext", metros(radio.value)); cambiar((tt) => { tt.radio_enlace_auto = Number(radio.value); }, { clave: "radio", render: false }); marcar(); };
+  radio.onchange = () => pintarLado();
+  const linea = (estilo, texto) => h("span", {}, h("span", { style: { display: "inline-block", width: "22px", borderTop: estilo, verticalAlign: "middle", marginRight: "6px" } }), texto);
+  const modo = modoZonas(t), nZonas = zonasPublicadas(t)?.length ?? 0;
+  const textoZonas = modo === "editadas" ? `${nZonas} zonas a tu medida.` : modo === "ninguna" ? "Sin zonas: las estancias se ven en una sola lista."
+    : modo === "plantas" ? "Con varias plantas, el cliente ve las estancias agrupadas por planta."
+    : nZonas ? `Automáticas: ${nZonas} zonas según los nombres de las estancias.` : "Automáticas: aparecen en cuanto haya estancias de día y de noche (o exteriores).";
+  det.append(h("div", { class: "contenido-avanzado" },
+    h("h3", { text: "Norte" }),
+    h("div", { class: "fila", style: { flexWrap: "nowrap" } }, dial,
+      h("div", { class: "campo" }, h("span", { text: "Hacia dónde está el norte (°, 0 = arriba)" }), inpNorte, h("small", { text: "Para la orientación (sur, etc.) y la luz." }))),
+    h("h3", { text: "Conexiones entre fotos" }),
+    h("div", { class: "campo" }, h("span", {}, "Conectar fotos a menos de ", radioVal), radio),
+    h("div", { class: "suave", style: { fontSize: "12.5px", display: "flex", flexDirection: "column", gap: "4px", marginTop: "6px" } },
+      linea("2px dashed var(--acento)", "automática (por distancia)"), linea("2.5px solid var(--acento)", "manual (herramienta Conectar)"),
+      linea("2px dashed rgba(239,107,98,.7)", "automática quitada")),
+    h("h3", { text: "Altura de la cámara" }),
+    campo(() => app.tour, "altura_camara", { etiqueta: "Altura del trípode (m)", tipo: "number", min: 0.5, max: 3, paso: 0.05, tipoCambio: "todo", ayuda: "La Guía Osmo 360 recomienda 1,5 m." }),
+    h("h3", { text: "Zonas de la vivienda" }),
+    h("p", { class: "suave", style: { fontSize: "12.5px", margin: "0 0 6px" }, text: textoZonas }),
+    h("button", { class: "btn peq", "data-campo": "zonas", onclick: dialogoZonas }, "Ver o cambiar zonas…"),
+    h("h3", { text: "Muros (para la maqueta 3D)" }),
+    h("p", { class: "suave", style: { fontSize: "12.5px", margin: "0 0 6px" }, text: planta()?.muros?.length ? `${planta().muros.length} tramos en esta planta.` : "Un DXF ya los trae. A mano: clic en cada esquina." }),
+    h("button", { class: "btn peq", onclick: () => fijarHerramienta("muro") }, icono("muro", 14), "Dibujar muros")));
+  return det;
+}
+
+// ------------------------------------------------------------------ zonas de la vivienda (secciones del tour)
+/** Zonas (E16): automáticas según los nombres; cambiar la zona de una estancia o un nombre las convierte en «a tu medida». */
+function dialogoZonas() {
+  const cont = h("div", { class: "editor-zonas" });
+  const pintarZ = () => {
+    const t = app.tour, modo = modoZonas(t), activo = modo === "editadas";
+    const lista = activo ? t.secciones : zonasSugeridas(t);
+    const materializar = () => { if (!Array.isArray(app.tour.secciones)) app.tour.secciones = zonasSugeridas(app.tour); delete app.tour._estudio.sinZonas; };
+    const de = (pid) => lista.findIndex((s) => (s.estancias ?? []).includes(pid));
+    const accion = (texto, fn) => h("button", { type: "button", class: "c8-boton c8-boton--s c8-boton--secundario", onclick: () => { cambiar(fn, { tipo: "datos" }); pintarZ(); } }, texto);
+    const estado = { editadas: ["chip acento", "A tu medida"], automaticas: ["chip acento", "Automáticas"], plantas: ["chip", "Por plantas"], ninguna: ["chip", "Sin zonas"] }[modo];
+    const nota = { editadas: "Las zonas que has ajustado. «Volver a automáticas» las recalcula con los nombres de las estancias.",
+      automaticas: zonasPublicadas(t) ? "Se calculan solas con los nombres de las estancias. Cambia la zona de una estancia si no encaja."
+        : "Se calculan solas con los nombres de las estancias. Ahora todas caen en la misma zona, así que el cliente las ve en una sola lista.",
+      plantas: "Con varias plantas, el cliente ve las estancias agrupadas por planta. Cambia la zona de una estancia para agruparlas por zonas.",
+      ninguna: "El cliente ve todas las estancias en una sola lista." }[modo];
+    cont.replaceChildren(
+      h("div", { class: "fila", style: { marginBottom: "8px" } },
+        h("span", { class: estado[0], text: estado[1] }),
+        h("div", { style: { flex: 1 } }),
+        activo ? accion("Añadir zona", () => { app.tour.secciones.push({ id: `zona-${app.tour.secciones.length + 1}`, nombre: { es: "Nueva zona" }, estancias: [] }); }) : null,
+        activo ? accion("Volver a automáticas", () => { delete app.tour.secciones; }) : null,
+        modo === "ninguna" ? accion("Usar zonas automáticas", () => { delete app.tour._estudio.sinZonas; })
+          : accion("No usar zonas", () => { delete app.tour.secciones; app.tour._estudio.sinZonas = true; })),
+      h("p", { class: "c8-sec", style: { margin: "0 0 12px" }, text: nota }),
+      activo ? h("div", { class: "lista-zonas" }, t.secciones.map((z, i) => h("div", { class: "fila", style: { flexWrap: "nowrap" } },
+        h("div", { style: { flex: 1 } }, campoTexto(() => app.tour.secciones[i], "nombre", { etiqueta: "Nombre de la zona", compacto: true, tipo: "datos" })),
+        h("span", { class: "chip", text: `${z.estancias?.length ?? 0} estancias` }),
+        h("button", { type: "button", class: "btn fantasma icono-btn", "aria-label": "Quitar zona", onclick: () => { cambiar(() => { app.tour.secciones.splice(i, 1); }, { tipo: "datos" }); pintarZ(); } }, icono("basura", 15))))) : null,
+      t.panoramas.length ? h("div", { class: "lista-zonas" }, t.panoramas.map((p) => {
+        const sel = h("select", { "aria-label": `Zona de ${textoDe(p.nombre)}` }, h("option", { value: "-1", text: "— Sin zona —" }), lista.map((z, i) => h("option", { value: String(i), text: textoDe(z.nombre) })));
+        sel.value = String(de(p.id));
+        sel.onchange = () => { cambiar(() => { materializar(); for (const z of app.tour.secciones) z.estancias = (z.estancias ?? []).filter((x) => x !== p.id); const j = Number(sel.value); if (j >= 0) app.tour.secciones[j].estancias.push(p.id); }, { tipo: "datos" }); pintarZ(); };
+        return h("div", { class: "fila", style: { flexWrap: "nowrap" } },
+          h("img", { src: urlDe(p.miniatura), alt: "", style: { width: "64px", height: "32px", objectFit: "cover", borderRadius: "4px" } }),
+          h("span", { style: { flex: 1, minWidth: 0 }, text: textoDe(p.nombre) || p.id }), h("div", { style: { width: "220px" } }, sel));
+      })) : h("p", { class: "c8-sec", text: "Añade fotos para agruparlas." }));
+  };
+  pintarZ();
+  dialogo({ c8: true, titulo: "Zonas de la vivienda", ancho: "min(640px, calc(100vw - 32px))", texto: "El cliente encuentra las estancias agrupadas en el visor y al preguntar por una zona.",
+    cuerpo: cont, botones: [{ texto: "Hecho", primario: true, valor: null }] }).then(() => pintarLado());
+}
+
 const colorEst = (e) => COLORES_EST[Math.abs([...e.id].reduce((s, c) => s * 31 + c.charCodeAt(0), 7)) % COLORES_EST.length];
 function longMuro(i) { const m = planta().muros?.[i]; return m ? Math.hypot(m[2] - m[0], m[3] - m[1]) : 0; }
 
@@ -276,10 +336,142 @@ async function borrarPlanta() {
   app.planta = app.tour.plantas[0].id;
   pintarUI(); ajustar();
 }
+// ------------------------------------------------------------------ planos de arquitecto
+const extDe = (n) => (n.split(".").pop() || "").toLowerCase();
+/** Plano del arquitecto: PDF (elige la página), DXF (a escala, con muros) o imagen. El original queda como documento privado. */
+export async function importarPlanoArquitecto(f, plantaId = app.planta) {
+  const e = extDe(f.name);
+  if (e === "dwg") {
+    return dialogo({ titulo: "DWG no se puede leer en el navegador", texto: "Pide al arquitecto el plano exportado a DXF (AutoCAD: Guardar como → DXF; Revit/ArchiCAD: Exportar → DXF) o a PDF, y súbelo aquí.", botones: [{ texto: "Entendido", primario: true }] });
+  }
+  if (e === "pdf" || f.type === "application/pdf") return importarPdf(f, plantaId);
+  if (e === "dxf") return importarDxf(f, plantaId);
+  if (/^image\//.test(f.type) || /^(png|jpe?g|webp|svg)$/.test(e)) return ponerImagenPlano(plantaId, f);
+  toast("Formato de plano no reconocido (usa PDF, DXF, PNG o JPG)", "aviso");
+}
+
+let pdfjs = null;
+async function cargarPdfjs() {
+  if (pdfjs) return pdfjs;
+  pdfjs = await import("./vendor/pdfjs/pdf.min.mjs");
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL("./vendor/pdfjs/pdf.worker.min.mjs", import.meta.url).href;
+  return pdfjs;
+}
+async function importarPdf(f, plantaId) {
+  const capa = cargando("Leyendo el PDF…");
+  try {
+    const lib = await cargarPdfjs();
+    const doc = await lib.getDocument({ data: new Uint8Array(await f.arrayBuffer()), standardFontDataUrl: new URL("./vendor/pdfjs/standard_fonts/", import.meta.url).href }).promise;
+    let num = 1;
+    capa.remove();
+    if (doc.numPages > 1) {
+      // Miniaturas de las páginas para elegir
+      const cont = h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "8px", maxHeight: "50vh", overflow: "auto" } });
+      let elegida = 1;
+      const botones = [];
+      for (let i = 1; i <= Math.min(doc.numPages, 24); i++) {
+        const pg = await doc.getPage(i);
+        const vp = pg.getViewport({ scale: 1 });
+        const k = 160 / Math.max(vp.width, vp.height);
+        const c = h("canvas", { width: Math.round(vp.width * k), height: Math.round(vp.height * k), style: { width: "100%", background: "#fff", borderRadius: "4px" } });
+        await pg.render({ canvasContext: c.getContext("2d"), viewport: pg.getViewport({ scale: k }) }).promise;
+        const b = h("button", { class: "btn", style: { flexDirection: "column", padding: "6px", height: "auto" }, "aria-pressed": String(i === 1), onclick: () => { elegida = i; botones.forEach((x, j) => x.classList.toggle("activo", j + 1 === i)); } }, c, `Página ${i}`);
+        if (i === 1) b.classList.add("activo");
+        botones.push(b); cont.append(b);
+      }
+      const r = await dialogo({ titulo: "¿Qué página es el plano de esta planta?", cuerpo: cont, ancho: "min(720px, calc(100vw - 32px))",
+        botones: [{ texto: "Cancelar", valor: null }, { texto: "Usar esta página", primario: true, valor: () => elegida }] });
+      if (!r) return;
+      num = r;
+    }
+    const c2 = cargando(`Convirtiendo la página ${num} en imagen…`);
+    try {
+      const pg = await doc.getPage(num);
+      const vp = pg.getViewport({ scale: 1 });
+      const k = Math.min(4000 / Math.max(vp.width, vp.height), 8);
+      const v2 = pg.getViewport({ scale: k });
+      const c = new OffscreenCanvas(Math.round(v2.width), Math.round(v2.height));
+      const g = c.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+      await pg.render({ canvasContext: g, viewport: v2 }).promise;
+      const png = await c.convertToBlob({ type: "image/png" });
+      await guardarDocumento(f, "plano", { nombre: `${f.name.replace(/\.[^.]+$/, "")}${doc.numPages > 1 ? ` (pág. ${num})` : ""}` });
+      await ponerImagenPlano(plantaId, png);
+      emitir("ir", { seccion: "plano" });
+    } finally { c2.remove(); }
+  } catch (e) {
+    console.error(e);
+    toast(`No se pudo leer el PDF: ${e.message}`, "error", 6000);
+  } finally { capa.remove(); }
+}
+
+async function importarDxf(f, plantaId) {
+  let dxf;
+  try { dxf = leerDxf(await f.text()); } catch (e) { return toast(`No se pudo leer el DXF: ${e.message}`, "error", 6000); }
+  if (!dxf.segs.length) return toast("El DXF no tiene líneas en el espacio modelo (¿están dentro de bloques?). Explota los bloques y vuelve a exportar.", "aviso", 7000);
+  const capas = [...dxf.capas.entries()].sort((a, b) => b[1] - a[1]);
+  const esMuro = (c) => /mur|wall|tabiq|cerram|fachad|a-wall|partition|m-|muro/i.test(c);
+  const marcadas = new Set(capas.filter(([c]) => esMuro(c)).map(([c]) => c));
+  if (!marcadas.size) capas.forEach(([c]) => marcadas.add(c));
+  let unidad = dxf.unidades ?? sugerirUnidades(dxf.segs);
+  const selU = h("select", { "aria-label": "Unidades" }, Object.keys(FACTOR).map((u) => h("option", { value: u, text: { mm: "Milímetros", cm: "Centímetros", dm: "Decímetros", m: "Metros", in: "Pulgadas", ft: "Pies" }[u] })));
+  selU.value = unidad;
+  const info = h("small", { class: "tenue" });
+  const prev = h("canvas", { width: 640, height: 360, style: { width: "100%", background: "#fff", borderRadius: "8px", marginTop: "10px" } });
+  const usarImagen = h("input", { type: "checkbox", checked: true });
+  const pintarPrev = () => {
+    unidad = selU.value;
+    const e = extension(dxf.segs);
+    info.textContent = `${dxf.unidades ? `Unidades del archivo: ${dxf.unidades}. ` : "El archivo no indica unidades. "}Tamaño: ${redondear(e.w * FACTOR[unidad], 2)} × ${redondear(e.h * FACTOR[unidad], 2)} m`;
+    const g = prev.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, prev.width, prev.height);
+    const k = Math.min((prev.width - 20) / e.w, (prev.height - 20) / e.h);
+    for (const s of dxf.segs) {
+      const sel = marcadas.has(s.capa);
+      g.strokeStyle = sel ? "#14161a" : "#c5c9cf"; g.lineWidth = sel ? 1.6 : 0.8;
+      g.beginPath(); g.moveTo(10 + (s.x1 - e.x0) * k, 10 + (e.y1 - s.y1) * k); g.lineTo(10 + (s.x2 - e.x0) * k, 10 + (e.y1 - s.y2) * k); g.stroke();
+    }
+  };
+  selU.onchange = pintarPrev;
+  const listaCapas = h("div", { style: { maxHeight: "180px", overflow: "auto", display: "flex", flexDirection: "column", gap: "2px", border: "1px solid var(--borde2)", borderRadius: "8px", padding: "6px 10px" } },
+    capas.map(([c, n]) => {
+      const i = h("input", { type: "checkbox", checked: marcadas.has(c) });
+      i.onchange = () => { i.checked ? marcadas.add(c) : marcadas.delete(c); pintarPrev(); };
+      return h("label", { class: "check", style: { minHeight: "26px" } }, i, h("span", { style: { flex: 1 }, text: c }), h("span", { class: "tenue", text: `${n}` }));
+    }));
+  const cuerpo = h("div", {},
+    h("div", { class: "fila" }, h("div", { class: "campo" }, h("span", { text: "Unidades del dibujo" }), selU), info),
+    h("div", { class: "campo", style: { marginTop: "10px" } }, h("span", { text: "Capas que son muros (se dibujan en el visor)" }), listaCapas),
+    prev,
+    h("label", { class: "check", style: { marginTop: "8px" } }, usarImagen, "Usar el dibujo completo como imagen del plano (ya a escala)"));
+  setTimeout(pintarPrev, 0);
+  const ok = await dialogo({ titulo: `Importar ${f.name}`, cuerpo, ancho: "min(720px, calc(100vw - 32px))", botones: [{ texto: "Cancelar", valor: false }, { texto: "Importar plano", primario: true, valor: true }] });
+  if (!ok) return;
+  const factor = FACTOR[unidad];
+  const e = extension(dxf.segs);
+  const todos = aMetros(dxf.segs, factor, e);
+  const muros = aMetros(dxf.segs.filter((s) => marcadas.has(s.capa)), factor, e);
+  const anchoM = e.w * factor, altoM = e.h * factor;
+  if (anchoM > 400 || anchoM < 1) {
+    if (!(await confirmar("¿Unidades correctas?", `Con «${unidad}» el plano mediría ${redondear(anchoM, 1)} m de ancho. ¿Continuar?`, "Continuar"))) return;
+  }
+  await guardarDocumento(f, "plano");
+  if (usarImagen.checked) {
+    const png = await renderizar(todos, anchoM, altoM, { px: 3000, resaltar: muros });
+    await ponerImagenPlano(plantaId, png, { ancho_m: anchoM, calibrado: true, silencioso: true });
+  }
+  cambiar((t) => {
+    const pl = t.plantas.find((x) => x.id === plantaId);
+    pl.muros = muros;
+    if (!usarImagen.checked) { t._estudio.calibrado ??= {}; t._estudio.calibrado[plantaId] = true; }
+  });
+  toast(`Plano DXF importado a escala: ${redondear(anchoM, 2)} × ${redondear(altoM, 2)} m, ${muros.length} tramos de muro`, "ok", 5000);
+  if (muros.length > 4000) toast("Hay muchos tramos de muro: el visor puede ir más lento. Desmarca capas de detalle (mobiliario, cotas, sombreados).", "aviso", 7000);
+  emitir("ir", { seccion: "plano" });
+}
+
 async function subirPlano(archivoDado) {
   const [f] = archivoDado instanceof File ? [archivoDado] : await elegirArchivos({ aceptar: "image/png,image/jpeg,image/webp,image/svg+xml,application/pdf,.pdf,.dxf,.dwg" });
   if (!f) return;
-  const { importarPlanoArquitecto } = await import("./estudio-material.js");
   await importarPlanoArquitecto(f, planta().id);
 }
 
@@ -916,11 +1108,11 @@ function teclas(e) {
 }
 
 export const seccionPlano = {
-  id: "plano", titulo: "Plano y conexiones", corto: "Plano", sinPie: true,
+  id: "plano", titulo: "Plano (opcional)", corto: "Plano", sinPie: true,
   resumen: () => {
     const t = app.tour, n = t.panoramas.length, c = t.panoramas.filter(colocado).length;
-    if (esRapido() && n && !c) return { texto: "Opcional · en orden de lista", hecho: true };
-    return { texto: n ? `${c} de ${n} colocadas` : esRapido() ? "Opcional" : "Plano, estancias, conexiones", hecho: n > 0 && c === n };
+    if (!c) return { texto: "Opcional", hecho: false, opcional: true };
+    return { texto: `${c} de ${n} colocadas`, hecho: n > 0 && c === n };
   },
   render,
   actualizar: () => { if (raiz) { pintarPlantas(); pintarHerramientas(); if (!lado?.contains(document.activeElement)) pintarLado(); marcar(); } },
@@ -941,4 +1133,3 @@ export const seccionPlano = {
 };
 on("vista", () => { if (raiz) marcar(); });
 on("nombres", () => { if (raiz) marcar(); });
-void norm180;

@@ -1,8 +1,10 @@
-// Paso 1 · Fotos 360: subida, procesado en Web Worker (8192 / 4096 / 512), nombres y orden de la visita.
+// Paso 1 · Fotos 360: subida, procesado en Web Worker (8192 / 4096 / 512), nombres (también los de la Guía Osmo 360)
+// y orden de la visita.
 import { dimensiones, leerMetadatos, describirCamara, fechaExif, norm180 } from "./estudio-util.js";
 import { app, h, $, icono, cambiar, emitir, on, toast, dialogo, confirmar, guardarArchivo, urlDe, idLibre, elegirArchivos,
-  textoDe, colocado, pano, fmtMB, calcularEnlaces, esRapido } from "./estudio-nucleo.js";
+  textoDe, fijarTexto, colocado, pano, fmtMB, calcularEnlaces, tienePlano } from "./estudio-nucleo.js";
 import { campoTexto } from "./estudio-campos.js";
+import { avisoPerfil } from "./estudio-perfil.js";
 
 // ------------------------------------------------------------------ procesado (Worker con alternativa en el hilo principal)
 let worker = null, sinWorker = false, seq = 0;
@@ -71,24 +73,105 @@ export function nombreSugerido(archivo, i) {
   return t ? t.charAt(0).toUpperCase() + t.slice(1) : `Estancia ${i}`;
 }
 
-/**
- * Nombres que el usuario escribió en el Asistente Osmo 360 (localStorage `cre8eight:asistente`):
- * { estancias: ["Salón", "Cocina"], tomas: { Cocina: 2 } } → ["Salón", "Cocina", "Cocina 2"].
- */
-export function nombresAsistente() {
-  let a;
-  try { a = JSON.parse(localStorage.getItem("cre8eight:asistente") ?? "null"); } catch { return []; }
-  if (!a || typeof a !== "object" || !Array.isArray(a.estancias)) return [];
-  const tomas = a.tomas && typeof a.tomas === "object" && !Array.isArray(a.tomas) ? a.tomas : {};
-  const r = [];
-  for (const x of a.estancias) {
-    if (typeof x !== "string" || !x.trim()) continue;
-    const nombre = x.trim().slice(0, 80);
-    const n = Number.isInteger(tomas[x]) ? Math.min(Math.max(tomas[x], 1), 20) : Number.isInteger(tomas[nombre]) ? Math.min(Math.max(tomas[nombre], 1), 20) : 1;
-    for (let i = 1; i <= n; i++) r.push(i === 1 ? nombre : `${nombre} ${i}`);
+// ------------------------------------------------------------------ nombres de la Guía Osmo 360 (S-10 · E12)
+// La Guía envía su lista por enlace: estudio.html#fotos&estancias=<n1>,<n2>…&tomas=<n1>:<k1>,… (cada nombre con
+// encodeURIComponent; las comas separan). Respaldo: la lista guardada por la Guía en este navegador
+// (localStorage «cre8eight:asistente»). El Estudio la enseña («Usar · No usar») y la consume: deja de ofrecerla al decidir.
+const MAX_ESTANCIAS = 60, MAX_TOMAS = 20, MAX_NOMBRE = 80;
+const CLAVE_GUIA = "cre8eight:asistente", CLAVE_USADA = "cre8eight:guia-usada";
+const decodificar = (s) => { try { return decodeURIComponent(s).replace(/\s+/g, " ").trim().slice(0, MAX_NOMBRE); } catch { return ""; } };
+const unicos = (xs) => [...new Set(xs.filter(Boolean))].slice(0, MAX_ESTANCIAS);
+
+/** Lista del enlace de la Guía → { estancias: [...], tomas: { nombre: n } } | null (lo raro se ignora sin romper nada). */
+export function listaDeEnlace(hash = location.hash) {
+  const partes = String(hash).replace(/^#/, "").split("&").slice(1);
+  const param = (k) => partes.find((x) => x.startsWith(`${k}=`))?.slice(k.length + 1);
+  const crudo = param("estancias");
+  if (crudo == null) return null;
+  const estancias = unicos(crudo.split(",").map(decodificar));
+  if (!estancias.length) return null;
+  const tomas = {};
+  for (const par of (param("tomas") ?? "").split(",")) {
+    const i = par.lastIndexOf(":");
+    if (i <= 0) continue;
+    const nombre = decodificar(par.slice(0, i)), k = Number(par.slice(i + 1));
+    if (estancias.includes(nombre) && Number.isInteger(k) && k >= 1) tomas[nombre] = Math.min(k, MAX_TOMAS);
   }
+  return { estancias, tomas };
+}
+function listaLocal() {
+  let a;
+  try { a = JSON.parse(localStorage.getItem(CLAVE_GUIA) ?? "null"); } catch { return null; }
+  if (!a || typeof a !== "object" || !Array.isArray(a.estancias)) return null;
+  const estancias = unicos(a.estancias.map((x) => (typeof x === "string" ? x.replace(/\s+/g, " ").trim().slice(0, MAX_NOMBRE) : "")));
+  if (!estancias.length) return null;
+  const t0 = a.tomas && typeof a.tomas === "object" && !Array.isArray(a.tomas) ? a.tomas : {};
+  const tomas = {};
+  for (const n of estancias) if (Number.isInteger(t0[n]) && t0[n] >= 1) tomas[n] = Math.min(t0[n], MAX_TOMAS);
+  return { estancias, tomas };
+}
+/** { estancias: ["Salón", "Cocina"], tomas: { Cocina: 2 } } → ["Salón", "Cocina", "Cocina 2"] (orden de disparo). */
+export function expandirLista({ estancias, tomas }) {
+  const r = [];
+  for (const n of estancias) for (let i = 1; i <= (tomas[n] ?? 1); i++) r.push(i === 1 ? n : `${n} ${i}`);
   return r;
 }
+const firmaLista = (l) => JSON.stringify([l.estancias, l.tomas]);
+const usada = (l) => { try { return localStorage.getItem(CLAVE_USADA) === firmaLista(l); } catch { return false; } };
+// La lista guardada en el navegador solo se ofrece a un proyecto que estaba vacío al abrirlo (también después de subir
+// sus primeras fotos, p. ej. si la Guía se terminó en otra pestaña): nunca a un inmueble antiguo que ya tenía fotos.
+let vacioAlAbrir = null;
+on("proyecto", () => { vacioAlAbrir = app.tour.panoramas.length ? null : app.proyecto?.id; });
+addEventListener("storage", (e) => { if (e.key === CLAVE_GUIA && app.tour && app.seccion === "fotos") pintar(); });
+/** Lista que hay que ofrecer ahora: la del enlace o, si no hay, la guardada por la Guía en este navegador. */
+function ofertaGuia() {
+  const enlace = listaDeEnlace();
+  if (enlace) return { lista: enlace, origen: "enlace" };
+  const local = listaLocal();
+  const nuevo = !app.tour.panoramas.length || (vacioAlAbrir != null && vacioAlAbrir === app.proyecto?.id);
+  return local && nuevo && !usada(local) && !app.tour._estudio.nombresGuia?.length ? { lista: local, origen: "local" } : null;
+}
+/** Tras «Usar» o «No usar»: no se vuelve a ofrecer (ni al recargar ni en el siguiente proyecto). */
+function resolverOferta(oferta) {
+  try { localStorage.setItem(CLAVE_USADA, firmaLista(oferta.lista)); } catch { /* modo privado: basta con limpiar el enlace */ }
+  const [paso, ...resto] = location.hash.replace(/^#/, "").split("&");
+  const quedan = resto.filter((x) => !/^(estancias|tomas)=/.test(x));
+  history.replaceState(null, "", `${location.pathname}${location.search}#${[paso || app.seccion, ...quedan].join("&")}`);
+}
+function usarLista(oferta) {
+  const nombres = expandirLista(oferta.lista);
+  const n = Math.min(app.tour.panoramas.length, nombres.length);
+  cambiar((t) => {
+    for (let i = 0; i < n; i++) fijarTexto(t.panoramas[i], "nombre", "es", nombres[i]);
+    const resto = nombres.slice(n);
+    if (resto.length) t._estudio.nombresGuia = resto; else delete t._estudio.nombresGuia;
+  });
+  resolverOferta(oferta);
+  toast(n ? `Nombres de la Guía puestos a ${n} ${n === 1 ? "foto" : "fotos"}, en el orden de la lista. Puedes cambiarlos (o deshacerlo con Ctrl+Z).`
+    : "Las fotos que añadas tomarán estos nombres, en orden de disparo. Puedes cambiarlos después.", "ok", 6000);
+  emitir("nombres");
+  pintar();
+}
+function avisoGuia() {
+  const oferta = ofertaGuia();
+  if (!oferta) return null;
+  const nombres = expandirLista(oferta.lista);
+  const resumen = oferta.lista.estancias.slice(0, 8).map((n) => (oferta.lista.tomas[n] > 1 ? `${n} (${oferta.lista.tomas[n]})` : n)).join(", ")
+    + (oferta.lista.estancias.length > 8 ? `… (${nombres.length} en total)` : "");
+  const conFotos = app.tour.panoramas.length, tus = (k) => (k === 1 ? "tu foto" : `tus ${k} fotos`);
+  const nota = !conFotos ? "Se pondrán a las fotos que añadas, en orden de disparo."
+    : nombres.length > conFotos ? `Se pondrán a ${tus(conFotos)} en orden; el resto, a las fotos que añadas.`
+    : nombres.length === conFotos ? `Se pondrán a ${tus(conFotos)}, en el orden de la lista.`
+    : `Se pondrán a ${nombres.length === 1 ? "la primera foto" : `las ${nombres.length} primeras fotos`}, en el orden de la lista.`;
+  return h("div", { class: "aviso-c8 aviso-guia", role: "region", "aria-label": "Nombres de tu Guía" },
+    h("span", { class: "aviso-icono" }, icono("guia", 20)),
+    h("div", { class: "aviso-texto" }, h("b", { text: "Nombres de tu Guía: " }), h("span", { text: resumen }),
+      h("small", { class: "c8-sec", text: nota })),
+    h("div", { class: "aviso-acciones" },
+      h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => usarLista(oferta) }, "Usar"),
+      h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: () => { resolverOferta(oferta); pintar(); } }, "No usar")));
+}
+on("hash", () => { if (app.seccion === "fotos") pintar(); });
 const EXT_VIDEO = /\.(osv|insv|mp4|mov|m4v|lrv)$/i;
 
 export function avisoVideo(nombres) {
@@ -100,7 +183,7 @@ export function avisoVideo(nombres) {
         h("li", {}, "Ábrelo en ", h("b", { text: "DJI Studio" }), " (ordenador) o ", h("b", { text: "DJI Mimo" }), " (móvil)."),
         h("li", {}, "Expórtalo como ", h("b", { text: "MP4 equirectangular 8K" }), " (proyección 360, sin reencuadre)."),
         h("li", {}, "Úsalo para entrenar un Gaussian Splat del paseo libre (Postshot, Brush, RealityScan) o extrae fotogramas con extraer_fotogramas.py.")),
-      h("p", { style: { margin: 0 } }, "Para el recorrido 360 usa el modo ", h("b", { text: "Foto panorámica" }), " de la cámara (JPG 15520×7760). ", h("a", { href: "asistente-osmo.html", target: "_blank", text: "Ver la guía" }))),
+      h("p", { style: { margin: 0 } }, "Para el recorrido 360 usa el modo ", h("b", { text: "Foto panorámica" }), " de la cámara (JPG 15520×7760). ", h("a", { href: "asistente-osmo.html#paseo-libre", target: "_blank", rel: "noopener", text: "Guía Osmo 360" }))),
     botones: [{ texto: "Entendido", primario: true }],
   });
 }
@@ -126,20 +209,21 @@ export async function anadirFotos(archivos, { render = false } = {}) {
         h("ul", { style: { margin: 0, paddingLeft: "18px" } },
           h("li", { text: "Si ves dos círculos (ojo de pez doble), está sin coser: ábrela en DJI Mimo o DJI Studio y exporta «Foto panorámica 360» (equirectangular)." }),
           h("li", { text: "Si es una foto recortada o con efecto “planeta”, vuelve a exportarla desde DJI Mimo como “Foto panorámica 360”, sin reencuadrar." }),
-          h("li", { text: "Una foto normal (móvil, réflex) súbela a la galería en «Material», no como estancia 360." })))),
+          h("li", { text: "Una foto normal (móvil, réflex) súbela a la galería en «Más herramientas → Extras», no como estancia 360." })),
+        h("p", { style: { margin: "8px 0 0" } }, h("a", { href: "asistente-osmo.html#problemas", target: "_blank", rel: "noopener", text: "Problemas frecuentes en la Guía Osmo 360" })))),
       botones: [{ texto: "Omitir esas fotos", valor: "omitir", primario: true }, { texto: "Añadir igualmente", valor: "todas" }],
       ancho: "min(560px, calc(100vw - 32px))",
     });
     if (!r) return;
     if (r === "omitir") aceptadas = info.filter((x) => !raras.includes(x));
   }
-  const lista = nombresAsistente();
-  const usados = new Set(app.tour.panoramas.map((p) => textoDe(p.nombre).toLowerCase()));
-  const pendientesAsist = lista.filter((n) => !usados.has(n.toLowerCase()));
+  // Nombres de la Guía que el agente decidió usar (se consumen en orden de disparo).
+  const deGuia = [...(app.tour._estudio.nombresGuia ?? [])];
+  const conGuia = deGuia.length > 0;
   let conBrujula = 0;
   for (const { f, dim, exif } of aceptadas) {
     const n = app.tour.panoramas.length + cola.filter((x) => x.estado === "espera" || x.estado === "procesando").length + 1;
-    const nombre = pendientesAsist.length ? pendientesAsist.shift() : nombreSugerido(f.name, n);
+    const nombre = deGuia.length ? deGuia.shift() : nombreSugerido(f.name, n);
     const camara = describirCamara(exif, dim);
     const rumbo = Number.isFinite(exif?.rumbo) ? exif.rumbo : null;
     if (rumbo != null) conBrujula++;
@@ -173,8 +257,11 @@ export async function anadirFotos(archivos, { render = false } = {}) {
     });
     void dim;
   }
-  if (conBrujula) toast(esRapido() ? `Dirección automática por brújula en ${conBrujula} foto(s).` : `Dirección automática por brújula en ${conBrujula} foto(s): revísala en «Dirección y notas».`, esRapido() ? "info" : "aviso", 6000);
-  if (lista.length && aceptadas.length) toast("Nombres tomados del Asistente Osmo 360 (en orden de disparo). Puedes cambiarlos.", "info", 5000);
+  if (conGuia && aceptadas.length) {
+    cambiar((t) => { if (deGuia.length) t._estudio.nombresGuia = deGuia; else delete t._estudio.nombresGuia; }, { tipo: "local" });
+    toast("Nombres tomados de tu Guía Osmo 360 (en orden de disparo). Puedes cambiarlos.", "info", 5000);
+  }
+  if (conBrujula) toast(`Orientación automática por brújula en ${conBrujula} ${conBrujula === 1 ? "foto" : "fotos"}.`, "info", 5000);
 }
 
 /** Para tours importados: genera miniatura / versión móvil si faltan y guarda dimensiones. */
@@ -227,37 +314,42 @@ function pintar() {
   if (!raiz) return;
   const t = app.tour;
   const elegir = async () => anadirFotos(await elegirArchivos({ aceptar: "image/jpeg,image/png,image/webp,.osv,.insv,video/*", multiple: true }));
-  const asistente = () => h("a", { class: "enlace-asistente", href: "asistente-osmo.html", target: "_blank", rel: "noopener" }, icono("info", 15), "¿Primera vez? Abre el Asistente Osmo 360");
+  const vacio = !t.panoramas.length && !cola.length;
   const cab = h("div", { class: "cab-seccion" },
     h("div", {}, h("h1", { text: "Fotos 360" }),
-      h("p", { text: "Arrastra las fotos panorámicas de la DJI Osmo 360 (JPG 2:1, 120 MP o HDR 30 MP). Se optimizan en tu ordenador, se les quita la ubicación GPS y se ordenan por hora de disparo: ese es el orden de la visita guiada." }),
-      asistente()),
-    t.panoramas.length ? h("div", { class: "acciones" }, h("button", { class: "btn primario", onclick: elegir }, icono("mas", 16), "Añadir fotos")) : null);
+      h("p", { text: vacio ? "Las fotos panorámicas de la DJI Osmo 360 (JPG 2:1). Se optimizan en tu ordenador, se les quita la ubicación GPS y se ordenan por hora de disparo."
+        : "El orden de la lista es el de la visita guiada. Cámbialo con ↑ ↓ o arrastrando las filas." })),
+    t.panoramas.length ? h("div", { class: "acciones" }, h("button", { class: "btn", onclick: elegir }, icono("mas", 16), "Añadir fotos")) : null);
   const zonaSoltar = (el) => {
     el.addEventListener("dragover", (e) => { if ([...e.dataTransfer.types].includes("Files")) { e.preventDefault(); el.classList.add("sobre"); } });
     el.addEventListener("dragleave", () => el.classList.remove("sobre"));
     el.addEventListener("drop", () => el.classList.remove("sobre"));
     return el;
   };
-  const partes = [cab];
-  if (!t.panoramas.length && !cola.length) {
+  const partes = [cab, avisoGuia()];
+  if (vacio) {
+    // Primera visita (S-3): un solo botón principal y una sola entrada a la Guía.
     partes.push(zonaSoltar(h("div", { class: "vacio-grande" },
       icono("fotos", 42),
       h("h3", { text: "Empieza con las fotos 360 del inmueble" }),
-      h("p", { text: "Una foto por estancia, tomada a 1,5 m de altura en el centro de cada espacio. Puedes soltar aquí varias a la vez, una copia de seguridad (ZIP) o una carpeta con tour.json." }),
-      h("div", { class: "fila", style: { justifyContent: "center" } },
-        h("button", { class: "btn primario grande", onclick: elegir }, icono("subir", 18), "Elegir fotos"),
-        h("button", { class: "btn grande", onclick: () => emitir("abrir") }, icono("abrir", 18), "Abrir proyecto")),
-      h("small", { class: "tenue", text: "Consejo Osmo 360: modo Foto panorámica, trípode a 1,5 m y nada a menos de 0,75 m de la cámara (el cosido falla). Se generan 3 tamaños: 8192 px (ordenador), 4096 px (móvil) y 512 px (galería)." }),
-    )));
+      h("p", { text: "Una foto por estancia, a 1,5 m de altura en el centro de cada espacio. Puedes soltar aquí varias a la vez (o una copia de seguridad en ZIP)." }),
+      h("button", { class: "btn primario grande", onclick: elegir }, icono("subir", 18), "Elegir fotos"),
+      h("a", { class: "enlace-guia", href: "asistente-osmo.html", target: "_blank", rel: "noopener" }, icono("guia", 16), "¿Aún no tienes las fotos? Guía Osmo 360"))),
+    avisoPerfil());
   } else {
     partes.push(zonaSoltar(h("div", { class: "zona-soltar" }, icono("subir", 22),
-      h("div", { class: "relleno" }, h("b", { text: "Suelta más fotos aquí" }), h("div", { class: "tenue", text: "Arrastra las filas para cambiar el orden de la visita." })),
-      h("button", { class: "btn", onclick: elegir }, "Elegir…"))));
+      h("div", { class: "relleno" }, h("b", { text: "Suelta más fotos aquí" }), h("div", { class: "tenue", text: "También una copia de seguridad (ZIP)." })))));
   }
   partes.push(pintarCola());
   if (t.panoramas.length) partes.push(pintarLista());
-  raiz.replaceChildren(...partes);
+  const pendientes = t._estudio.nombresGuia ?? [];
+  if (pendientes.length) partes.push(h("p", { class: "nota-fotos" }, h("b", { text: "Nombres de tu Guía para las próximas fotos: " }),
+    pendientes.slice(0, 6).join(", ") + (pendientes.length > 6 ? `… (${pendientes.length})` : ""), " · ",
+    h("button", { class: "enlace", onclick: () => cambiar((tt) => { delete tt._estudio.nombresGuia; }, { tipo: "local" }) }, "No usarlos")));
+  if (!vacio) partes.push(h("p", { class: "nota-fotos" }, "¿Tienes renders 360 del arquitecto (obra nueva)? ",
+    h("button", { class: "enlace", onclick: async () => anadirFotos(await elegirArchivos({ aceptar: "image/jpeg,image/png,image/webp", multiple: true }), { render: true }) }, "Añádelos como estancias"),
+    ". Como estilo de una foto, en «Más herramientas → Estilo y luz»."));
+  raiz.replaceChildren(...partes.filter(Boolean));
 }
 function pintarCola() {
   const c = h("div", { class: "cola", id: "cola-fotos" });
@@ -278,7 +370,7 @@ function pintarLista() {
   const { vecinos } = calcularEnlaces();
   const lista = h("div", { class: "lista-fotos", role: "list" });
   let arrastrado = null;
-  const algunaColocada = t.panoramas.some(colocado);
+  const conPlano = t.panoramas.some(colocado) || tienePlano(t);
   const subirBajar = (p, i, d) => {
     const j = i + d;
     if (j < 0 || j >= t.panoramas.length) return;
@@ -289,25 +381,25 @@ function pintarLista() {
     const meta = t._estudio.meta[p.imagen];
     const ratio = meta ? meta.w / meta.h : 2;
     const planta = t.plantas.find((x) => x.id === p.planta);
+    const no2a1 = meta && Math.abs(ratio - 2) > 0.02;
     const chips = [
       h("span", { class: "chip", text: `#${i + 1}` }),
-      meta ? h("span", { class: `chip ${Math.abs(ratio - 2) > 0.02 ? "error" : ""}`, text: `${meta.w}×${meta.h}${meta.bytes ? " · " + fmtMB(meta.bytes) : ""}`, title: Math.abs(ratio - 2) > 0.02 ? "No es 2:1" : "Equirectangular 2:1" }) : null,
-      colocado(p) ? h("span", { class: "chip ok", text: t.plantas.length > 1 ? `En el plano · ${textoDe(planta?.nombre)}` : "En el plano" })
-        : esRapido() && !algunaColocada ? null
-          : h("button", { class: "chip aviso", style: { border: 0, cursor: "pointer" }, text: "Sin colocar en el plano", onclick: () => emitir("ir", { seccion: "plano" }) }),
+      no2a1 ? h("span", { class: "chip error", text: `No es 360 completa (${meta.w}×${meta.h})`, title: "Las fotos 360 son el doble de anchas que de altas (2:1)" }) : null,
+      !conPlano ? null : colocado(p) ? h("span", { class: "chip ok", text: t.plantas.length > 1 ? `En el plano · ${textoDe(planta?.nombre)}` : "En el plano" })
+        : h("button", { class: "chip aviso", style: { border: 0, cursor: "pointer" }, text: "Sin colocar en el plano", onclick: () => emitir("ir", { seccion: "plano" }) }),
       colocado(p) && !(vecinos.get(p.id)?.length) && t.panoramas.length > 1 ? h("span", { class: "chip error", text: "Sin conectar" }) : null,
-      p.variantes?.length ? h("span", { class: "chip acento", text: `${p.variantes.length} variantes` }) : null,
+      p.variantes?.length ? h("span", { class: "chip acento", text: `${p.variantes.length} ${p.variantes.length === 1 ? "variante" : "variantes"}` }) : null,
       p.puntos?.length ? h("span", { class: "chip", text: `${p.puntos.length} ${p.puntos.length === 1 ? "nota" : "notas"}` }) : null,
       meta?.render || p.origen === "render" ? h("span", { class: "chip acento", text: "Render 360" }) : null,
-      meta?.camara ? h("span", { class: "chip acento", text: meta.camara, title: meta.fecha ? `Disparada el ${meta.fecha}` : "" }) : null,
-      meta?.brujula != null && !meta.brujulaRevisada ? (esRapido() ? h("span", { class: "chip ok", text: "Dirección por brújula" })
-        : h("span", { class: "chip aviso", text: "Dirección por brújula: revísala", title: `${meta.brujulaFuente ?? "XMP"} = ${meta.brujula}°` })) : null,
+      conPlano && meta?.brujula != null && !meta.brujulaRevisada ? h("button", { class: "chip aviso", style: { border: 0, cursor: "pointer" }, text: "Orientación por brújula: revísala",
+        title: `${meta.brujulaFuente ?? "XMP"} = ${meta.brujula}°`, onclick: () => { app.nodo = p.id; emitir("nodo", {}); emitir("ir", { seccion: "orientacion" }); } }) : null,
     ];
+    const tecnico = meta ? [meta.camara, `${meta.w}×${meta.h}`, meta.bytes ? fmtMB(meta.bytes) : null, meta.fecha ? `disparada el ${meta.fecha}` : null].filter(Boolean).join(" · ") : "";
     const inicio = (t.inicio ?? t.panoramas[0].id) === p.id;
     const fila = h("div", { class: `foto ${p.id === app.nodo ? "sel" : ""}`, role: "listitem", draggable: "true", dataset: { id: p.id } },
       h("span", { class: "asa", title: "Arrastra para reordenar" }, icono("arrastrar", 16)),
       h("img", { class: "mini", src: urlDe(p.miniatura || p.imagen_movil || p.imagen), alt: "", loading: "lazy", draggable: "false",
-        title: "Ver en la vista previa", onclick: () => { app.nodo = p.id; emitir("nodo", {}); marcarSel(); } }),
+        title: `Ver en la vista previa${tecnico ? `\n${tecnico}` : ""}`, onclick: () => { app.nodo = p.id; emitir("nodo", {}); marcarSel(); } }),
       h("div", { class: "info" },
         campoTexto(() => pano(p.id), "nombre", { etiqueta: `Nombre de la estancia ${i + 1}`, compacto: true, tipo: "datos", placeholder: "Nombre de la estancia",
           alCambiar: () => emitir("nombres") }),
@@ -348,7 +440,7 @@ function pintarLista() {
     });
     lista.append(fila);
   });
-  return h("div", {}, lista, h("p", { class: "tenue", style: { fontSize: "12.5px", marginTop: "10px" } }, "El orden de la lista es el de la visita guiada. Cámbialo con las flechas ↑ ↓, arrastrando las filas o con ", h("kbd", { text: "Alt" }), " + ", h("kbd", { text: "↑" }), h("kbd", { text: "↓" }), " desde un nombre."));
+  return h("div", {}, lista, h("p", { class: "tenue", style: { fontSize: "12.5px", marginTop: "10px" } }, "Con el teclado: ", h("kbd", { text: "Alt" }), " + ", h("kbd", { text: "↑" }), h("kbd", { text: "↓" }), " desde un nombre."));
 }
 function mover(id, destino, despues) {
   if (id === destino) return;

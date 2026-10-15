@@ -19,6 +19,7 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
                                         // enlaces a una vista, del QR y de los mensajes. La escribe el Estudio al publicar.
                                         // Sin ella, en el HTML autónomo abierto desde el disco no se comparten enlaces
                                         // (nunca una ruta file://).
+  "portada": true,                      // false: sin portada («Empezar visita»); el recorrido se abre al terminar la carga
   "idioma": "es",                       // idioma por defecto
   "idiomas": ["es", "en"],              // idiomas ofrecidos en la interfaz
 
@@ -115,7 +116,8 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
   "documentacion": [                    // material de origen adjuntado en el Estudio (no se muestra salvo `publico: true`)
     { "nombre": "Plano de planta (arquitecto)", "archivo": "docs/plano.pdf", "tipo": "plano" | "render" | "modelo" | "memoria" | "otro", "publico": false }
   ],
-  "secciones": [                        // categorías para agrupar estancias (contacto, galería): opcional
+  "secciones": [                        // zonas para agrupar las estancias (tira, «Estancias y plano», contacto): opcional.
+                                        // `estancias` admite ids de fotos (panoramas) o de estancias del plano
     { "id": "dia", "nombre": "Zona de día", "estancias": ["salon", "cocina"] },
     { "id": "noche", "nombre": "Zona de noche", "estancias": ["dormitorio", "bano"] },
     { "id": "exterior", "nombre": "Exterior y zonas comunes", "estancias": [] }
@@ -155,7 +157,8 @@ Si `estilo` no está disponible en un panorama, se muestra la base y el panel av
 
 ```js
 visor.tour                      // objeto tour normalizado
-visor.estado                    // { modo, nodo, rumbo, cabeceo, fov, estilo, momento, pintura, comparar, planta, idioma }
+visor.estado                    // { modo, nodo, rumbo, cabeceo, fov, estilo, momento, pintura, comparar, midiendo, guionActivo, planta, idioma }
+visor.listo                     // true tras el evento "listo"
 visor.ir(idNodo)                // Promise
 visor.modo("tour" | "libre" | "maqueta")
 visor.fijarEstilo(id)  visor.fijarMomento(id)
@@ -164,29 +167,100 @@ visor.comparar(true|false)      // pantalla dividida: original (izq.) vs estilo/
 visor.medir(true|false)         // herramienta de medición
 visor.guion.iniciar() / .parar() // visita guiada; emite 'guion:fin'
 visor.vista()                   // { nodo, rumbo, cabeceo, fov } (rumbo en grados de mundo)
-visor.enlaceVista()             // URL absoluta que reabre la vista actual
+visor.enlaceVista()             // URL absoluta que reabre la vista actual ("" sin dirección web)
 visor.idioma(cod)               // cambia idioma de la interfaz
-visor.t(texto)                  // resuelve un Texto ({es,en} | cadena) al idioma actual
+visor.t(texto)  visor.tr(clave, vars)   // resuelve un Texto ({es,en} | cadena) / un texto de la interfaz
 visor.lienzo                    // <canvas> WebGL (para grabar vídeo)
-visor.capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.85 } = {})
+visor.capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.88, marca = true } = {})
                                 // Promise<{ blob, nodo, estancia, enlace, vista }> captura de la vista actual (sin interfaz)
 visor.sonido                    // { activo, disponible, volumen, alternar(), fijarVolumen(v 0-1) }
 visor.pistaAudio(true|false)    // MediaStreamTrack de la música para grabar vídeo (independiente del silencio)
-visor.radar(modo)               // "radar" (gira con la vista, centrado) | "plano" (norte arriba) | "oculto"
+visor.tiempoReal(true|false)  visor.renderizar()  visor.tamanoCaptura(w, h | null)  visor.sello()   // grabación de vídeo
 visor.estanciaActual()          // { id, nombre } de la estancia (polígono) en la que está el visitante, o null
+visor.ajustes({ … })            // ajustes del visitante (se guardan); devuelve los vigentes:
+                                //   sensibilidad, sensibilidadTactil, invertirY, reducirMovimiento, fov,
+                                //   atajos (true: atajos de una letra; WCAG 2.1.4),
+                                //   modoJuegoWASD (true: W A S D entra en el modo juego con ratón),
+                                //   capturaConClic (false: un clic en la escena del recorrido NO captura el ratón)
 visor.on(evento, fn) / visor.off(evento, fn)
+
+// Fase 3 (organización del visor)
+visor.estanciasPlano(abrir?)    // abre (true), cierra (false) o alterna «Estancias y plano». Devuelve si queda abierto
+visor.radar(modo?)              // compatibilidad: "radar" lo muestra, "oculto" lo oculta, "plano" abre «Estancias y plano»;
+                                // sin argumento alterna. Devuelve si el radar queda visible
+visor.modoJuego(si?)            // entra o sale del modo juego (ratón capturado); sin argumento alterna. Necesita un gesto
+                                // del usuario (clic o tecla); si el navegador no deja, se sigue mirando arrastrando
+visor.giroscopio(si?)           // «Mirar moviendo el móvil»; sin argumento alterna. Promise<boolean> (activo)
+visor.ayuda(si?)                // abre o cierra «Ayuda y controles»
+visor.portada                   // { visible } (solo lectura)
+visor.empezar({ guiada? })      // cierra la portada como «Empezar visita» ({ guiada: true } = «▶ Visita guiada»)
+visor.mas.agregar({ id, texto, icono, accion, orden = 50, donde = "siempre", marcado })
+visor.mas.quitar(id)            // menú «Más» (lo pinta y gestiona el núcleo: teclado, Esc y foco)
+visor.mas.abrir() / .cerrar()
 ```
 
-Controles (estilo Minecraft): clic en el lienzo (escritorio) captura el ratón; el ratón mira (sin arrastrar); W/↑ adelante,
-S/↓ atrás, A/← y D/→ lateral (en el recorrido 360: ir a la estancia de ese lado), Q/E girar, Espacio saltar (modo libre
-con suelo) o subir (sin suelo), C bajar, Shift correr, Esc soltar el ratón. En el recorrido 360 con el ratón capturado,
-el clic avanza hacia la flecha o la estancia que hay bajo la mira.
+**Menú «Más».** Lo pinta el núcleo (`#btn-mas` en la barra de vista y `#menu-mas`, `role="menu"`); los paneles solo aportan
+los elementos. Sin elementos visibles, el botón no se ve.
+
+| Campo | Qué es |
+|---|---|
+| `id` | Único. Agregar con un `id` que ya existe lo sustituye (conserva su posición) |
+| `texto` | Cadena o función que la devuelve (se evalúa al abrir: así sigue al idioma). Dos elementos con el mismo texto se muestran una vez |
+| `icono` | Nombre que el núcleo conoce (`compartir`, `idioma`/`globo`, `ajustes`, `guiada`/`play`, `medir`/`regla`, `pantalla`, `giroscopio`/`movil`, `plano`, `camara`, `estilo`/`pincel`, `ayuda`) o un SVG en texto (se descarta si trae scripts o manejadores) |
+| `accion({ origen })` | Se llama tras cerrar el menú. `origen` es `#btn-mas`, para devolverle el foco al cerrar un diálogo |
+| `orden` | Menor arriba (por defecto 50) |
+| `donde` | `"siempre"`, `"movil"`, `"escritorio"` o una función. «Móvil» es la disposición móvil de los paneles: ancho ≤ 720, vertical hasta 1024 o alto ≤ 500 en horizontal |
+| `marcado` | Opcional: función → booleano. El elemento pasa a `menuitemcheckbox` con su marca |
+
+**Controles.**
+
+- **Recorrido 360:**
+  - Arrastrar mira (como Street View). Un clic o toque en una flecha del suelo, en su nombre o en el suelo va a esa estancia.
+    Un clic en el vacío no hace nada (con `capturaConClic`, captura el ratón como antes de la fase 3).
+  - W/↑ adelante, S/↓ atrás, A/← y D/→ a los lados (ir a la estancia de ese lado; mantener W sigue avanzando), Q/E girar,
+    RePág/AvPág mirar arriba y abajo, rueda o pellizco: zoom, +/− zoom, 1–9 ir a esa estancia (sin anunciar).
+- **Modo juego (ratón capturado, como en Minecraft):** se entra con **W A S D** (las letras; las flechas nunca capturan) si hay
+  ratón (`pointer: fine`), los atajos están activos y `modoJuegoWASD` no es `false`; con el botón 🎮 «Modo juego» de la barra
+  de vista; o, en el paseo libre, con un clic (tarjeta «Haz clic para caminar…»). Mientras dura: el ratón mira, el clic actúa
+  sobre la mira (avanza hacia la flecha o la estancia que hay debajo), aviso fijo «Modo juego · Esc para salir» (se atenúa al
+  40 % a los 3 s), `body.raton-capturado` y solo quedan a la vista el radar y el aviso (los paneles se ocultan: un elemento suyo
+  puede volver con `visibility: visible`). Se sale con Esc; la primera salida avisa «Has salido del modo juego · W A S D o 🎮
+  para volver». No existe en táctil ni con `?embed`.
+- **Paseo libre:** W A S D o flechas caminar, Shift correr, Espacio saltar (con suelo) o subir (sin suelo), C bajar, Q/E girar;
+  en táctil, pulgar izquierdo (joystick) para caminar y arrastrar a la derecha para mirar.
+- **Teclas globales** (con los atajos activos; no con el foco en un campo de texto, un diálogo o un menú):
+  **R** muestra u oculta el radar · **M** abre o cierra «Estancias y plano» · **V** cambia de modo · **H** o **?** ayuda ·
+  **Esc** cierra la nota abierta o la medición. Con un diálogo abierto, su misma tecla (M o H) lo cierra.
+- **Distribución del teclado:** W A S D y Q E van por su posición (`e.code`; en AZERTY son Z Q S D y A E, y los textos lo
+  dicen si el navegador conoce la distribución con `navigator.keyboard.getLayoutMap`); R, M, V y H van por la letra que
+  pone la tecla (con alfabetos no latinos, por su posición).
+
+**Organización de la pantalla (contrato con los paneles, `docs/auditorias/fase3-plan.md` §3).**
+
+| Elemento | Qué es |
+|---|---|
+| `#lugar` | Botón con el logo, el título y «Estancia · Planta» (o «Estancia · m²» con una sola planta). Abre «Estancias y plano» |
+| `#radar` | Arriba a la izquierda, bajo `#lugar`, en todos los tamaños: `canvas#mapa` (gira con la mirada) y `#btn-ampliar`. Oculto por defecto si ninguna planta tiene imagen o muros y no hay estancias dibujadas (se puede mostrar con R o el botón); oculto en la maqueta |
+| `#modos` | «Recorrido · Paseo libre · Maqueta» (radios; nombres largos en `aria-label`), solo con 2 modos o más. Arriba en el centro; abajo en vertical (hasta 1024 px). La maqueta solo existe con muros o modelo 3D |
+| `#barra-vista` | Radar · Modo juego\* · Música\* · Ayuda · Pantalla completa\* · Más. Fila; columna en el teléfono en vertical. Pulsado (dorado) = función activada. En el teléfono la pantalla completa sale de la barra (la ofrecen los paneles en «Más») |
+| `#galeria` | Tira de estancias (escritorio y tablet) agrupada por zonas (`secciones`) o plantas, con separador. En vertical empieza con «▶ Visita guiada». Oculta en el teléfono |
+| `#estancias-plano` | `<dialog>` modal (hoja en el teléfono, ventana en escritorio, siempre por encima de todo): plano con el norte arriba y pestañas de planta, «▶ Visita guiada» y estancias con miniatura agrupadas por zonas o plantas |
+| `#guion-barra` | Único control de la visita guiada en curso (pausa, n/total, progreso y ✕). Ocupa el sitio de `#modos` mientras dura |
+| `#portada` | Agencia, título, precio y 3 datos, progreso real, «Empezar visita» (gesto que deja sonar la música), «▶ Visita guiada» (con 3 estancias o más) e idiomas (con 2 o más). Sin portada con `?embed`; `tour.portada: false` entra directo al terminar la carga |
+| `#aviso-juego`, `#tarjeta-juego` | Aviso fijo del modo juego y tarjeta «Haz clic para caminar…» del paseo libre |
+| `#paneles` | Donde montan los paneles. Publican `--reserva-inferior` (alto ocupado abajo) y `--ancho-dock` (ancho a la derecha) |
+
+Clases de `body` que pone el núcleo: `tactil`, `embed`, `con-portada`, `ui-inactiva` (3,5 s sin interacción: se ocultan
+`#lugar`, `#modos`, `#barra-vista` y `#galeria`; quedan el radar y la tarjeta), `raton-capturado`, `modo-libre`,
+`modo-maqueta`, `guion-activo`, `midiendo`, `sin-webgl`. Variable `--alto-tira`: alto de la tira de estancias (0 si no se ve).
 
 Eventos (`visor.on`), también emitidos como `CustomEvent("visor:<evento>")` en `window` y enviados a
 `window.dataLayer` si existe (analítica):
-`listo`, `tour` (tras cada carga, también `visor:cargar`), `nodo` ({id}), `modo`, `estilo`, `momento`, `pintura`, `medida` ({metros, tipo}), `contacto` ({canal}),
-`guion:inicio`, `guion:paso` ({paso, nodo, texto}), `guion:pausa`, `guion:fin`, `idioma`, `sonido` ({activo, volumen}; al silenciar/activar,
-al cambiar el volumen y con `disponible: false` si la música no se puede cargar).
+`listo`, `tour` (tras cada carga, también `visor:cargar`), `nodo` ({id}), `modo`, `estilo`, `momento`, `pintura`, `medida` ({metros, tipo}),
+`medir` ({activo}), `comparar` ({activo}), `contacto` ({canal}), `guion:inicio`, `guion:paso` ({paso, nodo, texto}), `guion:pausa`,
+`guion:fin`, `idioma`, `sonido` ({activo, volumen}; al silenciar/activar, al cambiar el volumen y con `disponible: false` si la
+música no se puede cargar), `modojuego` ({activo}), `giroscopio` ({activo}), `empezar` ({guiada, automatica}: al cerrar la
+portada; `automatica` con `tour.portada: false`).
 
 ## 3. Mensajes `postMessage` (Estudio ↔ visor en `<iframe src="index.html?embed">`)
 
@@ -198,7 +272,7 @@ Estudio → visor:
 Visor → Estudio (`window.parent`):
 - `{ tipo: "visor:listo" }`
 - `{ tipo: "visor:vista", nodo, rumbo, cabeceo, fov, yawLocal, pitchLocal }` (rumbo/cabeceo de mundo; yawLocal/pitchLocal
-  relativos a la imagen, para colocar `puntos`)
+  relativos a la imagen, para colocar `puntos`). No se envía mientras se va a otra estancia (llega al terminar el viaje)
 - `{ tipo: "visor:clic", nodo, yawLocal, pitchLocal }`
 
 ## 4. Tour embebido (archivo HTML autónomo)

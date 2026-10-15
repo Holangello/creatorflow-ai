@@ -12,36 +12,65 @@ const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 const EMBED = params.has("embed");
 const esTactil = matchMedia("(pointer: coarse)").matches || "ontouchstart" in window;
+const conRaton = matchMedia("(pointer: fine)").matches; // modo juego: solo con ratón
 const prefiereReducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
+// «donde: "movil"» del menú «Más»: la disposición móvil de los paneles (teléfono y tablet en vertical).
+const MQ_MOVIL = matchMedia("(max-width: 720px), (orientation: portrait) and (max-width: 1024px), (max-height: 500px) and (orientation: landscape)");
+const API_PANTALLA = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 if (esTactil) document.body.classList.add("tactil");
-if (EMBED) document.body.classList.add("embed");
+if (EMBED) { document.body.classList.add("embed"); $("#portada")?.remove(); }
+// Fase 3: el visor se ve en oscuro mientras las piezas antiguas no usen los tokens (la fase 4 lo quita).
+window.cre8Tema?.porDefecto({ tema: "oscuro" });
 
 // ------------------------------------------------------------------ textos
 const FALLBACK = {
-  "modo.tour": "Recorrido 360", "modo.libre": "Modo libre 3D", "modo.maqueta": "Maqueta 3D",
-  "ayuda.titulo": "Controles", "ayuda.mirar": "Arrastra para mirar alrededor", "ayuda.avanzar": "W A S D o flechas: ir a la estancia de delante, detrás o a los lados",
-  "ayuda.volver": "Mantén W para seguir avanzando · Q E girar", "ayuda.girar": "Clic: capturar el ratón y mirar como en un videojuego (Esc para soltar)", "ayuda.zoom": "Rueda o pellizco: zoom",
-  "ayuda.flechas": "Toca las flechas del suelo, el plano o la galería", "ayuda.caminar": "W A S D o flechas para caminar · ratón para mirar", "ayuda.correr": "Shift correr · Espacio saltar · Q E girar",
-  "ayuda.subir": "Sin suelo (splat): Espacio subir · C bajar", "ayuda.capturar": "Clic para capturar el ratón (Esc para soltar)",
-  "ayuda.joystick": "Móvil: pulgar izquierdo para caminar, arrastra a la derecha para mirar", "ayuda.plano": "M mostrar/ocultar mapa · R radar o plano · V cambiar modo · 1-9 estancias · H ayuda",
-  "aviso.cargando": "Cargando…", "aviso.error_carga": "No se pudo cargar {x}", "aviso.sin_tour": "No se encontró tour.json. Mostrando la demo.",
+  "modo.titulo": "Modo de visita", "modo.tour": "Recorrido 360", "modo.libre": "Paseo libre 3D", "modo.maqueta": "Maqueta 3D",
+  "modo.tour_corto": "Recorrido", "modo.libre_corto": "Paseo libre", "modo.maqueta_corto": "Maqueta",
+  // Ayuda y controles: [tecla] se muestra como <kbd>
+  "ayuda.titulo": "Ayuda y controles", "ayuda.sec_moverte": "Moverte", "ayuda.sec_mirar": "Mirar", "ayuda.sec_juego": "Modo juego",
+  "ayuda.sec_radar": "Radar y plano", "ayuda.sec_estancias": "Estancias", "ayuda.sec_foto": "Preguntar con foto", "ayuda.sec_estilo": "Estilo y luz", "ayuda.sec_teclas": "Teclas",
+  "ayuda.ir_raton": "Haz clic en una flecha del suelo, o en el suelo, para ir allí", "ayuda.ir_tactil": "Toca una flecha del suelo, o el suelo, para ir allí",
+  "ayuda.wasd": "[W] [A] [S] [D] o las flechas: ir a la estancia de delante, de detrás o de los lados · mantén [W] para seguir avanzando",
+  "ayuda.libre_raton": "Paseo libre: [W] [A] [S] [D] o las flechas para caminar · [Shift] para correr",
+  "ayuda.libre_tactil": "Paseo libre: pulgar izquierdo para caminar, arrastra a la derecha para mirar",
+  "ayuda.maqueta": "Maqueta: arrastra para girarla y toca una etiqueta para entrar en esa estancia",
+  "ayuda.mirar": "Arrastra para mirar alrededor", "ayuda.zoom_raton": "Rueda del ratón: acercar y alejar", "ayuda.zoom_tactil": "Pellizca para acercar y alejar",
+  "ayuda.girar_teclas": "[Q] [E] girar · [RePág] [AvPág] mirar arriba y abajo", "ayuda.giroscopio": "«Mirar moviendo el móvil» está en «Más»",
+  "ayuda.juego_entrar": "Pulsa [W] [A] [S] [D] o 🎮 para mirar con el ratón, como en un videojuego",
+  "ayuda.juego_boton": "Pulsa 🎮 para mirar con el ratón, como en un videojuego",
+  "ayuda.juego_salir": "[Esc] para salir del modo juego", "ayuda.juego_libre": "En el paseo libre, haz clic para caminar",
+  "ayuda.radar_raton": "[R] o el botón Radar muestran u ocultan el radar", "ayuda.radar_tactil": "El botón Radar lo muestra u oculta",
+  "ayuda.plano_raton": "[M] o el título de arriba abren «{x}»", "ayuda.plano_tactil": "El título de arriba abre «{x}»",
+  "ayuda.foto": "«{x}» añade lo que ves a tu consulta", "ayuda.contactar": "«{x}» envía tu pregunta, con las fotos, a la agencia",
+  "ayuda.estilo": "«{x}» cambia la decoración, los colores o la luz (día, atardecer, noche)", "ayuda.antes_despues": "«{x}» compara con la foto original",
+  "ayuda.teclas": "[R] radar · [M] «{x}» · [H] ayuda · [Esc] cerrar", "ayuda.tecla_modo": "[V] cambiar de modo",
+  // nombres de piezas de los paneles que cita la ayuda (por si i18n.js no carga)
+  "contacto.hacer_foto": "Foto de la vista", "contacto.corto": "Contactar", "personalizar.titulo": "Estilo y luz", "comparar.titulo": "Antes y después",
+  "aviso.error_carga": "No se pudo cargar {x}",
   "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D", "aviso.vista_vacia": "La vista previa aparecerá aquí cuando añadas fotos 360.",
   "aviso.giroscopio_denegado": "Permiso de movimiento denegado", "aviso.error": "Error: {x}", "titulo.defecto": "Recorrido virtual",
   "punto.video": "Vídeo", "punto.mas_info": "Más información", "comparar.antes": "Antes", "comparar.despues": "Después",
   "guion.pausar": "Pausar visita guiada", "guion.reanudar": "Reanudar", "aviso.contexto_perdido": "Se perdió el contexto gráfico", "aviso.reintentar": "Reintentar",
-  "aviso.clic_explorar": "Haz clic para explorar", "aviso.libre_tactil": "Pulgar izquierdo para caminar · arrastra a la derecha para mirar",
-  "aviso.libre_raton": "WASD o flechas para caminar · ratón para mirar · Espacio saltar · Shift correr", "aviso.arrastra": "Arrastra para mirar",
+  "aviso.libre_tactil": "Pulgar izquierdo para caminar · arrastra a la derecha para mirar", "aviso.arrastra": "Arrastra para mirar",
+  "pista.raton": "Arrastra para mirar · W A S D para moverte", "pista.tactil": "Arrastra para mirar · toca las flechas para avanzar",
   "aviso.estilo_no_disponible": "Este estilo no está disponible en esta estancia",
-  "medir.titulo": "Medir", "medir.distancia": "Distancia", "medir.altura": "Altura", "medir.marcar": "Marcar punto", "medir.deshacer": "Deshacer",
+  // Barra de vista, menú «Más», modo juego, radar y «Estancias y plano»
+  "vista.titulo": "Vista", "mas.titulo": "Más", "comun.cerrar": "Cerrar", "comun.pantalla_completa": "Pantalla completa",
+  "radar.titulo": "Radar", "radar.mostrar": "Mostrar radar", "radar.ocultar": "Ocultar radar",
+  "juego.titulo": "Modo juego", "juego.ayuda": "Mira con el ratón como en un videojuego (Esc para salir)", "juego.aviso": "Modo juego · Esc para salir",
+  "juego.salida": "Has salido del modo juego · W A S D o 🎮 para volver", "juego.tarjeta": "Haz clic para caminar · W A S D · ratón para mirar · Esc para salir",
+  "ep.titulo": "Estancias y plano", "ep.abrir": "Ver estancias y plano", "plantas.titulo": "Plantas", "contacto.zona_otras": "Otras estancias",
+  // Portada
+  "portada.cargando": "Cargando el recorrido…", "portada.empezar": "Empezar visita", "idioma.titulo": "Idioma", "marca.creado_con": "Creado con {x}",
+  "ficha.mes": "/mes", "ficha.habitacion": "habitación", "ficha.habitaciones": "Habitaciones",
+  "ficha.bano": "baño", "ficha.banos": "Baños",
+  "medir.distancia": "Distancia", "medir.altura": "Altura", "medir.marcar": "Marcar punto", "medir.deshacer": "Deshacer",
   "medir.borrar": "Borrar", "medir.cerrar": "Cerrar", "medir.ayuda_a": "Apunta al suelo y marca el punto A", "medir.ayuda_b": "Ahora marca el punto B",
   "medir.ayuda_altura_a": "Marca la base de la pared (en el suelo)", "medir.ayuda_altura_b": "Ahora marca el punto superior",
   "medir.precision": "Medida orientativa (±3 %)", "medir.suelo": "Apunta al suelo",
-  "plano.planta": "Planta", "plano.ampliar": "Ampliar plano", "guion.iniciar": "Visita guiada", "guion.parar": "Detener visita",
-  "estilo.original": "Actual", "estilo.nordico": "Nórdico", "estilo.mediterraneo": "Mediterráneo", "estilo.industrial": "Industrial",
-  "estilo.contemporaneo_minimalista": "Contemporáneo", "estilo.clasico": "Clásico",
-  "momento.dia": "Día", "momento.atardecer": "Atardecer", "momento.noche": "Noche", "momento.simulado": "(simulación)",
+  "plano.planta": "Planta", "guion.iniciar": "Visita guiada", "guion.parar": "Detener visita",
   "nav.ir_a": "Ir a {x}", "nav.metros": "{x} m", "galeria.titulo": "Estancias",
-  "sonido.activar": "Activar música", "sonido.silenciar": "Silenciar música", "sonido.volumen": "Volumen de la música",
+  "sonido.musica": "Música", "sonido.activar": "Activar música", "sonido.silenciar": "Silenciar música",
   "sello.ia": "Recreación virtual · IA", "sello.render": "Render / infografía", "sello.simulado": "Iluminación simulada",
 };
 let i18n = null;
@@ -51,8 +80,22 @@ function tr(k, vars) {
     s = FALLBACK[k] ?? k;
     if (vars) s = s.replace(/\{(\w+)\}/g, (_, n) => vars[n] ?? "");
   }
-  return s;
+  return rotular(s);
 }
+// W A S D y Q E se pulsan por su posición (e.code). En AZERTY esas teclas dicen Z Q S D y A E: si el navegador conoce la
+// distribución (Chromium), los textos muestran lo que pone en el teclado. Sin la API, W A S D.
+const ROTULOS = {};
+try {
+  navigator.keyboard?.getLayoutMap?.().then((m) => {
+    for (const k of "WASDQE") { const l = m.get(`Key${k}`)?.toUpperCase(); if (l && /^\p{L}$/u.test(l) && l !== k) ROTULOS[k] = l; }
+  }).catch(() => {});
+} catch { /* sin la API (o en un iframe) */ }
+function rotular(s) {
+  if (!Object.keys(ROTULOS).length) return s;
+  return s.replace(/\[([WASDQE])\]/g, (_, k) => `[${ROTULOS[k] ?? k}]`).replace(/\bW A S D\b/g, () => [..."WASD"].map((k) => ROTULOS[k] ?? k).join(" "));
+}
+/** Atajos con nombre (R, M, H, V): por la letra de la tecla (en AZERTY la M no está donde en QWERTY); con otros alfabetos, por su posición. */
+const letra = (e) => (/^[a-z]$/i.test(e.key ?? "") ? e.key.toLowerCase() : e.code?.startsWith("Key") ? e.code.slice(3).toLowerCase() : "");
 function texto(v) {
   if (v == null) return "";
   if (i18n?.resolverTexto) return i18n.resolverTexto(v) ?? "";
@@ -78,12 +121,14 @@ const estado = {
 };
 visor.estado = estado;
 
-const AJUSTES_DEF = { sensibilidad: 1, sensibilidadTactil: 1, invertirY: false, reducirMovimiento: prefiereReducido };
+// modoJuegoWASD: W A S D entra en el modo juego (con ratón). capturaConClic: un clic en la escena también (antes de la fase 3).
+const AJUSTES_DEF = { sensibilidad: 1, sensibilidadTactil: 1, invertirY: false, reducirMovimiento: prefiereReducido, atajos: true, modoJuegoWASD: true, capturaConClic: false };
 const int = {
   tour: null, nodos: new Map(), actual: null, transicion: null, teclas: new Set(), giro: null,
   zoom: 1, fovBase: 75, ajustes: { ...AJUSTES_DEF, ...almacen.leer("visor:ajustes", {}) },
   libre: { pos: new THREE.Vector3(), vel: new THREE.Vector3(), rumbo: 0, cabeceo: 0, listo: false, colisiones: [], suelo: false, limites: null, modelo: null },
   joy: { x: 0, y: 0, id: null }, ultimaInteraccion: performance.now(), fuenteActual: null,
+  portada: !!$("#portada"), progreso: 0, radarVisible: false, plantaVista: null, // sin portada con ?embed (se quitó arriba)
 };
 const reducido = () => int.ajustes.reducirMovimiento;
 
@@ -199,8 +244,34 @@ function limitarImagen(img) {
 }
 
 function cargarImagen(url, color = true, intentos = 2) {
+  // La primera foto, con la portada delante, se descarga con fetch para enseñar el progreso real (bytes).
+  // Contingencia: si fetch falla (CORS, sin red, sin cuerpo legible) se carga como siempre.
+  const alProgreso = int.alProgresoCarga;
+  int.alProgresoCarga = null;
+  if (alProgreso) {
+    return descargarConProgreso(url, alProgreso)
+      .then((local) => cargarImagen(local, color, 1).finally(() => URL.revokeObjectURL(local)))
+      .catch(() => cargarImagen(url, color, intentos));
+  }
   return new Promise((ok, mal) => cargadorTex.load(url, (t) => { t.image = limitarImagen(t.image); ok(ajustarTextura(t, color)); }, undefined,
     () => (intentos > 1 ? setTimeout(() => cargarImagen(url, color, intentos - 1).then(ok, mal), 600) : mal(new Error(tr("aviso.error_carga", { x: url }))))));
+}
+
+async function descargarConProgreso(url, alProgreso) {
+  const r = await fetch(url);
+  if (!r.ok || !r.body) throw new Error(String(r.status));
+  const total = +r.headers.get("content-length") || 0;
+  const lector = r.body.getReader();
+  const trozos = [];
+  let n = 0;
+  for (;;) {
+    const { done, value } = await lector.read();
+    if (done) break;
+    trozos.push(value);
+    n += value.length;
+    if (total) alProgreso(Math.min(1, n / total));
+  }
+  return URL.createObjectURL(new Blob(trozos, { type: r.headers.get("content-type") || "image/jpeg" }));
 }
 
 function cargarTex(clave, crear, fija = false) {
@@ -434,18 +505,19 @@ async function irA(destino, { instantaneo = false } = {}) {
   if (destino === int.actual && !int.transicion) return;
   // Ficha de petición: si llega otra navegación mientras esta carga, gana la última.
   const ficha = (int.navFicha = (int.navFicha ?? 0) + 1);
+  int.navDestino = destino; // si el Estudio recarga el tour a mitad de camino, se conserva el destino (cargarEnVisor)
   mostrarCarga(true);
   let slot;
   try { slot = await prepararSlot(destino); }
   catch (e) {
-    if (ficha === int.navFicha) { aviso(e.message, 6000, { reintentar: () => irA(destino) }); mostrarCarga(false); }
+    if (ficha === int.navFicha) { int.navDestino = null; aviso(e.message, 6000, { reintentar: () => irA(destino) }); mostrarCarga(false); }
     return;
   }
   if (ficha !== int.navFicha) return;
   while (int.transicion) await int.transicion.promesa;
   if (ficha !== int.navFicha) return;
   mostrarCarga(false);
-  if (destino === int.actual) return;
+  if (destino === int.actual) { int.navDestino = null; return; }
   const desde = int.actual;
   ocultarFicha();
   if (!desde || instantaneo || estado.modo !== "tour") {
@@ -464,8 +536,8 @@ async function irA(destino, { instantaneo = false } = {}) {
 }
 
 function llegar(nodo) {
-  const anterior = int.actual;
   int.actual = nodo;
+  if (int.navDestino === nodo) int.navDestino = null;
   estado.nodo = nodo.id;
   estado.planta = nodo.planta;
   estado.momentoSimulado = !!int.fuenteActual?.sim;
@@ -475,8 +547,9 @@ function llegar(nodo) {
   construirPuntos();
   anunciarEstancia(nodo);
   actualizarSello();
-  document.querySelectorAll("#galeria button").forEach((b) => b.setAttribute("aria-current", String(b.dataset.id === nodo.id)));
-  $('#galeria button[aria-current="true"]')?.scrollIntoView?.({ block: "nearest", inline: "center", behavior: reducido() ? "auto" : "smooth" });
+  document.querySelectorAll("#galeria .estancia, #estancias-plano .ep-estancia").forEach((b) => b.setAttribute("aria-current", String(b.dataset.id === nodo.id)));
+  const enTira = $('#galeria .estancia[aria-current="true"]');
+  if (enTira && $("#galeria").offsetParent) enTira.scrollIntoView?.({ block: "nearest", inline: "center", behavior: reducido() ? "auto" : "smooth" });
   if (!EMBED && int.tour && !int.tour.demo) history.replaceState(null, "", `#${encodeURIComponent(nodo.id)}`);
   precargarVecinos(nodo);
   // Mantener W/↑ pulsada encadena estancias, como caminar en un videojuego.
@@ -485,7 +558,6 @@ function llegar(nodo) {
     if (estado.modo === "tour" && int.actual === nodo && (k.has("KeyW") || k.has("ArrowUp"))) avanzar(0);
   }, 180);
   if (estado.comparar) actualizarComparacion();
-  if (anterior?.planta !== nodo.planta) dibujarPlantas();
   medicion?.cambioNodo();
   if (!estado.estiloDisponible) aviso(tr("aviso.estilo_no_disponible"), 3500);
   dibujarMapa();
@@ -517,15 +589,19 @@ function actualizarSello() {
   return txt;
 }
 
+/** «Salón · Planta 1» con varias plantas; si no, «Salón · 30,00 m²» (en #lugar y para el lector de pantalla). */
 function anunciarEstancia(n) {
   const est = estanciaDe(n);
-  const partes = [texto(n.nombre)];
-  if (est) partes.push(`${metros(areaPoligono(est.poligono))} m²`);
-  $("#estancia").textContent = partes.join(" · ");
+  const m2 = est ? `${metros(areaPoligono(est.poligono))} m²` : "";
+  const planta = (int.tour.plantas?.length ?? 0) > 1 ? texto(plantaPorId(n.planta)?.nombre) : "";
+  const nombre = texto(n.nombre);
+  $("#estancia").textContent = [nombre, planta || m2].filter(Boolean).join(" · ");
+  $("#anuncio").textContent = [nombre, planta, m2].filter(Boolean).join(", ");
+  actualizarLugar();
   // Rótulo elegante al entrar en una estancia (se desvanece solo).
   const r = $("#rotulo");
-  r.querySelector("b").textContent = texto(n.nombre);
-  r.querySelector("span").textContent = est ? `${metros(areaPoligono(est.poligono))} m²` : "";
+  r.querySelector("b").textContent = nombre;
+  r.querySelector("span").textContent = m2;
   r.classList.remove("visible"); void r.offsetWidth; r.classList.add("visible");
 }
 
@@ -884,18 +960,21 @@ function interaccion(ev) {
   if (ev?.type === "pointermove" && document.pointerLockElement === lienzo) return;
   int.ultimaInteraccion = performance.now();
   int.yaInteractuo = true;
-  // Primer gesto real (no un simple movimiento): ya se puede reproducir sonido.
-  if (!sonido.iniciado && sonido.activo && sonido.el && ev && ev.type !== "pointermove" && ev.type !== "wheel"
+  // Primer gesto real (no un simple movimiento): ya se puede reproducir sonido. Con portada, lo arranca «Empezar visita».
+  if (!int.portada && !sonido.iniciado && sonido.activo && sonido.el && ev && ev.type !== "pointermove" && ev.type !== "wheel"
       && int.tour?.audio?.musica?.autoplay !== false && !btnSonido.contains(ev.target)) arrancarSonido();
   if (document.body.classList.contains("ui-inactiva")) document.body.classList.remove("ui-inactiva");
 }
 ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) => addEventListener(ev, interaccion, { passive: true }));
+// El marco de foco del lienzo solo se enciende al llegar con el tabulador.
+addEventListener("keydown", (e) => { if (e.key === "Tab") document.body.classList.add("foco-tab"); }, true);
+addEventListener("pointerdown", () => document.body.classList.remove("foco-tab"), true);
 
 lienzo.addEventListener("pointerdown", (e) => {
   if (guion.activo && !guion.pausado) guion.alternarPausa(); // tocar la escena pausa la visita (no la cancela)
   if (document.pointerLockElement !== lienzo) { try { lienzo.setPointerCapture(e.pointerId); } catch {} }
   punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  ocultarPista("arrastra");
+  ocultarPista("inicio");
   // Joystick flotante: pulgar en la mitad izquierda en modo libre táctil.
   if (estado.modo === "libre" && e.pointerType === "touch" && e.clientX < innerWidth * 0.45 && int.joy.id == null) {
     int.joy = { x: 0, y: 0, id: e.pointerId, cx: e.clientX, cy: e.clientY };
@@ -910,9 +989,18 @@ lienzo.addEventListener("pointerdown", (e) => {
     pellizco = { d: Math.hypot(a.x - b.x, a.y - b.y), zoom: int.zoom };
     arrastre = null;
   } else {
-    arrastre = { id: e.pointerId, x: e.clientX, y: e.clientY, mov: 0, tipo: e.pointerType };
+    // Con la interfaz oculta, un toque donde estaba un control solo la despierta: no navega por sorpresa.
+    arrastre = { id: e.pointerId, x: e.clientX, y: e.clientY, mov: 0, tipo: e.pointerType, despertar: enHudOculto(e.clientX, e.clientY) };
   }
 });
+
+function enHudOculto(x, y) {
+  if (!document.body.classList.contains("ui-inactiva")) return false;
+  return [...document.querySelectorAll("#lugar, #modos, #barra-vista, #galeria")].some((c) => {
+    const r = c.getBoundingClientRect();
+    return r.width && x >= r.left - 6 && x <= r.right + 6 && y >= r.top - 6 && y <= r.bottom + 6;
+  });
+}
 
 lienzo.addEventListener("pointermove", (e) => {
   if (punteros.has(e.pointerId)) punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -941,6 +1029,7 @@ lienzo.addEventListener("pointermove", (e) => {
   const dx = e.clientX - arrastre.x, dy = e.clientY - arrastre.y;
   arrastre.x = e.clientX; arrastre.y = e.clientY;
   arrastre.mov += Math.abs(dx) + Math.abs(dy);
+  if (arrastre.mov > 8) tarjetaJuego(false); // quien prefiere arrastrar no necesita la tarjeta del paseo libre
   if (estado.modo === "tour") {
     // Agarrar y arrastrar la imagen (convención Street View).
     const sens = arrastre.tipo === "touch" ? int.ajustes.sensibilidadTactil : int.ajustes.sensibilidad;
@@ -964,7 +1053,7 @@ const soltar = (e) => {
   }
   if (punteros.size < 2) pellizco = null;
   if (arrastre && arrastre.id === e.pointerId) {
-    if (arrastre.mov < 8 && e.type === "pointerup") clic(e);
+    if (arrastre.mov < 8 && e.type === "pointerup" && !arrastre.despertar) clic(e);
     arrastre = null;
   }
 };
@@ -1002,23 +1091,47 @@ function hover(e) {
   hoverActual = g;
   lienzo.style.cursor = g ? "pointer" : "";
 }
+// ---- modo juego (ratón capturado, como en Minecraft): W A S D, el botón 🎮 o un clic en el paseo libre.
+// Contingencia: si el navegador no deja capturar el ratón, se sigue mirando arrastrando (sin aviso de error).
+const juegoPosible = () => conRaton && !EMBED && !!renderer && !int.portada && (estado.modo === "tour" || estado.modo === "libre");
 function capturarRaton() {
-  if (esTactil || EMBED || estado.midiendo || document.pointerLockElement === lienzo) return;
-  const p = lienzo.requestPointerLock?.({ unadjustedMovement: true });
-  if (p?.catch) p.catch(() => lienzo.requestPointerLock?.()?.catch?.(() => {}));
+  if (!juegoPosible() || estado.midiendo || document.pointerLockElement === lienzo) return;
+  try {
+    const p = lienzo.requestPointerLock?.({ unadjustedMovement: true });
+    if (p?.catch) p.catch(() => lienzo.requestPointerLock?.()?.catch?.(() => {}));
+  } catch { /* sin Pointer Lock */ }
+}
+/** Sale del modo juego sin el aviso de salida (al abrir un diálogo, medir, entrar en la maqueta…). */
+function salirJuego() {
+  if (document.pointerLockElement !== lienzo) return;
+  int.salidaSilenciosa = true;
+  document.exitPointerLock?.();
 }
 document.addEventListener("pointerlockchange", () => {
   const si = document.pointerLockElement === lienzo;
+  if (si === !!int.enJuego) return;
+  int.enJuego = si;
   document.body.classList.toggle("raton-capturado", si);
-  if (si) ocultarPista(estado.modo === "libre" ? "libre" : "captura");
-  else if (estado.modo !== "maqueta" && !estado.midiendo) {
-    const el = $("#pista");
-    el.textContent = tr("aviso.clic_explorar");
-    el.dataset.id = "volver";
-    el.hidden = false;
-    setTimeout(() => { if (el.dataset.id === "volver") el.hidden = true; }, 2500);
+  $("#btn-juego").setAttribute("aria-pressed", String(si));
+  const av = $("#aviso-juego");
+  av.textContent = tr("juego.aviso");
+  av.hidden = !si; // al mostrarse vuelve a empezar su animación: se atenúa al 40 % a los 3 s
+  if (si) { $("#pista").hidden = true; tarjetaJuego(false); cerrarMas(); }
+  else if (!int.salidaSilenciosa) {
+    if (estado.modo === "libre") tarjetaJuego(true);
+    else if (!int.salidaAvisada) { int.salidaAvisada = true; aviso(tr("juego.salida"), 4500); }
   }
+  int.salidaSilenciosa = false;
+  visor.emitir("modojuego", { activo: si });
 });
+/** Tarjeta «Haz clic para caminar…» del paseo libre (solo con ratón). */
+function tarjetaJuego(si) {
+  const t = $("#tarjeta-juego");
+  const ver = !!si && juegoPosible() && estado.modo === "libre" && !estado.midiendo && document.pointerLockElement !== lienzo;
+  if (ver) t.textContent = tr("juego.tarjeta");
+  t.hidden = !ver;
+}
+$("#tarjeta-juego").onclick = () => capturarRaton();
 
 function clic(e) {
   const capturado = document.pointerLockElement === lienzo;
@@ -1042,9 +1155,10 @@ function clic(e) {
       if (mejor) return irA(mejor);
     }
     if (capturado) return avanzar(0);
-    if (e.pointerType === "mouse") capturarRaton();
+    // Un clic en el vacío ya no captura el ratón (salvo con el ajuste «Capturar el ratón con un clic»).
+    if (e.pointerType === "mouse" && int.ajustes.capturaConClic) capturarRaton();
   } else if (estado.modo === "libre" && e.pointerType === "mouse") {
-    capturarRaton();
+    capturarRaton(); // en el paseo libre, el clic es «Haz clic para caminar»
   }
 }
 
@@ -1061,31 +1175,36 @@ function fijarZoom(z) {
 
 addEventListener("keydown", (e) => {
   if (e.target.closest?.("input, textarea, select, [contenteditable]")) return;
-  const enUI = e.target !== document.body && e.target !== lienzo && e.target.closest?.("button, a, [role=dialog], [role=slider]");
+  // Con la portada, un diálogo o un menú abiertos, las teclas son suyas: la escena de detrás no se mueve.
+  if (int.portada || e.target.closest?.("dialog, [role=dialog], [role=menu]")) return;
+  const enUI = e.target !== document.body && e.target !== lienzo && e.target.closest?.("button, a, [role=slider]");
   if (enUI && ["Enter", "Space", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.code)) return;
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "PageUp", "PageDown"].includes(e.code)) e.preventDefault();
   if (guion.activo && e.code === "Space" && !enUI) { e.preventDefault(); guion.alternarPausa(); return; }
   if (guion.activo && e.code === "Escape") guion.parar();
-  else if (guion.activo && !guion.pausado && !["ShiftLeft", "ShiftRight", "KeyH", "KeyM", "KeyR"].includes(e.code)) guion.alternarPausa();
+  else if (guion.activo && !guion.pausado && !e.code.startsWith("Shift") && !["h", "m", "r"].includes(letra(e))) guion.alternarPausa();
   int.teclas.add(e.code);
   if (e.repeat) return;
-  const atajos = int.ajustes.atajos !== false && !enUI; // WCAG 2.1.4: atajos de una letra desactivables y no en botones
-  if (estado.modo === "tour" && (atajos || !/^(Key[A-Z]|Digit\d)$/.test(e.code) || ["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"].includes(e.code))) {
+  const atajos = int.ajustes.atajos !== false; // WCAG 2.1.4: los atajos de una letra se pueden desactivar (Ajustes)
+  const modificador = e.ctrlKey || e.metaKey || e.altKey;
+  if (estado.modo === "tour" && !modificador && (atajos || !/^(Key[A-Z]|Digit\d)$/.test(e.code) || ["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"].includes(e.code))) {
     const dir = { KeyW: 0, ArrowUp: 0, Enter: 0, KeyS: Math.PI, ArrowDown: Math.PI, KeyA: -Math.PI / 2, ArrowLeft: -Math.PI / 2, KeyD: Math.PI / 2, ArrowRight: Math.PI / 2 }[e.code];
     if (dir !== undefined) avanzar(dir);
     if (e.code === "Equal" || e.code === "NumpadAdd") fijarZoom(int.zoom * 0.85);
     if (e.code === "Minus" || e.code === "NumpadSubtract") fijarZoom(int.zoom / 0.85);
     if (/^Digit[1-9]$/.test(e.code)) { const n = [...int.nodos.values()][+e.code.slice(5) - 1]; if (n) irA(n); }
-    if (e.code === "KeyN") { const lista = [...int.nodos.values()]; irA(lista[(lista.indexOf(int.actual) + 1) % lista.length]); }
   }
+  // Modo juego con las letras W A S D (nunca con las flechas, que son el camino del teclado accesible).
+  if (atajos && !modificador && /^Key[WASD]$/.test(e.code) && int.ajustes.modoJuegoWASD !== false) capturarRaton();
   if (estado.modo === "libre" && e.code === "Space") int.libre.saltar = true;
-  if (!atajos) return;
-  if (e.code === "KeyM") alternarRadarVisible();
-  if (e.code === "KeyR") cambiarRadar();
-  if (e.code === "KeyH" || e.key === "?") alternarAyuda();
-  if (e.code === "KeyV") { const ms = modosDisponibles(); cambiarModo(ms[(ms.indexOf(estado.modo) + 1) % ms.length]); }
   if ((e.ctrlKey || e.metaKey) && e.code === "KeyZ" && estado.midiendo) medicion.deshacer();
-  if (e.code === "Escape") { $("#ayuda").hidden = true; ocultarFicha(); if (estado.midiendo) visor.medir(false); }
+  if (e.code === "Escape") { ocultarFicha(); if (estado.midiendo) visor.medir(false); }
+  if (!atajos || modificador) return;
+  const l = letra(e);
+  if (l === "r") alternarRadar();
+  if (l === "m") estanciasPlano();
+  if (l === "h" || e.key === "?") alternarAyuda();
+  if (l === "v") { const ms = modosDisponibles(); cambiarModo(ms[(ms.indexOf(estado.modo) + 1) % ms.length]); }
 });
 addEventListener("keyup", (e) => int.teclas.delete(e.code));
 addEventListener("blur", () => int.teclas.clear());
@@ -1126,8 +1245,11 @@ function alOrientacion(ev) {
   const nueva = new THREE.Quaternion().setFromAxisAngle(EJE_Y, -int.giro.offset).multiply(q);
   int.giro.q = int.giro.q ? int.giro.q.slerp(nueva, 0.35) : nueva; // suavizado
 }
-async function alternarGiro() {
-  if (int.giro) {
+const hayGiroscopio = () => esTactil && "DeviceOrientationEvent" in window;
+/** «Mirar moviendo el móvil» (recorrido 360). Contingencia: sin permiso se avisa y se sigue arrastrando. */
+async function fijarGiro(si = !int.giro) {
+  if (!!si === !!int.giro || (si && !hayGiroscopio())) return !!int.giro;
+  if (!si) {
     removeEventListener("deviceorientation", alOrientacion);
     const f = new THREE.Vector3(0, 0, -1).applyQuaternion(camara.quaternion);
     estado.rumbo = rumbo(f.x, f.z);
@@ -1135,89 +1257,75 @@ async function alternarGiro() {
     int.giro = null;
   } else {
     if (typeof DeviceOrientationEvent?.requestPermission === "function") {
-      if ((await DeviceOrientationEvent.requestPermission().catch(() => "denied")) !== "granted") return aviso(tr("aviso.giroscopio_denegado"));
+      if ((await DeviceOrientationEvent.requestPermission().catch(() => "denied")) !== "granted") { aviso(tr("aviso.giroscopio_denegado")); return false; }
     }
     int.giro = { offset: null, q: null };
     addEventListener("deviceorientation", alOrientacion);
   }
-  $("#btn-giro").setAttribute("aria-pressed", String(!!int.giro));
+  visor.emitir("giroscopio", { activo: !!int.giro });
+  return !!int.giro;
 }
 
-// ------------------------------------------------------------------ plano / minimapa
-const plano = crearPlano($("#mapa"), {
+// ------------------------------------------------------------------ radar y plano
+// Dos vistas del mismo plano (plano.js): el radar de la esquina (gira con la mirada, como en Counter-Strike) y el plano
+// grande de «Estancias y plano» (norte arriba, con pestañas de planta).
+const colorAcento = () => (int.acento ||= getComputedStyle(document.documentElement).getPropertyValue("--c-acento").trim() || "#cfad66");
+function posicionVisitante() {
+  const fovH = 2 * Math.atan(Math.tan((camara.fov * GRAD) / 2) * camara.aspect);
+  if (estado.modo === "libre" && int.libre.listo) return { x: int.libre.pos.x, z: int.libre.pos.z, rumbo: int.libre.rumbo, fovH, planta: estado.planta };
+  if (estado.modo === "tour" && int.actual) {
+    const f = vTmp.set(0, 0, -1).applyQuaternion(camara.quaternion);
+    return { x: int.actual.x, z: int.actual.z, rumbo: rumbo(f.x, f.z), fovH, planta: int.actual.planta };
+  }
+  return null;
+}
+const ctxPlano = {
   tour: () => int.tour,
-  planta: () => plantaPorId(estado.planta) ?? int.tour?.plantas?.[0],
   nodos: () => [...int.nodos.values()],
   nodoActual: () => (estado.modo === "tour" ? int.actual : null),
-  posicion: () => {
-    const fovH = 2 * Math.atan(Math.tan((camara.fov * GRAD) / 2) * camara.aspect);
-    if (estado.modo === "libre" && int.libre.listo) return { x: int.libre.pos.x, z: int.libre.pos.z, rumbo: int.libre.rumbo, fovH, planta: estado.planta };
-    if (estado.modo === "tour" && int.actual) {
-      const f = vTmp.set(0, 0, -1).applyQuaternion(camara.quaternion);
-      return { x: int.actual.x, z: int.actual.z, rumbo: rumbo(f.x, f.z), fovH, planta: int.actual.planta };
-    }
-    return null;
-  },
-  acento: () => getComputedStyle(document.documentElement).getPropertyValue("--acento").trim() || "#c8a24a",
-  modoMapa: () => ($("#minimapa").classList.contains("grande") ? "plano" : int.radar),
+  posicion: posicionVisitante,
+  acento: colorAcento,
   texto, formato: metros,
+};
+const radar = crearPlano($("#mapa"), {
+  ...ctxPlano,
+  planta: () => plantaPorId(estado.planta) ?? int.tour?.plantas?.[0],
+  modoMapa: () => "radar",
   alElegirNodo: (n) => {
     if (estado.modo === "tour") irA(n);
-    else if (estado.modo === "libre" && int.libre.listo) { int.libre.pos.x = n.x; int.libre.pos.z = n.z; dibujarMapa(); }
+    else if (estado.modo === "libre" && int.libre.listo) { int.libre.pos.x = n.x; int.libre.pos.z = n.z; dibujarRadar(); }
     else cambiarModo("tour").then(() => irA(n));
   },
   alElegirPunto: (x, z) => { if (estado.modo === "libre" && int.libre.listo && !int.libre.colisiones.length) { int.libre.pos.x = x; int.libre.pos.z = z; } },
 });
-const dibujarMapa = () => int.tour && plano.dibujar();
+const planoGrande = crearPlano($("#plano-grande"), {
+  ...ctxPlano,
+  planta: () => plantaPorId(int.plantaVista ?? estado.planta) ?? int.tour?.plantas?.[0],
+  modoMapa: () => "plano",
+  alElegirNodo: (n) => irDesdeLista(n),
+});
+const dibujarRadar = () => { if (int.tour && !$("#radar").hidden) radar.dibujar(); };
+const dibujarMapa = () => { dibujarRadar(); if (int.tour && abierto($("#estancias-plano"))) planoGrande.dibujar(); };
 let ultimoMapa = 0;
 function dibujarMapaThrottle() {
   const t = performance.now();
-  if (t - ultimoMapa > (int.radar === "radar" ? 33 : 60)) { ultimoMapa = t; dibujarMapa(); }
+  if (t - ultimoMapa > 33) { ultimoMapa = t; dibujarRadar(); }
 }
-// Radar (gira con la vista) ⇄ plano completo; botón para ocultarlo y tener una vista limpia. Se recuerda.
-int.radar = almacen.leer("visor:radar", "radar");
-int.radarVisible = almacen.leer("visor:radarVisible", true);
+/** Hay plano de verdad si alguna planta tiene imagen o muros, o hay estancias dibujadas (sin él, el radar empieza oculto). */
+const hayPlano = (t = int.tour) => !!t && ((t.plantas ?? []).some((p) => p.plano?.imagen || p.muros?.length) || (t.estancias ?? []).some((e) => e.poligono?.length > 2));
 function aplicarRadar() {
-  const m = $("#minimapa");
-  m.classList.toggle("radar", int.radar === "radar");
-  m.classList.toggle("oculto", !int.radarVisible);
-  $("#btn-radar").setAttribute("aria-pressed", String(int.radarVisible));
-  setTimeout(dibujarMapa, 30);
+  const ver = int.radarVisible && !!int.tour && estado.modo !== "maqueta";
+  $("#radar").hidden = !ver;
+  const b = $("#btn-radar");
+  b.setAttribute("aria-pressed", String(int.radarVisible));
+  b.setAttribute("aria-label", tr("radar.titulo"));
+  b.title = `${tr(int.radarVisible ? "radar.ocultar" : "radar.mostrar")}${conRaton ? " (R)" : ""}`;
+  if (ver) requestAnimationFrame(dibujarRadar);
 }
-function alternarRadarVisible() {
-  int.radarVisible = !int.radarVisible;
-  almacen.guardar("visor:radarVisible", int.radarVisible);
+function alternarRadar(si = !int.radarVisible) {
+  int.radarVisible = !!si;
+  if (hayPlano()) almacen.guardar("visor:radarVisible", int.radarVisible); // sin plano no se recuerda: vuelve a empezar oculto
   aplicarRadar();
-}
-function cambiarRadar() {
-  int.radar = int.radar === "radar" ? "plano" : "radar";
-  almacen.guardar("visor:radar", int.radar);
-  if (!int.radarVisible) { int.radarVisible = true; almacen.guardar("visor:radarVisible", true); }
-  aplicarRadar();
-}
-function alternarMapa() {
-  const m = $("#minimapa");
-  m.classList.toggle("grande");
-  $("#btn-mapa").setAttribute("aria-expanded", String(m.classList.contains("grande")));
-  setTimeout(dibujarMapa, 260);
-}
-function dibujarPlantas() {
-  const cont = $("#plantas");
-  const ps = int.tour.plantas ?? [];
-  cont.hidden = ps.length < 2;
-  cont.replaceChildren(...ps.map((p) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.textContent = texto(p.nombre) || p.id;
-    b.setAttribute("aria-pressed", String(p.id === estado.planta));
-    b.onclick = () => {
-      estado.planta = p.id;
-      const n = [...int.nodos.values()].find((x) => x.planta === p.id);
-      if (estado.modo === "tour" && n) irA(n);
-      dibujarPlantas(); dibujarMapa();
-    };
-    return b;
-  }));
 }
 
 // ------------------------------------------------------------------ sonido (música del proyecto)
@@ -1227,17 +1335,17 @@ const sonido = {
   el: null, src: null, ctx: null, ganancia: null, gananciaGrab: null, destinoGrab: null,
   activo: almacen.leer("visor:sonido", true), volumen: almacen.leer("visor:volumen", null), base: 0.5, iniciado: false, grabando: false,
 };
-const cajaSonido = $("#sonido"), btnSonido = $("#btn-sonido"), volSonido = $("#vol-musica");
+const btnSonido = $("#btn-sonido"); // el icono solo silencia o activa; el volumen está en Ajustes (paneles: visor.sonido.fijarVolumen)
 
 function configurarSonido() {
   const m = int.tour?.audio?.musica;
   if (!m?.archivo) {
-    cajaSonido.hidden = true;
+    btnSonido.hidden = true;
     if (sonido.el) { sonido.el.pause(); try { sonido.fuente?.disconnect(); } catch {} }
     sonido.el = null; sonido.src = null; sonido.fuente = null;
     return;
   }
-  cajaSonido.hidden = false;
+  btnSonido.hidden = false;
   sonido.base = THREE.MathUtils.clamp(+(m.volumen ?? 0.5) || 0.5, 0, 1);
   if (sonido.src !== m.archivo) {
     if (sonido.el) { // la pista anterior se corta del todo (no solo se silencia)
@@ -1257,16 +1365,15 @@ function configurarSonido() {
       console.warn("[sonido] no se pudo cargar la música:", m.archivo);
       try { sonido.fuente?.disconnect(); } catch {}
       sonido.el = null; sonido.src = null; sonido.fuente = null; sonido.iniciado = false;   // src null: se reintenta si el tour se vuelve a cargar
-      cajaSonido.hidden = true;
+      btnSonido.hidden = true;
       visor.emitir("sonido", { activo: sonido.activo, volumen: volumenObjetivo(true), disponible: false });
     });
     el.src = m.archivo;
     sonido.el = el; sonido.src = m.archivo; sonido.fuente = null;
     sonido.iniciado = false;
   }
-  volSonido.value = String(Math.round(volumenObjetivo(true) * 100));
   pintarSonido();
-  if (sonido.activo && int.yaInteractuo && m.autoplay !== false) arrancarSonido();
+  if (sonido.activo && int.yaInteractuo && !int.portada && m.autoplay !== false) arrancarSonido();
 }
 
 function volumenObjetivo(ignorarMudo = false) {
@@ -1330,39 +1437,23 @@ function alternarSonido() {
 function fijarVolumen(v) {
   sonido.volumen = THREE.MathUtils.clamp(v, 0, 1);
   almacen.guardar("visor:volumen", sonido.volumen);
-  volSonido.value = String(Math.round(sonido.volumen * 100));
   if (sonido.volumen > 0 && !sonido.activo) return alternarSonido();
   fundido(volumenObjetivo(), 0.15);
   visor.emitir("sonido", { activo: sonido.activo, volumen: sonido.volumen });
 }
 
+/** Pulsado (dorado) = música activada, el mismo significado que en el radar y el modo juego. */
 function pintarSonido() {
   const sonando = !!sonido.el && !sonido.el.paused && sonido.activo;
-  cajaSonido.classList.toggle("sonando", sonando);
-  cajaSonido.classList.toggle("silenciado", !sonido.activo);
-  btnSonido.setAttribute("aria-pressed", String(!sonido.activo));
+  btnSonido.classList.toggle("sonando", sonando);
+  btnSonido.classList.toggle("silenciado", !sonido.activo);
+  btnSonido.setAttribute("aria-pressed", String(sonido.activo));
   const m = int.tour?.audio?.musica;
-  const titulo = m?.titulo ? ` · ${texto(m.titulo)}` : "";
-  btnSonido.setAttribute("aria-label", (sonido.activo ? tr("sonido.silenciar") : tr("sonido.activar")) + titulo);
-  btnSonido.title = btnSonido.getAttribute("aria-label");
-  volSonido.setAttribute("aria-label", tr("sonido.volumen"));
+  btnSonido.setAttribute("aria-label", tr("sonido.musica") + (m?.titulo ? ` · ${texto(m.titulo)}` : ""));
+  btnSonido.title = tr(sonido.activo ? "sonido.silenciar" : "sonido.activar");
 }
 
 btnSonido.addEventListener("click", alternarSonido);
-btnSonido.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); fijarVolumen((sonido.volumen ?? sonido.base) + 0.1); }
-  if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); e.stopPropagation(); fijarVolumen((sonido.volumen ?? sonido.base) - 0.1); }
-});
-// Mantener pulsado (táctil) abre el control de volumen.
-let tVolumen = 0;
-btnSonido.addEventListener("pointerdown", (e) => {
-  if (e.pointerType !== "touch") return;
-  tVolumen = setTimeout(() => { cajaSonido.classList.add("abierto"); btnSonido.dataset.largo = "1"; }, 450);
-});
-btnSonido.addEventListener("pointerup", () => clearTimeout(tVolumen));
-btnSonido.addEventListener("click", (e) => { if (btnSonido.dataset.largo) { delete btnSonido.dataset.largo; e.stopImmediatePropagation(); } }, true);
-volSonido.addEventListener("input", () => fijarVolumen(+volSonido.value / 100));
-addEventListener("pointerdown", (e) => { if (!cajaSonido.contains(e.target)) cajaSonido.classList.remove("abierto"); });
 document.addEventListener("visibilitychange", () => {
   if (!sonido.el || sonido.grabando) return;
   if (document.hidden) pararSonido();
@@ -1389,77 +1480,445 @@ function aviso(txt, ms = 4500, { reintentar } = {}) {
   tAviso = setTimeout(() => (el.hidden = true), ms);
 }
 const urlSegura = (u) => (typeof u === "string" && /^(https?:|mailto:|tel:|\.{0,2}\/|[\w-]+\.[\w]+)/i.test(u.trim()) && !/^\s*javascript:/i.test(u) ? u : null);
+/** Imágenes del tour (logo, miniaturas, notas): http(s), blob:, data:image o rutas relativas; nunca otro esquema. */
+function srcSegura(u) {
+  if (typeof u !== "string" || !u.trim()) return null;
+  const s = u.trim();
+  if (/^(https?:|blob:)/i.test(s) || /^data:image\//i.test(s)) return s;
+  return /^[a-z][a-z0-9+.-]*:/i.test(s) ? null : s;
+}
+const escapar = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+function elem(etiqueta, clase, txt) {
+  const e = document.createElement(etiqueta);
+  if (clase) e.className = clase;
+  if (txt != null) e.textContent = txt;
+  return e;
+}
+function boton(txt, clase) { const b = elem("button", clase, txt); b.type = "button"; return b; }
+const localeActual = () => i18n?.localeActual?.() ?? estado.idioma;
+const m2Corto = (a) => `${new Intl.NumberFormat(localeActual(), { maximumFractionDigits: 0 }).format(a)} m²`;
+
 function mostrarFicha(p) {
   const f = $("#ficha");
   f.querySelector("h2").textContent = texto(p.titulo);
   f.querySelector("p").textContent = texto(p.texto);
   const media = f.querySelector(".media");
   media.replaceChildren();
-  if (p.imagen) { const i = new Image(); i.src = p.imagen; i.alt = texto(p.titulo); media.append(i); }
+  const img = srcSegura(p.imagen);
+  if (img) { const i = new Image(); i.src = img; i.alt = texto(p.titulo); media.append(i); }
   if (urlSegura(p.video)) { const a = document.createElement("a"); a.href = urlSegura(p.video); a.target = "_blank"; a.rel = "noopener"; a.textContent = `▶ ${tr("punto.video")}`; media.append(a); }
   if (urlSegura(p.enlace)) { const a = document.createElement("a"); a.href = urlSegura(p.enlace); a.target = "_blank"; a.rel = "noopener"; a.textContent = `↗ ${tr("punto.mas_info")}`; media.append(a); }
   f.hidden = false;
   f.querySelector(".cerrar").focus({ preventScroll: true });
 }
 function ocultarFicha() { $("#ficha").hidden = true; }
-function alternarAyuda() {
+$("#ficha .cerrar").onclick = () => { ocultarFicha(); lienzo.focus({ preventScroll: true }); };
+$("#ficha").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); ocultarFicha(); lienzo.focus({ preventScroll: true }); } });
+
+// ---- diálogos del núcleo (<dialog> modal: foco atrapado, Esc, por encima de todo, también en el móvil en horizontal)
+// Contingencia: sin <dialog> (navegadores antiguos) se abren con el atributo open, sin velo.
+const abierto = (d) => d.hasAttribute("open");
+function abrirDialogo(d) {
+  salirJuego();
+  cerrarMas(false);
+  if (abierto(d)) return;
+  if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
+}
+function cerrarDialogo(d) {
+  if (!abierto(d)) return;
+  if (typeof d.close === "function") d.close(); else d.removeAttribute("open");
+}
+for (const d of document.querySelectorAll("#ayuda, #estancias-plano")) {
+  d.querySelector(".cerrar-dlg").onclick = () => cerrarDialogo(d);
+  d.addEventListener("click", (e) => { // clic en el velo, fuera de la ventana
+    if (e.target !== d) return;
+    const r = d.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) cerrarDialogo(d);
+  });
+}
+// La misma tecla que lo abre lo cierra (M para «Estancias y plano», H para la ayuda), como en los videojuegos.
+const teclaCierra = (d, tecla) => d.addEventListener("keydown", (e) => {
+  if (letra(e) === tecla && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.closest("input, textarea, select")) { e.preventDefault(); cerrarDialogo(d); }
+});
+teclaCierra($("#estancias-plano"), "m");
+teclaCierra($("#ayuda"), "h");
+
+// ---- «Ayuda y controles»: solo lo que se puede usar aquí (modos disponibles, ratón o táctil); [tecla] → <kbd>
+const hayEstiloYLuz = () => { const t = int.tour ?? {}; return (t.estilos?.length ?? 0) > 1 || (t.momentos?.length ?? 0) > 1 || !!(t.personalizacion?.paredes?.length || t.personalizacion?.suelos?.length); };
+function alternarAyuda(si) {
   const a = $("#ayuda");
-  a.hidden = !a.hidden;
-  if (!a.hidden) { renderAyuda(); a.querySelector(".cerrar").focus(); }
+  if (si === undefined) si = !abierto(a);
+  if (si) { renderAyuda(); abrirDialogo(a); } else cerrarDialogo(a);
 }
 function renderAyuda() {
   const a = $("#ayuda");
   a.querySelector("h2").textContent = tr("ayuda.titulo");
-  // Teclas entre corchetes → <kbd>. En táctil solo se muestran los gestos.
-  const li = (k) => `<li>${escapar(tr(k)).replace(/\b(W A S D|WASD|Shift|Espacio|Space|Esc|PgUp|PgDn|RePág|AvPág|[A-Z]|[1-9]-[1-9]|←|→|↑|↓)\b/g, "<kbd>$1</kbd>")}</li>`;
-  a.querySelector(".cols").innerHTML = `
-    <section><h3>${escapar(tr("modo.tour"))}</h3><ul>${(esTactil ? ["ayuda.mirar", "ayuda.zoom", "ayuda.flechas"] : ["ayuda.girar", "ayuda.mirar", "ayuda.avanzar", "ayuda.volver", "ayuda.zoom", "ayuda.flechas"]).map(li).join("")}</ul></section>
-    <section><h3>${escapar(tr("modo.libre"))}</h3><ul>${(esTactil ? ["ayuda.joystick"] : ["ayuda.capturar", "ayuda.caminar", "ayuda.correr", "ayuda.subir", "ayuda.plano"]).map(li).join("")}</ul></section>`;
+  a.querySelector(".cerrar-dlg").setAttribute("aria-label", tr("comun.cerrar"));
+  const ms = int.tour ? modosDisponibles() : ["tour"];
+  const r = conRaton, tour = ms.includes("tour"), libre = ms.includes("libre");
+  const atajos = int.ajustes.atajos !== false, plano = hayPlano();
+  const que = { x: tr(plano ? "ep.titulo" : "galeria.titulo") };
+  const x = (k) => ({ x: tr(k) });
+  const secciones = [];
+  const moverte = [];
+  if (tour) moverte.push(r ? "ayuda.ir_raton" : "ayuda.ir_tactil");
+  if (tour && r) moverte.push("ayuda.wasd");
+  if (libre) moverte.push(r ? "ayuda.libre_raton" : "ayuda.libre_tactil");
+  if (ms.includes("maqueta")) moverte.push("ayuda.maqueta");
+  secciones.push(["ayuda.sec_moverte", moverte]);
+  const mirar = ["ayuda.mirar"];
+  if (tour) mirar.push(r ? "ayuda.zoom_raton" : "ayuda.zoom_tactil");
+  if (tour && r) mirar.push("ayuda.girar_teclas");
+  if (listaMas().some((it) => ["giroscopio", "movil"].includes(it.icono))) mirar.push("ayuda.giroscopio"); // solo si está en «Más»
+  secciones.push(["ayuda.sec_mirar", mirar]);
+  if (r && !EMBED && renderer && (tour || libre)) {
+    const wasd = atajos && int.ajustes.modoJuegoWASD !== false;
+    secciones.push(["ayuda.sec_juego", [wasd ? "ayuda.juego_entrar" : "ayuda.juego_boton", "ayuda.juego_salir", ...(libre ? ["ayuda.juego_libre"] : [])]]);
+  }
+  secciones.push([plano ? "ayuda.sec_radar" : "ayuda.sec_estancias",
+    [...(plano ? [r && atajos ? "ayuda.radar_raton" : "ayuda.radar_tactil"] : []), [r && atajos ? "ayuda.plano_raton" : "ayuda.plano_tactil", que]]]);
+  if (!EMBED && $("#paneles")?.childElementCount) { // los paneles siempre ofrecen «Foto de la vista» y «Contactar»
+    secciones.push(["ayuda.sec_foto", [["ayuda.foto", x("contacto.hacer_foto")], ["ayuda.contactar", x("contacto.corto")]]]);
+  }
+  if (hayEstiloYLuz()) secciones.push(["ayuda.sec_estilo", [["ayuda.estilo", x("personalizar.titulo")], ["ayuda.antes_despues", x("comparar.titulo")]]]);
+  if (r && atajos) secciones.push(["ayuda.sec_teclas", [["ayuda.teclas", que], ...(ms.length > 1 ? ["ayuda.tecla_modo"] : [])]]);
+  const li = (k) => { const [c, v] = Array.isArray(k) ? k : [k]; return `<li>${escapar(tr(c, v)).replace(/\[([^\]]+)\]/g, "<kbd>$1</kbd>")}</li>`; };
+  a.querySelector(".secciones").innerHTML = secciones.map(([s, ls]) => `<section><h3>${escapar(tr(s))}</h3><ul>${ls.map(li).join("")}</ul></section>`).join("");
 }
-const escapar = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-document.querySelectorAll(".cerrar").forEach((b) => (b.onclick = () => {
-  const d = b.closest("[role=dialog]");
-  d.hidden = true;
-  if (d.id === "ayuda") $("#btn-ayuda").focus();
-}));
-addEventListener("pointerdown", (e) => { const a = $("#ayuda"); if (!a.hidden && !a.contains(e.target) && !e.target.closest("#btn-ayuda")) a.hidden = true; });
-$("#btn-ayuda").onclick = alternarAyuda;
-$("#btn-mapa").onclick = alternarMapa;
-$("#btn-radar").onclick = alternarRadarVisible;
-$("#btn-vista-mapa").onclick = cambiarRadar;
-aplicarRadar();
-$("#btn-pantalla").hidden = !(document.fullscreenEnabled || document.webkitFullscreenEnabled);
-$("#btn-pantalla").onclick = () => {
-  const el = document.documentElement;
-  if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen ?? document.webkitExitFullscreen)?.call(document);
-  else (el.requestFullscreen ?? el.webkitRequestFullscreen)?.call(el);
+
+// ---- iconos que el núcleo conoce por su nombre (menú «Más»)
+const NS_SVG = "http://www.w3.org/2000/svg";
+const ICONOS = {
+  compartir: '<path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12"/>',
+  idioma: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  ajustes: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
+  guiada: '<path d="M8 5.5v13l10.5-6.5z"/>',
+  medir: '<path d="M3.5 15.5 15.5 3.5l5 5-12 12z"/><path d="m7 12 2 2M10 9l2 2M13 6l2 2"/>',
+  pantalla: '<path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/>',
+  giroscopio: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M3 9a10 10 0 0 0 0 6M21 9a10 10 0 0 1 0 6"/>',
+  plano: '<path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/>',
+  camara: '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.4-2h6.2l1.4 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>',
+  estilo: '<path d="M14.5 4.5 19.5 9.5 11 18l-5-5z"/><path d="M6 13c-2 1-2.5 3-2.5 6.5C7 19.5 9 19 10 17"/>',
+  ayuda: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17h.01"/>',
+  ok: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 };
-$("#btn-giro").onclick = alternarGiro;
-document.querySelectorAll("#modos button").forEach((b) => (b.onclick = () => cambiarModo(b.dataset.modo)));
+const ALIAS_ICONOS = { globo: "idioma", play: "guiada", regla: "medir", pincel: "estilo", foto: "camara", mapa: "plano", estancias: "plano", movil: "giroscopio" };
+/** Icono por nombre o SVG en texto (de los paneles; se descarta si trae scripts o manejadores). */
+function iconoSVG(icono) {
+  let svg = null;
+  if (typeof icono === "string" && /^\s*<svg[\s>]/i.test(icono)) {
+    try {
+      const r = new DOMParser().parseFromString(icono, "image/svg+xml").documentElement;
+      const malo = r.nodeName !== "svg" || r.querySelector("script, foreignObject, parsererror")
+        || [r, ...r.querySelectorAll("*")].some((n) => [...n.attributes].some((a) => /^on/i.test(a.name) || /javascript:/i.test(a.value)));
+      if (!malo) svg = document.importNode(r, true);
+    } catch { /* icono no válido: el elemento se queda sin icono */ }
+  } else if (ICONOS[ALIAS_ICONOS[icono] ?? icono]) {
+    svg = document.createElementNS(NS_SVG, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.innerHTML = ICONOS[ALIAS_ICONOS[icono] ?? icono];
+  }
+  if (svg) { svg.setAttribute("class", "c8-icono"); svg.setAttribute("aria-hidden", "true"); svg.setAttribute("focusable", "false"); }
+  return svg;
+}
+
+// ---- barra de vista: Radar · Modo juego · Música · Ayuda · Pantalla completa · Más
+$("#btn-radar").onclick = () => alternarRadar();
+$("#btn-ayuda").onclick = () => alternarAyuda();
+$("#btn-juego").onclick = () => capturarRaton();
+function pintarJuego() {
+  const b = $("#btn-juego");
+  b.hidden = !(conRaton && !EMBED && renderer && estado.modo !== "maqueta");
+  b.setAttribute("aria-label", tr("juego.titulo"));
+  b.title = tr("juego.ayuda");
+}
+const enPantallaCompleta = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+function alternarPantalla() {
+  const raiz = document.documentElement;
+  try {
+    if (enPantallaCompleta()) (document.exitFullscreen ?? document.webkitExitFullscreen)?.call(document);
+    else (raiz.requestFullscreen ?? raiz.webkitRequestFullscreen)?.call(raiz)?.catch?.(() => {});
+  } catch { /* el navegador no la permite: no pasa nada */ }
+}
+$("#btn-pantalla").hidden = !API_PANTALLA || EMBED; // N13: en el iPhone no existe para las páginas
+$("#btn-pantalla").onclick = alternarPantalla;
+for (const ev of ["fullscreenchange", "webkitfullscreenchange"]) document.addEventListener(ev, () => $("#btn-pantalla").setAttribute("aria-pressed", String(enPantallaCompleta())));
+
+// ---- menú «Más»: lo pinta el núcleo; los paneles aportan los elementos (visor.mas.agregar / quitar)
+const itemsMas = new Map();
+let nMas = 0;
+const DONDE = { siempre: () => true, movil: () => MQ_MOVIL.matches, escritorio: () => !MQ_MOVIL.matches };
+const evaluar = (v) => { try { return typeof v === "function" ? v() : v; } catch { return undefined; } };
+function listaMas() {
+  const vistos = new Set();
+  return [...itemsMas.values()]
+    .filter((it) => (typeof it.donde === "function" ? !!evaluar(it.donde) : (DONDE[it.donde] ?? DONDE.siempre)()))
+    .sort((a, b) => a.orden - b.orden || a.n - b.n)
+    .filter((it) => { const t = String(evaluar(it.texto) ?? "").trim(); if (!t || vistos.has(t.toLowerCase())) return false; vistos.add(t.toLowerCase()); return true; });
+}
+function agregarMas({ id, texto: txt, icono, accion, orden = 50, donde = "siempre", marcado } = {}) {
+  if (id == null || typeof accion !== "function") return false;
+  const previo = itemsMas.get(String(id));
+  itemsMas.set(String(id), { id: String(id), texto: txt, icono, accion, orden: Number.isFinite(+orden) ? +orden : 50, donde, marcado, n: previo?.n ?? nMas++ });
+  actualizarBtnMas();
+  return true;
+}
+function quitarMas(id) { const ok = itemsMas.delete(String(id)); actualizarBtnMas(); return ok; }
+function actualizarBtnMas() {
+  const b = $("#btn-mas");
+  b.hidden = !listaMas().length; // sin elementos, sin botón
+  b.setAttribute("aria-label", tr("mas.titulo"));
+  b.title = tr("mas.titulo");
+  if (b.hidden) cerrarMas(false);
+  else if (!$("#menu-mas").hidden) { pintarMas(); colocarMas(); }
+}
+function pintarMas() {
+  const menu = $("#menu-mas");
+  const foco = document.activeElement?.closest?.("#menu-mas button")?.dataset.id;
+  menu.replaceChildren(...listaMas().map((it) => {
+    const b = boton(null, "");
+    b.tabIndex = -1;
+    b.dataset.id = it.id;
+    const marcado = typeof it.marcado === "function" ? evaluar(it.marcado) : undefined;
+    b.setAttribute("role", marcado === undefined ? "menuitem" : "menuitemcheckbox");
+    if (marcado !== undefined) b.setAttribute("aria-checked", String(!!marcado));
+    const ic = iconoSVG(it.icono);
+    if (ic) b.append(ic);
+    b.append(elem("span", "", String(evaluar(it.texto))));
+    if (marcado !== undefined) { const ok = iconoSVG("ok"); ok.classList.add("marca-ok"); b.append(ok); }
+    b.onclick = () => { cerrarMas(); try { it.accion({ origen: $("#btn-mas") }); } catch (e) { console.error(e); } };
+    return b;
+  }));
+  if (foco) menu.querySelector(`[data-id="${CSS.escape(foco)}"]`)?.focus({ preventScroll: true });
+}
+function colocarMas() {
+  const menu = $("#menu-mas"), r = $("#btn-mas").getBoundingClientRect();
+  const abajo = innerHeight - r.bottom - 16, arriba = r.top - 16;
+  menu.style.right = `${Math.max(8, innerWidth - r.right)}px`;
+  const debajo = abajo >= Math.min(menu.scrollHeight, 260) || abajo >= arriba;
+  menu.style.top = debajo ? `${r.bottom + 8}px` : "auto";
+  menu.style.bottom = debajo ? "auto" : `${innerHeight - r.top + 8}px`;
+  menu.style.maxHeight = `${Math.max(120, debajo ? abajo : arriba)}px`;
+}
+function abrirMas() {
+  if (!listaMas().length) return;
+  salirJuego();
+  pintarMas();
+  const menu = $("#menu-mas");
+  menu.hidden = false;
+  colocarMas();
+  $("#btn-mas").setAttribute("aria-expanded", "true");
+  menu.querySelector("button")?.focus({ preventScroll: true });
+}
+function cerrarMas(devolverFoco = true) {
+  const menu = $("#menu-mas");
+  if (menu.hidden) return;
+  const dentro = menu.contains(document.activeElement);
+  menu.hidden = true;
+  $("#btn-mas").setAttribute("aria-expanded", "false");
+  if (dentro && devolverFoco) $("#btn-mas").focus({ preventScroll: true });
+}
+$("#btn-mas").addEventListener("click", () => ($("#menu-mas").hidden ? abrirMas() : cerrarMas()));
+$("#btn-mas").addEventListener("keydown", (e) => { if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); abrirMas(); } });
+$("#menu-mas").addEventListener("keydown", (e) => {
+  const items = [...e.currentTarget.querySelectorAll("button")];
+  const i = items.indexOf(document.activeElement);
+  const ir = (j) => items[(j + items.length) % items.length]?.focus();
+  if (e.key === "ArrowDown") { e.preventDefault(); ir(i + 1); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); ir(i - 1); }
+  else if (e.key === "Home") { e.preventDefault(); ir(0); }
+  else if (e.key === "End") { e.preventDefault(); ir(items.length - 1); }
+  else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); cerrarMas(); }
+  else if (e.key === "Tab") cerrarMas(false);
+});
+addEventListener("pointerdown", (e) => { if (!$("#menu-mas").hidden && !e.target.closest?.("#menu-mas, #btn-mas")) cerrarMas(false); }, true);
+// Los elementos los aportan los paneles (contrato §3.3), también «Pantalla completa» en el teléfono (el núcleo la quita
+// de su barra con CSS) y «Mirar moviendo el móvil» (visor.giroscopio). Sin elementos, el botón «Más» no se ve.
+
+// ---- «Estancias y plano»: plano grande (norte arriba, pestañas de planta), visita guiada y estancias por zonas o plantas
+/** Grupos de estancias: por zonas (tour.secciones, con ids de fotos o de estancias del plano), si no por plantas (2 o más). */
+function gruposEstancias() {
+  const t = int.tour, nodos = [...int.nodos.values()], grupos = [];
+  if (t.secciones?.length) {
+    const usados = new Set();
+    for (const s of t.secciones) {
+      const ids = new Set(Array.isArray(s.estancias) ? s.estancias : []);
+      const pols = (t.estancias ?? []).filter((e) => ids.has(e.id) && e.poligono?.length > 2);
+      const lista = nodos.filter((n) => !usados.has(n) && (ids.has(n.id) || pols.some((e) => e.planta === n.planta && puntoEnPoligono([n.x, n.z], e.poligono))));
+      lista.forEach((n) => usados.add(n));
+      if (lista.length) grupos.push({ nombre: texto(s.nombre) || String(s.id ?? ""), nodos: lista });
+    }
+    const resto = nodos.filter((n) => !usados.has(n));
+    if (resto.length) grupos.push({ nombre: grupos.length ? tr("contacto.zona_otras") : "", nodos: resto });
+  } else if ((t.plantas?.length ?? 0) > 1) {
+    for (const p of t.plantas) {
+      const lista = nodos.filter((n) => n.planta === p.id);
+      if (lista.length) grupos.push({ nombre: texto(p.nombre) || p.id, nodos: lista });
+    }
+  }
+  if (!grupos.length && nodos.length) grupos.push({ nombre: "", nodos });
+  return grupos;
+}
+const hayVisitaGuiada = () => !!renderer && !!int.tour && ((int.tour.guion?.length ?? 0) >= 2 || int.nodos.size >= 3);
+function miniaturaDe(n, clase) {
+  const src = srcSegura(n.miniatura);
+  if (!src) return elem("span", clase);
+  const img = new Image();
+  img.className = clase; img.src = src; img.alt = ""; img.loading = "lazy"; img.decoding = "async";
+  return img;
+}
+async function irDesdeLista(n) {
+  cerrarDialogo($("#estancias-plano"));
+  if (estado.modo !== "tour") await cambiarModo("tour");
+  irA(n);
+}
+function pintarEstanciasPlano() {
+  const d = $("#estancias-plano");
+  const conPlano = hayPlano();
+  d.classList.toggle("sin-plano", !conPlano);
+  d.querySelector("#ep-titulo").textContent = tr(conPlano ? "ep.titulo" : "galeria.titulo");
+  d.querySelector(".cerrar-dlg").setAttribute("aria-label", tr("comun.cerrar"));
+  d.querySelector(".ep-plano").hidden = !conPlano;
+  const ps = int.tour.plantas ?? [];
+  const pestanas = d.querySelector(".ep-plantas");
+  pestanas.hidden = !conPlano || ps.length < 2;
+  pestanas.setAttribute("aria-label", tr("plantas.titulo"));
+  pestanas.replaceChildren(...(pestanas.hidden ? [] : ps.map((p) => {
+    const b = boton(texto(p.nombre) || p.id, "c8-boton c8-boton--s");
+    b.setAttribute("aria-pressed", String(p.id === int.plantaVista));
+    b.onclick = () => {
+      int.plantaVista = p.id;
+      pestanas.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      planoGrande.dibujar();
+    };
+    return b;
+  })));
+  const guiada = d.querySelector(".ep-guiada");
+  guiada.hidden = !hayVisitaGuiada();
+  guiada.querySelector("span").textContent = tr("guion.iniciar");
+  d.querySelector(".ep-grupos").replaceChildren(...gruposEstancias().flatMap((g) => {
+    const ul = elem("ul");
+    ul.append(...g.nodos.map((n) => {
+      const b = boton(null, "ep-estancia");
+      b.dataset.id = n.id;
+      b.setAttribute("aria-current", String(n.id === estado.nodo));
+      const est = estanciaDe(n);
+      b.append(miniaturaDe(n, "mini"), elem("span", "nombre", texto(n.nombre)), elem("span", "m2", est ? m2Corto(areaPoligono(est.poligono)) : ""));
+      b.onclick = () => irDesdeLista(n);
+      const li = elem("li");
+      li.append(b);
+      return li;
+    }));
+    return g.nombre ? [elem("h3", "", g.nombre), ul] : [ul];
+  }));
+}
+/** Abre (true), cierra (false) o alterna «Estancias y plano». Devuelve si queda abierto. */
+function estanciasPlano(abrir) {
+  const d = $("#estancias-plano");
+  if (abrir === undefined) abrir = !abierto(d);
+  if (!int.tour || !!abrir === abierto(d)) return abierto(d);
+  if (abrir) {
+    int.plantaVista = estado.planta;
+    pintarEstanciasPlano();
+    abrirDialogo(d);
+    $("#lugar").setAttribute("aria-expanded", "true");
+    d.querySelector('.ep-estancia[aria-current="true"]')?.focus();
+    requestAnimationFrame(() => planoGrande.dibujar());
+  } else cerrarDialogo(d);
+  return abierto(d);
+}
+$("#estancias-plano").addEventListener("close", () => $("#lugar").setAttribute("aria-expanded", "false"));
+$("#estancias-plano .ep-guiada").onclick = () => { cerrarDialogo($("#estancias-plano")); guion.iniciar(); };
+$("#lugar").onclick = () => estanciasPlano(true);
+$("#btn-ampliar").onclick = () => estanciasPlano(true);
+function actualizarLugar() {
+  const l = $("#lugar");
+  const que = tr(hayPlano() ? "ep.titulo" : "galeria.titulo");
+  l.setAttribute("aria-label", [int.actual ? texto(int.actual.nombre) : "", que].filter(Boolean).join(" · "));
+  l.title = `${tr("ep.abrir")}${conRaton ? " (M)" : ""}`;
+  const a = $("#btn-ampliar");
+  a.setAttribute("aria-label", que);
+  a.title = a.getAttribute("aria-label");
+}
+
+// ---- tira de estancias (escritorio y tablet): agrupada por zonas o plantas, con su nombre y un separador
+function construirGaleria() {
+  const g = $("#galeria");
+  g.setAttribute("aria-label", tr("galeria.titulo"));
+  const grupos = gruposEstancias();
+  const varios = grupos.length > 1;
+  const piezas = [];
+  if (hayVisitaGuiada()) { // solo se ve en vertical (tablet): en escritorio la visita guiada está entre las acciones de los paneles
+    const b = boton(null, "c8-boton c8-boton--secundario c8-boton--s guiada");
+    b.append(iconoSVG("guiada"), elem("span", "", tr("guion.iniciar")));
+    b.onclick = () => guion.iniciar();
+    piezas.push(b);
+  }
+  grupos.forEach((gr, i) => {
+    if (i) piezas.push(elem("span", "sep"));
+    const cont = elem("div", varios && gr.nombre ? "grupo con-nombre" : "grupo");
+    if (varios && gr.nombre) {
+      cont.setAttribute("role", "group");
+      cont.setAttribute("aria-label", gr.nombre);
+      const nombre = elem("span", "grupo-nombre", gr.nombre);
+      nombre.setAttribute("aria-hidden", "true");
+      cont.append(nombre);
+    }
+    cont.append(...gr.nodos.map((n) => {
+      const b = boton(null, "estancia");
+      b.dataset.id = n.id;
+      b.title = texto(n.nombre);
+      b.setAttribute("aria-label", tr("nav.ir_a", { x: texto(n.nombre) }));
+      b.setAttribute("aria-current", String(n.id === estado.nodo));
+      if (srcSegura(n.miniatura)) b.append(miniaturaDe(n, ""));
+      b.append(elem("span", "", texto(n.nombre)));
+      b.onclick = async () => { if (estado.modo !== "tour") await cambiarModo("tour"); irA(n); };
+      return b;
+    }));
+    piezas.push(cont);
+  });
+  g.replaceChildren(...piezas);
+  medirTira();
+}
+/** Alto de la tira para colocar encima los modos, los subtítulos y las notas (0 si no se ve). */
+function medirTira() {
+  requestAnimationFrame(() => {
+    const g = $("#galeria");
+    const h = g.getClientRects().length && getComputedStyle(g).display !== "none" ? Math.round(g.offsetHeight + 8) : 0;
+    document.documentElement.style.setProperty("--alto-tira", `${h}px`);
+  });
+}
 
 // Pistas de primer uso (se recuerdan en localStorage)
 const pistasVistas = new Set(almacen.leer("visor:pistas", []));
 function mostrarPista(id, txt) {
-  if (pistasVistas.has(id) || EMBED) return;
-  const el = $("#pista");
-  el.textContent = txt;
-  el.dataset.id = id;
-  el.hidden = false;
-  setTimeout(() => ocultarPista(id), 9000);
+  if (pistasVistas.has(id) || EMBED || int.portada) return;
+  const p = $("#pista");
+  p.textContent = txt;
+  p.dataset.id = id;
+  p.hidden = false;
+  setTimeout(() => ocultarPista(id), 6000);
 }
 function ocultarPista(id) {
-  const el = $("#pista");
-  if (el.dataset.id !== id) return;
-  el.hidden = true;
+  const p = $("#pista");
+  if (p.dataset.id !== id) return;
+  p.hidden = true;
   pistasVistas.add(id);
   almacen.guardar("visor:pistas", [...pistasVistas]);
+}
+/** Paseo libre: con ratón, la tarjeta «Haz clic para caminar»; en táctil, la pista del joystick. */
+function ayudaLibre() { if (conRaton) tarjetaJuego(true); else mostrarPista("libre", tr("aviso.libre_tactil")); }
+function pistaInicial() {
+  if (!renderer) return;
+  if (estado.modo === "libre") ayudaLibre();
+  else if (estado.modo === "tour") mostrarPista("inicio", tr(conRaton ? "pista.raton" : "pista.tactil"));
 }
 
 function modosDisponibles() {
   const ms = [];
   if (int.nodos.size) ms.push("tour");
   if (int.tour.libre) ms.push("libre");
-  if (maqueta?.disponible() || ["demo", "glb"].includes(int.tour.libre?.tipo)) ms.push("maqueta");
+  if (maqueta?.disponible() || ["demo", "glb"].includes(int.tour.libre?.tipo)) ms.push("maqueta"); // N4: solo con muros o modelo
   return ms;
 }
 
@@ -1476,13 +1935,13 @@ async function cambiarModo(modo) {
     if (int.modoPedido !== modo) return;
   }
   $("#pista").hidden = true;
+  tarjetaJuego(false);
   if (modo === "libre") {
     if (int.actual && !int.tour.libre.inicio && !int.libre.visitado) {
       int.libre.pos.x = int.actual.x; int.libre.pos.z = int.actual.z; int.libre.rumbo = estado.rumbo;
     }
     int.libre.visitado = true;
-    mostrarPista("libre", esTactil ? tr("aviso.libre_tactil") : `${tr("aviso.clic_explorar")} · ${tr("aviso.libre_raton")}`);
-  } else if (document.pointerLockElement) document.exitPointerLock();
+  } else if (modo === "maqueta") salirJuego();
   if (estado.midiendo && modo === "maqueta") visor.medir(false);
   if (guion.activo && modo !== "tour") guion.parar();
   const anterior = estado.modo;
@@ -1491,11 +1950,15 @@ async function cambiarModo(modo) {
   if (anterior === "maqueta" && pisoDemo) aplicarAmbienteLibre();
   document.body.classList.toggle("modo-libre", modo === "libre");
   document.body.classList.toggle("modo-maqueta", modo === "maqueta");
-  document.querySelectorAll("#modos button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.modo === modo)));
+  marcarModo();
   etiquetas.hidden = modo !== "tour";
   cortinilla.hidden = !(estado.comparar && modo === "tour");
   actualizarSello();
-  $("#btn-giro").hidden = !(esTactil && modo === "tour" && "DeviceOrientationEvent" in window);
+  aplicarRadar();
+  pintarJuego();
+  actualizarBtnMas();
+  medirTira();
+  if (modo === "libre" && !int.portada) ayudaLibre();
   camara.position.set(0, 0, 0);
   camara.fov = int.fovBase * (modo === "tour" ? int.zoom : 1);
   camara.updateProjectionMatrix();
@@ -1503,32 +1966,27 @@ async function cambiarModo(modo) {
   visor.emitir("modo", { modo });
 }
 
-function construirGaleria() {
-  const g = $("#galeria");
-  g.setAttribute("aria-label", tr("galeria.titulo"));
-  g.replaceChildren();
-  for (const n of int.nodos.values()) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.dataset.id = n.id;
-    b.title = texto(n.nombre);
-    b.setAttribute("aria-label", tr("nav.ir_a", { x: texto(n.nombre) }));
-    if (n.miniatura) { const img = new Image(); img.src = n.miniatura; img.alt = ""; img.loading = "lazy"; img.decoding = "async"; b.append(img); }
-    const s = document.createElement("span"); s.textContent = texto(n.nombre); b.append(s);
-    b.onclick = async () => { if (estado.modo !== "tour") await cambiarModo("tour"); irA(n); };
-    g.append(b);
-  }
-  if (estado.nodo) g.querySelector(`[data-id="${CSS.escape(estado.nodo)}"]`)?.setAttribute("aria-current", "true");
-}
-
+/** «Recorrido · Paseo libre · Maqueta» (solo con 2 modos o más; los nombres largos, en aria-label). */
 function construirModos() {
   const ms = modosDisponibles();
-  document.querySelectorAll("#modos button").forEach((b) => {
-    b.hidden = !ms.includes(b.dataset.modo);
-    b.textContent = tr(`modo.${b.dataset.modo}`);
-  });
-  $("#modos").hidden = ms.length < 2;
+  const g = $("#modos");
+  g.hidden = ms.length < 2;
+  g.setAttribute("aria-label", tr("modo.titulo"));
+  g.replaceChildren(...ms.map((m) => {
+    const l = elem("label");
+    const r = document.createElement("input");
+    r.type = "radio"; r.name = "modo"; r.value = m; r.checked = m === estado.modo;
+    r.setAttribute("aria-label", tr(`modo.${m}`));
+    l.append(r, elem("span", "", tr(`modo.${m}_corto`)));
+    return l;
+  }));
+  window.cre8Tema?.segmentados?.(g);
 }
+function marcarModo() {
+  for (const r of document.querySelectorAll("#modos input")) r.checked = r.value === estado.modo;
+  window.cre8Tema?.segmentados?.($("#modos"));
+}
+$("#modos").addEventListener("change", (e) => { if (e.target.name === "modo") cambiarModo(e.target.value).finally(marcarModo); });
 
 // Texto legible sobre el color de marca: oscuro o blanco, el que más contraste dé (WCAG).
 function textoSobreColor(hex) {
@@ -1547,31 +2005,169 @@ function aplicarMarca() {
     for (const v of ["--acento", "--c-acento"]) raiz.setProperty(v, m.color);
     for (const v of ["--acento-texto", "--c-sobre-acento"]) raiz.setProperty(v, sobre);
   } else for (const v of ["--acento", "--c-acento", "--acento-texto", "--c-sobre-acento"]) raiz.removeProperty(v);
-  const logo = $("#logo");
-  if (m.logo) { logo.src = m.logo; logo.alt = texto(m.nombre); logo.hidden = false; } else logo.hidden = true;
+  int.acento = ""; // el radar vuelve a leer el acento
+  const logo = $("#logo"), src = srcSegura(m.logo);
+  logo.onerror = () => { logo.hidden = true; };
+  if (src) { logo.src = src; logo.alt = texto(m.nombre); logo.hidden = false; } else { logo.removeAttribute("src"); logo.hidden = true; }
   const titulo = texto(int.tour.titulo) || tr("titulo.defecto");
   $("#titulo").textContent = titulo;
   document.title = `${titulo} · ${texto(m.nombre) || "cre8eight"}`;
+}
+
+// ------------------------------------------------------------------ portada (N-7/N-8)
+// Mientras carga: agencia, inmueble, precio y 3 datos sobre la estancia inicial difuminada, con el progreso real.
+// Lista: «Empezar visita» (su toque es el gesto que deja sonar la música), «▶ Visita guiada» e idiomas.
+// Sin portada con ?embed; tour.portada === false entra directo (alternativa G de la ronda 2).
+const portada = $("#portada");
+if (portada) {
+  document.body.classList.add("con-portada");
+  for (const hijo of $("#app").children) if (hijo !== portada) hijo.inert = true; // el teclado no llega a lo de detrás
+  portada.querySelector(".empezar").onclick = () => empezar();
+  portada.querySelector(".guiada").onclick = () => empezar({ guiada: true });
+}
+function progresoPortada(f) {
+  const v = Math.round(THREE.MathUtils.clamp(f, 0, 1) * 100);
+  if (!portada || v <= int.progreso) return; // nunca retrocede
+  int.progreso = v;
+  portada.querySelector(".progreso div").style.width = `${v}%`;
+  portada.querySelector(".progreso").setAttribute("aria-valuenow", String(v));
+}
+function precioPortada(i) {
+  let n = i.precio;
+  if (typeof n === "string") n = Number(n.replace(/[^\d,.]/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", "."));
+  if (!(n > 0)) return "";
+  let s;
+  try { s = new Intl.NumberFormat(localeActual(), { style: "currency", currency: i.moneda || "EUR", maximumFractionDigits: 0 }).format(n); }
+  catch { s = `${Math.round(n).toLocaleString()} €`; }
+  return s + (i.operacion === "alquiler" ? tr("ficha.mes") : "");
+}
+function datosPortada(i) {
+  const n = (v) => (Number(v) > 0 ? Number(v) : 0);
+  const min = (s) => (estado.idioma === "de" ? s : s.toLowerCase()); // en alemán los sustantivos van en mayúscula
+  const partes = [];
+  if (n(i.habitaciones)) partes.push(`${n(i.habitaciones)} ${min(tr(n(i.habitaciones) === 1 ? "ficha.habitacion" : "ficha.habitaciones"))}`);
+  if (n(i.banos)) partes.push(`${n(i.banos)} ${min(tr(n(i.banos) === 1 ? "ficha.bano" : "ficha.banos"))}`);
+  const sup = n(i.superficie_construida) || n(i.superficie_util);
+  if (sup) partes.push(m2Corto(sup));
+  return partes.join(" · ");
+}
+/** Fondo: la miniatura de la estancia inicial mientras carga y, al terminar, la propia vista (vale también para la demo). */
+function fondoPortada(fuente) {
+  const c = portada?.querySelector(".fondo");
+  const w = fuente?.naturalWidth || fuente?.width, h = fuente?.naturalHeight || fuente?.height;
+  if (!c || !w || !h) return;
+  c.width = 320; c.height = Math.max(1, Math.round((320 * h) / w));
+  try { c.getContext("2d").drawImage(fuente, 0, 0, c.width, c.height); c.classList.add("visible"); } catch { /* sin fondo */ }
+}
+function fondoMiniatura(n) {
+  const src = n && srcSegura(n.miniatura);
+  if (!src || !portada) return;
+  const img = new Image();
+  img.decoding = "async";
+  img.onload = () => { if (int.portada && !portada.classList.contains("lista")) fondoPortada(img); };
+  img.src = src;
+}
+function rellenarPortada() {
+  if (!portada?.isConnected || !int.tour) return;
+  const t = int.tour, m = t.marca ?? {}, i = t.inmueble ?? {};
+  const marca = portada.querySelector(".marca"), logo = marca.querySelector("img"), src = srcSegura(m.logo);
+  logo.onerror = () => { logo.hidden = true; };
+  if (src && logo.getAttribute("src") !== src) logo.src = src;
+  logo.hidden = !src;
+  marca.querySelector(".nombre").textContent = texto(m.nombre);
+  marca.hidden = !src && !texto(m.nombre);
+  const titulo = texto(t.titulo);
+  portada.querySelector(".titulo").textContent = titulo;
+  for (const [sel, txt] of [[".precio", precioPortada(i)], [".datos", datosPortada(i)]]) {
+    const p = portada.querySelector(sel);
+    p.textContent = txt;
+    p.hidden = !txt;
+  }
+  portada.setAttribute("aria-label", titulo || tr("titulo.defecto"));
+  portada.querySelector(".progreso").setAttribute("aria-label", tr("portada.cargando"));
+  portada.querySelector(".empezar").textContent = tr("portada.empezar");
+  portada.querySelector(".guiada span").textContent = tr("guion.iniciar");
+  portada.querySelector(".guiada").hidden = !hayVisitaGuiada();
+  const [antes, despues = ""] = tr("marca.creado_con", { x: "\u0001" }).split("\u0001");
+  portada.querySelector(".credito").replaceChildren(antes, elem("b", "", "cre8eight"), despues);
+  // Idiomas (con 2 o más que el visor sepa mostrar)
+  const cont = portada.querySelector(".idiomas");
+  const idiomas = [...new Set(t.idiomas ?? [])].filter((c) => i18n?.diccionario?.[c]);
+  const foco = document.activeElement?.closest?.(".idiomas button")?.lang;
+  cont.hidden = idiomas.length < 2;
+  cont.setAttribute("aria-label", tr("idioma.titulo"));
+  cont.replaceChildren(...(cont.hidden ? [] : idiomas.map((c) => {
+    const b = boton(c.toUpperCase(), "c8-boton c8-boton--s c8-boton--fantasma");
+    b.lang = c;
+    b.setAttribute("aria-label", i18n?.nombreIdioma?.(c) ?? c);
+    b.setAttribute("aria-pressed", String(c === estado.idioma));
+    b.onclick = () => visor.idioma(c);
+    return b;
+  })));
+  if (foco) cont.querySelector(`[lang="${CSS.escape(foco)}"]`)?.focus({ preventScroll: true });
+}
+function portadaLista() {
+  if (!int.portada || !portada) return;
+  if (int.tour?.portada === false) { empezar({ automatica: true }); return; }
+  if (renderer && int.actual) { renderizar(); fondoPortada(lienzo); }
+  progresoPortada(1);
+  rellenarPortada();
+  portada.classList.add("lista");
+  portada.removeAttribute("aria-busy");
+  portada.querySelector(".acciones").hidden = false;
+  portada.querySelector(".empezar").focus({ preventScroll: true });
+}
+/** Quita la portada (con fundido o, si falla la carga, de golpe) y devuelve el teclado a la escena. */
+function soltarPortada(animar = true) {
+  if (!int.portada) return false;
+  int.portada = false;
+  document.body.classList.remove("con-portada");
+  for (const hijo of $("#app").children) hijo.inert = false;
+  if (portada) {
+    portada.inert = true;
+    if (animar) { portada.classList.add("fuera"); setTimeout(() => portada.remove(), 700); } else portada.remove();
+  }
+  return true;
+}
+/** Cierra la portada y empieza la visita (o la visita guiada). Devuelve false si no había portada. */
+function empezar({ guiada = false, automatica = false } = {}) {
+  if (!soltarPortada()) return false;
+  // El toque en «Empezar visita» es el gesto del usuario que permite arrancar la música.
+  if (!automatica && sonido.el && sonido.activo && int.tour?.audio?.musica?.autoplay !== false) arrancarSonido();
+  if (guiada && hayVisitaGuiada()) guion.iniciar();
+  else pistaInicial();
+  visor.emitir("empezar", { guiada: !!guiada, automatica: !!automatica });
+  return true;
 }
 
 function refrescarTextos() {
   aplicarMarca();
   construirModos();
   construirGaleria();
-  dibujarPlantas();
-  if (int.actual) { construirPuntos(); anunciarEstancia(int.actual); }
+  if (int.actual) { construirPuntos(); anunciarEstancia(int.actual); } else actualizarLugar();
   maqueta?.reiniciar();
   if (estado.modo === "maqueta") maqueta.activar(true);
   medicion?.refrescarTextos();
+  $("#barra-vista").setAttribute("aria-label", tr("vista.titulo"));
   $("#btn-ayuda").setAttribute("aria-label", tr("ayuda.titulo"));
+  $("#btn-ayuda").title = `${tr("ayuda.titulo")}${conRaton ? " (H)" : ""}`;
+  $("#btn-pantalla").setAttribute("aria-label", tr("comun.pantalla_completa"));
+  $("#btn-pantalla").title = tr("comun.pantalla_completa");
+  aplicarRadar();
+  pintarJuego();
   pintarSonido();
-  $("#btn-mapa").setAttribute("aria-label", tr("plano.ampliar"));
+  actualizarBtnMas();
+  $("#aviso-juego").textContent = tr("juego.aviso");
+  if (!$("#tarjeta-juego").hidden) $("#tarjeta-juego").textContent = tr("juego.tarjeta");
   lienzo.setAttribute("aria-label", `${texto(int.tour.titulo) || tr("titulo.defecto")} · ${tr("aviso.arrastra")}`);
   cortinilla.dataset.antes = tr("comparar.antes");
   cortinilla.dataset.despues = tr("comparar.despues");
   barraGuion.querySelector(".pausa").setAttribute("aria-label", tr(guion.pausado ? "guion.reanudar" : "guion.pausar"));
   barraGuion.querySelector(".parar").setAttribute("aria-label", tr("guion.parar"));
-  if (!$("#ayuda").hidden) renderAyuda();
+  barraGuion.setAttribute("aria-label", tr("guion.iniciar"));
+  if (abierto($("#ayuda"))) renderAyuda();
+  if (abierto($("#estancias-plano"))) pintarEstanciasPlano();
+  rellenarPortada();
   dibujarMapa();
 }
 
@@ -1606,7 +2202,8 @@ Object.assign(visor, {
     medicion.activar(estado.midiendo);
     if (si) {
       $("#pista").hidden = true;
-      if (document.pointerLockElement) document.exitPointerLock();
+      tarjetaJuego(false);
+      salirJuego();
       if (estado.modo === "tour" && estado.cabeceo > -0.3) estado.cabeceo = -0.42; // mirar al suelo para medir
     }
     visor.emitir("medir", { activo: estado.midiendo });
@@ -1712,12 +2309,31 @@ Object.assign(visor, {
   tiempoReal(si) { int.tiempoReal = !!si; },
   /** Texto del aviso legal de la vista actual ("" si es una foto real). */
   sello: () => (estado.modo === "tour" ? actualizarSello() : ""),
+  /** Compatibilidad: "radar" lo muestra, "oculto" lo oculta y "plano" abre «Estancias y plano». Sin argumento, alterna. */
   radar(modo) {
-    if (modo === "oculto") { int.radarVisible = false; }
-    else if (modo === "radar" || modo === "plano") { int.radar = modo; int.radarVisible = true; }
-    almacen.guardar("visor:radar", int.radar); almacen.guardar("visor:radarVisible", int.radarVisible);
-    aplicarRadar();
+    if (modo === "plano") return estanciasPlano(true);
+    alternarRadar(modo === undefined ? undefined : modo !== "oculto");
+    return int.radarVisible;
   },
+  /** Menú «Más» del núcleo: los paneles aportan elementos. donde: "siempre" | "movil" | "escritorio" | () => boolean. */
+  mas: {
+    agregar: (item) => agregarMas(item),
+    quitar: (id) => quitarMas(id),
+    abrir: () => abrirMas(),
+    cerrar: () => cerrarMas(),
+  },
+  estanciasPlano: (abrir) => estanciasPlano(abrir),
+  ayuda: (si) => alternarAyuda(si),
+  /** Modo juego (ratón capturado). Sin argumento alterna. Necesita un gesto del usuario; emite "modojuego" { activo }. */
+  modoJuego(si) {
+    if (si === undefined) si = document.pointerLockElement !== lienzo;
+    if (si) capturarRaton(); else salirJuego();
+  },
+  /** «Mirar moviendo el móvil». Sin argumento alterna. Promise<boolean>; emite "giroscopio" { activo }. */
+  giroscopio: (si) => fijarGiro(si),
+  portada: { get visible() { return !!int.portada; } },
+  /** Cierra la portada como «Empezar visita» ({ guiada: true } = «▶ Visita guiada»). Emite "empezar". */
+  empezar: (o) => empezar(o),
   renderizar: () => renderizar(),
   /** Fija el tamaño interno del lienzo para grabar vídeo (p. ej. 1080×1920); null restaura. */
   tamanoCaptura(w, h) {
@@ -1779,7 +2395,7 @@ async function obtenerTour() {
     return await r.json();
   } catch (e) {
     // En producción nunca se muestra una vivienda falsa: pantalla de error con reintento.
-    $("#portada")?.remove();
+    soltarPortada(false);
     const el = document.createElement("div");
     el.id = "error-carga";
     el.setAttribute("role", "alert");
@@ -1853,7 +2469,10 @@ function enlazar(t) {
 }
 
 async function cargarEnVisor(t, { mantenerVista = false } = {}) {
-  const vistaPrevia = mantenerVista && int.actual ? { nodo: int.actual.id, rumbo: estado.rumbo, cabeceo: estado.cabeceo } : null;
+  // Si se estaba yendo a otra estancia (p. ej. elegida en la vista previa del Estudio), se conserva ese destino.
+  const previo = int.navDestino ?? int.actual;
+  const vistaPrevia = mantenerVista && previo ? { nodo: previo.id, rumbo: estado.rumbo, cabeceo: estado.cabeceo } : null;
+  int.navDestino = null;
   if (int.transicion) { int.transicion.resolver(); int.transicion = null; }
   for (const [, e] of cache) if (e.tex && !e.fija) liberarTex(e.tex);
   cache.clear(); luces.clear();
@@ -1862,12 +2481,17 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   $("#vacio")?.remove();
   int.tour = normalizar(t);
   enlazar(int.tour);
-  plano.invalidar();
+  radar.invalidar();
+  planoGrande.invalidar();
   maqueta?.reiniciar();
+  const h = int.nodos.size ? vistaPrevia ?? leerHash() : null;
+  const inicio = int.nodos.size ? int.nodos.get(h?.nodo) ?? int.nodos.get(t.inicio) ?? t.panoramas[0] : null;
+  if (int.portada) { progresoPortada(0.3); rellenarPortada(); fondoMiniatura(inicio); }
   if (t.demo && renderer) {
-    mostrarCarga(true);
+    mostrarCarga(!int.portada);
     const { generarPanoramas, musicaDemo } = await import("./demo.js");
     generarPanoramas(THREE, renderer, t.panoramas, t.altura_camara ?? 1.5);
+    progresoPortada(0.75);
     if (!t.audio?.musica?.archivo) {
       const archivo = await musicaDemo().catch(() => null);
       if (archivo) t.audio = { musica: { archivo, volumen: 0.35, bucle: true, titulo: { es: "Ambiente (demo)", en: "Ambient (demo)" }, autor: "cre8eight", licencia: "Generada por código" } };
@@ -1881,6 +2505,9 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
   refrescarTextos();
   configurarSonido();
   redimensionar();
+  // N4: sin plano de verdad (imagen, muros o estancias) el radar empieza oculto; sigue activable con R o su botón.
+  int.radarVisible = hayPlano() && almacen.leer("visor:radarVisible", true) !== false;
+  aplicarRadar();
   if (!int.nodos.size) {
     estado.planta = t.plantas[0].id;
     if (t.libre) await cambiarModo("libre");
@@ -1893,15 +2520,16 @@ async function cargarEnVisor(t, { mantenerVista = false } = {}) {
     visor.emitir("tour", {});
     return;
   }
-  const h = vistaPrevia ?? leerHash();
-  const inicio = int.nodos.get(h?.nodo) ?? int.nodos.get(t.inicio) ?? t.panoramas[0];
   estado.planta = inicio.planta;
   estado.rumbo = h?.rumbo != null && !isNaN(h.rumbo) && int.nodos.has(h?.nodo) ? h.rumbo : (inicio.rumbo_inicial ?? inicio.yaw ?? 0) * GRAD;
   if (h?.cabeceo != null && !isNaN(h.cabeceo)) estado.cabeceo = h.cabeceo;
-  if (renderer) await irA(inicio, { instantaneo: true });
-  else { int.actual = inicio; estado.nodo = inicio.id; }
+  if (renderer) {
+    if (int.portada) int.alProgresoCarga = (f) => progresoPortada(0.3 + 0.6 * f); // bytes reales de la primera foto
+    await irA(inicio, { instantaneo: true });
+    int.alProgresoCarga = null;
+  } else { int.actual = inicio; estado.nodo = inicio.id; anunciarEstancia(inicio); }
+  progresoPortada(0.92);
   if (h?.fov && !isNaN(h.fov)) fijarZoom(h.fov / int.fovBase);
-  dibujarPlantas();
   visor.emitir("tour", {}); // los paneles se repintan con los datos nuevos (p. ej. vista previa del Estudio)
 }
 
@@ -1918,6 +2546,9 @@ function redimensionar() {
   const pr = renderer?.getPixelRatio() ?? 1;
   U.resolucion.value.set(w * pr, h * pr);
   dibujarMapa();
+  actualizarBtnMas(); // «donde» depende del tamaño
+  if (!$("#menu-mas").hidden) colocarMas();
+  medirTira();
 }
 addEventListener("resize", redimensionar);
 
@@ -1935,6 +2566,8 @@ function bucle() {
   const dtReal = reloj.getDelta();
   const dt = Math.min(dtReal, 0.1);
   const dtGuion = int.tiempoReal ? Math.min(dtReal, 1) : dt; // grabando: la visita sigue el reloj real
+  // Con la portada delante no se pinta (la GPU descansa); las transiciones y la visita guiada siguen (API, grabación).
+  const pintar = !int.portada || int.tiempoReal;
   if (estado.modo === "tour") {
     pasoTransicion(dtGuion);
     guion.paso(dtGuion);
@@ -1946,12 +2579,12 @@ function bucle() {
     else camara.rotation.set(estado.cabeceo, -estado.rumbo, 0);
     estado.fov = camara.fov;
     camara.updateMatrixWorld();
-    renderizar();
-    actualizarEtiquetas();
+    if (pintar) { renderizar(); actualizarEtiquetas(); }
     tMapa += dt;
-    if (tMapa > (int.radar === "radar" ? 0.033 : 0.1)) { tMapa = 0; dibujarMapa(); }
+    if (pintar && tMapa > 0.033) { tMapa = 0; dibujarRadar(); }
     tVista += dt;
-    if (EMBED && tVista > 0.15) {
+    // Mientras se va a otra estancia no se informa al Estudio (estado.nodo aún es la anterior): lo hace llegar().
+    if (EMBED && tVista > 0.15 && !int.navDestino && !int.transicion) {
       tVista = 0;
       const v = vistaParaPadre();
       const k = JSON.stringify(v);
@@ -1962,16 +2595,16 @@ function bucle() {
     cabeceoTeclado(dt);
     moverLibre(dt);
     camara.updateMatrixWorld();
-    renderizar();
+    if (pintar) renderizar();
   } else {
     maqueta.cuadro();
-    renderizar();
+    if (pintar) renderizar();
   }
   medicion?.cuadro();
-  // Interfaz que se oculta tras 3 s sin interacción (vuelve al mover el ratón o tocar).
-  const inactiva = !!int.yaInteractuo && performance.now() - int.ultimaInteraccion > 3500 && estado.modo !== "maqueta" && !estado.midiendo && !EMBED
-    && !document.querySelector("#paneles [aria-expanded=true], #paneles .pn-abierto, #minimapa.grande")
-    && !document.activeElement?.closest?.("#barra, #modos, #iconos, #galeria, #minimapa, #paneles, #guion-barra");
+  // Interfaz que se oculta tras 3,5 s sin interacción (vuelve al mover el ratón o tocar). Quedan el radar y la tarjeta.
+  const inactiva = !!int.yaInteractuo && !int.portada && performance.now() - int.ultimaInteraccion > 3500 && estado.modo !== "maqueta" && !estado.midiendo && !EMBED
+    && $("#menu-mas").hidden && !document.querySelector("dialog[open], #paneles [aria-expanded=true], #paneles .pn-abierto")
+    && !document.activeElement?.closest?.("#esquina, #modos, #barra-vista, #galeria, #paneles, #guion-barra");
   if (inactiva !== document.body.classList.contains("ui-inactiva")) document.body.classList.toggle("ui-inactiva", inactiva);
   // Calidad adaptativa: si los FPS caen por debajo de 28, se baja la resolución interna.
   fps.t += dt; fps.n++;
@@ -1988,23 +2621,23 @@ lienzo.addEventListener("webglcontextlost", (e) => {
 });
 
 async function iniciar() {
+  progresoPortada(0.1);
   i18n = await import("./i18n.js").catch(() => null);
+  progresoPortada(0.18);
   const t = await obtenerTour();
   if (!renderer) { document.body.classList.add("sin-webgl"); aviso(tr("aviso.sin_webgl"), 600000); }
   await cargarEnVisor(t);
   const modoPedido = params.get("modo");
   if (modoPedido && modosDisponibles().includes(modoPedido)) await cambiarModo(modoPedido);
   if (renderer) renderer.setAnimationLoop(bucle);
-  if (estado.modo === "tour" && renderer) mostrarPista("arrastra", esTactil ? tr("aviso.arrastra") : `${tr("aviso.arrastra")} · ${tr("aviso.clic_explorar")}`);
   import("./paneles.js").then((m) => m.iniciarPaneles?.(visor)).catch((e) => console.info("Paneles no disponibles:", e.message));
   visor.listo = true;
-  $("#portada").classList.add("fuera");
-  setTimeout(() => $("#portada").remove(), 700);
+  if (int.portada) portadaLista(); else pistaInicial();
   visor.emitir("listo", {});
   enviarPadre({ tipo: "visor:listo" });
 }
 
-iniciar().catch((e) => { console.error(e); $("#portada")?.remove(); if (!$("#error-carga")) aviso(tr("aviso.error", { x: e.message }), 10000); });
+iniciar().catch((e) => { console.error(e); soltarPortada(false); if (!$("#error-carga")) aviso(tr("aviso.error", { x: e.message }), 10000); });
 
 // Desarrollo (?dev): arrastrar y soltar un .spz/.ply/.splat/.sog/.glb para probarlo al instante.
 // En los recorridos publicados no se activa.

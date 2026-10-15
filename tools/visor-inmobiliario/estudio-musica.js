@@ -1,5 +1,5 @@
 // Música de fondo del proyecto: tour.audio.musica = { archivo, volumen, bucle, autoplay, titulo, autor, licencia }.
-// La casilla de licencia es interna del Estudio (tour._estudio.musicaLicencia) y Revisar avisa si falta.
+// La casilla de licencia es interna del Estudio (tour._estudio.musicaLicencia) y «Antes de publicar» avisa si falta.
 import { slug } from "./estudio-util.js";
 import { app, h, icono, cambiar, toast, confirmar, guardarArchivo, urlDe, rutaLibre, elegirArchivos, fmtMB } from "./estudio-nucleo.js";
 import { campo } from "./estudio-campos.js";
@@ -25,16 +25,15 @@ async function subirMusica(alTerminar) {
   alTerminar?.();
 }
 
-/** Bloque «Música de fondo» (Material y Datos → Avanzado). */
+/** Bloque «Música de fondo» (Más herramientas → Extras). */
 export function bloqueMusica() {
   const cont = h("div", { class: "bloque-musica" });
   const M = () => app.tour.audio?.musica;
   const pintar = () => {
     const m = M();
     if (!m?.archivo) {
-      cont.replaceChildren(
-        h("p", { class: "suave", style: { margin: "0 0 10px" }, text: "Opcional. Suena con el botón de sonido del visor y en los vídeos. Usa música libre de derechos o con licencia comercial." }),
-        h("button", { class: "btn", onclick: () => subirMusica(pintar) }, icono("subir", 16), "Subir música (MP3, M4A, AAC, OGG o WAV)"));
+      cont.replaceChildren(h("div", { class: "fila" }, h("button", { class: "btn", onclick: () => subirMusica(pintar) }, icono("subir", 16), "Subir música"),
+        h("small", { class: "tenue", text: "MP3, M4A, AAC, OGG o WAV" })));
       return;
     }
     const blob = app.archivos.get(m.archivo);
@@ -57,7 +56,7 @@ export function bloqueMusica() {
     const lic = h("input", { type: "checkbox", checked: !!app.tour._estudio.musicaLicencia, required: true, "aria-describedby": "nota-licencia-musica" });
     lic.onchange = () => { cambiar((t) => { t._estudio.musicaLicencia = lic.checked; }, { tipo: "local" }); pintarAviso(); };
     const avisoLic = h("small", { class: "error-campo", role: "status" });
-    const pintarAviso = () => { avisoLic.textContent = lic.checked ? "" : "Obligatorio: sin esta confirmación, Revisar marcará la música como pendiente."; };
+    const pintarAviso = () => { avisoLic.textContent = lic.checked ? "" : "Obligatorio: sin esta confirmación, «Antes de publicar» marcará la música como pendiente."; };
     pintarAviso();
     cont.replaceChildren(...[
       h("div", { class: "fila", style: { marginBottom: "8px" } },

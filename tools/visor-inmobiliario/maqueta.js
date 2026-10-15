@@ -1,6 +1,6 @@
 // Vista "maqueta" (dollhouse): la vivienda vista desde arriba en 3D, con estancias, m² y
 // pines de las fotos 360. Usa el modelo real (demo/GLB) si existe o un esquema extruido
-// a partir de muros y estancias del plano (válido también para tours solo con fotos).
+// a partir de los muros del plano (con las estancias coloreadas encima).
 import * as THREE from "three";
 import { areaPoligono, centroide } from "./util.js";
 
@@ -142,9 +142,10 @@ export function crearMaqueta(ctx) {
 
   return {
     camara,
+    /** Solo con muros o con modelo 3D: con polígonos sueltos la maqueta serían manchas planas (N4). */
     disponible() {
       const t = ctx.tour();
-      return !!ctx.modeloLibre() || (t.plantas ?? []).some((p) => p.muros?.length) || (t.estancias ?? []).some((e) => e.poligono?.length > 2);
+      return !!ctx.modeloLibre() || (t.plantas ?? []).some((p) => p.muros?.length);
     },
     escena: () => escena,
     prepararControles,

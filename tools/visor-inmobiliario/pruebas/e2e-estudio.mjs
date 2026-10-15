@@ -244,7 +244,7 @@ try {
       return t?.plantas?.[0]?.muros?.length === 1 && JSON.stringify(t.estancias ?? []).includes("Salón comedor"); }, null, 20000);
     inf.ok(true, "la vista previa recibe el plano editado (muro y estancia renombrada)");
 
-    // ---- carrera conocida: elegir estancia en la vista previa mientras esta se recarga (= la recarga diferida que sigue a
+    // ---- carrera: elegir estancia en la vista previa mientras esta se recarga (= la recarga diferida que sigue a
     //      editar un dato). Es una carrera: se prueba con la recarga a 300, 600 y 1000 ms de la elección (basta con que una falle).
     {
       const intentos = [];
@@ -260,8 +260,9 @@ try {
         intentos.push({ ms, destino, ...(await p.evaluate(() => ({ app: window.__estudio.nodo, visor: document.querySelector(__SEL.iframe).contentWindow.visor?.estado?.nodo }))) });
       }
       const deshechas = intentos.filter((x) => x.app !== x.destino || x.visor !== x.destino);
-      inf.pendiente(!deshechas.length, "elegir una estancia en la vista previa mientras esta se recarga no deshace la elección (recarga a 300, 600 y 1000 ms)",
-        `${deshechas.map((x) => `a ${x.ms} ms vuelve a «${x.app}» (visor en «${x.visor}») en vez de «${x.destino}»`).join("; ")}: visor.js cargarEnVisor(…, {mantenerVista:true}) restaura int.actual (la estancia anterior, porque la transición aún no ha terminado) y estudio.js adopta el nodo de «visor:vista»`);
+      // Resuelta en la fase 3: al recargar, visor.js conserva el destino en curso (int.navDestino) y no envía «visor:vista» durante el viaje.
+      inf.ok(!deshechas.length, "elegir una estancia en la vista previa mientras esta se recarga no deshace la elección (recarga a 300, 600 y 1000 ms)",
+        deshechas.map((x) => `a ${x.ms} ms vuelve a «${x.app}» (visor en «${x.visor}») en vez de «${x.destino}»`).join("; "));
     }
 
     // ---- dirección y notas

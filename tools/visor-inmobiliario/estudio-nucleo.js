@@ -21,15 +21,24 @@ export const SUELOS_DEF = [
   ["Roble natural", "Natural oak", "#b48a5e"], ["Roble claro", "Light oak", "#d2b48c"], ["Nogal", "Walnut", "#6b4a32"],
   ["Gris cemento", "Cement grey", "#9a9a96"], ["Blanco nórdico", "Nordic white", "#e6e0d4"],
 ].map(([es, en, color]) => ({ nombre: { es, en }, color }));
-export const IDIOMAS = { es: "Español", en: "English", fr: "Français", de: "Deutsch", it: "Italiano", pt: "Português", ca: "Català" };
+/** Idiomas que tiene el visor (i18n.js): el Estudio no ofrece otros. El español es la base y no se puede quitar. */
+export const IDIOMAS = { es: "Español", en: "English", fr: "Français", de: "Deutsch" };
 
-/** modo: "rapido" (5 pasos, plano opcional) | "completo" (todas las herramientas). */
-export function tourNuevo(modo = "rapido") {
+// Referencia automática y estable (la carpeta de publicación /tours/<referencia>/ no debe cambiar al editar los datos).
+const ALFABETO_REF = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"; // sin 0/O ni 1/I/L, que se confunden al dictarla
+export function referenciaNueva() {
+  const a = new Uint8Array(5);
+  try { crypto.getRandomValues(a); } catch { for (let i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256); }
+  return "C8-" + [...a].map((b) => ALFABETO_REF[b % ALFABETO_REF.length]).join("");
+}
+
+/** Proyecto vacío. Marca, agente y contacto salen de «Mi inmobiliaria» al crearlo (estudio-perfil.js). */
+export function tourNuevo() {
   return {
     version: 2,
     titulo: { es: "" },
     idioma: "es",
-    idiomas: ["es", "en"],
+    idiomas: ["es"],
     marca: { nombre: "", color: "#c8a24a" },
     agente: {},
     contacto: { modo: "whatsapp" },
@@ -40,12 +49,44 @@ export function tourNuevo(modo = "rapido") {
     plantas: [{ id: "p0", nombre: { es: "Planta principal", en: "Main floor" } }],
     estancias: [],
     estilos: [{ id: "original", nombre: { es: "Original", en: "Original" } }, ...structuredClone(ESTILOS_IA)],
-    momentos: ["dia", "atardecer", "noche"],
     personalizacion: { paredes: structuredClone(PAREDES_DEF), suelos: structuredClone(SUELOS_DEF) },
     panoramas: [],
-    _estudio: { manuales: [], quitados: [], meta: {}, modo },
+    // perfil: usa «Mi inmobiliaria» (false = contacto propio de este inmueble). nocheSimulada: E8 (solo si el agente la activa).
+    _estudio: { manuales: [], quitados: [], meta: {}, ref: referenciaNueva(), perfil: true, nocheSimulada: false },
   };
 }
+
+// ------------------------------------------------------------------ título automático (es, en, fr, de)
+const TIPOS_TXT = {
+  piso: ["Piso", "Flat", "Appartement", "Wohnung"], casa: ["Casa", "House", "Maison", "Haus"],
+  chalet: ["Chalet", "Detached house", "Villa", "Einfamilienhaus"], adosado: ["Adosado", "Terraced house", "Maison mitoyenne", "Reihenhaus"],
+  atico: ["Ático", "Penthouse", "Penthouse", "Penthouse"], duplex: ["Dúplex", "Duplex", "Duplex", "Maisonette"],
+  estudio: ["Estudio", "Studio", "Studio", "Studio"], loft: ["Loft", "Loft", "Loft", "Loft"],
+  local: ["Local", "Commercial premises", "Local commercial", "Ladenlokal"], oficina: ["Oficina", "Office", "Bureau", "Büro"],
+  nave: ["Nave", "Warehouse", "Entrepôt", "Lagerhalle"], garaje: ["Garaje", "Garage", "Garage", "Garage"],
+  terreno: ["Terreno", "Plot", "Terrain", "Grundstück"],
+};
+const OPERACION_TXT = { venta: ["en venta", "for sale", "à vendre", "zu verkaufen"], alquiler: ["en alquiler", "for rent", "à louer", "zu vermieten"] };
+const HAB_TXT = ["hab.", "bed", "ch.", "Zi."];
+const LOCALES = { es: "es-ES", en: "en-GB", fr: "fr-FR", de: "de-DE" };
+const posIdioma = (idioma) => Math.max(0, Object.keys(IDIOMAS).indexOf(idioma));
+/**
+ * «Piso en venta · 3 hab. · 112 m²»: título del anuncio si el agente no escribe otro (también en en, fr y de).
+ * Vacío mientras no haya ningún dato (habitaciones, superficie o precio).
+ */
+export function tituloAuto(t = app.tour, idioma = "es") {
+  const I = t?.inmueble ?? {};
+  const hab = Number(I.habitaciones), m2 = Number(I.superficie_construida || I.superficie_util), precio = Number(I.precio);
+  if (!(hab > 0) && !(m2 > 0) && !(precio > 0)) return "";
+  const k = posIdioma(idioma);
+  const tipo = TIPOS_TXT[I.tipo]?.[k] ?? (I.tipo ? String(I.tipo).charAt(0).toUpperCase() + String(I.tipo).slice(1) : TIPOS_TXT.piso[k]);
+  const partes = [`${tipo} ${OPERACION_TXT[I.operacion === "alquiler" ? "alquiler" : "venta"][k]}`];
+  if (hab > 0) partes.push(`${hab} ${HAB_TXT[k]}`);
+  if (m2 > 0) partes.push(`${m2.toLocaleString(LOCALES[idioma] ?? "es-ES", { maximumFractionDigits: 1 })} m²`);
+  return partes.join(" · ");
+}
+/** Referencia del anuncio: la que escribió el agente o la automática del proyecto. */
+export const referenciaDe = (t = app.tour) => String(t?.inmueble?.referencia ?? "").trim() || t?._estudio?.ref || "";
 
 // ------------------------------------------------------------------ estado
 export const app = {
@@ -58,7 +99,6 @@ export const app = {
   vista: null,           // última vista recibida del visor
   guardado: "ok",        // ok | pendiente | error
 };
-export const esRapido = () => app.tour?._estudio?.modo === "rapido";
 const oyentes = new Map();
 export function on(ev, fn) { if (!oyentes.has(ev)) oyentes.set(ev, new Set()); oyentes.get(ev).add(fn); }
 export function emitir(ev, d) { for (const fn of oyentes.get(ev) ?? []) { try { fn(d); } catch (e) { console.error(e); } } }
@@ -203,14 +243,14 @@ function errorGuardado(e) {
     dialogo({
       titulo: "No se puede guardar en este navegador",
       texto: `El autoguardado ha fallado (${motivo}). ` +
-        "Tu trabajo sigue abierto, pero descarga una copia de seguridad (Publicar → Avanzado → Copia de seguridad) antes de cerrar la pestaña para no perderlo. " +
+        "Tu trabajo sigue abierto, pero descarga una copia de seguridad (Proyecto ▾ → Copia de seguridad) antes de cerrar la pestaña para no perderlo. " +
         "En modo incógnito o con el almacenamiento bloqueado el navegador no permite guardar.",
       botones: [{ texto: "Entendido", primario: true }],
     });
   }
 }
 export function nombreProyecto() {
-  return textoDe(app.tour?.titulo) || app.tour?.inmueble?.referencia || app.proyecto?.nombre || "Proyecto sin título";
+  return textoDe(app.tour?.titulo) || tituloAuto(app.tour) || app.tour?.inmueble?.referencia || app.proyecto?.nombre || "Proyecto sin título";
 }
 
 // ------------------------------------------------------------------ textos traducibles
@@ -219,11 +259,44 @@ export function textoDe(t, idioma = "es") {
   if (typeof t === "string") return t;
   return t[idioma] || t.es || Object.values(t).find(Boolean) || "";
 }
+/** Solo el texto de ese idioma (para editarlo; sin recurrir a otro idioma). */
+export const textoExacto = (t, idioma = "es") => (t == null ? "" : typeof t === "string" ? (idioma === "es" ? t : "") : t[idioma] ?? "");
 export function fijarTexto(obj, clave, idioma, valor) {
   let t = obj[clave];
   if (t == null || typeof t === "string") t = { es: t ?? "" };
   t[idioma] = valor;
   obj[clave] = t;
+}
+
+/**
+ * Todos los textos que el visitante puede leer y que se traducen en Datos → «Idiomas y traducciones» (E11: el único
+ * sitio con idiomas). → [{ grupo, etiqueta, obj: () => objeto actual, clave, largo }]. Solo los que tienen texto en español.
+ */
+export function textosTraducibles(t = app.tour) {
+  const r = [];
+  const add = (grupo, etiqueta, obj, clave, largo = false) => { if (textoExacto(obj()?.[clave]).trim()) r.push({ grupo, etiqueta, obj, clave, largo }); };
+  const I = () => app.tour.inmueble;
+  add("Anuncio", "Título", () => app.tour, "titulo");
+  add("Anuncio", "Descripción", I, "descripcion", true);
+  add("Anuncio", "Aviso legal de las imágenes", I, "aviso_legal", true);
+  t.panoramas.forEach((p, i) => add("Estancias", `Foto ${i + 1}`, () => app.tour.panoramas.find((x) => x.id === p.id), "nombre"));
+  (t.estancias ?? []).forEach((e) => add("Estancias", "Estancia del plano", () => app.tour.estancias.find((x) => x.id === e.id), "nombre"));
+  (t.plantas ?? []).forEach((pl) => add("Estancias", "Planta", () => app.tour.plantas.find((x) => x.id === pl.id), "nombre"));
+  (t.secciones ?? []).forEach((s, i) => add("Estancias", "Zona", () => app.tour.secciones?.[i], "nombre"));
+  for (const p of t.panoramas) (p.puntos ?? []).forEach((pt, j) => {
+    const g = () => app.tour.panoramas.find((x) => x.id === p.id)?.puntos?.[j];
+    add("Notas", `Nota de ${textoDe(p.nombre) || p.id}`, g, "titulo");
+    add("Notas", "Texto de la nota", g, "texto", true);
+  });
+  const usados = new Set(t.panoramas.flatMap((p) => (p.variantes ?? []).map((v) => v.estilo)));
+  (t.estilos ?? []).forEach((e, i) => { if (e.id !== "original" && usados.has(e.id)) add("Estilo y luz", "Estilo", () => app.tour.estilos[i], "nombre"); });
+  if (t.panoramas.some((p) => p.mascara || p.variantes?.some((v) => v.mascara))) {
+    for (const k of ["paredes", "suelos"]) (t.personalizacion?.[k] ?? []).forEach((c, i) => add("Estilo y luz", k === "paredes" ? "Color de pared" : "Tono de suelo", () => app.tour.personalizacion[k][i], "nombre"));
+  }
+  (t.galeria ?? []).forEach((g, i) => add("Extras", "Imagen de la galería", () => app.tour.galeria[i], "titulo"));
+  (t.documentacion ?? []).forEach((d, i) => { if (d.publico) add("Extras", "Documento", () => app.tour.documentacion[i], "nombre"); });
+  (Array.isArray(t.guion) ? t.guion : []).forEach((g, i) => add("Extras", "Texto de la visita guiada", () => app.tour.guion[i], "texto"));
+  return r;
 }
 
 // ------------------------------------------------------------------ enlaces
@@ -243,13 +316,11 @@ export function calcularEnlaces(t = app.tour) {
   const quitados = new Set(t._estudio?.quitados ?? []);
   const efectivos = new Set([...auto].filter((k) => !quitados.has(k)));
   for (const k of manual) efectivos.add(k);
-  // Modo rápido sin plano: las fotos sin colocar se conectan en el orden de la lista (1 ↔ 2 ↔ 3…).
+  // Las fotos sin colocar en el plano se conectan siempre en el orden de la lista (1 ↔ 2 ↔ 3…): con plano o sin él (E3).
   const lineales = new Set();
-  if (t._estudio?.modo === "rapido") {
-    for (let i = 0; i + 1 < t.panoramas.length; i++) {
-      const a = t.panoramas[i], b = t.panoramas[i + 1];
-      if (!colocado(a) || !colocado(b)) { const k = claveEnlace(a.id, b.id); lineales.add(k); efectivos.add(k); }
-    }
+  for (let i = 0; i + 1 < t.panoramas.length; i++) {
+    const a = t.panoramas[i], b = t.panoramas[i + 1];
+    if (!colocado(a) || !colocado(b)) { const k = claveEnlace(a.id, b.id); lineales.add(k); efectivos.add(k); }
   }
   const vecinos = new Map(t.panoramas.map((p) => [p.id, []]));
   for (const k of efectivos) { const [a, b] = k.split("|"); vecinos.get(a)?.push(b); vecinos.get(b)?.push(a); }
@@ -270,6 +341,20 @@ export function alternarEnlace(a, b) {
     }
   });
 }
+/** Posición de cada foto en el tour publicado: las colocadas, donde están; las demás, en fila a 2,5 m de la anterior. */
+export function posiciones(t = app.tour) {
+  const r = new Map();
+  let ultimo = null;
+  for (const p of t.panoramas) {
+    const pos = colocado(p) ? [p.x, p.z] : ultimo ? [ultimo[0] + 2.5, ultimo[1]] : [0, 0];
+    r.set(p.id, pos);
+    ultimo = pos;
+  }
+  return r;
+}
+/** ¿Hay plano? (alguna imagen de planta, muro o estancia dibujada). Sin plano no se ofrece «Plano con medidas» (E4). */
+export const tienePlano = (t = app.tour) => (t?.plantas ?? []).some((pl) => pl.plano?.imagen || pl.muros?.length) || (t?.estancias ?? []).length > 0;
+
 /** Convierte los `enlaces` de un tour importado al modelo del Estudio (automáticos + manuales − quitados). */
 export function importarEnlaces(t) {
   t._estudio ??= { manuales: [], quitados: [], meta: {} };
@@ -328,24 +413,24 @@ export function urlPermitida(v, { interna = false, soloHttps = false } = {}) {
   if (interna && !/^[a-z][a-z0-9+.-]*:/i.test(s) && !s.startsWith("//")) return true; // ruta relativa
   return false;
 }
-/** Campos de URL del tour → [{obj, clave, opciones, donde}] */
+/** Campos de URL del tour → [{obj, clave, opciones, donde, ir}] (ir: dónde se corrige, para «Antes de publicar»). */
 function camposUrl(t) {
   const r = [];
-  const add = (obj, clave, donde, opciones = {}) => { if (obj && obj[clave] != null && obj[clave] !== "") r.push({ obj, clave, donde, opciones }); };
-  add(t.marca, "web", "Web de la marca");
-  add(t.contacto, "url_privacidad", "Política de privacidad");
-  add(t.contacto, "webhook", "Conexión con el CRM", { soloHttps: true });
-  for (const d of t.inmueble?.documentos ?? []) add(d, "url", `Documento «${textoDe(d.nombre) || "sin nombre"}»`, { interna: true });
-  for (const d of t.documentacion ?? []) add(d, "archivo", `Material «${textoDe(d.nombre) || "sin nombre"}»`, { interna: true });
+  const add = (obj, clave, donde, ir, opciones = {}) => { if (obj && obj[clave] != null && obj[clave] !== "") r.push({ obj, clave, donde, ir, opciones }); };
+  add(t.marca, "web", "Web de la marca", { perfil: "web" });
+  add(t.contacto, "url_privacidad", "Política de privacidad", { perfil: "url_privacidad" });
+  add(t.contacto, "webhook", "Conexión con el CRM", { perfil: "webhook" }, { soloHttps: true });
+  for (const d of t.inmueble?.documentos ?? []) add(d, "url", `Documento «${textoDe(d.nombre) || "sin nombre"}»`, { seccion: "extras", campo: "documentos" }, { interna: true });
+  for (const d of t.documentacion ?? []) add(d, "archivo", `Documento «${textoDe(d.nombre) || "sin nombre"}»`, { seccion: "extras", campo: "documentos" }, { interna: true });
   for (const p of t.panoramas ?? []) for (const pt of p.puntos ?? []) {
-    add(pt, "enlace", `Nota «${textoDe(pt.titulo) || "sin título"}» de ${textoDe(p.nombre) || p.id}`);
-    add(pt, "video", `Vídeo de la nota «${textoDe(pt.titulo) || "sin título"}»`);
+    add(pt, "enlace", `Nota «${textoDe(pt.titulo) || "sin título"}» de ${textoDe(p.nombre) || p.id}`, { seccion: "orientacion", nodo: p.id });
+    add(pt, "video", `Vídeo de la nota «${textoDe(pt.titulo) || "sin título"}»`, { seccion: "orientacion", nodo: p.id });
   }
   return r;
 }
-/** URLs no permitidas (javascript:, data:, etc.) → [{donde, valor}] */
+/** URLs no permitidas (javascript:, data:, etc.) → [{donde, valor, ir}] */
 export function urlsNoValidas(t = app.tour) {
-  return camposUrl(t).filter(({ obj, clave, opciones }) => !urlPermitida(obj[clave], opciones)).map(({ obj, clave, donde }) => ({ donde, valor: String(obj[clave]) }));
+  return camposUrl(t).filter(({ obj, clave, opciones }) => !urlPermitida(obj[clave], opciones)).map(({ obj, clave, donde, ir }) => ({ donde, valor: String(obj[clave]), ir }));
 }
 
 /** Archivos que el tour referencia y no están en el proyecto (ni son URLs externas) → [{ruta, donde}] */
@@ -370,19 +455,58 @@ export function archivosFaltantes(t = app.tour) {
 /**
  * Tour listo para publicar (sin campos internos, textos normalizados, enlaces explícitos).
  * publico: sin documentación privada (publico:false). mapaRutas: sustituye rutas por URLs (vista previa).
+ * urlPublica: dirección donde se publica (url_publica), base de los enlaces, del QR y de los mensajes.
  */
-export function tourParaExportar(t = app.tour, { mapaRutas = null, publico = true } = {}) {
+// ------------------------------------------------------------------ zonas de la vivienda (tour.secciones)
+// E16: automáticas según los nombres de las estancias mientras el agente no las edite (tour.secciones) ni las quite
+// (_estudio.sinZonas). Con varias plantas, el visor ya agrupa por planta: ahí solo se publican si el agente las edita.
+const ZONAS_DEF = [
+  ["dia", { es: "Zona de día", en: "Living area", fr: "Espace jour", de: "Wohnbereich" }, /sal[oó]n|estar|comedor|cocina|office|recibidor|entrada|hall|living|kitchen|dining/i],
+  ["noche", { es: "Zona de noche", en: "Sleeping area", fr: "Espace nuit", de: "Schlafbereich" }, /dormitorio|habitaci[oó]n|suite|ba[nñ]o|aseo|vestidor|bedroom|bath/i],
+  ["exterior", { es: "Exterior y zonas comunes", en: "Outdoor & common areas", fr: "Extérieur et parties communes", de: "Außen- und Gemeinschaftsbereiche" },
+    /terraza|jard[ií]n|piscina|balc[oó]n|patio|garaje|trastero|fachada|comunidad|portal|azotea|exterior|terrace|garden|pool/i],
+];
+export function zonasSugeridas(t = app.tour) {
+  const r = ZONAS_DEF.map(([id, nombre]) => ({ id, nombre: structuredClone(nombre), estancias: [] }));
+  for (const p of t.panoramas) {
+    const i = ZONAS_DEF.findIndex(([, , re]) => re.test(`${textoDe(p.nombre)} ${p.id}`));
+    r[i >= 0 ? i : 0].estancias.push(p.id);
+  }
+  return r;
+}
+/** "editadas" | "automaticas" | "plantas" (varias plantas, sin editar) | "ninguna" (quitadas por el agente). */
+export const modoZonas = (t = app.tour) => (Array.isArray(t.secciones) ? "editadas" : t._estudio?.sinZonas ? "ninguna" : (t.plantas?.length ?? 0) > 1 ? "plantas" : "automaticas");
+/** Zonas que verá el cliente: las editadas o las automáticas (si salen 2 o más con estancias); si no, null. */
+export function zonasPublicadas(t = app.tour) {
+  const modo = modoZonas(t);
+  if (modo === "editadas") return t.secciones;
+  if (modo !== "automaticas") return null;
+  const z = zonasSugeridas(t).filter((s) => s.estancias.length);
+  return z.length >= 2 ? z : null;
+}
+
+export function tourParaExportar(t = app.tour, { mapaRutas = null, publico = true, urlPublica = null } = {}) {
   const c = structuredClone(t);
   const { vecinos } = calcularEnlaces(t);
-  const idiomas = c.idiomas?.length ? c.idiomas : ["es"];
+  const idiomas = (c.idiomas?.length ? c.idiomas : ["es"]).filter((x) => x in IDIOMAS);
+  if (!idiomas.length) idiomas.push("es");
+  c.idiomas = idiomas;
   c.version = 2;
   c.idioma = idiomas.includes(c.idioma) ? c.idioma : idiomas[0];
   // Fotos sin colocar: en fila, a 2,5 m de la anterior (así las flechas apuntan "adelante" y "atrás").
-  let ultimo = null;
-  for (const p of c.panoramas) {
-    if (!colocado(p)) { p.x = ultimo ? ultimo[0] + 2.5 : 0; p.z = ultimo ? ultimo[1] : 0; }
-    ultimo = [p.x, p.z];
+  const pos = posiciones(t);
+  for (const p of c.panoramas) [p.x, p.z] = pos.get(p.id);
+  // Título y referencia automáticos si el agente no escribe otros (E6).
+  if (!textoDe(c.titulo).trim()) {
+    const auto = Object.fromEntries(idiomas.map((l) => [l, tituloAuto(t, l)]).filter(([, v]) => v));
+    if (Object.keys(auto).length) c.titulo = auto;
   }
+  if (c.inmueble && !String(c.inmueble.referencia ?? "").trim() && t._estudio?.ref) c.inmueble.referencia = t._estudio.ref;
+  // Luz (E8): solo los momentos con foto real; la noche simulada, solo si el agente la ofrece. Atardecer, solo con foto.
+  const reales = new Set(c.panoramas.flatMap((p) => (p.variantes ?? []).map((v) => v.momento)).filter((m) => m && m !== "dia"));
+  const momentos = ["dia", ...(reales.has("atardecer") ? ["atardecer"] : []), ...(reales.has("noche") || t._estudio?.nocheSimulada ? ["noche"] : [])];
+  if (momentos.length > 1) c.momentos = momentos; else delete c.momentos;
+  if (urlPublica && /^https?:\/\/[^\s]+$/i.test(urlPublica)) c.url_publica = urlPublica; else delete c.url_publica;
   for (const p of c.panoramas) {
     p.x = redondear(p.x); p.z = redondear(p.z);
     p.yaw = redondear(p.yaw ?? 0, 1);
@@ -412,10 +536,11 @@ export function tourParaExportar(t = app.tour, { mapaRutas = null, publico = tru
   if (publico && c.documentacion) c.documentacion = c.documentacion.filter((d) => d.publico);
   // Enlaces no permitidos (javascript:, data:…): se descartan.
   for (const { obj, clave, opciones } of camposUrl(c)) if (!urlPermitida(obj[clave], opciones)) delete obj[clave];
-  if (c.secciones) {
+  const zonas = zonasPublicadas(t);
+  if (zonas) {
     const ids = new Set(c.panoramas.map((p) => p.id));
-    c.secciones = c.secciones.map((s) => ({ ...s, estancias: (s.estancias ?? []).filter((x) => ids.has(x)) }));
-  }
+    c.secciones = structuredClone(zonas).map((s) => ({ ...s, estancias: (s.estancias ?? []).filter((x) => ids.has(x)) }));
+  } else delete c.secciones;
   if (c.contacto?.modo === "whatsapp") delete c.contacto.webhook;
   if (c.contacto?.modo === "webhook") delete c.contacto.whatsapp;
   if (c.contacto?.whatsapp) c.contacto.whatsapp = String(c.contacto.whatsapp).replace(/\D/g, "");
@@ -510,6 +635,17 @@ const ICONOS = {
   norte: '<path d="M12 2l4 10h-8z"/><path d="M12 22V12"/>',
   ampliar: '<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
   lapiz: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  ayuda: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 014.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17v.5"/>',
+  inmobiliaria: '<path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6M3 21h18"/>',
+  abajo: '<path d="M6 9l6 6 6-6"/>',
+  derecha: '<path d="M9 6l6 6-6 6"/>',
+  luz: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/>',
+  extras: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2M3 12h18"/>',
+  guia: '<path d="M5 4.5A1.5 1.5 0 016.5 3H19v15H6.5A1.5 1.5 0 005 19.5z"/><path d="M5 19.5A1.5 1.5 0 006.5 21H19v-3M9 7h6"/>',
+  movil: '<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18h2"/>',
+  chat: '<path d="M4 20l1.3-3.9A8 8 0 1112 20a8 8 0 01-4.2-1.2z"/>',
+  correo: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  herramientas: '<path d="M14.5 5.5a4 4 0 00-5 5L4 16l4 4 5.5-5.5a4 4 0 005-5l-2.5 2.5-2.5-.5-.5-2.5z"/>',
 };
 export function icono(n, tam = 18) {
   const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -528,28 +664,44 @@ export function toast(msg, tipo = "info", ms = 2600) {
   setTimeout(() => { t.classList.add("sale"); setTimeout(() => t.remove(), 300); }, ms);
 }
 
-/** Diálogo modal. botones: [{texto, valor, primario, peligro}] → Promise<valor>. */
-export function dialogo({ titulo, texto, cuerpo, botones = [{ texto: "Aceptar", valor: true, primario: true }], ancho }) {
+/**
+ * Diálogo modal. botones: [{texto, valor, primario, peligro, izquierda}] → Promise<valor>.
+ * Si `valor` es una función y devuelve `false`, el diálogo no se cierra (p. ej. hay un campo que corregir).
+ * c8: diálogo del sistema de diseño (tema.css), para lo nuevo o rehecho en la fase 3.
+ */
+export function dialogo({ titulo, texto, cuerpo, botones = [{ texto: "Aceptar", valor: true, primario: true }], ancho, c8 = false, clase = "", foco: focoInicial }) {
   return new Promise((ok) => {
-    const d = h("dialog", { class: "dialogo", style: ancho ? { width: ancho } : null });
+    const d = h("dialog", { class: c8 ? `dialogo c8-dialogo c8-vidrio c8-vidrio--denso ${clase}` : `dialogo ${clase}`, style: ancho ? { width: ancho } : null,
+      "aria-labelledby": titulo ? "dlg-titulo-" + (++nDialogo) : null });
     const cerrar = (v) => { ok(v); if (d.open) d.close(); d.remove(); };
     d.addEventListener("close", () => { ok(undefined); d.remove(); });
-    d.append(...[
-      h("h2", { text: titulo }),
-      texto ? h("p", { class: "suave", text: texto }) : null,
+    const clase8 = (b) => `c8-boton ${b.primario ? "c8-boton--primario" : b.peligro ? "c8-boton--peligro" : "c8-boton--secundario"}`;
+    const contenido = [
+      titulo ? h("h2", { class: c8 ? "c8-panel-titulo" : null, id: `dlg-titulo-${nDialogo}`, text: titulo }) : null,
+      texto ? h("p", { class: c8 ? "c8-sec dialogo-texto" : "suave", text: texto }) : null,
       cuerpo ?? null,
-      h("div", { class: "botones" }, botones.map((b) => h("button", {
-        class: `btn ${b.primario ? "primario" : ""} ${b.peligro ? "peligro" : ""}`, text: b.texto,
-        onclick: () => cerrar(typeof b.valor === "function" ? b.valor() : b.valor),
-      }))),
+    ].filter(Boolean);
+    // c8: el contenido se desplaza dentro y los botones quedan siempre a la vista (y el canto de vidrio no se descoloca).
+    d.append(...[
+      ...(c8 ? [h("div", { class: "dialogo-contenido" }, contenido)] : contenido),
+      botones.length ? h("div", { class: "botones" }, botones.map((b) => h("button", {
+        type: "button", class: c8 ? `${clase8(b)} ${b.izquierda ? "izquierda" : ""}` : `btn ${b.primario ? "primario" : ""} ${b.peligro ? "peligro" : ""}`, text: b.texto,
+        onclick: async () => {
+          const v = typeof b.valor === "function" ? await b.valor() : b.valor;
+          if (v !== false || !b.mantener) cerrar(v);
+        },
+      }))) : null,
     ].filter(Boolean));
     d.addEventListener("cancel", (e) => { e.preventDefault(); cerrar(undefined); });
     document.body.append(d);
     d.showModal();
-    const foco = d.querySelector("input, textarea, select") ?? d.querySelector(".btn.primario");
-    foco?.focus(); foco?.select?.();
+    const foco = (focoInicial && d.querySelector(focoInicial)) ?? d.querySelector("input:not([type=checkbox]):not([type=radio]), textarea, select") ?? d.querySelector(".btn.primario, .c8-boton--primario");
+    foco?.focus(); if (foco?.select && foco.value) foco.select();
   });
 }
+let nDialogo = 0;
+/** Cierra el diálogo abierto (el último) sin valor. */
+export function cerrarDialogo() { const d = [...document.querySelectorAll("dialog.dialogo[open]")].at(-1); d?.close(); }
 export async function pedir(titulo, etiqueta, valor = "", { tipo = "text", ayuda } = {}) {
   // Los números se piden como texto (inputmode decimal) para aceptar la coma decimal española.
   const inp = h("input", { type: tipo === "number" ? "text" : tipo, inputmode: tipo === "number" ? "decimal" : null, value: valor, autocomplete: "off" });
@@ -572,4 +724,36 @@ export function elegirArchivos({ aceptar = "image/*", multiple = false, carpeta 
 }
 export const fmtM2 = (v) => `${v.toLocaleString("es-ES", { maximumFractionDigits: 1, minimumFractionDigits: 1 })} m²`;
 export const fmtMB = (b) => `${(b / 1048576).toLocaleString("es-ES", { maximumFractionDigits: 1 })} MB`;
-export const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** Capa «trabajando…» a pantalla completa (procesar un PDF, una copia de seguridad…). Se quita con .remove(). */
+export function cargando(texto) {
+  const capa = h("div", { class: "cargando-global", role: "status" }, h("div", {}, h("span", { text: texto }), h("div", { class: "progreso" }, h("div", { style: { width: "100%" } }))));
+  document.body.append(capa);
+  return capa;
+}
+/** Guarda un archivo como documento del proyecto (documentacion). Privado salvo que se marque «Público». */
+export async function guardarDocumento(f, tipo, { publico = false, nombre } = {}) {
+  const ext = (f.name.split(".").pop() || "bin").toLowerCase();
+  const ruta = rutaLibre(`docs/${slug(f.name.replace(/\.[^.]+$/, "")) || "documento"}`, ext);
+  await guardarArchivo(ruta, f);
+  cambiar((t) => { t.documentacion ??= []; t.documentacion.push({ nombre: nombre ?? f.name.replace(/\.[^.]+$/, ""), archivo: ruta, tipo, publico }); }, { tipo: "datos" });
+  return ruta;
+}
+
+/**
+ * Lleva al usuario a un campo concreto dentro de `raiz`: abre los plegables que lo contienen, lo centra, le da el foco
+ * y lo resalta un momento («Ver» y «Corregir» de «Antes de publicar»). → ¿lo ha encontrado?
+ */
+export function enfocarCampo(raiz, campo) {
+  const el = campo && raiz?.querySelector(`[data-campo="${CSS.escape(campo)}"]`);
+  if (!el) return false;
+  for (let d = el.closest("details"); d; d = d.parentElement?.closest("details")) d.open = true;
+  el.scrollIntoView({ block: "center", behavior: "instant" });
+  const foco = el.matches("input, select, textarea, button") ? el : el.querySelector("input:not([type=hidden]), select, textarea, button");
+  foco?.focus({ preventScroll: true });
+  el.classList.remove("destacado");
+  void el.offsetWidth; // reinicia la animación si se pide dos veces seguidas
+  el.classList.add("destacado");
+  setTimeout(() => el.classList.remove("destacado"), 2200);
+  return true;
+}

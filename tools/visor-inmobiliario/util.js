@@ -62,4 +62,27 @@ export function hexALineal(hex) {
   });
 }
 
-export const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+/** "Salón-comedor 2" → "salon-comedor-2" (nombres de archivo de las fotos y del QR). */
+export const slug = (t, defecto = "vista") =>
+  String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").toLowerCase() || defecto;
+
+/**
+ * Enlace o recurso que viene del tour (dato no fiable) → la URL recortada, o null si no es segura.
+ * Admite http(s), mailto, tel y rutas relativas. Con { descarga: true }, además blob: del mismo origen (vista previa del
+ * Estudio) y data: de PDF o imagen (tour autónomo); con { imagen: true }, blob: del mismo origen y cualquier data:image.
+ * Nunca javascript:, vbscript: ni otros esquemas, ni caracteres de control (con un tabulador se disfraza «java\tscript:»).
+ * Con { base }, una ruta relativa se devuelve absoluta respecto a esa dirección (p. ej. url_publica).
+ */
+export function urlSegura(url, { descarga = false, imagen = false, base } = {}) {
+  if (typeof url !== "string") return null;
+  const s = url.trim();
+  if (!s || /[\u0000-\u001f\u007f]/.test(s)) return null;
+  if (/^(https?:|mailto:|tel:)/i.test(s)) return s;
+  const origen = typeof location === "undefined" ? null : location.origin;
+  if ((descarga || imagen) && /^blob:/i.test(s)) return origen && s.startsWith(`blob:${origen}/`) ? s : null;
+  if (descarga && /^data:(application\/pdf|image\/(png|jpe?g|webp|gif|avif))[;,]/i.test(s)) return s;
+  if (imagen && /^data:image\//i.test(s)) return s;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return null;
+  if (base == null) return s;
+  try { return new URL(s, base).href; } catch { return null; }
+}
