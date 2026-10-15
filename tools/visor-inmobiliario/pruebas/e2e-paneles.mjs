@@ -1055,10 +1055,14 @@ try {
     await p.evaluate(() => window.visor.modo("maqueta"));
     await esperar(p, () => document.querySelectorAll(".maq-estancia").length > 0, null, 30000);
     const dentro = () => p.evaluate(() => [...document.querySelectorAll(".maq-estancia, .maq-pin")].filter((e) => { const r = e.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth || r.top < 0 || r.bottom > innerHeight; }).map((e) => e.textContent));
-    await p.waitForTimeout(1200);
+    // la maqueta se encuadra al momento; las etiquetas se colocan en el fotograma siguiente (sin GPU puede tardar segundos)
+    const todasDentro = () => esperar(p, () => ![...document.querySelectorAll(".maq-estancia, .maq-pin")].some((e) => {
+      const r = e.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth || r.top < 0 || r.bottom > innerHeight; }), null, 10000).catch(() => {});
+    await todasDentro();
     const vertical = await dentro();
     await p.setViewportSize({ width: 844, height: 390 });
-    await p.waitForTimeout(1200);
+    await p.waitForTimeout(300);
+    await todasDentro();
     const girado = await dentro();
     inf.ok(!vertical.length && !girado.length, "maqueta: la casa entera en vertical (antes salía cortada) y otra vez encuadrada al girar el teléfono (V4)", { vertical, girado });
     const err = erroresDe(p);
