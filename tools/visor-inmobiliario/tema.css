@@ -605,6 +605,9 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-segmentado > label:has(input:checked), .c8-segmentado > label.c8-elegido { color: var(--c-texto); font-weight: var(--peso-semi); }
 .c8-segmentado > label:has(input:focus-visible) { outline: 2px solid var(--c-foco); outline-offset: -2px; }
 .c8-segmentado input { position: absolute; opacity: 0; pointer-events: none; }
+/* Dentro de un panel de vidrio, el carril del segmentado aclara el fondo: las opciones van con el texto principal
+   (como en iOS) para no bajar de AA sobre una foto blanca en oscuro. */
+.c8-vidrio .c8-segmentado:not(.c8-vidrio) > label { color: var(--c-texto); }
 
 /* ------------------------------------------------------------------ Interruptor: <input type="checkbox" role="switch" class="c8-interruptor"> */
 .c8-interruptor {

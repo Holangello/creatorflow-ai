@@ -46,7 +46,7 @@ export const DEMO_TOUR = {
   titulo: { es: "Demo · Piso reformado de 2 habitaciones", en: "Demo · Renovated 2-bedroom flat" },
   idioma: "es",
   idiomas: ["es", "en"],
-  marca: { nombre: "Inmobiliaria Demo", color: "#c8a24a", web: "https://example.com", pie_legal: { es: "Demo generada por código. Registro de agentes: AICAT 0000", en: "Code-generated demo. Agent registry: AICAT 0000" } },
+  marca: { nombre: "Inmobiliaria Demo", web: "https://example.com", pie_legal: { es: "Demo generada por código. Registro de agentes: AICAT 0000", en: "Code-generated demo. Agent registry: AICAT 0000" } },
   agente: { nombre: "Ana Pérez", telefono: "+34 600 111 222", email: "ana@example.com" },
   contacto: { modo: "whatsapp", whatsapp: "34600111222", url_privacidad: "https://example.com/privacidad" },
   inmueble: {

@@ -46,6 +46,13 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Un toque cuando la interfaz está oculta | Solo la despierta: nunca navega por sorpresa |
 | Un icono SVG con scripts en el menú «Más» | Se descarta |
 | Teclado AZERTY | W A S D y Q E van por posición física; R, M, H y V por la letra. Los textos muestran las letras reales en Chromium; en Firefox y Safari dicen W A S D |
+| El vidrio adaptativo no puede medir la foto (lectura fallida, contexto gráfico perdido, foto sin CORS, sin WebGL) | Se quitan `data-luz-max` y `data-luz-min`: queda el vidrio del peor caso, que siempre cumple AA |
+| «Reducir transparencia», paseo libre o maqueta | No se mide la luz (vidrio opaco o del peor caso) |
+| Un cambio de escena no avisa al pintado bajo demanda (`tocarEscena()`) | Se ve al mover la vista. La grabación, las transiciones, la visita guiada, la medición y el comparador fuerzan el pintado |
+| Falla la precompilación de shaders tras la portada | Se compilan al pintar, como antes (un tirón al empezar) |
+| No carga `tema.js` | El movimiento sigue a `prefers-reduced-motion` |
+| El lienzo del plano no entiende un token de color | Usa un color oscuro de reserva para ese token |
+| Paseo libre en el teléfono | Los modos y el aviso suben por encima de la píldora de los paneles |
 | No hay almacenamiento local (modo privado) | Se usan los valores por defecto |
 | El portapapeles no copia imágenes (Firefox), lo rechaza o no responde en 5 s | «Copiar la foto otra vez» o «Descargar fotos», y se indica adjuntarlas con el clip de WhatsApp |
 | Falla el webhook del CRM o lo bloquea CORS | Aviso honesto con «Reintentar»; WhatsApp sigue siendo el canal principal |

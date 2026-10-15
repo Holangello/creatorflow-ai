@@ -2,18 +2,6 @@
    paneles de negocio en paneles.css (prefijo pn-). Todo sale de los tokens: claro y oscuro, tallas S/M/L (rem).
    Lo que flota sobre la foto 360 es vidrio (.c8-vidrio; con texto, .c8-vidrio--texto): su tinte garantiza el contraste. */
 :root {
-  /* Variables antiguas de la fase 3: visor.css ya no las usa. Se conservan mientras paneles.css termina de migrar
-     (fase 4); se borran al cerrarla. */
-  --fondo: #0d0f12;
-  --panel: rgba(16, 19, 24, 0.8);
-  --panel-solido: #15181d;
-  --borde: rgba(255, 255, 255, 0.14);
-  --texto: #f3f4f6;
-  --texto-suave: #a7adb7; /* no se llama --suave: en tema.css --suave es la curva de las transiciones */
-  --acento: var(--c-acento, #c8a24a);
-  --acento-texto: var(--c-sobre-acento, #17130a);
-  --radio: 12px;
-  --serif: var(--fuente-editorial, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif);
   /* Trazos y texto dibujados directamente sobre la foto (mira de medir, punto del modo juego, línea del comparador,
      nombres de las miniaturas): blanco con velo oscuro en los dos temas, para leerse sobre cualquier imagen. */
   --foto-trazo: var(--c-sobre-foto, #fff);
@@ -409,7 +397,7 @@ body.embed #btn-pantalla { display: none; }
 @media (max-width: 540px) and (orientation: portrait) {
   /* Paseo libre: la tarjeta de los paneles queda como píldora abajo a la derecha sin reservar alto (--reserva-inferior: 0)
      y tapaba la mitad de los modos. Los modos y el aviso suben por encima de una píldora de un control de alto (si los
-     paneles publican la reserva, manda la suya). TODO paneles: publicar el alto de la píldora en --reserva-inferior. */
+     paneles publican la reserva, manda la suya; hoy publican 0 en el paseo libre a propósito: la píldora es estrecha). */
   body.modo-libre { --abajo-libre: max(var(--abajo), calc(var(--hud) + var(--seg-inf) + var(--alto-control) + var(--e-3))); }
   body.modo-libre #modos { bottom: calc(var(--abajo-libre) + var(--e-2)); }
   body.modo-libre #aviso { bottom: calc(var(--abajo-libre) + var(--alto-control) + var(--e-5)); }
