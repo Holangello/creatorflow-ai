@@ -53,6 +53,8 @@ const quitar = cre8Tema.alCambiar(({ efectivo }) => …);   // o el evento "cre8
 cre8Tema.deslizador(input);                // rellena un .c8-deslizador tras cambiarlo por código
 ```
 
+En «Automático», la transparencia se reduce si el sistema pide `prefers-reduced-transparency` **o** `prefers-contrast: more` (como macOS con «Aumentar contraste»). Con la transparencia reducida, el vidrio es opaco y **sin `backdrop-filter`**: un `blur(0)` seguía leyendo el fondo en cada fotograma y no aligeraba nada.
+
 ## Tokens
 
 ### Escala (fluida × talla)
@@ -102,24 +104,32 @@ La talla multiplica la base: **S** 0,875, **M** 1, **L** 1,18. En pantallas tác
 | `--vidrio` | `rgba(22,24,28,.56)` | `rgba(255,255,255,.5)` | controles solo con icono (≥3:1 sobre el peor fondo) |
 | `--vidrio-texto` | `rgba(20,22,26,.78)` | `rgba(255,255,255,.78)` | paneles con texto (AA sobre el peor fondo, también el texto secundario) |
 | `--vidrio-denso` | `.9` | `.9` | menús y diálogos |
+| `--vidrio-ambiente` | `rgba(20,22,26,.55)` | `rgba(255,255,255,.55)` | paneles sobre el ambiente conocido (Estudio, Guía): toman su color y el texto sigue ≥ 4,9:1 |
 | `--vidrio-desenfoque` · `--vidrio-saturacion` | `22px` · `170%` | — | material |
 | `--vidrio-reflejo-1/2` · `--vidrio-brillo` · `--vidrio-luz` | — | — | canto especular y luz del puntero |
 
 Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más claras u oscuras (`--c-texto-2-vidrio`). Así se mantienen en AA sobre cualquier foto.
 
+**Ambiente.** Donde no hay foto detrás (Estudio, Guía, pantallas de error), el fondo es `var(--ambiente), var(--c-fondo)`: luces suaves de acento e información, más presentes en claro. Es lo que hace que el vidrio se note sin desenfocar nada.
+
+**Campos y casillas.** Borde `--c-borde-campo` (≥ 3:1 por dentro y por fuera, WCAG 1.4.11): `rgba(255,255,255,.42)` en oscuro y `rgba(0,0,0,.45)` en claro.
+
+**Estado pulsado y opción elegida.** El botón pulsado se rellena de acento y, en claro, lleva además un aro de 1,5 px en `--c-acento-texto`; la opción elegida de un segmentado, un aro de 1 px. Así el estado no depende solo del matiz (1.4.11). En colores forzados (Windows), el pulsado usa `Highlight`.
+
+**Botón de vidrio.** Un `.c8-boton` que además es `.c8-vidrio` (p. ej. «Ampliar» del radar) conserva el material: su `--b-fondo` es `--vidrio`.
+
 ### Tipografía, espaciado, radios y movimiento
 
 - **Familias:**
   - `--fuente` y `--fuente-titular`: SF Pro en Apple, e Inter Variable autoalojada con tamaño óptico en el resto.
-  - `--fuente-editorial`: serif para acentos puntuales.
   - `--fuente-mono`.
 - **Tamaños de texto:**
 
   | Token | Tamaño |
   |---|---|
-  | `--t-micro` | 11 |
-  | `--t-pie` | 12 |
-  | `--t-sec` | 13 |
+  | `--t-micro` | 11 (nunca menos de 11 px) |
+  | `--t-pie` | 12 (nunca menos de 11 px) |
+  | `--t-sec` | 13 (nunca menos de 12 px) |
   | `--t-ui` | 14 |
   | `--t-cuerpo` | 16 |
   | `--t-destacado` | 18 |
@@ -127,6 +137,8 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
   | `--t-titulo-g` | 28 |
   | `--t-display` | 36 (precio) |
   | `--t-heroe` | 48 |
+
+  Los tres pequeños llevan suelo (`max(rem, px)`): en el teléfono la raíz baja a 14 px, y a 12,25 px con la talla S. Manda el rem si es mayor, así que la letra grande del navegador se respeta.
 
 - **Pesos:**
   - `--peso-normal` 400
@@ -159,7 +171,7 @@ Dentro de `.c8-vidrio`, `--c-texto-2` y `--c-texto-3` pasan a versiones más cla
 
 ## Texto sobre una foto
 
-Para un nombre sobre una miniatura: `--c-sobre-foto` (blanco en los dos temas) sobre `--degradado-foto`, un degradado que oscurece la parte de abajo con `--velo-foto`. El texto va abajo, donde el velo es más fuerte: 6,2:1 incluso sobre una foto blanca.
+Para un nombre sobre una miniatura: `--c-sobre-foto` (blanco en los dos temas) sobre `--degradado-foto`, un degradado que oscurece la parte de abajo con `--velo-foto`. El texto va donde el velo ya es pleno (no en la parte que se desvanece): así llega a 6,2:1 incluso sobre una foto blanca. `pruebas/contraste.mjs` lo comprueba con `--velo-foto` sobre blanco.
 
 ## Vidrio adaptativo («liquid glass»)
 
@@ -199,7 +211,8 @@ La interfaz es de vidrio en claro y en oscuro: es el material base, lo pidió el
 
 ### Iconos animados (patrón)
 
-- **Sonido:** ondas que laten; tachado cuando está silenciado.
+- **Sonido:** ondas quietas mientras suena (un latido corto al empezar y al pasar el ratón); tachado cuando está silenciado.
+- **Nada infinito sobre el vidrio:** una animación que no acaba obliga a recomponer cada `backdrop-filter` 60 veces por segundo aunque nadie toque nada (batería y calor en el móvil). Solo los indicadores de carga giran sin fin, y mientras cargan.
 - **Pantalla completa:** las esquinas se separan al pasar el ratón.
 - **Apariencia (claro u oscuro de la interfaz):** un círculo que se llena ¼ en Claro, ½ en Automático y ¾ en Oscuro, con un muelle. **Nunca sol ni luna**, que se confundirían con la luz de la vivienda (día, atardecer, noche).
 - **Contacto:** puntos de «escribiendo».
@@ -225,7 +238,7 @@ La ruta más rápida es **apuntar las variables antiguas a los tokens nuevos** a
 | `visor.css` `--fondo` / `--panel` / `--panel-solido` | `--c-fondo` / `--vidrio-texto` / `--c-sup-1` |
 | `visor.css` `--borde` / `--texto` / `--texto-suave` | `--vidrio-borde` / `--c-texto` / `--c-texto-2` |
 | `visor.css` `--acento` / **`--acento-texto`** | `--c-acento` / **`--c-sobre-acento`** |
-| `visor.css` `--radio` / `--serif` | `--r-3` / `--fuente-editorial` |
+| `visor.css` `--radio` / `--serif` | `--r-3` / `--fuente-titular` (la letra con remates se descartó: decisión C) |
 | `paneles.css` `--pn-vidrio` / `--pn-vidrio-2` / `--pn-hover` | `--vidrio-texto` / `--c-capa-hover` / `--c-capa-hover` |
 | `paneles.css` `--pn-campo` / `--pn-borde` / `--pn-texto` / `--pn-suave` | `--c-campo` / `--c-borde` / `--c-texto` / `--c-texto-2` |
 | `paneles.css` `--pn-acento` / `--pn-acento-t` | `--c-acento` / `--c-sobre-acento` |

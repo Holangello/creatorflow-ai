@@ -113,6 +113,9 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | Se cancela una grabación | Se detiene de verdad y se restaura el visor |
 | El tour de la demo contiene texturas 3D | La copia del tour las descarta antes de serializar (antes agotaba la memoria) |
 | No se puede traer three.js al crear el ZIP | El `index.html` del ZIP se queda con el CDN y se avisa al descargar |
+| El recorrido se sube a otra dirección distinta de la del Estudio | El LEEME.txt del ZIP lo advierte: hay que cambiarla en el Estudio y volver a descargar (el enlace y el QR la llevan dentro) |
+| El proyecto no tiene datos del certificado energético | El dossier no dice nada de él (nunca un «en trámite» falso); «Antes de publicar» lo marca como error |
+| No carga la fuente Inter al exportar el plano o el vídeo | Se dibuja con la fuente del sistema de la pila `--fuente` |
 | No se puede leer `tema.js` al crear el HTML autónomo | Se avisa y el archivo sale con el tema oscuro por defecto de `tema.css` |
 
 ### Diseño (`tema.css` / `tema.js`)
@@ -128,6 +131,10 @@ El cliente lo pidió así: un software bien hecho, probado y ligero, con todo lo
 | No hay `:has()` | `tema.js` marca la opción elegida del control segmentado |
 | No carga la fuente Inter | Fuente del sistema (SF en Apple, Segoe en Windows) |
 | El visitante pide reducir el movimiento o la transparencia | Se respeta automáticamente o desde Ajustes |
+| El móvil no puede con el desenfoque del vidrio | «Reducir transparencia» (Ajustes) quita el `backdrop-filter` del todo: vidrio opaco, sin coste de GPU |
+| El sistema pide más contraste (`prefers-contrast: more`) | En «Automático», la transparencia se reduce, como en macOS |
+| Colores forzados (Windows) | El estado pulsado usa `Highlight` y `HighlightText` |
+| Un color de marca casi blanco o casi negro | El texto de acento y el foco se ajustan para cumplir AA; el estado pulsado lleva un aro que no depende del relleno |
 | No hay almacenamiento | Tema automático y talla M |
 
 ## Pendientes de contingencia (por implementar)

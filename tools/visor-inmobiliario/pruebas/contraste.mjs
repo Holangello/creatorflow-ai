@@ -21,6 +21,11 @@ const PARES = [
   ["--c-error", "--c-error-fondo", TEXTO, "--c-sup-1"],
   ["--c-sobre-foto", "--velo-foto", TEXTO, "#ffffff"], // nombre sobre una miniatura blanca, en la parte con velo
   ...["ok", "aviso", "error", "info"].flatMap((e) => [[`--c-${e}-texto`, `--c-${e}-fondo`, TEXTO, "--c-sup-1"], [`--c-${e}-texto`, `--c-${e}-fondo`, TEXTO, "--c-fondo"]]),
+  // Bordes de campos y casillas (WCAG 1.4.11), por fuera y por dentro del campo
+  ...["--c-fondo", "--c-sup-1", "--c-sup-2"].map((f) => ["--c-borde-campo", f, NO_TEXTO]),
+  ["--c-borde-campo", "--c-campo", NO_TEXTO, "--c-sup-1"],
+  // Paneles del Estudio y la Guía sobre el ambiente: en su punto más intenso (--prueba-ambiente) y sobre el fondo liso
+  ...["--prueba-ambiente", "--c-fondo"].flatMap((sobre) => ["--c-texto", "--c-texto-2", "--c-texto-3", "--c-acento-texto"].map((t) => [t, "--vidrio-ambiente", TEXTO, sobre])),
   // Vidrio sobre la foto: el peor caso es una pared blanca o una zona negra
   ...["#ffffff", "#000000"].flatMap((foto) => [
     ["--c-texto", "--vidrio-texto", TEXTO, foto],
@@ -59,6 +64,7 @@ try {
         delete document.documentElement.dataset.luzMax; delete document.documentElement.dataset.luzMin;
         if (color) document.documentElement.style.setProperty("--c-acento", color);
         if (nivel) document.documentElement.dataset[nivel[0]] = nivel[1];
+        document.documentElement.style.setProperty("--prueba-ambiente", "color-mix(in srgb, var(--c-acento) var(--ambiente-acento), var(--c-fondo))");
         const lienzo = document.createElement("canvas"); lienzo.width = lienzo.height = 1;
         const g = lienzo.getContext("2d", { willReadFrequently: true });
         /** Color CSS (con alfa, color-mix…) compuesto sobre `sobre` → [r, g, b]. */

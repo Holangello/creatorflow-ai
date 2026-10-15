@@ -512,7 +512,9 @@ try {
     const [pop] = await Promise.all([ctx.waitForEvent("page"), p.click(SEL.dossier)]);
     await pop.waitForSelector(SEL.hoja, { timeout: 30000 });
     const dos = await pop.evaluate(() => ({ planos: document.querySelectorAll(__SEL.hojaPlanos).length, qr: !!document.querySelector(__SEL.hojaQr), h2: [...document.querySelectorAll(__SEL.hojaTitulos)].map((x) => x.textContent) }));
-    inf.ok(dos.planos === 2 && dos.qr && dos.h2.includes("Datos principales") && dos.h2.includes("Certificado energético"), "dossier A4: los 2 planos, QR del enlace, datos y certificado energético", dos);
+    // Este proyecto no tiene ningún dato del certificado: el dossier no puede afirmar «en trámite» (antes lo hacía)
+    inf.ok(dos.planos === 2 && dos.qr && dos.h2.includes("Datos principales") && !dos.h2.includes("Certificado energético"),
+      "dossier A4: los 2 planos, QR del enlace y datos; sin datos del certificado no se dice nada de él (nunca un «en trámite» falso)", dos);
     await pop.close();
 
     const build = asegurarBuild();

@@ -342,53 +342,65 @@ async function sinCDN(html, t, poner, avisos) {
   return html.replace(m[1], () => `\n    ${JSON.stringify({ ...mapa, imports }, null, 2).replace(/\n/g, "\n    ")}\n  `);
 }
 
+/** Código para incrustar el recorrido en otra web: el mismo en el Estudio y en el LEEME (M7). Sin ?embed (es el modo
+ * de la vista previa del Estudio) y con clipboard-write (copiar la foto de la consulta) y web-share (Compartir). */
+export const codigoIncrustar = (url, titulo) => `<iframe src="${esc(url)}" width="100%" height="600" style="border:0;border-radius:12px" ` +
+  `allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking; clipboard-write; web-share" allowfullscreen loading="lazy" title="${esc(titulo)}"></iframe>`;
+
 function leeme(t, idioma) {
   const titulo = texto(t.titulo, idioma) || "Recorrido virtual";
+  // Con url_publica, todo apunta a esa dirección exacta: es la que llevan dentro el enlace de cada consulta, el QR y el
+  // dossier (M6). Sin ella, instrucciones genéricas.
+  const url = /^https?:\/\/\S+$/i.test(t.url_publica ?? "") ? t.url_publica : null;
+  const subir = url
+    ? `   - Descomprime el ZIP y sube su contenido, respetando las subcarpetas, para que quede en esta dirección exacta:
+       ${url}
+     por FTP (FileZilla) o con el administrador de archivos de tu hosting (cPanel, Plesk…).
+   - Esa dirección va dentro del recorrido: el enlace de cada consulta por WhatsApp, el código QR y el
+     dossier la usan. Si lo subes a otra dirección, cámbiala en el Estudio (Publicar → Tu web) y vuelve
+     a descargar el ZIP; si no, esos enlaces no funcionarán.`
+    : `   - Descomprime el ZIP y sube la carpeta COMPLETA (respetando las subcarpetas) a tu hosting, por FTP
+     (FileZilla) o con el administrador de archivos (cPanel, Plesk…).
+   - Escribe tu web en el Estudio (Publicar → Tu web) y vuelve a descargar: así el recorrido sabrá su
+     dirección y tendrá enlace para compartir, código QR y fotos con enlace en las consultas.`;
   return `RECORRIDO VIRTUAL 3D · ${titulo}
 ${"=".repeat(Math.min(78, 22 + titulo.length))}
 
 Esta carpeta es un recorrido virtual completo listo para publicar en tu web.
 Contenido:
-  index.html, visor.js, visor.css…   el visor (no hace falta instalar nada)
+  index.html, visor.js, visor.css…   el visor (no hace falta instalar nada; three.js va incluido)
   tour.json                          los datos del recorrido (estancias, textos, precio, contacto…)
   panos/, marca/, recursos/…         fotos 360, logotipo, plano y documentos
 
 1) SUBIRLO A TU HOSTING
-   - Descomprime el ZIP y sube la carpeta COMPLETA (respetando las subcarpetas) a tu hosting:
-     por FTP (FileZilla), con el administrador de archivos de cPanel/Plesk, o arrastrándola a
-     Netlify Drop (https://app.netlify.com/drop), Cloudflare Pages o GitHub Pages.
-   - Ejemplo: si la subes como "tours/calle-mayor-12", el enlace será
-       https://www.tu-dominio.com/tours/calle-mayor-12/
+${subir}
    - Usa HTTPS: sin él, el giroscopio del móvil y el modo pantalla completa no funcionan.
-   - Importante: index.html NO funciona con doble clic desde el ordenador (el navegador bloquea la
-     lectura de tour.json fuera de un servidor). Para enviar el recorrido como un único archivo que
-     se abre con doble clic, usa la opción "HTML autónomo" del exportador.
+   - index.html NO funciona con doble clic desde el ordenador (el navegador bloquea la lectura de
+     tour.json fuera de un servidor). Para enviar el recorrido como un único archivo que se abre con
+     doble clic, usa «Recorrido en un solo archivo» en el Estudio.
    - Para probarlo en local: en esta carpeta ejecuta  python3 -m http.server 8000
      y abre http://localhost:8000/
 
 2) COMPARTIR EL ENLACE
-   - Comparte la URL por WhatsApp, email o redes. Puedes abrir una estancia concreta añadiendo
-     #id-de-la-estancia al final (p. ej. .../calle-mayor-12/#cocina) o el paseo libre con ?modo=libre
+   - Comparte ${url ?? "la dirección del recorrido"} por WhatsApp, email o redes. Puedes abrir una estancia
+     concreta añadiendo #id-de-la-estancia al final, o el paseo libre con ?modo=libre
 
 3) INSERTARLO EN TU WEB (iframe)
    Pega este código en la ficha del inmueble (WordPress: bloque "HTML personalizado"):
 
-   <iframe src="https://www.tu-dominio.com/tours/calle-mayor-12/?embed"
-           width="100%" height="600" style="border:0;max-width:100%"
-           allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking; clipboard-write"
-           allowfullscreen loading="lazy" title="${esc(titulo)}"></iframe>
+   ${codigoIncrustar(url ?? "https://DIRECCIÓN-DEL-RECORRIDO/", titulo)}
 
 4) PORTALES (idealista, Fotocasa, habitaclia, pisos.com…)
-   - Si el portal tiene un campo de "visita virtual" / "tour virtual" que acepta enlaces, pega la URL
-     pública del recorrido (según el portal y tu plan, puede que solo admita ciertos proveedores).
-   - Además puedes subir:
-       · el VÍDEO de la visita guiada (MP4, opción "Grabar vídeo"; 9:16 para Reels/TikTok/Shorts),
+   - idealista y Fotocasa solo aceptan en «visita virtual» enlaces de proveedores homologados: compruébalo
+     en tu panel antes de pegar la dirección del recorrido.
+   - Sube además (desde el Estudio, Publicar → Portales y redes):
+       · el VÍDEO de la visita guiada (16:9; 9:16 para Reels, TikTok y Shorts),
        · las FOTOS 360 en JPG con metadatos GPano (Facebook y Google las muestran como 360),
-       · el PLANO en PNG y la FICHA en PDF.
+       · el PLANO con medidas y el DOSSIER en PDF.
 
 5) ACTUALIZAR
-   Para cambiar textos, precio o fotos, edita tour.json (o vuelve a exportar desde el Estudio) y
-   sustituye los archivos en el hosting. El enlace no cambia.
+   Para cambiar textos, precio o fotos, vuelve a exportar desde el Estudio y sustituye los archivos en el
+   hosting. Mientras la dirección sea la misma, el enlace y el QR siguen valiendo.
 
 Generado el ${new Date().toLocaleString("es-ES")}.
 `;
@@ -594,6 +606,12 @@ export async function exportarHTMLAutonomo(tour, archivos = new Map(), { calidad
   return blob;
 }
 
+/** Letra del producto para lo que se dibuja en un lienzo (plano, vídeo): la pila de --fuente, con Inter ya cargada. */
+async function fuenteProducto() {
+  try { await document.fonts?.load?.('600 20px "Inter Variable"'); } catch { /* sin Inter: la del sistema */ }
+  return getComputedStyle(document.documentElement).getPropertyValue("--fuente").trim() || "system-ui, sans-serif";
+}
+
 // ======================================================================= vídeo de la visita guiada
 
 /*
@@ -675,7 +693,8 @@ export async function grabarVideo(visor, { formato = "16:9", fps = 30, alto = 10
   const c = lienzo(W, H);
   const g = c.getContext("2d", { alpha: false });
   const u = Math.min(W, H) / 1080;
-  const fuente = (peso, px) => `${peso} ${Math.round(px * u)}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+  const pila = await fuenteProducto();
+  const fuente = (peso, px) => `${peso} ${Math.round(px * u)}px ${pila}`;
 
   function componer() {
     const src = visor.lienzo;
@@ -1036,7 +1055,8 @@ export async function exportarPlano(tour, plantaId, { px = 2400, medidas = true,
   g.fillStyle = fondo; g.fillRect(0, 0, W, H);
   const X = (x) => margen + (x - x0) * s;
   const Y = (z) => cab + (z - z0) * s;
-  const F = (peso, tam) => `${peso} ${Math.round(tam)}px "Helvetica Neue", Arial, system-ui, sans-serif`;
+  const pila = await fuenteProducto();
+  const F = (peso, tam) => `${peso} ${Math.round(tam)}px ${pila}`;
 
   // --- cabecera
   let xc = margen;
@@ -1236,7 +1256,8 @@ const COLORES_CEE = { A: "#00a651", B: "#4cb848", C: "#bed630", D: "#fff200", E:
 
 function escalaEnergetica(cee, idioma) {
   const r = (k) => rotulo(idioma, k);
-  if (!cee || (cee.en_tramite && !cee.consumo_letra)) return `<p class="cee-tramite">${r("cee_tramite")}</p>`;
+  if (cee?.en_tramite && !cee.consumo_letra) return `<p class="cee-tramite">${r("cee_tramite")}</p>`;
+  if (!cee?.consumo_letra && !cee?.emisiones_letra) return ""; // sin datos no se afirma nada (ni «en trámite»)
   const fila = (L, i) => {
     const marca = (letra, valor, u) => (letra === L ? `<span class="cee-flecha" style="--c:${COLORES_CEE[L]}">${L}${valor != null ? ` <small>${num(valor, 1, idioma)} ${u}</small>` : ""}</span>` : "");
     return `<div class="cee-fila"><span class="cee-barra" style="width:${34 + i * 9}%;background:${COLORES_CEE[L]}">${L}</span>
@@ -1406,7 +1427,7 @@ export function abrirFichaImprimible(tour, { enlace, idioma, base, archivos, por
   ${i.precio != null ? `<p class="precio">${esc(precioTexto(t, idioma))}${i.estado_obra === "proyecto" ? ` <small>· ${r("obra_nueva")}</small>` : ""}</p>` : ""}
   <div class="dos">
     <section><h2>${r("datos_principales")}</h2><dl>${datosClave(t, idioma)}</dl></section>
-    <section><h2>${r("certificado")}</h2>${escalaEnergetica(i.certificado_energetico, idioma)}</section>
+    ${(() => { const e = escalaEnergetica(i.certificado_energetico, idioma); return e ? `<section><h2>${r("certificado")}</h2>${e}</section>` : ""; })()}
   </div>
   ${caracteristicas ? `<h2>${r("caracteristicas")}</h2><ul class="caract">${caracteristicas}</ul>` : ""}
   ${i.descripcion ? `<h2>${r("descripcion")}</h2><div class="descripcion">${esc(tx(i.descripcion))}</div>` : ""}
