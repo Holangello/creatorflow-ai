@@ -10,7 +10,7 @@ import { tarjetaContacto, traducirPerfil } from "./estudio-perfil.js";
 const LETRAS = ["A", "B", "C", "D", "E", "F", "G"]; // colores oficiales de la etiqueta energética: variables --ce-a … --ce-g
 const SUGERENCIAS = ["Exterior", "Luminoso", "Armarios empotrados", "Cocina equipada", "Suelo radiante", "Ventanas con doble acristalamiento",
   "Puerta blindada", "Videoportero", "Zonas comunes", "Accesible", "Amueblado", "Vistas despejadas", "Balcón", "Lavadero"];
-const TIPOS = [["piso", "Piso"], ["casa", "Casa"], ["chalet", "Chalet"], ["adosado", "Adosado"], ["atico", "Ático"], ["duplex", "Dúplex"], ["estudio", "Estudio"],
+const TIPOS = [["piso", "Piso"], ["casa", "Casa"], ["chalet", "Chalet"], ["finca", "Finca"], ["adosado", "Adosado"], ["atico", "Ático"], ["duplex", "Dúplex"], ["estudio", "Estudio"],
   ["loft", "Loft"], ["local", "Local"], ["oficina", "Oficina"], ["nave", "Nave"], ["garaje", "Garaje"], ["terreno", "Terreno"]];
 
 let raiz = null, idiomaTrad = null;

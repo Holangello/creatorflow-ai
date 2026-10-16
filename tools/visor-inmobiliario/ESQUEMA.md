@@ -80,7 +80,10 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
       "muros": [[0, 0, 10, 0]] }
   ],
   "estancias": [                        // polígonos para áreas (m²) y etiquetas en el plano
-    { "id": "salon", "nombre": "Texto", "planta": "p0", "poligono": [[0,0],[6,0],[6,5],[0,5]], "altura_techo": 2.6 }
+    { "id": "salon", "nombre": "Texto", "planta": "p0", "poligono": [[0,0],[6,0],[6,5],[0,5]], "altura_techo": 2.6 },
+    { "id": "terraza", "nombre": "Texto", "planta": "p0", "poligono": [[0,-6],[6,-6],[6,0],[0,0]], "exterior": true }
+                                        // exterior: al aire libre (terraza, jardín). En la maqueta solo el suelo con su
+                                        // foto, sin paredes; la barra del sol no busca ventanas, solo cambia el tono
   ],
 
   "estilos": [                          // selector de estilos (proyectos): 'original' = imagen base. Los de IA del Estudio: nordico,
@@ -92,7 +95,8 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
   "sol": {                              // barra del sol (amanecer → noche): fecha, hora y lugar de las fotos (EXIF de la Osmo 360)
     "fecha": "2026-10-15T11:00:00+02:00", // hora local con su desfase: a esta hora la luz es la real de las fotos
     "desfase": 120,                     // minutos respecto de UTC (si falta, el de la fecha ISO o el del dispositivo)
-    "lat": 40.42, "lng": -3.7           // GPS de la foto redondeado a 2 decimales (~1 km); si falta, inmueble.ubicacion o Madrid
+    "lat": 40.42, "lng": -3.7,          // GPS de la foto redondeado a 2 decimales (~1 km); si falta, inmueble.ubicacion o Madrid
+    "cielo": "cubierto"                 // opcional: fotos con el cielo cubierto (sin manchas de sol): la barra solo suma sol
   },                                    // false: sin barra. {}: hoy en la ubicación del inmueble. Sin `sol`: barra solo con la demo o con `momentos`
   "personalizacion": {                  // cambio de colores (viviendas construidas; necesita `mascara`)
     "paredes": [{ "nombre": "Texto", "color": "#efe9df" }],
@@ -112,7 +116,9 @@ positivo en sentido horario. Los textos pueden ser `"cadena"` o `{ "es": "...", 
         { "momento": "noche", "imagen": "panos/salon-noche.jpg", "origen": "foto" },   // origen: "foto" | "render" | "ia"
         { "estilo": "industrial", "imagen": "panos/salon-industrial.jpg", "mascara": "panos/mascaras/salon-industrial.png" }
       ],
-      "mascara": "panos/mascaras/salon.png"   // equirectangular; canal R = paredes, G = suelo (blanco = superficie)
+      "mascara": "panos/mascaras/salon.png"   // equirectangular; canal R = paredes, G = suelo (blanco = superficie) y
+                                              // B = ventanas (cristal): por ellas entra el sol de la barra; de noche, dentro
+                                              // pasan a cielo de noche y, vistas desde fuera, se encienden. Sin B, se estiman
     }
   ],
 
@@ -168,9 +174,14 @@ altura) sale de `sol.js` (algoritmo de la NOAA, error < 0,1°) y se lleva al mun
 nombre (`visor.estado.momento`, que elige las variantes de arriba) sale de la altura del sol: noche por debajo de −4°,
 amanecer o atardecer por debajo de 10° y día el resto; `tour.momentos` pasa a ser las cuatro paradas.
 - **Fotos:** a la hora de `sol.fecha` se ve la foto tal cual. Al mover la barra, el tono sigue al sol (cálido y noche,
-  respecto de la luz de la foto) y, si la cámara está dentro de una `estancia` con polígono, el sol entra por lo que en la
-  foto es ventana (lo más claro del muro que cruza el rayo hacia el sol) y aclara suelo, techo y muros donde cae; la mancha
-  de la hora de la foto se atenúa. Lejos de esa hora, sello «Iluminación simulada».
+  respecto de la luz de la foto) y, si la cámara está dentro de una `estancia` con polígono (no `exterior`), el sol entra
+  por lo que en la foto es ventana (lo más claro y no cálido del muro que cruza el rayo hacia el sol) y aclara suelo, techo
+  y muros donde cae; la mancha de la hora de la foto se atenúa (con `sol.cielo: "cubierto"` no hay mancha que quitar: solo
+  se suma sol donde a la hora de la foto no entraba). De noche, por las ventanas (canal B de la máscara; sin él, lo muy
+  claro, neutro y grande) se ve lo de fuera a oscuras, las lámparas (lo muy claro y más que lo que las rodea, o cálido)
+  siguen encendidas, lo alumbrado por bombillas queda casi igual y el resto, a media luz. En una estancia `exterior`, el
+  cielo pasa a cielo de noche, lo demás a la luz de la luna y las ventanas de la casa (canal B) se encienden. Lejos de la
+  hora de la foto, sello «Iluminación simulada».
 - **Demo** (`demo: true`): el modelo tiene huecos de ventana, cielo y una luz direccional con sombras; cada estancia se
   vuelve a renderizar con el sol de la barra (`renderSol`).
 - **Maqueta y paseo libre:** el sol de la barra con sus sombras.

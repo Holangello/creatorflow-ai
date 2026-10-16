@@ -200,6 +200,8 @@ const U = {
   nMurosA: { value: 0 }, nMurosB: { value: 0 }, altosA: { value: new THREE.Vector2(1.5, 2.6) }, altosB: { value: new THREE.Vector2(1.5, 2.6) },
   solDir: { value: new THREE.Vector3(0, 1, 0) }, solFotoDir: { value: new THREE.Vector3(0, 1, 0) },
   solKA: { value: new THREE.Vector3() }, solKF: { value: new THREE.Vector3() },
+  solCubierto: { value: 0 }, // 1: fotos con el cielo cubierto (tour.sol.cielo): no traen manchas de sol que quitar
+  exteriorA: { value: 0 }, exteriorB: { value: 0 }, // 1: la foto es al aire libre (estancia exterior): otra noche
   pinturaPared: { value: new THREE.Vector3(1, 1, 1) }, pinturaSuelo: { value: new THREE.Vector3(1, 1, 1) },
   activaPared: { value: 0 }, activaSuelo: { value: 0 },
   corte: { value: -1 }, resolucion: { value: new THREE.Vector2(1, 1) },
@@ -211,13 +213,13 @@ const matPano = new THREE.ShaderMaterial({
     void main() { vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
   fragmentShader: /* glsl */ `
     uniform sampler2D texA, texB, texC, mascA, mascB;
-    uniform float yawA, yawB, yawC, mezcla, hayMascA, hayMascB, activaPared, activaSuelo, corte, nMurosA, nMurosB;
+    uniform float yawA, yawB, yawC, mezcla, hayMascA, hayMascB, activaPared, activaSuelo, corte, nMurosA, nMurosB, exteriorA, exteriorB;
     uniform vec2 luzA, luzB, simA, simB, resolucion, altosA, altosB;
     uniform vec3 pinturaPared, pinturaSuelo;
     uniform vec4 murosA[16], murosB[16];
     varying vec3 vDir;
     ${GLSL_LUZ_FOTOS}
-    vec3 procesar(vec3 c, vec2 uv, sampler2D masc, float hayMasc, vec2 luz, vec2 sim, vec3 d, vec4 muros[16], float nMuros, vec2 altos, sampler2D tex, float yaw) {
+    vec3 procesar(vec3 c, vec2 uv, sampler2D masc, float hayMasc, vec2 luz, vec2 sim, vec3 d, vec4 muros[16], float nMuros, vec2 altos, sampler2D tex, float yaw, float ext) {
       float L = dot(c, LUM);
       if (hayMasc > 0.5 && activaPared + activaSuelo > 0.0) {
         vec3 m = texture2D(masc, uv).rgb;
@@ -228,9 +230,9 @@ const matPano = new THREE.ShaderMaterial({
       if (nMuros > 0.0) {
         vec3 n;
         float t = superficie(d, muros, nMuros, altos, n);
-        if (t < 9e4) c = relucirEn(c, d * t, n, muros, nMuros, altos, tex, yaw);
+        if (t < 9e4) c = relucirEn(c, d * t, n, muros, nMuros, altos, tex, yaw, masc, hayMasc);
       }
-      return simular(c, smoothstep(0.25, 0.6, d.y), sim);
+      return simular(c, d.y, sim, sim.y > 0.0 ? focos(tex, uv, masc, hayMasc) : vec2(0.0), ext);
     }
     void main() {
       vec3 d = normalize(vDir);
@@ -239,10 +241,10 @@ const matPano = new THREE.ShaderMaterial({
         c = texture2D(texC, uvDe(d, yawC)).rgb;
       } else {
         vec2 uvA = uvDe(d, yawA);
-        c = procesar(texture2D(texA, uvA).rgb, uvA, mascA, hayMascA, luzA, simA, d, murosA, nMurosA, altosA, texA, yawA);
+        c = procesar(texture2D(texA, uvA).rgb, uvA, mascA, hayMascA, luzA, simA, d, murosA, nMurosA, altosA, texA, yawA, exteriorA);
         if (mezcla > 0.0) {
           vec2 uvB = uvDe(d, yawB);
-          c = mix(c, procesar(texture2D(texB, uvB).rgb, uvB, mascB, hayMascB, luzB, simB, d, murosB, nMurosB, altosB, texB, yawB), mezcla);
+          c = mix(c, procesar(texture2D(texB, uvB).rgb, uvB, mascB, hayMascB, luzB, simB, d, murosB, nMurosB, altosB, texB, yawB, exteriorB), mezcla);
         }
       }
       gl_FragColor = vec4(c, 1.0);
@@ -455,7 +457,9 @@ function asignar(slot, s) {
 /** Barra del sol sobre fotos: la estancia de la foto (su polígono, relativo a la cámara) y las alturas de la cámara y del
     techo, para que el sombreador sepa por qué ventanas entra el sol. Sin estancia o en la demo (ya trae su sol), nada. */
 function geometriaSol(slot, s) {
-  const n = s.nodo, est = n && sol.activo && !s.f?.sol ? estanciaDe(n) : null;
+  const n = s.nodo, dentro = n && sol.activo && !s.f?.sol ? estanciaDe(n) : null;
+  // al aire libre (estancia exterior) no hay muros ni ventanas por las que entre el sol: solo el tono del momento
+  const est = dentro?.exterior ? null : dentro;
   const m = U[`muros${slot}`].value;
   let k = 0;
   for (let i = 0; est && i < est.poligono.length && k < m.length; i++) {
@@ -463,6 +467,7 @@ function geometriaSol(slot, s) {
     m[k++].set(a[0] - n.x, a[1] - n.z, b[0] - n.x, b[1] - n.z);
   }
   U[`nMuros${slot}`].value = k;
+  U[`exterior${slot}`].value = dentro?.exterior ? 1 : 0;
   U[`altos${slot}`].value.set(n?.altura_camara ?? int.tour?.altura_camara ?? 1.5, est?.altura_techo ?? 2.6);
 }
 
@@ -888,6 +893,7 @@ function prepararSol(t) {
   estado.momento = sol.e.momento;
   const eFoto = sol.foto ? calcularSol(sol.foto) : null;
   if (eFoto) { U.solFotoDir.value.set(...eFoto.direccion).normalize(); fuerzaSol(eFoto, U.solKF.value); } else U.solKF.value.set(0, 0, 0);
+  U.solCubierto.value = t.sol?.cielo === "cubierto" ? 1 : 0;
   U.solDir.value.set(...sol.e.direccion).normalize();
   fuerzaSol(sol.e, U.solKA.value);
   pistaSol.setAttribute("aria-valuemin", String(minutoLocal(sol.rec.ini)));
@@ -1401,7 +1407,7 @@ const maqueta = renderer && crearMaqueta({
   lienzo, contenedor, tr, texto, superficie: m2Corto,
   // maqueta con fotos: las de cada estancia, con la misma luz del sol que el recorrido (los mismos uniformes)
   texturaMaqueta, simSol: simMaqueta, tocar: () => tocarEscena(),
-  uniformsSol: { solDir: U.solDir, solFotoDir: U.solFotoDir, solKA: U.solKA, solKF: U.solKF },
+  uniformsSol: { solDir: U.solDir, solFotoDir: U.solFotoDir, solKA: U.solKA, solKF: U.solKF, solCubierto: U.solCubierto },
   tour: () => int.tour,
   nodos: () => [...int.nodos.values()],
   escenaLibre,

@@ -23,7 +23,7 @@ function colorFondo() {
 function materialFoto(uSol, sim, base) {
   return new THREE.ShaderMaterial({
     uniforms: {
-      ...uSol, sim, foto: { value: null }, hayFoto: { value: 0 }, base: { value: new THREE.Color(base) }, resalte: { value: 0 },
+      ...uSol, sim, foto: { value: null }, hayFoto: { value: 0 }, base: { value: new THREE.Color(base) }, resalte: { value: 0 }, exterior: { value: 0 },
       centro: { value: new THREE.Vector3() }, yaw: { value: 0 }, nMuros: { value: 0 }, altos: { value: new THREE.Vector2(1.5, 2.6) },
       muros: { value: Array.from({ length: 16 }, () => new THREE.Vector4()) },
     },
@@ -35,7 +35,7 @@ function materialFoto(uSol, sim, base) {
         gl_Position = projectionMatrix * viewMatrix * w;
       }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D foto; uniform float hayFoto, yaw, nMuros, resalte; uniform vec3 base, centro; uniform vec2 altos, sim;
+      uniform sampler2D foto; uniform float hayFoto, yaw, nMuros, resalte, exterior; uniform vec3 base, centro; uniform vec2 altos, sim;
       uniform vec4 muros[16];
       varying vec3 vPos; varying vec3 vNormal;
       ${GLSL_LUZ_FOTOS}
@@ -43,9 +43,10 @@ function materialFoto(uSol, sim, base) {
         vec3 c;
         if (hayFoto > 0.5) {
           vec3 P = vPos - centro, d = normalize(P);
-          c = texture2D(foto, uvDe(d, yaw)).rgb;
-          if (nMuros > 0.0) c = relucirEn(c, P, normalize(vNormal), muros, nMuros, altos, foto, yaw);
-          c = simular(c, smoothstep(0.25, 0.6, d.y), sim);
+          vec2 uv = uvDe(d, yaw);
+          c = texture2D(foto, uv).rgb;
+          if (nMuros > 0.0) c = relucirEn(c, P, normalize(vNormal), muros, nMuros, altos, foto, yaw, foto, 0.0);
+          c = simular(c, d.y, sim, sim.y > 0.0 ? focos(foto, uv, foto, 0.0) : vec2(0.0), exterior);
         } else c = base * (1.0 - 0.5 * sim.y);
         gl_FragColor = vec4(mix(c, vec3(1.0), resalte), 1.0);
         #include <colorspace_fragment>
@@ -197,12 +198,14 @@ export function crearMaqueta(ctx) {
     u.centro.value.set(n.x, y0 + h, n.z);
     u.yaw.value = ((n.yaw ?? 0) * Math.PI) / 180;
     u.altos.value.set(h, techo);
+    u.exterior.value = e.exterior ? 1 : 0;
     const P = e.poligono;
     let k = 0;
-    for (let i = 0; i < P.length && k < 16; i++) { const a = P[i], b = P[(i + 1) % P.length]; u.muros.value[k++].set(a[0] - n.x, a[1] - n.z, b[0] - n.x, b[1] - n.z); }
+    // al aire libre (terraza, jardín) solo el suelo con su foto: sin paredes y sin ventanas por las que entre el sol
+    for (let i = 0; !e.exterior && i < P.length && k < 16; i++) { const a = P[i], b = P[(i + 1) % P.length]; u.muros.value[k++].set(a[0] - n.x, a[1] - n.z, b[0] - n.x, b[1] - n.z); }
     u.nMuros.value = k;
     const pos = [], nor = [], alto = ALTO_MURO - 0.02, dentro = 0.065;
-    for (let i = 0; i < P.length; i++) {
+    for (let i = 0; !e.exterior && i < P.length; i++) {
       const [ax, az] = P[i], [bx, bz] = P[(i + 1) % P.length], largo = Math.hypot(bx - ax, bz - az);
       if (largo < 0.05) continue;
       let nx = -(bz - az) / largo, nz = (bx - ax) / largo;
@@ -247,7 +250,8 @@ export function crearMaqueta(ctx) {
       d = Math.max(d, p.dot(DIR) + Math.abs(p.dot(x)) / th, p.dot(DIR) + Math.abs(p.dot(y)) / tv);
     }
     camara.position.copy(centro).addScaledVector(DIR, d * 1.1);
-    if (controles) { controles.target.copy(centro); controles.update(); }
+    // una finca con jardín en un teléfono en vertical pide más distancia que el tope de 80 m: el tope crece con el encuadre
+    if (controles) { controles.maxDistance = Math.max(80, d * 1.65); controles.target.copy(centro); controles.update(); }
   }
 
   /** El sol de la barra en el esquema: posición exacta, color y fuerza; de noche, las estancias se apagan un poco. */

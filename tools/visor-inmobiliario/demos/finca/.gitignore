@@ -1,0 +1,8 @@
+descargas/
+venv/
+sitio/panos/
+sitio/audio/
+sitio/autonomo.html
+sitio/tour.json
+sitio/pagina.html
+__pycache__/
