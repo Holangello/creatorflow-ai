@@ -524,9 +524,10 @@ try {
       inmueble: { referencia: "EST-9", operacion: "venta", tipo: "chalet", superficie_construida: 210, habitaciones: 5 }, panoramas: [{ id: "a", nombre: "Entrada", x: 0, z: 0, imagen: "a.jpg" }] }));
     // el color de marca lo fija el núcleo (--c-acento); los paneles lo usan en su botón principal
     const r = await p.evaluate((S) => ({ titulo: document.querySelector(S.titulo)?.textContent, precio: document.querySelector(S.precioCabecera)?.textContent, hip: !!document.querySelector(S.hipoteca),
-      acento: getComputedStyle(document.querySelector(S.contacto)).backgroundColor, marca: document.querySelector(S.marca)?.textContent, viejo: document.body.innerText.includes("Chamberí") }), SD);
+      // el botón es cristal con un velo del color de marca (72 %): se lee el color de --c-acento resuelto en el botón
+      acento: getComputedStyle(document.querySelector(S.contacto)).getPropertyValue("--c-acento").trim(), marca: document.querySelector(S.marca)?.textContent, viejo: document.body.innerText.includes("Chamberí") }), SD);
     inf.ok(r.titulo === "Chalet del Estudio" && r.marca === "Otra Inmo" && !r.viejo, "el evento «tour» repinta los paneles con los datos nuevos (nada del tour anterior)", r);
-    inf.ok(r.precio === "Precio a consultar" && !r.hip && r.acento === "rgb(47, 111, 159)", "sin precio: «Precio a consultar», sin hipoteca y «Contactar» con el color de la marca nueva", r);
+    inf.ok(r.precio === "Precio a consultar" && !r.hip && ["#2f6f9f", "rgb(47, 111, 159)"].includes(r.acento.toLowerCase()), "sin precio: «Precio a consultar», sin hipoteca y «Contactar» con el color de la marca nueva", r);
     await p.evaluate(() => { window.visor.tour = { ...window.visor.tour, titulo: "Sin evento", inmueble: { precio: 125000, operacion: "venta" } }; window.visor.emitir("nodo", { id: "a" }); });
     inf.ok(await esperar(p, (S) => document.querySelector(S.titulo)?.textContent === "Sin evento" && document.querySelector(S.precioCabecera)?.textContent.includes("125.000"), SD, 3000).then(() => true, () => false),
       "si visor.tour cambia sin evento, se detecta en el siguiente repintado");
