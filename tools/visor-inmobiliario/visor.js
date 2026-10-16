@@ -435,8 +435,18 @@ async function prepararSlot(n) {
     const primera = await Promise.race([grande, new Promise((r) => setTimeout(() => r(null), 350))]);
     if (primera) tex = primera;
     else {
-      tex = (await f.cargarMini().catch(() => null)) ?? (await grande);
-      grande.then((t) => { if (int.actual === n && int.fuenteActual?.clave === f.clave && !int.transicion) { U.texA.value = t; tocarEscena(); } }).catch(() => {});
+      const mini = (tex = (await f.cargarMini().catch(() => null)) ?? (await grande));
+      // La grande sustituye a la miniatura en cuanto esta es la que se ve y no hay un viaje en curso: si llega en pleno
+      // viaje (p. ej. la entrada tras la portada) o antes de asignarse, se vuelve a mirar (hasta 9 s) en vez de perderse.
+      grande.then((t) => {
+        let intentos = 0;
+        const poner = () => {
+          if (t === mini) return;
+          if (U.texA.value === mini && !int.transicion) { U.texA.value = t; tocarEscena(); }
+          else if (++intentos < 60) setTimeout(poner, 150);
+        };
+        poner();
+      }).catch(() => {});
     }
   } else tex = await f.cargar();
   const masc = await mascaraDe(n, f.variante).catch(() => null);
