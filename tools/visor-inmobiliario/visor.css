@@ -56,12 +56,14 @@ body.raton-capturado #lienzo { cursor: none; }
 #lugar { display: flex; align-items: center; gap: var(--e-3); max-width: 100%; min-height: calc(var(--alto-control) + var(--e-2));
   padding: var(--e-1) var(--e-3); border-radius: var(--r-4); color: var(--c-texto); text-align: left;
   transition: border-color var(--d-1) var(--suave), transform var(--d-3) var(--muelle), opacity var(--d-3) var(--suave); }
-#lugar:hover { border-color: var(--c-borde-2); }
+@media (hover: hover) and (pointer: fine) { #lugar:hover { border-color: var(--c-borde-2); } }
 #lugar:active { transform: scale(0.98); }
 #logo { height: 2rem; width: auto; max-width: 6rem; object-fit: contain; flex: none; }
 #lugar .titulos { display: grid; min-width: 0; }
 #titulo { font: var(--peso-semi) var(--t-ui) / 1.25 var(--fuente-titular); letter-spacing: var(--track-ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #estancia { font-size: var(--t-pie); color: var(--c-texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* con ratón y pantalla grande, el nombre del inmueble con peso de titular (era lo más pequeño de la pantalla) */
+@media (hover: hover) and (pointer: fine) and (min-width: 1280px) { #titulo { font-size: var(--t-destacado); } #estancia { font-size: var(--t-sec); } }
 #estancia:empty { display: none; }
 #lugar .chev { width: var(--icono-s); height: var(--icono-s); color: var(--c-texto-2); transition: transform var(--d-3) var(--muelle); }
 #lugar[aria-expanded="true"] .chev { transform: rotate(180deg); }
@@ -126,7 +128,8 @@ body.guion-activo #modos, body.midiendo #modos { display: none; }
 #menu-mas button { display: flex; align-items: center; gap: var(--e-3); width: 100%; min-height: var(--alto-control); padding: 0 var(--e-3);
   border: 0; border-radius: calc(var(--r-4) - var(--e-1)); background: transparent; color: var(--c-texto);
   font: var(--peso-medio) var(--t-ui) / 1.2 var(--fuente); text-align: left; white-space: nowrap; }
-#menu-mas button:hover, #menu-mas button:focus-visible { background: var(--c-capa-hover); outline: none; }
+#menu-mas button:focus-visible { background: var(--c-capa-hover); outline: none; }
+@media (hover: hover) and (pointer: fine) { #menu-mas button:hover { background: var(--c-capa-hover); outline: none; } }
 #menu-mas button:focus-visible { box-shadow: inset 0 0 0 2px var(--c-foco); }
 #menu-mas button span { flex: 1; }
 #menu-mas .marca-ok { visibility: hidden; color: var(--c-texto); }
@@ -156,19 +159,19 @@ body.con-portada #barra-vista .c8-icono * { animation-play-state: paused; }
   transition: opacity var(--d-2) var(--suave), translate var(--d-3) var(--muelle); }
 .ic-sonido .tachado { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--d-3) var(--salida); }
 #btn-sonido.sonando .onda { opacity: 1; translate: 0 0; animation: onda 1.6s var(--suave) 2; }
-#btn-sonido.sonando:hover .onda { animation: onda 1.6s var(--suave) 2, onda-raton 1.6s var(--suave) 2; }
+@media (hover: hover) and (pointer: fine) { #btn-sonido.sonando:hover .onda { animation: onda 1.6s var(--suave) 2, onda-raton 1.6s var(--suave) 2; } }
 #btn-sonido.sonando .onda.o2 { animation-delay: 0.25s; }
 #btn-sonido.silenciado .tachado { stroke-dashoffset: 0; }
 @keyframes onda { 50% { opacity: 0.35; } }
 @keyframes onda-raton { 50% { opacity: 0.35; } }
 /* Pantalla completa: las esquinas se separan al pasar el ratón y se dan la vuelta (hacia dentro) en pantalla completa */
 .ic-pantalla path { transform-box: fill-box; transform-origin: center; transition: translate var(--d-3) var(--muelle), rotate var(--d-3) var(--muelle); }
-#btn-pantalla:hover .ic-pantalla path:nth-child(1) { translate: -1.5px -1.5px; }
-#btn-pantalla:hover .ic-pantalla path:nth-child(2) { translate: 1.5px -1.5px; }
-#btn-pantalla:hover .ic-pantalla path:nth-child(3) { translate: 1.5px 1.5px; }
-#btn-pantalla:hover .ic-pantalla path:nth-child(4) { translate: -1.5px 1.5px; }
+@media (hover: hover) and (pointer: fine) { #btn-pantalla:hover .ic-pantalla path:nth-child(1) { translate: -1.5px -1.5px; } }
+@media (hover: hover) and (pointer: fine) { #btn-pantalla:hover .ic-pantalla path:nth-child(2) { translate: 1.5px -1.5px; } }
+@media (hover: hover) and (pointer: fine) { #btn-pantalla:hover .ic-pantalla path:nth-child(3) { translate: 1.5px 1.5px; } }
+@media (hover: hover) and (pointer: fine) { #btn-pantalla:hover .ic-pantalla path:nth-child(4) { translate: -1.5px 1.5px; } }
 #btn-pantalla[aria-pressed="true"] .ic-pantalla path { rotate: 180deg; }
-#btn-pantalla[aria-pressed="true"]:hover .ic-pantalla path { translate: 0 0; scale: 0.9; }
+@media (hover: hover) and (pointer: fine) { #btn-pantalla[aria-pressed="true"]:hover .ic-pantalla path { translate: 0 0; scale: 0.9; } }
 /* Más: los puntos aparecen uno tras otro y se ponen en vertical con el menú abierto */
 .ic-mas .puntos { transform-box: view-box; transform-origin: 50% 50%; transition: rotate var(--d-3) var(--muelle); }
 #btn-mas[aria-expanded="true"] .ic-mas .puntos { rotate: 90deg; }
@@ -180,9 +183,11 @@ body.con-portada #barra-vista .c8-icono * { animation-play-state: paused; }
 :root[data-movimiento="reducido"] .ic-mas circle { animation-delay: 0s !important; }
 
 /* ---------------- abajo en el centro: tira de estancias (escritorio y tablet) ---------------- */
-#galeria { position: absolute; z-index: var(--z-hud); left: 50%; transform: translateX(-50%); bottom: var(--abajo);
+/* centrada en el hueco libre (sin la tarjeta a la derecha), no en la pantalla: con la ficha abierta no se queda en nada */
+#galeria { position: absolute; z-index: var(--z-hud); left: calc(var(--hud) + var(--seg-izq)); right: calc(var(--ancho-dock, 0px) + var(--hud) + var(--seg-der));
+  width: fit-content; margin-inline: auto; bottom: var(--abajo);
   display: flex; align-items: flex-end; gap: var(--e-2); padding: var(--e-2); border-radius: var(--r-4);
-  max-width: calc(100vw - 2 * (var(--ancho-dock, 0px) + var(--hud))); overflow-x: auto; scrollbar-width: none; }
+  overflow-x: auto; scrollbar-width: none; }
 #galeria::-webkit-scrollbar { display: none; }
 #galeria:empty { display: none; }
 #galeria .grupo { display: grid; grid-auto-flow: column; gap: var(--e-1) var(--e-2); align-items: end; flex: none; }
@@ -192,7 +197,8 @@ body.con-portada #barra-vista .c8-icono * { animation-play-state: paused; }
 #galeria .sep { flex: none; width: 1px; align-self: stretch; margin: var(--e-1) 0; background: var(--c-borde-2); }
 #galeria .estancia { position: relative; flex: none; width: 5.75rem; height: 3.75rem; padding: 0; overflow: hidden; border: 0.125rem solid transparent;
   border-radius: calc(var(--r-4) - var(--e-2)); background: var(--c-sup-3); transition: border-color var(--d-1) var(--suave), transform var(--d-3) var(--muelle); }
-#galeria .estancia:hover { transform: translateY(-0.125rem); }
+@media (min-width: 1600px) and (pointer: fine) { #galeria .estancia { width: 7rem; height: 4.5rem; } } /* en un monitor, miniaturas que se distinguen */
+@media (hover: hover) and (pointer: fine) { #galeria .estancia:hover { transform: translateY(-0.125rem); } }
 #galeria .estancia img { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* Nombre sobre la miniatura: blanco sobre el velo de la foto (6,2:1 incluso sobre una foto blanca), igual en los dos temas */
 #galeria .estancia span { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.375rem 0.3125rem 0.125rem; font-size: var(--t-pie); text-align: left; color: var(--foto-trazo);
@@ -204,7 +210,8 @@ body:is(.modo-libre, .modo-maqueta, .midiendo) #galeria { display: none; }
 
 /* ---------------- visita guiada: un solo control (ocupa el sitio de los modos mientras dura) ---------------- */
 #guion-barra { position: absolute; z-index: var(--z-hud); top: var(--arriba); left: 50%; transform: translateX(-50%); gap: var(--e-2); padding-right: var(--e-1); }
-#guion-barra .pausa, #guion-barra .pausa:hover { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
+#guion-barra .pausa { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
+@media (hover: hover) and (pointer: fine) { #guion-barra .pausa:hover { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); } }
 #guion-barra .n { min-width: 2.5rem; text-align: center; font-size: var(--t-sec); color: var(--c-texto-2); }
 #guion-barra .progreso { width: 8.5rem; height: 0.1875rem; border-radius: var(--r-pastilla); background: var(--c-pista); overflow: hidden; }
 #guion-barra .progreso div { height: 100%; width: 0; border-radius: inherit; background: var(--c-acento); }
@@ -238,7 +245,7 @@ body:is(.modo-libre, .modo-maqueta, .midiendo) #galeria { display: none; }
 /* No asoma detrás de un diálogo, la nota de un «i» ni lo que abren los paneles: la hoja de la ficha, sus diálogos (M11) */
 body:has(dialog[open], #ficha:not([hidden]), #paneles .pn-abierto) #pista { display: none; }
 #tarjeta-juego { border-radius: var(--r-4); padding: var(--e-4) var(--e-5); }
-#tarjeta-juego:hover { border-color: var(--c-borde-2); }
+@media (hover: hover) and (pointer: fine) { #tarjeta-juego:hover { border-color: var(--c-borde-2); } }
 #aviso-juego { position: absolute; z-index: var(--z-aviso); top: var(--arriba); left: 50%; translate: -50% 0; padding: var(--e-2) var(--e-4);
   border-radius: var(--r-pastilla); font: var(--peso-medio) var(--t-sec) / 1.2 var(--fuente); color: var(--c-texto); pointer-events: none; white-space: nowrap;
   animation: atenuar var(--d-3) var(--suave) 3s forwards; }
@@ -269,7 +276,7 @@ dialog.c8-dialogo::backdrop { background: var(--velo); }
 .ep-grupos ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--e-1); }
 .ep-estancia { display: flex; align-items: center; gap: var(--e-3); width: 100%; min-height: max(3.25rem, var(--toque-minimo)); padding: var(--e-1); border: 1px solid transparent; border-radius: var(--r-3);
   background: transparent; color: var(--c-texto); text-align: left; font: var(--peso-medio) var(--t-ui) / 1.25 var(--fuente); transition: background-color var(--d-1) var(--suave); }
-.ep-estancia:hover { background: var(--c-capa-hover); }
+@media (hover: hover) and (pointer: fine) { .ep-estancia:hover { background: var(--c-capa-hover); } }
 .ep-estancia[aria-current="true"] { border-color: color-mix(in srgb, var(--c-texto) 45%, transparent); background: var(--c-capa-activa); }
 .ep-estancia .mini { flex: none; width: 4.5rem; height: 2.75rem; border-radius: var(--r-2); object-fit: cover; background: var(--c-sup-3); display: grid; place-items: center; color: var(--c-texto-3); }
 .ep-estancia .nombre { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -306,7 +313,9 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
 #portada .fallo-carga { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-3); margin-top: var(--e-3); }
 #portada .fallo-carga p { flex-basis: 100%; margin: 0; color: var(--c-texto-2); text-wrap: pretty; }
 #portada .acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-3); margin-top: var(--e-3); }
-#portada .acciones .c8-boton { min-height: 3rem; padding: 0 var(--e-6); font-size: var(--t-cuerpo); }
+/* el foco que pone el código al cargar no enciende el aro si no se ha usado el tabulador (iOS nunca lo muestra sin teclado) */
+body:not(.foco-tab) #portada .empezar:focus-visible { outline: none; }
+#portada .acciones .c8-boton { min-height: max(3rem, var(--toque-principal, 48px)); padding: 0 var(--e-6); font-size: var(--t-cuerpo); }
 #portada .idiomas { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--e-1); }
 #portada .idiomas .c8-boton { min-width: max(2.75rem, var(--alto-control-s)); letter-spacing: 0.06em; } /* nunca más alto que ancho (táctil: 44 px) */
 /* El idioma elegido, sin color, como la opción elegida del segmentado sobre la foto (tema.css): cápsula más clara con canto */
@@ -322,7 +331,8 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
   color: var(--c-texto); font: var(--peso-medio) var(--t-sec) / 1 var(--fuente); white-space: nowrap; pointer-events: auto;
   transition: opacity var(--d-3) var(--suave), background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), scale var(--d-3) var(--muelle-rebote); }
 /* Señalado, sin color: en negativo (relleno del color del texto), como el aro de su flecha, que se ilumina */
-.etq.c8-vidrio:is(:hover, :focus-visible, .resaltada) { background: var(--c-texto); color: var(--c-sobre-texto); border-color: transparent; }
+.etq.c8-vidrio:is(:focus-visible, .resaltada) { background: var(--c-texto); color: var(--c-sobre-texto); border-color: transparent; }
+@media (hover: hover) and (pointer: fine) { .etq.c8-vidrio:hover { background: var(--c-texto); color: var(--c-sobre-texto); border-color: transparent; } }
 .etq:active { scale: 0.95; }
 .etq::after { content: ""; position: absolute; inset: -0.625rem; } /* área táctil ampliada */
 /* Punto de interés: vidrio redondo con la «i» y un halo de luz alrededor para que se descubra; en negativo al señalarlo */
@@ -330,7 +340,8 @@ kbd { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border: 1px so
   color: var(--c-texto); font: var(--peso-fuerte) var(--t-cuerpo) / 1 var(--fuente-titular); pointer-events: auto;
   transition: opacity var(--d-3) var(--suave), background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), scale var(--d-3) var(--muelle-rebote); }
 .info.c8-vidrio { box-shadow: var(--vidrio-volumen), 0 0 0 0.3125rem rgba(255, 255, 255, 0.24), var(--sombra-2); }
-.info.c8-vidrio:is(:hover, :focus-visible) { background: var(--c-texto); color: var(--c-sobre-texto); scale: 1.08; }
+.info.c8-vidrio:is(:focus-visible) { background: var(--c-texto); color: var(--c-sobre-texto); scale: 1.08; }
+@media (hover: hover) and (pointer: fine) { .info.c8-vidrio:hover { background: var(--c-texto); color: var(--c-sobre-texto); scale: 1.08; } }
 .info:active { scale: 0.94; }
 .info::after { content: ""; position: absolute; inset: -0.375rem; }
 /* En reposo (body.ui-inactiva) los rótulos de las flechas y los puntos «i» se apartan como la interfaz; las flechas quedan a
@@ -363,9 +374,17 @@ body.ui-inactiva #etiquetas :is(.etq, .info):not(:focus-visible) { opacity: 0; p
 .maq-pin { position: absolute; translate: -50% -100%; display: inline-flex; align-items: center; gap: var(--e-2); min-height: 1.875rem; padding: 0 var(--e-3) 0 var(--e-2);
   border: 0; border-radius: var(--r-pastilla); background: var(--c-texto); color: var(--c-sobre-texto); font: var(--peso-semi) var(--t-pie) / 1 var(--fuente);
   white-space: nowrap; pointer-events: auto; box-shadow: var(--sombra-1); transition: scale var(--d-3) var(--muelle-rebote), filter var(--d-1) var(--suave); }
+@media (pointer: coarse) { .maq-pin { min-height: 2.25rem; } }
+.maq-pin .m2 { font-weight: var(--peso-normal); opacity: 0.72; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.maq-pin .m2::before { content: "· "; }
 .maq-pin::before { content: ""; flex: none; width: 0.5rem; height: 0.5rem; border-radius: 50%; border: 2px solid currentColor; }
 .maq-pin::after { content: ""; position: absolute; inset: -0.5rem; } /* área táctil ampliada */
-.maq-pin:hover { scale: 1.06; }
+@media (pointer: coarse) {
+  /* la «i» y los pines de la maqueta: zona invisible de 44 px aunque se dibujen más pequeños */
+  .info::after { inset: min(-0.375rem, calc((2.25rem - var(--toque-minimo)) / 2)); }
+  .maq-pin::after { inset: min(-0.5rem, calc((1.875rem - var(--toque-minimo)) / 2)) -0.5rem; }
+}
+@media (hover: hover) and (pointer: fine) { .maq-pin:hover { scale: 1.06; } }
 .maq-pin:active { scale: 0.95; }
 body.modo-maqueta #estancia { display: none; }
 
@@ -398,7 +417,7 @@ body.midiendo :is(#pista, #rotulo, #tarjeta-juego) { display: none; }
 #cortinilla { position: absolute; z-index: calc(var(--z-hud) - 1); top: 0; bottom: 0; left: 50%; width: 0; border-left: 2px solid var(--foto-trazo); box-shadow: 0 0 0.75rem var(--foto-halo); }
 #cortinilla button { position: absolute; top: 50%; left: 0; translate: -50% -50%; width: 2.875rem; height: 2.875rem; display: grid; place-items: center; padding: 0;
   border-radius: 50%; color: var(--c-texto); touch-action: none; cursor: ew-resize; transition: scale var(--d-3) var(--muelle-rebote); }
-#cortinilla button:hover { scale: 1.06; }
+@media (hover: hover) and (pointer: fine) { #cortinilla button:hover { scale: 1.06; } }
 #cortinilla button:active { scale: 1.12; }
 #cortinilla::before, #cortinilla::after { position: absolute; top: 30%; padding: var(--e-1) var(--e-3); border-radius: var(--r-pastilla); border: 1px solid var(--vidrio-borde);
   background: var(--vidrio-texto); color: var(--c-texto); font: var(--peso-semi) var(--t-pie) / 1.2 var(--fuente); white-space: nowrap; box-shadow: var(--sombra-1);
@@ -437,25 +456,34 @@ body.sin-webgl #galeria { display: flex !important; top: calc(var(--bajo-modos) 
 body.embed #btn-pantalla { display: none; }
 
 /* ================================================================== tamaños
-   Teléfono = (max-width: 540px) o (max-height: 540px) en horizontal: sin tira ni botón de pantalla completa (los paneles
-   lo ponen en «Más» cuando #btn-pantalla no se ve).
-   Vertical hasta 1024 px (tablet incluida): modos, visita guiada y medición abajo.
+   Puntos de corte del sistema (docs/diseno/sistema.md § Puntos de corte; los mismos literales en tema.js → cre8Tema.MQ):
+   «compacto» = teléfono en vertical (max-width: 599.98px) o en horizontal (alto ≤ 499.98): sin tira ni botón de pantalla
+   completa (los paneles lo ponen en «Más» cuando #btn-pantalla no se ve).
+   «vertical» = hasta 1100 px en vertical (tablet incluida, también el iPad Pro de 13"): modos, visita guiada y medición abajo.
    En horizontal los modos también bajan si no caben entre el título y la barra de vista: con la letra del navegador al
    200 % o la talla L en una ventana estrecha (A12). La consulta va en em, que sigue a la letra del navegador: 62em son
-   992 px con la letra normal y 1984 con la doble. El teléfono en horizontal (alto ≤ 540) los deja arriba: abajo está la
+   992 px con la letra normal y 1984 con la doble. El teléfono en horizontal (alto < 500) los deja arriba: abajo está la
    tarjeta. */
-@media (orientation: portrait) and (max-width: 1024px), (orientation: landscape) and (max-width: 62em) and (min-height: 541px) {
+@media (orientation: portrait) and (max-width: 1100px), (orientation: landscape) and (max-width: 62em) and (min-height: 500px) {
   #esquina { max-width: calc(100vw - 2 * var(--hud) - 17rem); }
-  #modos, #guion-barra { top: auto; bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--e-2)); }
+  #modos, #guion-barra { top: auto; bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--e-2));
+    left: calc(var(--hud) + var(--seg-izq)); right: calc(var(--ancho-dock, 0px) + var(--hud) + var(--seg-der)); transform: none; width: fit-content; margin-inline: auto; }
   #subtitulo, #ficha { bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--alto-control) + var(--e-5)); }
 }
-@media (orientation: portrait) and (max-width: 1024px) {
+/* Tablet en vertical: los modos vuelven arriba al centro (caben entre el título y la barra de vista) y abajo quedan la tira y
+   la tarjeta en el mismo eje. En em: con la letra del navegador al 200 % o la talla L no caben y siguen abajo (A12). */
+@media (orientation: portrait) and (min-width: 46.25em) and (max-width: 1100px) {
+  html:not([data-talla="l"]) #modos { top: var(--arriba); bottom: auto; left: 50%; right: auto; transform: translateX(-50%); width: max-content; margin-inline: 0; }
+  html:not([data-talla="l"]) :is(#subtitulo, #ficha) { bottom: calc(var(--abajo) + var(--alto-tira, 0px) + var(--e-3)); }
+  html:not([data-talla="l"]) #estado-vista { top: var(--bajo-modos); }
+}
+@media (orientation: portrait) and (max-width: 1100px) {
   :root { --radar: 8rem; }
   #estado-vista { top: calc(var(--arriba) + var(--alto-control) + var(--e-4)); }
   #galeria { left: calc(var(--hud) + var(--seg-izq)); right: calc(var(--hud) + var(--seg-der)); transform: none; max-width: none; width: fit-content; margin-inline: auto; }
   #galeria .guiada { display: inline-flex; }
 }
-@media (max-width: 540px) {
+@media (max-width: 599.98px) {
   :root { --radar: 6.25rem; }
   #esquina { max-width: calc(100vw - 2 * var(--hud) - 4.25rem); }
   #lugar { gap: var(--e-2); padding-inline: var(--e-2); }
@@ -467,7 +495,9 @@ body.embed #btn-pantalla { display: none; }
   #portada .titulo { font-size: var(--t-titulo); }
   #medir-barra { width: auto; left: calc(var(--hud) + var(--seg-izq)); right: calc(var(--hud) + var(--seg-der)); translate: none; }
 }
-@media (max-width: 540px) and (orientation: portrait) {
+/* con una hoja de los paneles abierta, el aviso del núcleo sube arriba en el teléfono: abajo caería dentro de la hoja */
+@media (max-width: 599.98px) { body:has(#paneles .pn-dialogo) #aviso { top: var(--arriba); bottom: auto; } }
+@media (max-width: 599.98px) and (orientation: portrait) {
   /* El sello legal (IA, render, luz simulada) y la carga, a la izquierda bajo la columna del título, la barra del sol y el
      radar: arriba en el centro chocaba con la barra del sol. --arriba-sello lo pone visor.js (el pie de #esquina). */
   #estado-vista { top: var(--arriba-sello, calc(var(--arriba) + 14rem)); inset-inline: auto; left: calc(var(--hud) + var(--seg-izq)); margin-inline: 0; align-items: flex-start; }
@@ -478,8 +508,12 @@ body.embed #btn-pantalla { display: none; }
   body.modo-libre #modos { bottom: calc(var(--abajo-libre) + var(--e-2)); }
   body.modo-libre #aviso { bottom: calc(var(--abajo-libre) + var(--alto-control) + var(--e-5)); }
 }
-@media (max-height: 540px) and (orientation: landscape) {
-  :root { --radar: 5.25rem; }
+@media (orientation: landscape) and (max-height: 499.98px) {
+  :root { --radar: 6.25rem; }
+  /* pulgar izquierdo: los modos, abajo a la izquierda; pulgar derecho: la tarjeta. Arriba al centro, libre. */
+  #modos { top: auto; bottom: calc(var(--hud) + var(--seg-inf)); left: calc(var(--hud) + var(--seg-izq)); transform: none; }
+  /* «Más» en dos columnas: cabe entero bajo la barra de vista y no tapa la tarjeta */
+  #menu-mas { grid-template-columns: repeat(2, minmax(11rem, 1fr)); } /* 5.25 se quedaba en 73 px: hay alto para la columna (≈210 de 390) */
   /* medir: abajo a la izquierda (arriba están el título y la barra de vista; abajo a la derecha, la tarjeta) */
   #medir-barra { bottom: calc(var(--hud) + var(--seg-inf)); left: calc(var(--hud) + var(--seg-izq)); translate: none; align-items: flex-start;
     max-width: calc(100vw - var(--ancho-dock, 0px) - 3 * var(--hud)); }
@@ -496,16 +530,20 @@ body.embed #btn-pantalla { display: none; }
   #portada .precio { font-size: var(--t-titulo-g); }
   #portada .acciones { margin-top: var(--e-1); }
 }
-@media (max-width: 540px), (max-height: 540px) and (orientation: landscape) {
+@media (max-width: 599.98px), (orientation: landscape) and (max-height: 499.98px) {
+  /* «Ampliar» tangente por fuera del disco: en el teléfono tapaba un tercio del radar */
+  #btn-ampliar { right: calc(-1 * var(--alto-control-s) + 0.875rem); bottom: -0.375rem; }
   #galeria, #btn-pantalla { display: none; }
   #estancias-plano { width: 100vw; max-width: 100vw; max-height: 92dvh; margin: auto 0 0; border-radius: var(--r-5) var(--r-5) 0 0; padding: var(--e-4) var(--e-4) calc(var(--e-4) + var(--seg-inf)); }
   .ep-cuerpo { grid-template-columns: 1fr; overflow-y: auto; }
   .ep-lista { overflow: visible; }
   #plano-grande { height: 38dvh; min-height: 12rem; flex: none; }
 }
-@media (max-height: 540px) and (orientation: landscape) {
+@media (orientation: landscape) and (max-height: 499.98px) {
   #estancias-plano { width: min(100vw, 52rem); margin: auto auto 0; max-height: 100dvh; }
   .ep-cuerpo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); overflow: hidden; }
   .ep-lista { overflow-y: auto; }
   #plano-grande { height: auto; flex: 1; min-height: 0; }
 }
+/* teléfono con la ficha abierta en la hoja: el sol y el radar se apartan (como en reposo); el título se queda */
+body:has(#paneles .pn-disp-hoja.pn-ficha-abierta) :is(#sol, #radar) { opacity: 0; pointer-events: none; }

@@ -296,6 +296,8 @@ try {
 
     // ---- dirección y notas
     await esperar(p, () => window.__estudio.vista?.nodo === window.__estudio.nodo, null, 20000);
+    // en el paso Plano, hasta 1440 px la vista previa es un cajón (adaptación, MAQ-8): se abre con «Vista previa»
+    if (!(await p.isVisible(SEL.vistaNodo))) await p.click("#btn-vista");
     await p.selectOption(SEL.vistaNodo, "salon");
     await ir(p, "orientar");
     await esperar(p, () => window.__estudio.vista?.nodo === "salon", null, 60000);

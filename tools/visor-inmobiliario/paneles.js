@@ -234,9 +234,17 @@ export function iniciarPaneles(visor) {
   limpiezas.push(alCambiarIdioma(() => renderizar()));
 
   const escuchar = (obj, ev, fn, op) => { obj.addEventListener(ev, fn, op); limpiezas.push(() => obj.removeEventListener(ev, fn, op)); };
+  // El teclado del móvil lo publica tema.js (--teclado, --alto-visible y html[data-teclado]): el contacto no queda debajo
+  let anchoAntes = innerWidth;
   escuchar(window, "resize", () => {
+    // con un campo de los paneles enfocado y el mismo ancho es el teclado (WebViews que encogen la ventana): no se rehace
+    // el diálogo, que perdería el foco y cerraría el teclado
+    const campo = document.activeElement?.matches?.("input, textarea, select") && raiz?.contains(document.activeElement);
+    if (campo && innerWidth === anchoAntes) { colocar(); return; }
+    anchoAntes = innerWidth;
     const d = calcularDisposicion();
-    if (d !== ui.disp) { ui.disp = d; ui.altura = "peek"; ui.ficha = false; ui.menu = false; renderizar(); } else { colocar(); sincronizarMas(); }
+    // al girar se conserva la ficha abierta (como el contacto)
+    if (d !== ui.disp) { const f = ui.ficha; ui.disp = d; ui.menu = false; ui.ficha = f; ui.altura = f ? "alto" : "peek"; renderizar(); } else { colocar(); sincronizarMas(); }
   });
   escuchar(document, "keydown", (e) => { if (e.key === "Escape") escape(e); });
   escuchar(document, "fullscreenchange", () => sincronizarMas());
@@ -298,11 +306,13 @@ function sincronizarTour() {
   return true;
 }
 
+// Puntos de corte del sistema (tema.js → cre8Tema.MQ): las mismas consultas que el CSS, no aritmética con innerWidth
+const MQP = globalThis.cre8Tema?.MQ ?? { apaisado: "(orientation: landscape) and (max-height: 499.98px)",
+  hoja: "(max-width: 719.98px) and (min-height: 500px), (orientation: portrait) and (max-width: 1100px)" };
 function calcularDisposicion() {
-  const w = innerWidth, hh = innerHeight;
-  if (hh <= 500 && w > hh) return "compacta";          // móvil en horizontal
-  if (w <= 720 || (hh > w && w <= 1024)) return "hoja"; // móvil y tablet en vertical
-  return "lateral";                                     // escritorio y tablet en horizontal
+  if (globalThis.matchMedia?.(MQP.apaisado)?.matches) return "compacta"; // móvil en horizontal
+  if (globalThis.matchMedia?.(MQP.hoja)?.matches) return "hoja";         // móvil y tablet en vertical
+  return "lateral";                                                     // escritorio y tablet en horizontal
 }
 function clasesRaiz() {
   return ["pn-raiz", `pn-disp-${ui.disp}`, ui.ficha && "pn-ficha-abierta", ui.dialogo && `pn-con-dialogo pn-dlg-${ui.dialogo}`,
@@ -585,7 +595,7 @@ function botonResumen() {
     h("span", { class: "pn-t-datos" },
       corto.length ? h("span", { class: "pn-t-datos-txt" }, corto.map(([k, t], n) => h("span", { class: `pn-t-dato pn-t-dato-${k}` }, n ? ` · ${t}` : t))) : null,
       letra ? insigniaEnergia(letra) : null,
-      lateral ? h("span", { class: "pn-t-ver" }, tr("ficha.ver")) : null,
+      h("span", { class: "pn-t-ver" }, tr(lateral ? "ficha.ver" : "ficha.corto")), // en la hoja también se dice que el precio abre la ficha
       ic(lateral ? "der" : "arriba", "pn-ic pn-ic-s pn-chev")));
 }
 
@@ -1841,7 +1851,7 @@ function dlgCompartir() {
     // cambio de estado animado: el icono de copiar pasa a una marca que se dibuja
     if (ok) { window.cre8Sonidos?.tocar("copiar"); aviso(tr("compartir.copiado")); btn.querySelector("span").textContent = tr("compartir.copiado"); btn.querySelector("svg")?.replaceWith(ic("ok", "pn-ic pn-dibujar")); }
   };
-  const botonCopiar = h("button", { type: "button", class: `c8-boton ${nativo ? "c8-boton--secundario" : "c8-boton--primario"}`, "data-k": "copiar", "data-sfx": "no", autofocus: !nativo || null, onclick: copiar },
+  const botonCopiar = h("button", { type: "button", class: "c8-boton c8-boton--secundario", "data-k": "copiar", "data-sfx": "no", autofocus: !nativo || null, onclick: copiar },
     ic("copiar"), h("span", {}, tr("compartir.copiar")));
   return { titulo: tr("compartir.titulo"), icono: "compartir", cuerpo: [
     nativo ? h("button", { type: "button", class: "c8-boton c8-boton--primario c8-boton--bloque", "data-k": "sh-nativo", autofocus: true,

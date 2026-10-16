@@ -182,6 +182,30 @@ Fuera del vidrio (Estudio, diálogos), el pulsado sigue siendo de acento con su 
   - Sin soporte de `linear()`, los muelles pasan a curvas cúbicas.
 - **Capas:** `--z-hud` < `--z-panel` < `--z-menu` < `--z-dialogo` < `--z-aviso` < `--z-carga`.
 
+## Puntos de corte
+
+Una sola tabla para el CSS y el JS. `tema.js` la publica como `cre8Tema.MQ`, `cre8Tema.forma()` y `html[data-forma]`, y `pruebas/puntos-corte.mjs` rechaza cualquier otra medida. Los topes acaban en `.98` y los mínimos son enteros: con el zoom no quedan huecos.
+
+| Nombre | Consulta | Qué es |
+|---|---|---|
+| `telefono` | `(max-width: 599.98px)` | Teléfono en vertical |
+| `apaisado` | `(orientation: landscape) and (max-height: 499.98px)` | Teléfono en horizontal y ventanas muy bajas |
+| `compacto` | `telefono` o `apaisado` | Sin tira ni pantalla completa; el Estudio avisa |
+| `vertical` | `(orientation: portrait) and (max-width: 1100px)` | Tablet en vertical (iPad Pro de 13" incluido) |
+| `hoja` | `(max-width: 719.98px) and (min-height: 500px), vertical` | Tarjeta como hoja inferior |
+| `estrecho` | `(orientation: landscape) and (max-width: 62em) and (min-height: 500px)` | Horizontal estrecho: modos abajo |
+| `tactil` / `raton` | `(pointer: coarse)` / `(hover: hover) and (pointer: fine)` | 44 px y letra de iOS / `:hover` y modo juego |
+
+- **Ajustes de contenido** (no deciden «teléfono» ni «tablet»):
+  - columnas del Estudio: 860/861, 1100/1101, 1279.98/1280, 1440/1441, 1600 y 2200;
+  - barra del Estudio en `em`;
+  - modos arriba en la tablet en vertical: `46.25em`.
+- **Hover:** todo `:hover` va dentro de `@media (hover: hover) and (pointer: fine)`, para que en táctil no se quede pegado.
+- **Letra:** nada por debajo de 12 px. En táctil, botones a 15 px y texto a 16, siguiendo a la talla.
+- **Objetivos:** 44 px en táctil y 48 px la acción principal (`--toque-principal`).
+- **Capas:** todo en la escala `--z-*`. Los paneles no crean un contexto de apilamiento propio.
+- **Teclado del móvil:** `--teclado`, `--alto-visible` y `html[data-teclado]` (de `tema.js`).
+
 ## Estados (ok, aviso, error, info)
 
 - Para chips y avisos tintados: `--c-<estado>-fondo` y, encima, `--c-<estado>-texto`. Cumplen AA en los dos temas sobre `--c-fondo` y `--c-sup-1` (`npm run contraste`).

@@ -15,10 +15,13 @@ const $ = (s) => document.querySelector(s);
 const efecto = (n, o) => window.cre8Sonidos?.tocar(n, o);
 const params = new URLSearchParams(location.search);
 const EMBED = params.has("embed");
+// Puntos de corte del sistema (tema.js → cre8Tema.MQ; aquí la copia por si tema.js no estuviera)
+const MQ = globalThis.cre8Tema?.MQ ?? { telefono: "(max-width: 599.98px)", apaisado: "(orientation: landscape) and (max-height: 499.98px)",
+  hoja: "(max-width: 719.98px) and (min-height: 500px), (orientation: portrait) and (max-width: 1100px)" };
 const esTactil = matchMedia("(pointer: coarse)").matches || "ontouchstart" in window;
 const conRaton = matchMedia("(pointer: fine)").matches; // modo juego: solo con ratón
-// «donde: "movil"» del menú «Más»: la disposición móvil de los paneles (teléfono y tablet en vertical).
-const MQ_MOVIL = matchMedia("(max-width: 720px), (orientation: portrait) and (max-width: 1024px), (max-height: 500px) and (orientation: landscape)");
+// «donde: "movil"» del menú «Más»: la disposición no lateral de los paneles (hoja o compacta: teléfono y tablet en vertical).
+const MQ_MOVIL = matchMedia(`${MQ.hoja}, ${MQ.apaisado}`);
 const API_PANTALLA = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
 if (esTactil) document.body.classList.add("tactil");
 if (EMBED) { document.body.classList.add("embed"); $("#portada")?.remove(); }
@@ -846,7 +849,7 @@ function avanzar(desvio = 0) {
 
 // En el teléfono en vertical el sello legal va bajo la columna de la esquina (título, barra del sol y radar), que cambia de
 // alto al mostrar u ocultar el radar o la barra: se sigue con un ResizeObserver.
-const MQ_SELLO = matchMedia("(max-width: 540px) and (orientation: portrait)");
+const MQ_SELLO = matchMedia(`${MQ.telefono} and (orientation: portrait)`);
 function colocarSello() {
   const e = $("#estado-vista");
   if (!e) return;
@@ -1440,6 +1443,17 @@ const maqueta = renderer && crearMaqueta({
     else if (o.userData.superficie === "techo") { o.material.colorWrite = !si; o.material.depthWrite = !si; }
   }),
   alElegirNodo: async (n) => { await cambiarModo("tour"); irA(n); },
+  // lo que tapa el HUD en px (para encuadrar la maqueta en el hueco libre): arriba la columna del título en el teléfono o
+  // la barra de modos; abajo los modos, la tira o la tarjeta; a la derecha la tarjeta lateral
+  margenes: () => {
+    const W = innerWidth, H = innerHeight, r = (s) => { const b = document.querySelector(s)?.getBoundingClientRect(); return b && b.width > 1 && b.height > 1 ? b : null; };
+    let arriba = 0, abajo = 0, der = 0;
+    for (const b of [r("#esquina"), r("#modos"), r("#barra-vista")]) if (b && b.top < H / 2 && b.width > W * 0.3) arriba = Math.max(arriba, b.bottom);
+    for (const b of [r("#modos"), r("#galeria"), r("#paneles .pn-tarjeta")]) if (b && b.top > H / 2 && b.width > W * 0.5) abajo = Math.max(abajo, H - b.top);
+    const t = r("#paneles .pn-tarjeta");
+    if (t && t.left > W / 2 && t.height > H * 0.4) der = W - t.left;
+    return { arriba, abajo, izq: 0, der };
+  },
 });
 
 const guion = crearGuion({
@@ -3519,7 +3533,7 @@ function hayQuePintar() {
   return mueve || avisado || !!int.transicion || guion.activo || estado.midiendo || estado.comparar
     || int.tiempoReal || !!int.captura || int.teclas.size > 0 || !!int.giro;
 }
-const fps = { t: 0, n: 0 };
+const fps = { t: 0, n: 0, bien: 0, ultimo: -1 };
 /** Pinta la escena del modo actual (sin foto todavía: el fondo del tema, no la esfera blanca de la textura vacía). */
 function pintarEscena() {
   uPxFlechas.value = renderer.getPixelRatio();
@@ -3589,11 +3603,15 @@ function bucle() {
     && $("#menu-mas").hidden && !document.querySelector("dialog[open], #paneles [aria-expanded=true], #paneles .pn-abierto")
     && !document.activeElement?.closest?.("#esquina, #modos, #barra-vista, #galeria, #paneles, #guion-barra");
   if (inactiva !== document.body.classList.contains("ui-inactiva")) { document.body.classList.toggle("ui-inactiva", inactiva); opacidadFlechas(); }
-  // Calidad adaptativa: si los FPS caen por debajo de 28, se baja la resolución interna.
-  fps.t += dt; fps.n++;
+  // Calidad adaptativa: si los FPS caen por debajo de 28, se baja la resolución interna; y vuelve a subir cuando sobran
+  // (antes un tirón al descodificar una foto la bajaba para siempre). Solo cuentan los fotogramas pintados: se pinta bajo demanda.
+  const f = renderer.info.render.frame;
+  if (f !== fps.ultimo) { fps.ultimo = f; fps.t += dt; fps.n++; }
   if (fps.t > 2) {
-    const media = fps.n / fps.t;
-    if (media < 28 && renderer.getPixelRatio() > 1) { renderer.setPixelRatio(Math.max(1, renderer.getPixelRatio() - 0.25)); redimensionar(); }
+    const media = fps.n / fps.t, pr = renderer.getPixelRatio();
+    if (int.captura || int.navDestino || int.transicion) fps.bien = 0;
+    else if (media < 28 && pr > 1) { renderer.setPixelRatio(Math.max(1, pr - 0.25)); redimensionar(); fps.bien = 0; }
+    else if (media > 50 && pr < ratioBase && ++fps.bien >= 3) { renderer.setPixelRatio(Math.min(ratioBase, pr + 0.25)); redimensionar(); fps.bien = 0; }
     fps.t = 0; fps.n = 0;
   }
 }

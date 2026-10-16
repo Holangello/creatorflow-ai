@@ -141,6 +141,7 @@ export function crearMaqueta(ctx) {
       }
     }
     // Superficies de estancias: en el esquema, la foto 360 de la estancia (o su color); en el modelo, capa de resalte
+    const m2DeNodo = new Map();
     (t.estancias ?? []).forEach((e, i) => {
       if (!(e.poligono?.length > 2)) return;
       const forma = new THREE.Shape(e.poligono.map(([x, z]) => new THREE.Vector2(x, -z)));
@@ -157,6 +158,9 @@ export function crearMaqueta(ctx) {
       superficies.push(s);
       escena.add(s);
       if (nodo) conFoto(e, nodo, mat);
+      // con foto, el pin de la foto lleva el nombre y los m² (un solo rótulo por estancia); sin foto, el rótulo de vidrio
+      const conPin = nodo ?? nodoDe(e);
+      if (conPin && !m2DeNodo.has(conPin.id)) { m2DeNodo.set(conPin.id, ctx.superficie(areaPoligono(e.poligono))); return; }
       const [cx, cz] = puntoEtiqueta(e.poligono);
       const el = document.createElement("div");
       el.className = "maq-estancia c8-vidrio c8-vidrio--texto";
@@ -172,6 +176,7 @@ export function crearMaqueta(ctx) {
       b.type = "button";
       b.className = "maq-pin";
       b.textContent = ctx.texto(n.nombre);
+      if (m2DeNodo.has(n.id)) { const m = document.createElement("span"); m.className = "m2"; m.textContent = m2DeNodo.get(n.id); b.append(m); }
       b.setAttribute("aria-label", ctx.tr("nav.ir_a", { x: ctx.texto(n.nombre) }));
       b.onclick = () => ctx.alElegirNodo(n);
       capa.append(b);
@@ -232,6 +237,15 @@ export function crearMaqueta(ctx) {
   /** La casa entera a la vista con cualquier proporción de pantalla (V4): desde arriba y en diagonal, a la distancia a la
       que caben las 8 esquinas de su caja (con los muros) en el campo de visión vertical y en el horizontal. */
   const DIR = new THREE.Vector3(0.35, 1.05, 0.95).normalize();
+  /** Hueco libre de la pantalla para la casa: fracción útil (fx, fy) y la casa centrada en él con el desplazamiento de vista. */
+  function hueco() {
+    const W = innerWidth, H = innerHeight, rot = 56;
+    const m = ctx.margenes?.() ?? { arriba: 0, abajo: 0, izq: 0, der: 0 };
+    const fx = Math.max(0.45, 1 - (m.izq + m.der + 2 * rot) / W), fy = Math.max(0.45, 1 - (m.arriba + m.abajo + rot) / H);
+    camara.setViewOffset(W, H, (m.der - m.izq) / 2, (m.abajo - m.arriba) / 2, W, H);
+    camara.updateProjectionMatrix();
+    return { fx, fy };
+  }
   function encuadrar() {
     const caja = new THREE.Box3();
     for (const s of superficies) caja.expandByObject(s);
@@ -243,13 +257,15 @@ export function crearMaqueta(ctx) {
     camara.lookAt(centro);
     camara.updateMatrixWorld();
     const x = new THREE.Vector3().setFromMatrixColumn(camara.matrixWorld, 0), y = new THREE.Vector3().setFromMatrixColumn(camara.matrixWorld, 1);
-    const tv = Math.tan((camara.fov * Math.PI) / 360), th = tv * camara.aspect, p = new THREE.Vector3();
+    // El hueco libre: lo que no tapan la columna del título, los modos y la tarjeta (ctx.margenes), con medio rótulo de margen
+    const m = hueco();
+    const tv = Math.tan((camara.fov * Math.PI) / 360) * m.fy, th = Math.tan((camara.fov * Math.PI) / 360) * camara.aspect * m.fx, p = new THREE.Vector3();
     let d = 0;
     for (let i = 0; i < 8; i++) {
       p.set(i & 1 ? caja.max.x : caja.min.x, i & 2 ? caja.max.y : caja.min.y, i & 4 ? caja.max.z : caja.min.z).sub(centro);
       d = Math.max(d, p.dot(DIR) + Math.abs(p.dot(x)) / th, p.dot(DIR) + Math.abs(p.dot(y)) / tv);
     }
-    camara.position.copy(centro).addScaledVector(DIR, d * 1.1);
+    camara.position.copy(centro).addScaledVector(DIR, d * 1.05);
     // una finca con jardín en un teléfono en vertical pide más distancia que el tope de 80 m: el tope crece con el encuadre
     if (controles) { controles.maxDistance = Math.max(80, d * 1.65); controles.target.copy(centro); controles.update(); }
   }
@@ -338,7 +354,7 @@ export function crearMaqueta(ctx) {
       ctx.lienzo[si ? "addEventListener" : "removeEventListener"]("pointermove", alMover);
     },
     /** También al girar la pantalla: mientras el visitante no la haya movido, la maqueta se vuelve a encuadrar. */
-    redimensionar(aspecto) { camara.aspect = aspecto; camara.updateProjectionMatrix(); if (construida && !movida) encuadrar(); },
+    redimensionar(aspecto) { camara.aspect = aspecto; camara.updateProjectionMatrix(); if (construida && !movida) encuadrar(); else if (construida) hueco(); },
     cuadro,
     reiniciar() {
       if (activa && usaModelo && escena) escena.background = fondoPrevio ?? null;

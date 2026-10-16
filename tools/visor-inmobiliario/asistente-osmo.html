@@ -39,6 +39,7 @@
   section.paso { display: grid; gap: var(--e-4); }
   section.paso[hidden] { display: none; }
   section.paso h1:focus { outline: none; }
+  section.paso > .fase { display: none; } /* el selector de paso ya dice la fase: no repetirla encima del título */
   .fase { font: var(--peso-semi) var(--t-micro) / 1 var(--fuente); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-acento-texto); }
   h1 { margin: 0; font-size: var(--t-titulo-g); }
   h2 { margin: var(--e-3) 0 0; font-size: var(--t-titulo); }
@@ -84,7 +85,12 @@
   .pie .dentro { width: min(46rem - 2 * var(--e-4), 100%); margin: 0 auto; display: flex; justify-content: space-between; gap: var(--e-3); }
   .pie .c8-boton { flex: 1; max-width: 14rem; }
   .solo-grande { display: none; }
-  @media (min-width: 760px) { .solo-grande { display: inline-flex; } .solo-movil { display: none; } }
+  /* teléfono en horizontal: la cabecera no se pega y el pie adelgaza (se comían un tercio del alto) */
+  @media (orientation: landscape) and (max-height: 499.98px) {
+    .cabecera { position: static; }
+    .pie { padding-block: var(--e-1) calc(var(--e-1) + env(safe-area-inset-bottom, 0px)); }
+  }
+  @media (min-width: 600px) and (min-height: 500px), (hover: hover) and (pointer: fine) { .solo-grande { display: inline-flex; } .solo-movil { display: none; } }
 </style>
 </head>
 <body class="c8-base">
@@ -502,7 +508,7 @@
     url.hash = partes.join("&");
     return url.href;
   }
-  const pantallaGrande = () => matchMedia("(min-width: 760px)").matches;
+  const pantallaGrande = () => matchMedia("(min-width: 600px) and (min-height: 500px), (hover: hover) and (pointer: fine)").matches; // donde el Estudio funciona: ratón o tablet
   async function enviar() {
     const enlace = enlaceEstudio();
     const texto = "Lista de estancias para el Estudio de cre8eight";

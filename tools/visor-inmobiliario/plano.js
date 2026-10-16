@@ -134,7 +134,7 @@ export function crearPlano(canvas, ctx) {
     if (!W || !H) return;
     if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); }
     const C = (paleta ??= leerPaleta());
-    const letra = (peso, px) => `${peso} ${Math.round(px * 10) / 10}px ${C.fuente}`;
+    const letra = (peso, px) => `${peso} ${Math.round(Math.max(px, 12) * 10) / 10}px ${C.fuente}`; // nunca por debajo de 12 px
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, W, H);
     const T = transform(p, W, H);

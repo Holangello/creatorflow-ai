@@ -50,11 +50,12 @@
   /* Escala tipográfica (rem: escala con la pantalla y la talla) */
   /* Los tres pequeños con suelo: en el teléfono la raíz baja a 14 px (12,25 con S) y no se lee por debajo de 11 px.
      Manda el rem si es mayor, así que la letra grande del navegador se sigue respetando. */
-  --t-micro: max(0.6875rem, 11px);  /* 11 · etiquetas en mayúsculas */
-  --t-pie: max(0.75rem, 11px);      /* 12 · pies, sellos */
+  /* Suelos: nada por debajo de 12 px en ninguna talla (revisión de adaptación, UX-1). Manda el rem si es mayor. */
+  --t-micro: max(0.6875rem, 12px);  /* 11 · etiquetas en mayúsculas */
+  --t-pie: max(0.75rem, 12px);      /* 12 · pies, sellos */
   --t-sec: max(0.8125rem, 12px);    /* 13 · texto secundario */
-  --t-ui: 0.875rem;         /* 14 · botones, controles */
-  --t-cuerpo: 1rem;         /* 16 · texto */
+  --t-ui: max(0.875rem, 12.5px);    /* 14 · botones, controles */
+  --t-cuerpo: max(1rem, 14px);      /* 16 · texto */
   --t-destacado: 1.125rem;  /* 18 */
   --t-titulo: 1.375rem;     /* 22 · títulos de panel */
   --t-titulo-g: 1.75rem;    /* 28 */
@@ -94,6 +95,7 @@
   --icono-l: 1.5rem;
   --trazo-icono: 1.6;
   --toque-minimo: 44px;         /* WCAG 2.5.5: nunca menos en pantallas táctiles */
+  --toque-principal: 48px;      /* acción principal en táctil (Apple: 44 pt mínimo; Material: 48 dp) */
 
   /* Movimiento: muelles generados con amortiguación 0,78 (2 % de rebote) y 0,6 (9,5 %) */
   --muelle: linear(0, 0.004 1%, 0.024 2.5%, 0.057 4%, 0.099 5.5%, 0.205 8.5%, 0.441 14.5%, 0.553 17.5%, 0.653 20.5%,
@@ -161,8 +163,20 @@
 html { --talla: 1; font-size: calc(clamp(0.875em, 0.75vmin + 0.5625em, 1.5em) * var(--talla)); }
 html[data-talla="s"] { --talla: 0.875; }
 html[data-talla="l"] { --talla: 1.18; }
+/* Táctil (teléfono y tablet): la letra de iOS (subtítulo 15 pt, texto 16–17 pt) en lugar de la raíz fluida, que en el
+   teléfono deja los botones a 12 px. Sigue a la talla (S 13 · M 15 · L 17,7 en los botones) y nunca baja de los suelos;
+   en pantallas grandes manda el rem. */
+@media (pointer: coarse) {
+  :root {
+    --t-sec: max(0.8125rem, 12px, calc(13px * var(--talla)));
+    --t-ui: max(0.875rem, 12.5px, calc(15px * var(--talla)));
+    --t-cuerpo: max(1rem, 14px, calc(16px * var(--talla)));
+    --t-destacado: max(1.125rem, calc(17px * var(--talla)));
+  }
+}
 @media (pointer: coarse) {
   :root { --alto-control: max(2.75rem, var(--toque-minimo)); --alto-control-s: max(2.25rem, var(--toque-minimo)); }
+  .c8-boton--l { min-height: max(2.875rem, var(--toque-principal)); }
 }
 
 /* ------------------------------------------------------------------ Tema oscuro (por defecto) */
@@ -438,6 +452,9 @@ html[data-talla="l"] { --talla: 1.18; }
 /* El atributo hidden siempre oculta, aunque un componente declare su propio display (p. ej. .c8-aviso). */
 :where([hidden]) { display: none !important; }
 
+/* <small> sin tamaño propio: nunca por debajo del suelo de los pies (12 px) */
+:where(small) { font-size: max(0.8333em, var(--t-pie)); }
+
 /* ------------------------------------------------------------------ Base (opcional: <body class="c8-base">) */
 .c8-base {
   margin: 0;
@@ -586,7 +603,7 @@ html[data-talla="l"] { --talla: 1.18; }
   transition: background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), border-color var(--d-1) var(--suave),
     box-shadow var(--d-2) var(--suave), transform var(--d-3) var(--muelle), opacity var(--d-2) var(--suave);
 }
-.c8-boton:hover { --b-fondo: var(--c-capa-activa); }
+@media (hover: hover) and (pointer: fine) { .c8-boton:hover { --b-fondo: var(--c-capa-activa); } }
 .c8-boton:active { transform: scale(0.96); transition-duration: var(--d-1); }
 .c8-boton:focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; }
 .c8-boton:disabled, .c8-boton[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; transform: none; }
@@ -597,14 +614,14 @@ html[data-talla="l"] { --talla: 1.18; }
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 6px 18px color-mix(in srgb, var(--c-acento) 32%, transparent);
 }
 /* El hover genérico (0,2,0) no debe apagar el relleno de los botones de color */
-.c8-boton--primario:hover { --b-fondo: var(--c-acento); }
-.c8-boton--whatsapp:hover { --b-fondo: var(--c-whatsapp); }
-.c8-boton--primario:hover, .c8-boton--whatsapp:hover { filter: brightness(1.07) saturate(1.04); }
+@media (hover: hover) and (pointer: fine) { .c8-boton--primario:hover { --b-fondo: var(--c-acento); } }
+@media (hover: hover) and (pointer: fine) { .c8-boton--whatsapp:hover { --b-fondo: var(--c-whatsapp); } }
+@media (hover: hover) and (pointer: fine) { .c8-boton--primario:hover, .c8-boton--whatsapp:hover { filter: brightness(1.07) saturate(1.04); } }
 .c8-boton--secundario { --b-fondo: var(--c-capa-hover); --b-borde: var(--c-borde); }
 .c8-boton--fantasma { --b-fondo: transparent; }
-.c8-boton--fantasma:hover { --b-fondo: var(--c-capa-hover); }
+@media (hover: hover) and (pointer: fine) { .c8-boton--fantasma:hover { --b-fondo: var(--c-capa-hover); } }
 .c8-boton--peligro { --b-fondo: transparent; --b-texto: var(--c-error); --b-borde: color-mix(in srgb, var(--c-error) 45%, transparent); }
-.c8-boton--peligro:hover { --b-fondo: var(--c-error-fondo); }
+@media (hover: hover) and (pointer: fine) { .c8-boton--peligro:hover { --b-fondo: var(--c-error-fondo); } }
 .c8-boton--whatsapp { --b-fondo: var(--c-whatsapp); --b-texto: #fff; font-weight: var(--peso-semi); }
 .c8-boton--icono { padding: 0; width: var(--alto-control); }
 .c8-boton--icono .c8-icono { width: var(--icono); height: var(--icono); }
@@ -613,10 +630,11 @@ html[data-talla="l"] { --talla: 1.18; }
 /* Grande: acción principal de una pantalla (primera visita, pie de cada paso del Estudio) */
 .c8-boton--l { min-height: max(2.875rem, var(--alto-control)); padding: 0 var(--e-5); font-size: var(--t-cuerpo); }
 .c8-boton--bloque { display: flex; width: 100%; }
-.c8-boton[aria-pressed="true"] { --b-fondo: var(--c-acento); --b-texto: var(--c-sobre-acento); }
+/* lo elegido, sin color (como iOS): el dorado queda solo para la acción principal de cada pantalla */
+.c8-boton[aria-pressed="true"] { --b-fondo: var(--c-capa-activa); --b-texto: var(--c-texto); --b-borde: var(--c-borde-2); font-weight: var(--peso-semi); }
 /* Un botón que también es vidrio (p. ej. «Ampliar» del radar) conserva el material: --b-fondo no lo pisa (A3) */
 .c8-boton.c8-vidrio { --b-fondo: var(--vidrio); }
-.c8-boton.c8-vidrio:hover { --b-fondo: var(--vidrio-texto); }
+@media (hover: hover) and (pointer: fine) { .c8-boton.c8-vidrio:hover { --b-fondo: var(--vidrio-texto); } }
 /* Cargando: <button aria-busy="true"> */
 .c8-boton[aria-busy="true"] { color: transparent; pointer-events: none; }
 .c8-boton[aria-busy="true"]::after {
@@ -642,12 +660,12 @@ html[data-talla="l"] { --talla: 1.18; }
 }
 .c8-pastilla > .c8-separador { width: 1px; align-self: stretch; margin: var(--e-2) var(--e-1); background: var(--c-borde-2); }
 .c8-pastilla .c8-boton { --b-fondo: transparent; }
-.c8-pastilla .c8-boton:hover { --b-fondo: var(--c-capa-hover); }
+@media (hover: hover) and (pointer: fine) { .c8-pastilla .c8-boton:hover { --b-fondo: var(--c-capa-hover); } }
 /* Pulsado sin color, como en las barras de iOS: una cápsula de vidrio algo más clara… El estado lo dice sobre todo el
    símbolo, que contrasta con el vidrio como su texto (≥ 3:1 por construcción; WCAG 1.4.11, A7). El acento queda para la
    acción principal («Contactar», «Empezar visita»). */
 .c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-capa-activa); --b-texto: var(--c-texto); }
-.c8-pastilla .c8-boton[aria-pressed="true"]:hover { --b-fondo: var(--c-capa-activa); }
+@media (hover: hover) and (pointer: fine) { .c8-pastilla .c8-boton[aria-pressed="true"]:hover { --b-fondo: var(--c-capa-activa); } }
 /* …y el símbolo pasa a su variante rellena, como los «.fill» de SF Symbols: las partes marcadas con .relleno */
 .c8-icono .relleno { fill: none; stroke: none; transition: fill var(--d-2) var(--suave); }
 .c8-pastilla .c8-boton[aria-pressed="true"] .c8-icono .relleno { fill: currentColor; }
@@ -823,7 +841,7 @@ html[data-talla="l"] { --talla: 1.18; }
 }
 .c8-campo textarea { min-height: 5.5rem; resize: vertical; }
 .c8-campo ::placeholder, .c8-entrada::placeholder { color: var(--c-texto-3); opacity: 1; }
-.c8-campo :is(input, select, textarea):hover, .c8-entrada:hover { border-color: var(--c-texto-3); }
+@media (hover: hover) and (pointer: fine) { .c8-campo :is(input, select, textarea):hover, .c8-entrada:hover { border-color: var(--c-texto-3); } }
 .c8-campo :is(input, select, textarea):focus-visible, .c8-entrada:focus-visible {
   outline: none;
   border-color: var(--c-foco);
@@ -891,7 +909,7 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-dialogo {
   box-sizing: border-box;
   width: min(30rem, calc(100vw - 2rem));
-  max-height: min(85dvh, 48rem);
+  max-height: min(85dvh, 48rem, calc(var(--alto-visible, 100dvh) - 2rem)); /* tampoco bajo el teclado del móvil */
   padding: var(--e-6);
   border-radius: var(--r-5);
   color: var(--c-texto);

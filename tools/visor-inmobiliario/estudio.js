@@ -146,7 +146,9 @@ function pintarBarra() {
   $("#btn-deshacer").disabled = !puedeDeshacer();
   $("#btn-rehacer").disabled = !puedeRehacer();
   // «Publicar»: secundario hasta que haya fotos (S-3), principal después; dentro de Publicar, el principal es la descarga.
-  const enPublicar = app.seccion === "publicar", principal = app.tour.panoramas.length > 0 && !enPublicar;
+  // Y solo cuando no quedan pasos por corregir: con «Continuar → …» en dorado no compiten dos acciones principales.
+  const listo = !document.querySelector("#pasos .insignia:not(.aviso)");
+  const enPublicar = app.seccion === "publicar", principal = app.tour.panoramas.length > 0 && !enPublicar && listo;
   const bp = $("#btn-publicar");
   bp.classList.toggle("c8-boton--primario", principal);
   bp.classList.toggle("c8-boton--secundario", !principal);
@@ -369,6 +371,17 @@ function fijarDispositivo(d) {
 }
 try { if (localStorage.getItem("estudio:vista-dispositivo") === "movil") fijarDispositivo("movil"); } catch {}
 $("#vista-dispositivo").addEventListener("change", (e) => fijarDispositivo(e.target.value));
+// «Ordenador»: escala y centra la pantalla virtual de 1280×800 en el marco (estudio.css)
+{
+  const marco = $("#vista .vista-marco");
+  if (marco) new ResizeObserver(([e]) => {
+    const { width: w, height: hh } = e.contentRect, k = Math.min((w - 16) / 1280, (hh - 16) / 800, 1);
+    if (!(k > 0)) return;
+    marco.style.setProperty("--vista-k", String(k));
+    marco.style.setProperty("--vista-x", `${Math.round((w - 1280 * k) / 2)}px`);
+    marco.style.setProperty("--vista-y", `${Math.round((hh - 800 * k) / 2)}px`);
+  }).observe(marco);
+}
 $("#vista-nodo").onchange = (e) => { app.nodo = e.target.value; emitir("nodo", { origen: "selector" }); };
 $("#vista-plegar").append(icono("ampliar", 16));
 $("#vista-plegar").onclick = () => {
@@ -473,7 +486,7 @@ function mostrarAyuda() {
 // ------------------------------------------------------------------ móvil (S-9): el Estudio necesita un ordenador o un iPad
 // Solo en pantallas táctiles: un ordenador con el zoom al 200 % (o una ventana estrecha) sigue en el Estudio.
 function avisoMovil() {
-  const pequena = matchMedia("(pointer: coarse) and (max-width: 759px), (pointer: coarse) and (max-height: 479px)").matches;
+  const pequena = matchMedia("(pointer: coarse) and (max-width: 599.98px), (pointer: coarse) and (orientation: landscape) and (max-height: 499.98px)").matches; // «compacto» y táctil: el iPad mini (744) sí es iPad
   let seguir = false;
   try { seguir = sessionStorage.getItem("estudio:seguir-movil") === "si"; } catch {}
   if (!pequena || seguir) return;
@@ -488,7 +501,7 @@ function avisoMovil() {
   const d = h("dialog", { class: "aviso-movil c8-base", "aria-labelledby": "aviso-movil-titulo", "aria-describedby": "aviso-movil-texto" },
     h("div", { class: "aviso-movil-contenido" },
       h("span", { class: "logo-e grande", "aria-hidden": "true", text: "c8" }),
-      h("h1", { id: "aviso-movil-titulo", text: "El Estudio necesita un ordenador o un iPad" }),
+      h("h1", { id: "aviso-movil-titulo", tabindex: "-1", autofocus: true, text: "El Estudio necesita un ordenador o un iPad" }), // el foco al título: se lee primero y no enciende ningún botón
       h("p", { id: "aviso-movil-texto", text: "Aquí se preparan las fotos 360, el plano y la publicación: en una pantalla tan pequeña cuesta mucho. Envíate el enlace y ábrelo en el ordenador." }),
       h("button", { type: "button", class: "c8-boton c8-boton--primario c8-boton--bloque", onclick: async () => {
         if (navigator.share) { try { await navigator.share({ title: asunto, url: enlace }); return; } catch (e) { if (e?.name === "AbortError") return; } }

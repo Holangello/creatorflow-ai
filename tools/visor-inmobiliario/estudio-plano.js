@@ -9,12 +9,20 @@ import { campoTexto, campo } from "./estudio-campos.js";
 import { leerDxf, sugerirUnidades, extension, aMetros, renderizar, FACTOR } from "./estudio-dxf.js";
 
 const HERRAMIENTAS = [
-  { id: "sel", nombre: "Seleccionar", tecla: "V", icono: "cursor", pista: "Arrastra fotos y esquinas para ajustarlas. Rueda = zoom; arrastra el fondo para moverte. Supr borra lo seleccionado." },
-  { id: "calibrar", nombre: "Calibrar", tecla: "K", icono: "regla", pista: "Haz clic en los dos extremos de una medida que conozcas (p. ej. una pared) del plano." },
-  { id: "estancia", nombre: "Estancia", tecla: "E", icono: "poligono", pista: "Clic en cada esquina. Doble clic, Enter o clic en el primer punto para cerrar. Retroceso quita el último punto." },
-  { id: "muro", nombre: "Muro", tecla: "M", icono: "muro", pista: "Clic para empezar y en cada esquina. Se ajusta a 90° (Shift para ángulo libre). Esc o doble clic para terminar." },
-  { id: "enlace", nombre: "Conectar", tecla: "L", icono: "enlace", pista: "Toca una foto y luego otra para conectarlas (o desconectarlas). Shift para encadenar." },
+  { id: "sel", nombre: "Seleccionar", tecla: "V", icono: "cursor", pista: "Arrastra fotos y esquinas para ajustarlas. Rueda = zoom; arrastra el fondo para moverte. Supr borra lo seleccionado.",
+    pistaTactil: "Arrastra fotos y esquinas para ajustarlas. Pellizca para acercar y arrastra el fondo para moverte." },
+  { id: "calibrar", nombre: "Calibrar", tecla: "K", icono: "regla", pista: "Haz clic en los dos extremos de una medida que conozcas (p. ej. una pared) del plano.",
+    pistaTactil: "Toca los dos extremos de una medida que conozcas (p. ej. una pared) del plano." },
+  { id: "estancia", nombre: "Estancia", tecla: "E", icono: "poligono", pista: "Clic en cada esquina. Doble clic, Enter o clic en el primer punto para cerrar. Retroceso quita el último punto.",
+    pistaTactil: "Toca cada esquina. Toca el primer punto para cerrar la estancia." },
+  { id: "muro", nombre: "Muro", tecla: "M", icono: "muro", pista: "Clic para empezar y en cada esquina. Se ajusta a 90° (Shift para ángulo libre). Esc o doble clic para terminar.",
+    pistaTactil: "Toca para empezar y en cada esquina. Se ajusta a 90°. Toca dos veces para terminar." },
+  { id: "enlace", nombre: "Conectar", tecla: "L", icono: "enlace", pista: "Toca una foto y luego otra para conectarlas (o desconectarlas). Shift para encadenar.",
+    pistaTactil: "Toca una foto y luego otra para conectarlas (o desconectarlas)." },
 ];
+/** En táctil (iPad) las pistas hablan del dedo: sin rueda, Supr, Shift ni doble clic. */
+const TACTIL = matchMedia("(pointer: coarse)");
+const cancelar = (tactil) => (TACTIL.matches ? tactil : "Esc para cancelar");
 /** Colores de categoría de las estancias (datos): paleta validada (azul, naranja, aguamarina, amarillo, magenta, verde, violeta,
  *  rojo), con su versión para el tema oscuro. Solo distinguen una estancia de otra: el nombre y los m² van siempre rotulados. */
 const COLORES_EST = {
@@ -129,9 +137,9 @@ function pintarHerramientas() {
   }, icono(t.icono, 16), h("span", { text: t.nombre }), h("kbd", { text: t.tecla }))));
   const herr = HERRAMIENTAS.find((t) => t.id === S.herr);
   const hayPorColocar = app.tour.panoramas.some((p) => !colocado(p));
-  pista.textContent = S.colocando ? `Toca en el plano el punto donde pusiste la cámara para «${nombreDe(pano(S.colocando))}» (Esc para cancelar).`
-    : S.herr === "enlace" && S.enlaceDesde ? `Ahora toca la foto que quieres conectar con «${nombreDe(pano(S.enlaceDesde))}» (Esc para cancelar).`
-      : S.herr === "sel" && hayPorColocar ? "Arrastra cada foto al punto del plano donde pusiste la cámara." : herr.pista;
+  pista.textContent = S.colocando ? `Toca en el plano el punto donde pusiste la cámara para «${nombreDe(pano(S.colocando))}» (${cancelar("vuelve a tocar «Toca el plano…» para cancelar")}).`
+    : S.herr === "enlace" && S.enlaceDesde ? `Ahora toca la foto que quieres conectar con «${nombreDe(pano(S.enlaceDesde))}» (${cancelar("toca un hueco vacío para cancelar")}).`
+      : S.herr === "sel" && hayPorColocar ? "Arrastra cada foto al punto del plano donde pusiste la cámara." : (TACTIL.matches && herr.pistaTactil) || herr.pista;
   const pl = planta();
   avisoEscala.hidden = !(pl?.plano?.imagen && !app.tour._estudio.calibrado?.[pl.id]) || S.herr === "calibrar";
   avisoEscala.replaceChildren(icono("regla", 18), h("span", { class: "estirar" }, "Escala sin calibrar: haz clic en «Calibrar» y marca una medida conocida para que las distancias y los m² sean reales."),
@@ -812,8 +820,10 @@ function ajustarMuro(a, pt) {
 }
 
 // ------------------------------------------------------------------ hit test
+// Con el dedo el radio crece (un dedo cubre ~44 px; los radios son de ratón); con lápiz, algo.
+const tol = (px) => px * (S.puntero === "touch" ? 2.4 : S.puntero === "pen" ? 1.4 : 1);
 function nodoEn(sx, sy) {
-  let mejor = null, d = 15;
+  let mejor = null, d = tol(15);
   for (const p of app.tour.panoramas) {
     if (!colocado(p) || !enPlanta(p)) continue;
     const [px, py] = aPantalla(p.x, p.z);
@@ -827,7 +837,7 @@ function verticeEn(sx, sy, soloSel) {
     if (soloSel && !(S.sel?.tipo === "estancia" && S.sel.id === e.id)) continue;
     for (let i = 0; i < e.poligono.length; i++) {
       const [vx, vy] = aPantalla(...e.poligono[i]);
-      if (Math.hypot(vx - sx, vy - sy) < 9) return { id: e.id, i };
+      if (Math.hypot(vx - sx, vy - sy) < tol(9)) return { id: e.id, i };
     }
   }
   return null;
@@ -839,14 +849,14 @@ function distSeg(px, py, ax, ay, bx, by) {
 }
 function muroEn(sx, sy) {
   const ms = planta()?.muros ?? [];
-  for (let i = ms.length - 1; i >= 0; i--) { const [a, b] = [aPantalla(ms[i][0], ms[i][1]), aPantalla(ms[i][2], ms[i][3])]; if (distSeg(sx, sy, ...a, ...b).d < Math.max(6, 0.08 * S.esc)) return i; }
+  for (let i = ms.length - 1; i >= 0; i--) { const [a, b] = [aPantalla(ms[i][0], ms[i][1]), aPantalla(ms[i][2], ms[i][3])]; if (distSeg(sx, sy, ...a, ...b).d < Math.max(tol(6), 0.08 * S.esc)) return i; }
   return -1;
 }
 function bordeEn(sx, sy, e) {
   for (let i = 0; i < e.poligono.length; i++) {
     const a = aPantalla(...e.poligono[i]), b = aPantalla(...e.poligono[(i + 1) % e.poligono.length]);
     const r = distSeg(sx, sy, ...a, ...b);
-    if (r.d < 7) return { i, t: r.t };
+    if (r.d < tol(7)) return { i, t: r.t };
   }
   return null;
 }
@@ -857,7 +867,7 @@ function enlaceEn(sx, sy) {
     const [a, b] = k.split("|").map(pano);
     if (!a || !b || !colocado(a) || !colocado(b) || !enPlanta(a) || !enPlanta(b)) continue;
     const r = distSeg(sx, sy, ...aPantalla(a.x, a.z), ...aPantalla(b.x, b.z));
-    if (r.d < 6 && r.t > 0.15 && r.t < 0.85) return [a.id, b.id];
+    if (r.d < tol(6) && r.t > 0.15 && r.t < 0.85) return [a.id, b.id];
   }
   return null;
 }
@@ -883,7 +893,9 @@ function eventosLienzo() {
     const [sx, sy] = posEvento(e);
     S.punteros.set(e.pointerId, [sx, sy]);
     S.shift = e.shiftKey;
-    if (S.punteros.size === 2) { // pellizco
+    S.puntero = e.pointerType;
+    if (S.punteros.size === 2) { // pellizco: lo que iba a hacer el primer dedo no cuenta
+      S.pendiente = null;
       const [a, b] = [...S.punteros.values()];
       S.arrastre = { tipo: "pellizco", d: Math.hypot(a[0] - b[0], a[1] - b[1]), c: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] };
       return;
@@ -897,7 +909,7 @@ function eventosLienzo() {
       if (v) {
         if (e.altKey) { borrarVertice(v); return; }
         S.sel = { tipo: "estancia", id: v.id }; pintarLado();
-        S.arrastre = { tipo: "vertice", ...v, clave }; return;
+        S.arrastre = { tipo: "vertice", ...v, clave, sx, sy, movido: false }; return;
       }
       const n = nodoEn(sx, sy);
       if (n) { seleccionarNodo(n.id); S.arrastre = { tipo: "nodo", id: n.id, clave, sx, sy, movido: false, dx: n.x - mundo[0], dz: n.z - mundo[1] }; return; }
@@ -907,11 +919,19 @@ function eventosLienzo() {
       if (est) { S.sel = { tipo: "estancia", id: est.id }; pintarLado(); marcar(); S.arrastre = { tipo: "estancia", id: est.id, clave, ini: mundo, orig: structuredClone(est.poligono), movido: false }; return; }
       S.sel = null; pintarLado(); marcar();
       S.arrastre = { tipo: "pan", sx, sy, ox: S.ox, oy: S.oy }; c.style.cursor = "grabbing";
-    } else if (S.herr === "estancia") {
+    } else {
+      // con el dedo, las herramientas de dibujo actúan al levantarlo: si llega un segundo dedo es un pellizco y no dibuja
+      if (e.pointerType === "touch") { S.pendiente = { id: e.pointerId, sx, sy, shift: e.shiftKey }; return; }
+      accionHerramienta(sx, sy, mundo, e.shiftKey);
+    }
+  });
+  /** Estancia, muro, calibrar y conectar: lo que hace un clic (o un toque, al levantar el dedo) en el lienzo. */
+  function accionHerramienta(sx, sy, mundo, shift) {
+    if (S.herr === "estancia") {
       const pt = ajustarPunto(mundo, true);
       if (S.borrador.length >= 3) {
         const [fx, fy] = aPantalla(...S.borrador[0]);
-        if (Math.hypot(fx - sx, fy - sy) < 10) { cerrarEstancia(); return; }
+        if (Math.hypot(fx - sx, fy - sy) < tol(10)) { cerrarEstancia(); return; }
       }
       const u = S.borrador.at(-1);
       if (u && Math.hypot(u[0] - pt[0], u[1] - pt[1]) * S.esc < 4) return;
@@ -938,10 +958,10 @@ function eventosLienzo() {
       const ya = calcularEnlaces().efectivos.has(claveEnlace(S.enlaceDesde, n.id));
       alternarEnlace(S.enlaceDesde, n.id);
       toast(ya ? `Desconectadas: ${nombreDe(pano(S.enlaceDesde))} ↔ ${nombreDe(n)}` : `Conectadas: ${nombreDe(pano(S.enlaceDesde))} ↔ ${nombreDe(n)}`, ya ? "info" : "ok");
-      S.enlaceDesde = e.shiftKey ? n.id : null;
+      S.enlaceDesde = shift ? n.id : null;
       pintarHerramientas(); pintarLado(); marcar();
     }
-  });
+  }
   c.addEventListener("pointermove", (e) => {
     const [sx, sy] = posEvento(e);
     S.shift = e.shiftKey;
@@ -956,13 +976,15 @@ function eventosLienzo() {
     }
     if (A?.tipo === "pan") { S.ox = A.ox + sx - A.sx; S.oy = A.oy + sy - A.sy; marcar(); return; }
     if (A?.tipo === "nodo") {
-      if (!A.movido && Math.hypot(sx - A.sx, sy - A.sy) < 3) return;
+      if (!A.movido && Math.hypot(sx - A.sx, sy - A.sy) < (S.puntero === "touch" ? 8 : 3)) return;
       A.movido = true;
       const [x, z] = aMundo(sx, sy);
       cambiar(() => { const p = pano(A.id); p.x = redondear(x + A.dx, 3); p.z = redondear(z + A.dz, 3); }, { clave: A.clave, tipo: "local", render: false });
       marcar(); return;
     }
     if (A?.tipo === "vertice") {
+      if (!A.movido && S.puntero === "touch" && Math.hypot(sx - A.sx, sy - A.sy) < 8) return;
+      A.movido = true;
       const pt = ajustarPunto(aMundo(sx, sy), false, A);
       cambiar(() => { const est = app.tour.estancias.find((x) => x.id === A.id); est.poligono[A.i] = [redondear(pt[0], 3), redondear(pt[1], 3)]; }, { clave: A.clave, tipo: "local", render: false });
       marcar(); return;
@@ -980,7 +1002,20 @@ function eventosLienzo() {
     else c.style.cursor = "crosshair";
     if (S.herr !== "sel") marcar();
   });
+  let ultimoToque = null;
   const fin = (e) => {
+    const p = S.pendiente;
+    if (p?.id === e.pointerId) {
+      S.pendiente = null;
+      const [sx, sy] = posEvento(e);
+      if (e.type === "pointerup" && Math.hypot(sx - p.sx, sy - p.sy) < 10) {
+        const ahora = performance.now(), doble = ultimoToque && ahora - ultimoToque.t < 350 && Math.hypot(sx - ultimoToque.sx, sy - ultimoToque.sy) < 24;
+        ultimoToque = doble ? null : { t: ahora, sx, sy };
+        if (doble && S.herr === "estancia" && S.borrador.length >= 3) cerrarEstancia();
+        else if (doble && S.herr === "muro") { S.borrador = []; marcar(); }
+        else accionHerramienta(p.sx, p.sy, aMundo(p.sx, p.sy), p.shift);
+      }
+    }
     S.punteros.delete(e.pointerId);
     const A = S.arrastre;
     S.arrastre = null;

@@ -8,7 +8,7 @@
      cre8eight:sonidos        si | no    (efectos de sonido de la interfaz: sonidos.js)
    Prioridad: ?tema= / ?talla= en la URL (p. ej. al incrustar en la web de la agencia) > lo que eligió el visitante
    > lo que propone el tour (cre8Tema.porDefecto) > automático.
-   API: window.cre8Tema = { preferencias, efectivo, fijar(clave, valor), porDefecto({…}), alCambiar(fn) → quitar, deslizador(el), segmentados(raíz), OPCIONES }
+   API: window.cre8Tema = { MQ, forma(), preferencias, efectivo, fijar(clave, valor), porDefecto({…}), alCambiar(fn) → quitar, deslizador(el), segmentados(raíz), OPCIONES }
    y el evento "cre8:tema" en document. */
 (function () {
   "use strict";
@@ -238,8 +238,44 @@
     return alto;
   }
 
+  // ---------------------------------------------------------------- puntos de corte del sistema
+  // docs/diseno/sistema.md § Puntos de corte. Los mismos literales en el CSS (visor.css, paneles.css, estudio.css y la
+  // Guía); pruebas/puntos-corte.mjs rechaza cualquier otro. Topes en .98 y mínimos enteros: sin huecos con el zoom.
+  var MQ = {
+    telefono: "(max-width: 599.98px)",                                   // teléfono en vertical (el mayor mide 430)
+    apaisado: "(orientation: landscape) and (max-height: 499.98px)",     // teléfono en horizontal y ventanas muy bajas
+    compacto: "(max-width: 599.98px), (orientation: landscape) and (max-height: 499.98px)",
+    vertical: "(orientation: portrait) and (max-width: 1100px)",         // tablet en vertical (iPad Pro de 13" incluido)
+    hoja: "(max-width: 719.98px) and (min-height: 500px), (orientation: portrait) and (max-width: 1100px)",
+    estrecho: "(orientation: landscape) and (max-width: 62em) and (min-height: 500px)",
+    tactil: "(pointer: coarse)", raton: "(hover: hover) and (pointer: fine)", algunTactil: "(any-pointer: coarse)",
+  };
+  function forma() {
+    return consulta(MQ.apaisado).matches ? "apaisado" : consulta(MQ.telefono).matches ? "telefono"
+      : consulta(MQ.vertical).matches ? "vertical" : consulta(MQ.estrecho).matches ? "estrecho" : "escritorio";
+  }
+  function marcarForma() { document.documentElement.setAttribute("data-forma", forma()); }
+  marcarForma();
+  ["apaisado", "telefono", "vertical", "estrecho"].forEach(function (k) { var m = consulta(MQ[k]); if (m.addEventListener) m.addEventListener("change", marcarForma); });
+
+  // ---------------------------------------------------------------- teclado del móvil
+  // El alto que tapa el teclado (--teclado) y el alto visible (--alto-visible), y html[data-teclado] mientras está abierto:
+  // los diálogos y hojas se colocan encima en vez de quedar debajo.
+  var vv = window.visualViewport;
+  if (vv) {
+    var alTeclado = function () {
+      var r = document.documentElement, tapa = Math.max(0, Math.round(r.clientHeight - vv.height - vv.offsetTop));
+      r.style.setProperty("--teclado", (tapa > 80 ? tapa : 0) + "px");
+      r.style.setProperty("--alto-visible", Math.round(vv.height) + "px");
+      if (tapa > 80) r.setAttribute("data-teclado", ""); else r.removeAttribute("data-teclado");
+    };
+    vv.addEventListener("resize", alTeclado); vv.addEventListener("scroll", alTeclado); alTeclado();
+  }
+
   window.cre8Tema = {
     OPCIONES: OPCIONES,
+    /** Puntos de corte con nombre (los mismos literales que el CSS) y la forma actual: telefono|apaisado|vertical|estrecho|escritorio. */
+    MQ: MQ, forma: forma,
     /** Vidrio adaptativo por pieza: exigencias(pieza) → lista; alfa(lista, tinte, l10, l90, suelo, techo, filtro) → alfa. */
     vidrio: { exigencias: exigencias, alfa: alfaVidrio, esmerilar: esmerilar, aRgb: aRgb, razon: razon, HOLGURA: HOLGURA },
     get preferencias() { return preferencias(); },

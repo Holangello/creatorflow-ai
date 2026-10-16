@@ -1083,7 +1083,7 @@ try {
     if (await p.$(SEL.portadaEmpezar)) await p.click(SEL.portadaEmpezar);
     inf.ok(await p.evaluate(() => document.querySelector("#btn-ampliar").getBoundingClientRect().width >= 43.5), "en táctil, «Ampliar» del radar mide 44 px (A21)");
     await p.evaluate(() => window.visor.modo("maqueta"));
-    await esperar(p, () => document.querySelectorAll(".maq-estancia").length > 0, null, 30000);
+    await esperar(p, () => document.querySelectorAll(".maq-estancia, .maq-pin").length > 0, null, 30000); // un rótulo por estancia: en el pin si tiene foto
     const dentro = () => p.evaluate(() => [...document.querySelectorAll(".maq-estancia, .maq-pin")].filter((e) => { const r = e.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth || r.top < 0 || r.bottom > innerHeight; }).map((e) => e.textContent));
     // la maqueta se encuadra al momento; las etiquetas se colocan en el fotograma siguiente (sin GPU puede tardar segundos)
     const todasDentro = () => esperar(p, () => ![...document.querySelectorAll(".maq-estancia, .maq-pin")].some((e) => {

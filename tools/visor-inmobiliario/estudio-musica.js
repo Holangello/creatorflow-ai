@@ -1,7 +1,7 @@
 // Música de fondo del proyecto: tour.audio.musica = { archivo, volumen, bucle, autoplay, titulo, autor, licencia }.
 // La casilla de licencia es interna del Estudio (tour._estudio.musicaLicencia) y «Antes de publicar» avisa si falta.
 import { slug } from "./estudio-util.js";
-import { app, h, icono, cambiar, toast, confirmar, guardarArchivo, urlDe, rutaLibre, elegirArchivos, fmtMB, deslizador } from "./estudio-nucleo.js";
+import { app, h, icono, cambiar, toast, confirmar, guardarArchivo, urlDe, rutaLibre, elegirArchivos, fmtMB, deslizador, textoDe } from "./estudio-nucleo.js";
 import { campo } from "./estudio-campos.js";
 
 const TIPOS = /\.(mp3|m4a|aac|ogg|oga|wav)$/i;
@@ -60,7 +60,7 @@ export function bloqueMusica() {
     pintarAviso();
     cont.replaceChildren(...[
       h("div", { class: "fila" },
-        h("b", { class: "estirar cortar", text: m.titulo || m.archivo.split("/").pop() }),
+        h("b", { class: "estirar cortar", text: textoDe(m.titulo) || m.archivo.split("/").pop() }),
         h("span", { class: "tenue", text: blob ? fmtMB(blob.size) : "" }),
         h("button", { type: "button", class: "c8-boton c8-boton--secundario c8-boton--s", onclick: () => subirMusica(pintar) }, "Cambiar"),
         h("button", { type: "button", class: "c8-boton c8-boton--fantasma c8-boton--s", onclick: async () => {
