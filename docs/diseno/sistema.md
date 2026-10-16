@@ -199,6 +199,15 @@ Referencias del cliente (16/10): vidrio blanco muy transparente en claro, el mis
   su verde; lo elegido (segmentado, `aria-pressed`) es una **gota** de cristal más clara con canto del color del texto
   (`--vidrio-gota`, `--vidrio-gota-sombra`), sin dorado; el pomo de la barra del sol y los pines de la maqueta son gotas;
   los carriles (`--c-pista`, `--c-segmento`) son translúcidos.
+- **El material, de atrás adelante** (auditoría `docs/auditorias/cristal-realismo.md`): esmerilado con desenfoque por talla
+  (`--vidrio-desenfoque-s/m/l`: rótulos 10 px, barras y píldoras 18, paneles 28; en transparente 6/10/16), saturación 108 %,
+  contraste 0,74 y brillo 1,08 (claro) / 0,72 (oscuro); tinte 250 251 253 / 24 26 30 con suelos de alfa 0,44·0,36·0,52 (claro)
+  y 0,40·0,32·0,48 (oscuro); luz vertical (`--vidrio-luz-vertical`) y grano (`--vidrio-grano`, ruido SVG al 6–8 %) como capas
+  de `background-image` en la caja de relleno; el canto (`--vidrio-canto`) pintado en la caja del borde (`border-box`), en los
+  cuatro lados y sin que ningún `overflow` lo recorte; grosor con `--vidrio-volumen` (filo de luz, relieve de 2 px, brillo);
+  sombras en tres capas (contacto, cercana, ambiente: `--sombra-1/2/3`). Una pieza que quiera otro relleno fija
+  `--vidrio-relleno`, nunca `background`. Sobre el ambiente conocido (`<body data-ambiente>`: Estudio y Guía) no hay
+  contraste ni saturación. El botón principal es la pieza más de cristal: luz radial, anillo, halo y sombra.
 - **Verde y rojo de estado:** `--c-on` (verde de iOS) y `--c-off` (rojo): los interruptores van rojos muy sutiles apagados y
   verdes encendidos; los botones de encender/apagar de las pastillas (radar, sonido, pantalla completa…) llevan un canto
   verde cuando están encendidos; el progreso de la Guía es verde. Nada más lleva color: minimalismo.

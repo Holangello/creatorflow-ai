@@ -204,6 +204,7 @@ export const diccionario = {
     "ajustes.reducir_transparencia": "Reducir transparencia",
     "ajustes.transparencia_nota": "Paneles opacos, más fáciles de leer.",
     "aviso.giroscopio_on": "Mueve el móvil para mirar alrededor",
+    "aviso.giroscopio_sin_datos": "Aquí no llegan datos de movimiento: ábrelo en el navegador del móvil, fuera de la vista previa",
     "aviso.giroscopio_off": "Vuelves a mirar arrastrando",
     "mas.titulo": "Más",
     // Núcleo (fase 3): modo juego, barra de vista, «Estancias y plano», portada y ayuda contextual
@@ -418,6 +419,7 @@ export const diccionario = {
     "ajustes.reducir_transparencia": "Reduce transparency",
     "ajustes.transparencia_nota": "Solid panels that are easier to read.",
     "aviso.giroscopio_on": "Move your phone to look around",
+    "aviso.giroscopio_sin_datos": "No motion data here: open it in your phone’s browser, outside the preview",
     "aviso.giroscopio_off": "Drag to look around again",
     "mas.titulo": "More",
     // Núcleo (fase 3): modo juego, barra de vista, «Estancias y plano», portada y ayuda contextual
@@ -631,6 +633,7 @@ export const diccionario = {
     "ajustes.reducir_transparencia": "Réduire la transparence",
     "ajustes.transparencia_nota": "Panneaux opaques, plus faciles à lire.",
     "aviso.giroscopio_on": "Bougez votre téléphone pour regarder autour",
+    "aviso.giroscopio_sin_datos": "Aucune donnée de mouvement ici : ouvrez-le dans le navigateur du téléphone, hors de l’aperçu",
     "aviso.giroscopio_off": "Faites glisser pour regarder autour",
     "mas.titulo": "Plus",
     // Núcleo (fase 3): modo juego, barra de vista, «Estancias y plano», portada y ayuda contextual
@@ -846,6 +849,7 @@ export const diccionario = {
     "ajustes.reducir_transparencia": "Transparenz reduzieren",
     "ajustes.transparencia_nota": "Undurchsichtige Bedienfelder, besser lesbar.",
     "aviso.giroscopio_on": "Bewegen Sie Ihr Handy, um sich umzusehen",
+    "aviso.giroscopio_sin_datos": "Hier kommen keine Bewegungsdaten an: im Browser des Handys öffnen, außerhalb der Vorschau",
     "aviso.giroscopio_off": "Zum Umsehen wieder ziehen",
     "mas.titulo": "Mehr",
     // Núcleo (fase 3): modo juego, barra de vista, «Estancias y plano», portada y ayuda contextual

@@ -141,7 +141,8 @@ try {
           for (const [l10, l90] of FONDOS) {
             const a = V.alfa(lista, tinte, l10, l90, suelo, techo, filtro);
             pieza.style.setProperty("--vidrio-a", String(a));
-            const fondoCss = getComputedStyle(pieza).backgroundColor;
+            // el tinte del vidrio con su alfa (el fondo CSS es ahora en capas: grano, luz y canto sobre el tinte, sin background-color)
+            const fondoCss = `rgba(${tinte[0]}, ${tinte[1]}, ${tinte[2]}, ${a})`;
             for (const l of [l10, l90]) {
               const esm = V.esmerilar(gris(l).match(/\d+/g).map(Number), filtro).map(Math.round);
               const fondo = pintar(fondoCss, `rgb(${esm})`);
@@ -162,7 +163,7 @@ try {
       }, { tema, aspecto, marca, FONDOS });
       fallos += r.fallos.length;
       console.log(`${r.fallos.length ? "✗" : "✓"} ${tema}${aspecto ? ` (aspecto ${aspecto})` : ""}${marca ? ` · marca ${marca}` : ""} · vidrio por pieza en ${FONDOS.length} fondos: ${Object.entries(r.peor).map(([k, v]) => `${k} ≥ ${v.toFixed(2)}`).join(" · ")}`);
-      for (const f of r.fallos.slice(0, 6)) console.log(`   ✗ ${f}`);
+      for (const f of r.fallos.slice(0, Number(process.env.FALLOS ?? 6))) console.log(`   ✗ ${f}`);
     }
     // El esmerilado que se supone en el cálculo es el que pinta el navegador: grises lisos bajo una capa con el
     // backdrop-filter del vidrio, medidos en una captura de pantalla (contrast() y brightness() en sRGB)

@@ -95,7 +95,7 @@ body.raton-capturado #lienzo { cursor: none; }
 #sol .riel .foto { position: absolute; top: 50%; left: calc(var(--f, 0) * 100%); width: 0.125rem; height: 0.625rem; translate: -50% -50%; border-radius: 1px; background: var(--c-texto); }
 #sol .pomo { position: absolute; bottom: 0.1875rem; left: calc(var(--t, 0) * (100% - var(--k))); width: var(--k); height: 1.25rem; border-radius: var(--r-pastilla);
   background: var(--vidrio-gota); color: var(--c-texto); font: var(--peso-semi) var(--t-pie) / 1.25rem var(--fuente); text-align: center; letter-spacing: 0; pointer-events: none;
-  -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: var(--vidrio-filtro-gota); backdrop-filter: var(--vidrio-filtro-gota);
   box-shadow: var(--vidrio-gota-sombra); transition: scale var(--d-2) var(--muelle); }
 #sol .pista.arrastrando .pomo { scale: 1.08; }
 #sol .pista:focus-visible .pomo { outline: 2px solid var(--c-foco); outline-offset: 2px; }
@@ -103,10 +103,16 @@ body:is(.guion-activo, .midiendo) #sol { display: none; }
 
 #radar { position: relative; width: var(--radar); aspect-ratio: 1; flex: none; }
 #radar .disco { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
+/* lente: anillo claro nítido y luz en el borde, como una lupa (el canto del vidrio lo recortaba el overflow) */
+#radar .disco.c8-vidrio { box-shadow: var(--vidrio-volumen), inset 0 0 0 1.5px rgba(255, 255, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.22), var(--sombra-2); }
+:root[data-tema="claro"] #radar .disco.c8-vidrio { box-shadow: var(--vidrio-volumen), inset 0 0 0 1.5px rgba(255, 255, 255, 0.95), inset 0 0 16px rgba(255, 255, 255, 0.5), var(--sombra-2); }
+/* tallas del esmerilado (A6): rótulos S, barras y píldoras M; paneles y diálogos siguen con L */
+.etq, .info, #precio-juego, #sello-ia, #btn-ampliar { --vidrio-desenfoque: var(--vidrio-desenfoque-s); }
+#lugar, #sol, #modos, #barra-vista, #guion-barra, #galeria, #rotulo, #subtitulo, #radar .disco { --vidrio-desenfoque: var(--vidrio-desenfoque-m); }
 /* Sin rótulos (radar de menos de 130 px: plano.js pone data-sin-rotulos) solo lleva trazos y la «N»: vidrio de icono (≥ 3:1).
    Sin backdrop-filter, todo el vidrio pasa a --vidrio-denso (tema.css): esta regla no entra. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  #radar .disco.c8-vidrio[data-sin-rotulos] { background: var(--vidrio); }
+  #radar .disco.c8-vidrio[data-sin-rotulos] { --vidrio-relleno: var(--vidrio); }
 }
 #mapa { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
 /* «Ampliar»: 36 px como mínimo y 44 en táctil, el --alto-control-s de tema.css (A21) */
@@ -332,17 +338,17 @@ body:not(.foco-tab) #portada .empezar:focus-visible { outline: none; }
   color: var(--c-texto); font: var(--peso-medio) var(--t-sec) / 1 var(--fuente); white-space: nowrap; pointer-events: auto;
   transition: opacity var(--d-3) var(--suave), background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), scale var(--d-3) var(--muelle-rebote); }
 /* Señalado, sin color: en negativo (relleno del color del texto), como el aro de su flecha, que se ilumina */
-.etq.c8-vidrio:is(:focus-visible, .resaltada) { background: var(--c-texto); color: var(--c-sobre-texto); border-color: transparent; }
-@media (hover: hover) and (pointer: fine) { .etq.c8-vidrio:hover { background: var(--c-texto); color: var(--c-sobre-texto); border-color: transparent; } }
+.etq.c8-vidrio:is(:focus-visible, .resaltada) { --vidrio-relleno: var(--c-texto); color: var(--c-sobre-texto); }
+@media (hover: hover) and (pointer: fine) { .etq.c8-vidrio:hover { --vidrio-relleno: var(--c-texto); color: var(--c-sobre-texto); } }
 .etq:active { scale: 0.95; }
 .etq::after { content: ""; position: absolute; inset: -0.625rem; } /* área táctil ampliada */
 /* Punto de interés: vidrio redondo con la «i» y un halo de luz alrededor para que se descubra; en negativo al señalarlo */
 .info { position: absolute; width: 2.25rem; height: 2.25rem; translate: -50% -50%; display: grid; place-items: center; padding: 0; border-radius: 50%;
   color: var(--c-texto); font: var(--peso-fuerte) var(--t-cuerpo) / 1 var(--fuente-titular); pointer-events: auto;
   transition: opacity var(--d-3) var(--suave), background-color var(--d-1) var(--suave), color var(--d-1) var(--suave), scale var(--d-3) var(--muelle-rebote); }
-.info.c8-vidrio { box-shadow: var(--vidrio-volumen), 0 0 0 0.3125rem rgba(255, 255, 255, 0.24), var(--sombra-2); }
-.info.c8-vidrio:is(:focus-visible) { background: var(--c-texto); color: var(--c-sobre-texto); scale: 1.08; }
-@media (hover: hover) and (pointer: fine) { .info.c8-vidrio:hover { background: var(--c-texto); color: var(--c-sobre-texto); scale: 1.08; } }
+.info.c8-vidrio { box-shadow: var(--vidrio-volumen), 0 0 0 3px rgba(255, 255, 255, 0.12), 0 0 14px 4px rgba(255, 255, 255, 0.28), var(--sombra-2); } /* luz difusa, no un halo sólido */
+.info.c8-vidrio:is(:focus-visible) { --vidrio-relleno: var(--c-texto); color: var(--c-sobre-texto); scale: 1.08; }
+@media (hover: hover) and (pointer: fine) { .info.c8-vidrio:hover { --vidrio-relleno: var(--c-texto); color: var(--c-sobre-texto); scale: 1.08; } }
 .info:active { scale: 0.94; }
 .info::after { content: ""; position: absolute; inset: -0.375rem; }
 /* En reposo (body.ui-inactiva) los rótulos de las flechas y los puntos «i» se apartan como la interfaz; las flechas quedan a
@@ -374,7 +380,7 @@ body.ui-inactiva #etiquetas :is(.etq, .info):not(:focus-visible) { opacity: 0; p
 .maq-estancia span { color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
 .maq-pin { position: absolute; translate: -50% -100%; display: inline-flex; align-items: center; gap: var(--e-2); min-height: 1.875rem; padding: 0 var(--e-3) 0 var(--e-2);
   border: 0; border-radius: var(--r-pastilla); background: var(--vidrio-gota); color: var(--c-texto); font: var(--peso-semi) var(--t-pie) / 1 var(--fuente);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: var(--vidrio-filtro-gota); backdrop-filter: var(--vidrio-filtro-gota);
   white-space: nowrap; pointer-events: auto; box-shadow: var(--vidrio-gota-sombra); transition: scale var(--d-3) var(--muelle-rebote), filter var(--d-1) var(--suave); }
 @media (pointer: coarse) { .maq-pin { min-height: 2.25rem; } }
 .maq-pin .m2 { font-weight: var(--peso-normal); opacity: 0.72; font-variant-numeric: tabular-nums; white-space: nowrap; }

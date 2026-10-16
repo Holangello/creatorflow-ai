@@ -59,7 +59,7 @@ const FALLBACK = {
   "momento.amanecer": "Amanecer", "momento.dia": "Día", "momento.atardecer": "Atardecer", "momento.noche": "Noche",
   "aviso.error_carga": "No se pudo cargar {x}",
   "aviso.sin_webgl": "Tu dispositivo no admite el recorrido 3D", "aviso.vista_vacia": "La vista previa aparecerá aquí cuando añadas fotos 360.",
-  "aviso.giroscopio_denegado": "Permiso de movimiento denegado", "aviso.error": "Error: {x}", "titulo.defecto": "Recorrido virtual",
+  "aviso.giroscopio_denegado": "Permiso de movimiento denegado", "aviso.giroscopio_sin_datos": "Aquí no llegan datos de movimiento: ábrelo en el navegador del móvil, fuera de la vista previa", "aviso.error": "Error: {x}", "titulo.defecto": "Recorrido virtual",
   "punto.video": "Vídeo", "punto.mas_info": "Más información", "comparar.antes": "Antes", "comparar.despues": "Después",
   "guion.pausar": "Pausar visita guiada", "guion.reanudar": "Reanudar", "aviso.contexto_perdido": "Se perdió el contexto gráfico", "aviso.reintentar": "Reintentar",
   "aviso.libre_tactil": "Pulgar izquierdo para caminar · arrastra a la derecha para mirar", "aviso.arrastra": "Arrastra para mirar",
@@ -1829,6 +1829,7 @@ const EJE_Z = new THREE.Vector3(0, 0, 1);
 const EJE_Y = new THREE.Vector3(0, 1, 0);
 function alOrientacion(ev) {
   if (ev.alpha == null || !int.giro) return;
+  if (!int.giro.datos) { int.giro.datos = true; clearTimeout(int.giro.espera); } // llegan datos: el móvil ya manda
   eAux.set(ev.beta * GRAD, ev.alpha * GRAD, -ev.gamma * GRAD, "YXZ");
   const q = new THREE.Quaternion().setFromEuler(eAux).multiply(qAux);
   const orient = (screen.orientation?.angle ?? window.orientation ?? 0) * GRAD;
@@ -1843,6 +1844,7 @@ const hayGiroscopio = () => esTactil && "DeviceOrientationEvent" in window;
 async function fijarGiro(si = !int.giro) {
   if (!!si === !!int.giro || (si && !hayGiroscopio())) return !!int.giro;
   if (!si) {
+    clearTimeout(int.giro.espera);
     removeEventListener("deviceorientation", alOrientacion);
     const f = new THREE.Vector3(0, 0, -1).applyQuaternion(camara.quaternion);
     estado.rumbo = rumbo(f.x, f.z);
@@ -1852,8 +1854,13 @@ async function fijarGiro(si = !int.giro) {
     if (typeof DeviceOrientationEvent?.requestPermission === "function") {
       if ((await DeviceOrientationEvent.requestPermission().catch(() => "denied")) !== "granted") { aviso(tr("aviso.giroscopio_denegado")); return false; }
     }
-    int.giro = { offset: null, q: null };
+    // Dentro de una vista previa (un iframe de otro origen sin permiso de sensores) o con el sensor bloqueado no llega
+    // ningún evento: se avisa en vez de quedarse «como si nada», y se vuelve a mirar arrastrando.
+    const politica = document.permissionsPolicy ?? document.featurePolicy;
+    if (politica?.allowsFeature && !(politica.allowsFeature("gyroscope") || politica.allowsFeature("accelerometer"))) { aviso(tr("aviso.giroscopio_sin_datos")); return false; }
+    int.giro = { offset: null, q: null, datos: false };
     addEventListener("deviceorientation", alOrientacion);
+    int.giro.espera = setTimeout(() => { if (int.giro && !int.giro.datos) { fijarGiro(false); aviso(tr("aviso.giroscopio_sin_datos")); } }, 2500);
   }
   visor.emitir("giroscopio", { activo: !!int.giro });
   return !!int.giro;
@@ -2097,7 +2104,7 @@ function quitarLuz() {
 function cambiarAspecto(el, aspecto) {
   if ((el.dataset.vidrioAspecto ?? null) === aspecto) return;
   if (aspecto) el.dataset.vidrioAspecto = aspecto; else delete el.dataset.vidrioAspecto;
-  if (!reducido()) el.animate?.([{ filter: "blur(3px)" }, { filter: "blur(0px)" }], { duration: 280, easing: "ease-out" });
+  if (!reducido()) el.animate?.([{ opacity: 0.85 }, { opacity: 1 }], { duration: 220, easing: "ease-out" }); // sin blur: emborronaba el texto
   if (el.contains($("#mapa"))) { radar.retema(); dibujarMapa(); }
 }
 /** Lleva la alfa de una pieza hacia `objetivo`: oscurecer, enseguida; aclarar, solo si compensa y despacio. La primera
@@ -2134,10 +2141,11 @@ function aplicarAlfas() {
     if (transparente) {
       // Cristal transparente: no hay tinte que medir (lo fija tema.css); solo el texto sigue a la foto que tiene detrás,
       // claro sobre lo oscuro y oscuro sobre lo claro, con histéresis. Menús y diálogos siguen el tema.
-      if (!z.el.classList.contains("c8-vidrio--denso")) {
+      const grandeT = z.el.matches(".pn-disp-lateral .pn-tarjeta, #galeria, #rotulo, #subtitulo");
+      if (!z.el.classList.contains("c8-vidrio--denso") && !grandeT) {
         const a = z.el.dataset.vidrioAspecto ?? null, media = (z.p10 + z.p90) / 2; // el tono medio de lo que hay detrás
-        cambiarAspecto(z.el, claro ? (media < (a === "oscuro" ? 0.4 : 0.32) ? "oscuro" : null) : (media > (a === "claro" ? 0.42 : 0.5) ? "claro" : null));
-      }
+        cambiarAspecto(z.el, claro ? (media < (a === "oscuro" ? 0.4 : 0.32) ? "oscuro" : null) : (media > (a === "claro" ? 0.5 : 0.6) ? "claro" : null));
+      } else if (z.el.dataset.vidrioAspecto) cambiarAspecto(z.el, null);
       continue;
     }
     const denso = z.el.classList.contains("c8-vidrio--denso");
@@ -2158,7 +2166,9 @@ function aplicarAlfas() {
     // Como iOS 26, en claro una pieza pequeña pasa a vidrio oscuro (texto claro) si así puede ser bastante más transparente:
     // el otro aspecto se estima con sus colores más exigentes (principal y secundario del vidrio). Menús, diálogos y la
     // tarjeta grande del escritorio siguen el tema.
-    if (claro && !denso && !z.el.matches(".pn-disp-lateral .pn-tarjeta")) {
+    // solo piezas pequeñas (≤ 320 px) y nunca la tira ni los rótulos: una pieza grande oscura rompe el material de la pantalla
+    const grande = z.el.matches(".pn-disp-lateral .pn-tarjeta, #galeria, #rotulo, #subtitulo") || z.el.getBoundingClientRect().width > 320;
+    if (claro && !denso && !grande) {
       const oscura = z.el.dataset.vidrioAspecto === "oscuro", secundario = lista.some((x) => V.razon(x.color, oscura ? [245, 245, 247] : [29, 29, 31]) > 1.06);
       // los colores más exigentes de cada aspecto: principal y secundario del vidrio (tema.css, --c-texto-2-vidrio)
       const otro = oscura ? { tinte: [255, 255, 255], c: [[29, 29, 31], [47, 47, 52]], aclarado: num("--vidrio-aclarado-claro", 1.16) }
@@ -2169,7 +2179,7 @@ function aplicarAlfas() {
       const alfaOtro = V.alfa(sintetica, otro.tinte, z.p10, z.p90, suelo, techoOtro, { contraste: filtro.contraste, aclarado: otro.aclarado });
       // cambia si el otro aspecto es claramente más transparente; si empatan, manda el fondo (oscuro detrás → vidrio
       // oscuro), para que las piezas vecinas sobre la misma zona no salgan de dos aspectos
-      const cambia = alfaOtro + 0.06 < alfa || (oscura ? z.p90 > 0.24 && alfaOtro <= alfa + 0.02 : z.p90 < 0.16 && alfaOtro <= alfa + 0.001);
+      const cambia = alfaOtro + 0.16 < alfa || (oscura ? z.p90 > 0.24 && alfaOtro <= alfa + 0.02 : z.p90 < 0.1 && alfaOtro <= alfa + 0.001);
       if (cambia) { // su alfa se calcula en la siguiente vuelta, con los colores ya cambiados
         cambiarAspecto(z.el, oscura ? null : "oscuro");
         clearTimeout(luz.reintento); luz.reintento = setTimeout(aplicarAlfas, 260);
