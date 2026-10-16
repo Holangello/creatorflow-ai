@@ -49,6 +49,9 @@ miércoles 21, que ya quedó sin red.
 **Segundo barrido del 15-10, 13:00 · sin candidata.** Mismos cinco dominios, mismo rechazo. Nada que
 decidir: el viernes 16 está cubierto con inventario y el primer hueco de actualidad es el miércoles 21.
 
+**Barrido del 16-10, 06:00 · sin candidata.** Los cinco dominios, mismo rechazo, sexto día. Nada que
+decidir: la próxima pieza es la del lunes 19 y está escrita.
+
 **Barrido anterior:** 13-10-2026, 06:00. **Sin candidata verificable, y el motivo es material, no de criterio.**
 Este era el barrido que ancla la fila del miércoles 14, así que el resultado importa más que otros días.
 

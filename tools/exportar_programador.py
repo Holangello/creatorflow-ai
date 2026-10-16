@@ -115,6 +115,11 @@ def ordenar(piezas):
 def asignar(orden, dias):
     """Coloca cada pieza en un dia respetando la separacion entre palabras de DM.
 
+    Primero fija las piezas cuya franja del calendario cae justo en un dia de la
+    cadencia: asi el CSV y los avisos diarios, que leen el calendario, apuntan a la
+    misma pieza el mismo dia. Sin esto, el lunes 19 el aviso mandaba una pieza y la
+    herramienta publicaba otra.
+
     Recorre los dias y, para cada uno, coge la primera pieza del orden
     recomendado cuya palabra de DM no se haya usado en los ultimos
     SEPARACION_DM dias. Si ninguna cumple, coloca la primera y avisa: es mejor
@@ -123,14 +128,41 @@ def asignar(orden, dias):
     pendientes = list(orden)
     ultima_vez = {}
     asignado, choques = [], []
+    fijadas = {}
+    dias_set = set(dias)
+    for pieza in list(pendientes):
+        franja = CON_FRANJA.get(pieza["id"])
+        if franja in dias_set and franja not in fijadas:
+            fijadas[franja] = pieza
+            pendientes.remove(pieza)
     for dia in dias:
+        if dia in fijadas:
+            elegida = fijadas[dia]
+            palabra = PALABRA_DM.get(elegida["id"])
+            if palabra:
+                ultima_vez[palabra] = dia
+            asignado.append((elegida, dia))
+            continue
         if not pendientes:
             break
+        # una pieza fijada mas adelante tambien cuenta para la separacion de DM
+        for f_dia, f_pieza in fijadas.items():
+            w = PALABRA_DM.get(f_pieza["id"])
+            if w and f_dia > dia and (f_dia - dia).days < SEPARACION_DM:
+                ultima_vez.setdefault(("futuro", w), f_dia)
         elegida = None
-        for pieza in pendientes:
+        # Preferir una pieza de pilar distinto al de la anterior: fijar piezas del
+        # calendario rompe la rotacion por rondas y podia encadenar dos Humano.
+        anterior = pilar(asignado[-1][0]) if asignado else None
+        candidatas = ([x for x in pendientes if pilar(x) != anterior] +
+                      [x for x in pendientes if pilar(x) == anterior])
+        for pieza in candidatas:
             palabra = PALABRA_DM.get(pieza["id"])
             previo = ultima_vez.get(palabra)
-            if palabra is None or previo is None or (dia - previo).days >= SEPARACION_DM:
+            futuro = ultima_vez.get(("futuro", palabra))
+            libre_atras = previo is None or (dia - previo).days >= SEPARACION_DM
+            libre_delante = futuro is None or (futuro - dia).days >= SEPARACION_DM
+            if palabra is None or (libre_atras and libre_delante):
                 elegida = pieza
                 break
         if elegida is None:
