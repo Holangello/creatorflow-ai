@@ -319,7 +319,7 @@ function temaLeer(que) { // "efectivo" (lo aplicado) | "preferencias" (lo elegid
   try { const v = t[que]; return (tiene(v) ? v.call(t) : v) ?? null; } catch { return null; }
 }
 const fijarTema = (clave, valor) => { try { return temaApi()?.fijar(clave, valor) === true; } catch { return false; } };
-const PREF_DEF = { tema: "auto", talla: "m", transparencia: "auto", movimiento: "auto" };
+const PREF_DEF = { tema: "auto", talla: "m", transparencia: "auto", movimiento: "auto", sonidos: "si" };
 
 // ------------------------------------------------------------------ ajustes del visor (los guarda el núcleo: visor.ajustes)
 const AJUSTES_DEF = () => ({ sensibilidad: 1, modoJuegoWASD: true, capturaConClic: false, atajos: true,
@@ -1672,6 +1672,7 @@ function abrirWhatsApp(d) {
   return true;
 }
 function emitirContacto(canal) {
+  window.cre8Sonidos?.tocar("exito");
   const detalle = { canal, referencia: !vacio(inm().referencia) ? R(inm().referencia) : null, estancia: est().nodo ?? null, fotos: ui.capturas.length };
   // Sin datos personales: este evento puede acabar en window.dataLayer (analítica)
   if (tiene(V.emitir)) { try { V.emitir("contacto", detalle); } catch (e) { console.warn(e); } }
@@ -1838,9 +1839,9 @@ function dlgCompartir() {
       const inp = raiz.querySelector(`#${idInput}`); inp?.select(); try { ok = document.execCommand("copy"); } catch {}
     }
     // cambio de estado animado: el icono de copiar pasa a una marca que se dibuja
-    if (ok) { aviso(tr("compartir.copiado")); btn.querySelector("span").textContent = tr("compartir.copiado"); btn.querySelector("svg")?.replaceWith(ic("ok", "pn-ic pn-dibujar")); }
+    if (ok) { window.cre8Sonidos?.tocar("copiar"); aviso(tr("compartir.copiado")); btn.querySelector("span").textContent = tr("compartir.copiado"); btn.querySelector("svg")?.replaceWith(ic("ok", "pn-ic pn-dibujar")); }
   };
-  const botonCopiar = h("button", { type: "button", class: `c8-boton ${nativo ? "c8-boton--secundario" : "c8-boton--primario"}`, "data-k": "copiar", autofocus: !nativo || null, onclick: copiar },
+  const botonCopiar = h("button", { type: "button", class: `c8-boton ${nativo ? "c8-boton--secundario" : "c8-boton--primario"}`, "data-k": "copiar", "data-sfx": "no", autofocus: !nativo || null, onclick: copiar },
     ic("copiar"), h("span", {}, tr("compartir.copiar")));
   return { titulo: tr("compartir.titulo"), icono: "compartir", cuerpo: [
     nativo ? h("button", { type: "button", class: "c8-boton c8-boton--primario c8-boton--bloque", "data-k": "sh-nativo", autofocus: true,
@@ -1953,8 +1954,11 @@ function dlgAjustes() {
   if (idiomasOfrecidos().length > 1) partes.push(grupo(tr("idioma.titulo"), selectorIdioma(true)));
   const apariencia = grupoApariencia();
   if (apariencia) partes.push(apariencia);
+  // Sonido: la música del proyecto y los efectos de la interfaz (preferencia común de tema.js, sonidos.js)
   const musica = filaMusica();
-  if (musica) partes.push(grupo(tr("sonido.musica"), musica));
+  const efectos = temaApi() && window.cre8Sonidos ? interruptor("aj-sonidos", tr("ajustes.sonidos"), tr("ajustes.sonidos_nota"), ef.sonidos !== "no",
+    (si) => { fijarTema("sonidos", si ? "si" : "no"); if (si) window.cre8Sonidos.tocar("activar"); }) : null;
+  if (musica || efectos) partes.push(grupo(musica ? tr("sonido.musica") : tr("ajustes.sonido"), musica, efectos));
   if (!esTactil()) {
     const id = nuevoId("vel"), v = Number(a.sensibilidad) || 1;
     const out = h("output", { for: id, class: "pn-salida" }, `${fmtNum(v, 1)}×`);
@@ -2011,6 +2015,7 @@ function pintarApariencia() {
   const icono = d.querySelector(".pn-ic-apariencia"); if (icono) icono.dataset.v = pref.tema;
   const t = d.querySelector("[data-k='aj-transparencia']"); if (t) t.checked = ef.transparencia === "reducida";
   const m = d.querySelector("[data-k='aj-movimiento']"); if (m) m.checked = ef.movimiento === "reducido";
+  const so = d.querySelector("[data-k='aj-sonidos']"); if (so) so.checked = ef.sonidos !== "no";
   try { temaApi().segmentados?.(d); } catch {}
 }
 

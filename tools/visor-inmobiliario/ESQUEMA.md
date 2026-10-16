@@ -214,6 +214,7 @@ visor.capturar({ ancho = 1600, tipo = "image/jpeg", calidad = 0.88, marca = true
                                 //   estancia = { id, nombre } de la foto que se ve (el nombre del título) en el recorrido,
                                 //   o de la estancia del plano en el paseo libre
 visor.sonido                    // { activo, disponible, volumen, alternar(), fijarVolumen(v 0-1) }
+window.cre8Sonidos              // efectos de la interfaz: tocar(nombre, {pan, baja}) → bool, NOMBRES, activos (bool), registro (los últimos)
 visor.pistaAudio(true|false)    // MediaStreamTrack de la música para grabar vídeo (independiente del silencio)
 visor.tiempoReal(true|false)  visor.renderizar()  visor.tamanoCaptura(w, h | null)  visor.sello()   // grabación de vídeo
 visor.estanciaActual()          // { id, nombre } de la estancia (polígono) en la que está el visitante, o null

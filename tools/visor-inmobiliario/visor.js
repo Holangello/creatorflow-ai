@@ -11,6 +11,8 @@ import { lugarSol, recorridoSol, estadoSol, horaLocal } from "./sol.js";
 import { GLSL_LUZ_FOTOS } from "./luz-fotos.js";
 
 const $ = (s) => document.querySelector(s);
+/** Efecto de sonido de una acción (sonidos.js; sin él, en silencio). */
+const efecto = (n, o) => window.cre8Sonidos?.tocar(n, o);
 const params = new URLSearchParams(location.search);
 const EMBED = params.has("embed");
 const esTactil = matchMedia("(pointer: coarse)").matches || "ontouchstart" in window;
@@ -649,6 +651,7 @@ async function irA(destino, { instantaneo = false } = {}) {
   if (!destino || !renderer) return;
   if (destino === int.actual && !int.transicion) return;
   focoAlLienzo();
+  if (int.actual && estado.modo === "tour") efecto("navegar", { pan: Math.sin(rumbo(destino.x - int.actual.x, destino.z - int.actual.z) - estado.rumbo) });
   // Ficha de petición: si llega otra navegación mientras esta carga, gana la última.
   const ficha = (int.navFicha = (int.navFicha ?? 0) + 1);
   int.navDestino = destino; // si el Estudio recarga el tour a mitad de camino, se conserva el destino (cargarEnVisor)
@@ -974,7 +977,13 @@ function ponerSol(ms) {
     const ant = estado.momento;
     estado.momento = sol.e.momento;
     if (antes && sol.toque?.arrastrando) navigator.vibrate?.(6); // un toque al pasar de momento, como el detent de iOS
+    if (antes) efecto("parada");
     sol.refresco = refrescarAmbiente("momento", ant);
+  } else {
+    // como la rueda de un selector de iOS: un tic por cada cuarto de hora al mover la barra (no al reproducir el día)
+    const cuarto = Math.floor(ms / 900000), ahora = performance.now();
+    if (!sol.dia && sol.cuarto != null && cuarto !== sol.cuarto && ahora - (sol.tic ?? 0) > 40) { sol.tic = ahora; efecto("tic"); }
+    sol.cuarto = cuarto;
   }
   aplicarLuzSol(false);
 }
@@ -1095,11 +1104,13 @@ function reproducirDia() {
   if (sol.anim) { sol.anim.ok(); sol.anim = null; }
   if (posDeMs(sol.ms) > 0.985) ponerSol(sol.rec.ini); // al final, vuelve a empezar
   sol.dia = true;
+  efecto("reproducir");
   pintarBotonDia();
 }
 function pararDia() {
   if (!sol.dia) return;
   sol.dia = false;
+  efecto("pausa");
   pintarBotonDia();
   solQuieto();
 }
@@ -1445,6 +1456,7 @@ const guion = crearGuion({
   },
   emitir: (ev, d) => {
     if (ev === "guion:inicio" || ev === "guion:fin") {
+      efecto(ev === "guion:inicio" ? "guia" : "fin");
       estado.guionActivo = ev === "guion:inicio";
       document.body.classList.toggle("guion-activo", estado.guionActivo);
     }
@@ -2289,6 +2301,7 @@ avisoEl.addEventListener("pointerenter", () => clearTimeout(tAviso));
 avisoEl.addEventListener("focusout", (e) => { if (!avisoEl.contains(e.relatedTarget) && !avisoEl.matches(":hover")) contarAviso(); });
 avisoEl.addEventListener("pointerleave", () => { if (!avisoEl.contains(document.activeElement)) contarAviso(); });
 function aviso(txt, ms = 4500, { reintentar } = {}) {
+  if (reintentar) efecto("error"); // algo no se pudo hacer (con «Reintentar»)
   avisoEl.replaceChildren(document.createTextNode(txt));
   if (reintentar) {
     const b = document.createElement("button");
@@ -2794,6 +2807,7 @@ async function cambiarModo(modo) {
   if (guion.activo && modo !== "tour") guion.parar();
   const anterior = estado.modo;
   estado.modo = modo;
+  efecto("modo", { baja: modo === "tour" });
   tocarEscena();
   if (modo === "tour") luz.pendiente = true; else quitarLuz(); // la luz se mide en la foto 360
   maqueta?.activar(modo === "maqueta");
@@ -3146,6 +3160,7 @@ Object.assign(visor, {
     // ellos en el mismo instante (la pantalla no llega a parpadear).
     const flechas = grupoFlechas.visible;
     grupoFlechas.visible = false;
+    efecto("foto");
     renderizar();
     const alto = Math.round((ancho * lienzo.height) / lienzo.width);
     const c = document.createElement("canvas");

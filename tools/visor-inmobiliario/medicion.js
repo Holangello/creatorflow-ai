@@ -135,6 +135,7 @@ export function crearMedicion(ctx) {
     if (!est.a) {
       est.a = p;
       est.goma = crearMarca(p, p);
+      window.cre8Sonidos?.tocar("medir");
     } else {
       const v = valor(est.a, p);
       quitar(est.goma);
@@ -146,6 +147,7 @@ export function crearMedicion(ctx) {
       ctx.contenedor.append(etq);
       est.medidas.push({ tipo: est.tipo, a: est.a, b: p, valor: v, obj, etq, escena: ctx.modo() });
       ctx.emitir("medida", { metros: Math.round(v * 100) / 100, tipo: est.tipo });
+      window.cre8Sonidos?.tocar("medida");
       est.a = null; est.goma = null;
     }
     render();

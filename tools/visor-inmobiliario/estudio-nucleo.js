@@ -702,6 +702,7 @@ export function toast(msg, tipo = "info", ms = 2600) {
   const t = h("div", { class: "toast c8-aviso c8-vidrio c8-vidrio--denso", "data-tipo": tipo },
     icono(tipo === "error" ? "error" : tipo === "ok" ? "ok" : tipo === "aviso" ? "aviso" : "info", 18), h("span", { text: msg }));
   $("#toasts").append(t);
+  window.cre8Sonidos?.tocar(tipo === "error" ? "error" : tipo === "ok" ? "exito" : "aviso"); // cada aviso, su sonido
   setTimeout(() => { t.classList.add("c8-saliendo"); setTimeout(() => t.remove(), 260); }, ms);
 }
 

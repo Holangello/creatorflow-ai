@@ -1,10 +1,11 @@
-/* cre8eight · tema.js — apariencia común (claro/oscuro), talla S/M/L, transparencia y movimiento.
+/* cre8eight · tema.js — apariencia común (claro/oscuro), talla S/M/L, transparencia, movimiento y sonidos.
    Script clásico y SÍNCRONO en <head>, antes de las hojas de estilo: así la página se pinta ya con el tema correcto.
    Preferencias en localStorage, compartidas por el visor, el Estudio y el Asistente (mismo origen):
      cre8eight:tema           auto | claro | oscuro
      cre8eight:talla          s | m | l
      cre8eight:transparencia  auto | normal | reducida
      cre8eight:movimiento     auto | normal | reducido
+     cre8eight:sonidos        si | no    (efectos de sonido de la interfaz: sonidos.js)
    Prioridad: ?tema= / ?talla= en la URL (p. ej. al incrustar en la web de la agencia) > lo que eligió el visitante
    > lo que propone el tour (cre8Tema.porDefecto) > automático.
    API: window.cre8Tema = { preferencias, efectivo, fijar(clave, valor), porDefecto({…}), alCambiar(fn) → quitar, deslizador(el), segmentados(raíz), OPCIONES }
@@ -17,8 +18,9 @@
     talla: ["s", "m", "l"],
     transparencia: ["auto", "normal", "reducida"],
     movimiento: ["auto", "normal", "reducido"],
+    sonidos: ["si", "no"],
   };
-  var PREDETERMINADO = { tema: "auto", talla: "m", transparencia: "auto", movimiento: "auto" };
+  var PREDETERMINADO = { tema: "auto", talla: "m", transparencia: "auto", movimiento: "auto", sonidos: "si" };
   var COLOR_BARRA = { claro: "#f5f5f7", oscuro: "#0a0b0d" };
   var consulta = function (q) { try { return window.matchMedia(q); } catch (e) { return { matches: false }; } };
   var mOscuro = consulta("(prefers-color-scheme: dark)");
@@ -51,6 +53,7 @@
       talla: p.talla,
       transparencia: p.transparencia === "auto" ? (mTransparencia.matches || mContraste.matches ? "reducida" : "normal") : p.transparencia,
       movimiento: p.movimiento === "auto" ? (mMovimiento.matches ? "reducido" : "normal") : p.movimiento,
+      sonidos: p.sonidos,
     };
   }
 
@@ -60,6 +63,7 @@
     raiz.setAttribute("data-talla", e.talla);
     raiz.setAttribute("data-transparencia", e.transparencia);
     raiz.setAttribute("data-movimiento", e.movimiento);
+    raiz.setAttribute("data-sonidos", e.sonidos);
     var meta = document.querySelector('meta[name="theme-color"]');
     if (!meta && document.head) { meta = document.createElement("meta"); meta.name = "theme-color"; document.head.appendChild(meta); }
     if (meta) meta.setAttribute("content", COLOR_BARRA[e.tema]);

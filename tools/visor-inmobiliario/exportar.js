@@ -315,7 +315,7 @@ const ARCHIVOS_VISOR = [
   "index.html", "visor.js", "visor.css", "paneles.js", "paneles.css", "i18n.js", "vendor/qr.js",
   "util.js", "plano.js", "guion.js", "medicion.js", "maqueta.js", "sol.js", "luz-fotos.js", // el visor los importa siempre
   // Sistema de diseño: sin él, el visor publicado sale sin estilos en la interfaz nueva.
-  "tema.js", "tema.css", "vendor/fonts/inter/inter-latin-opsz-normal.woff2", "vendor/fonts/inter/inter-latin-ext-opsz-normal.woff2", "vendor/fonts/inter/OFL.txt",
+  "tema.js", "sonidos.js", "tema.css", "vendor/fonts/inter/inter-latin-opsz-normal.woff2", "vendor/fonts/inter/inter-latin-ext-opsz-normal.woff2", "vendor/fonts/inter/OFL.txt",
 ];
 // El recorrido publicado nunca usa la demo ni las herramientas de exportación: no viajan en el ZIP (≈ 193 kB).
 const NO_PUBLICAR = new Set(["demo.js", "exportar.js", "vendor/fflate.js", "vendor/fix-webm-duration.js"]);
@@ -527,6 +527,8 @@ export async function exportarHTMLAutonomo(tour, archivos = new Map(), { calidad
   // tema.js es un script clásico (no entra en el bundle): va en línea en <head>, antes del CSS, como en index.html.
   // Sin él, el visor arranca igual con el tema oscuro por defecto de tema.css.
   const temaJS = await traer("tema.js").catch(() => { avisos.push("No se pudo incluir tema.js: se usa el tema oscuro por defecto"); return ""; });
+  // sonidos.js (efectos de la interfaz), también clásico y en línea tras tema.js; sin él, el visor va en silencio
+  const sonidosJS = await traer("sonidos.js").catch(() => "");
   let cuerpo = "", lang = "es", tituloDoc = "Recorrido virtual";
   try {
     const html = await traer("index.html");
@@ -603,6 +605,7 @@ export async function exportarHTMLAutonomo(tour, archivos = new Map(), { calidad
     `<meta name="generator" content="visor-inmobiliario · exportarHTMLAutonomo">\n`,
     `<title>${esc(tituloDoc)}</title>\n`,
     temaJS ? `<script>\n${temaJS.replace(/<\/script/gi, "<\\/script")}\n</script>\n` : "",
+    sonidosJS ? `<script>\n${sonidosJS.replace(/<\/script/gi, "<\\/script")}\n</script>\n` : "",
     `<style>\n`, seguroCSS, `\n</style>\n</head>\n<body>\n`, cuerpo,
     `\n<script>window.TOUR_EMBEBIDO = `, json, `;</script>\n<script type="module">\n`, seguroJS, `\n</script>\n</body>\n</html>\n`,
   ];

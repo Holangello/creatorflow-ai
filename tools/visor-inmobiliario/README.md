@@ -90,6 +90,8 @@ python3 -m http.server 8765
 
 Los atajos de una sola letra se pueden desactivar en Ajustes (WCAG 2.1.4).
 
+Cada acción tiene su propio sonido, sintetizado al momento (sin archivos): abrir y cerrar un panel, encender y apagar, elegir, cambiar de estancia (suena hacia el lado al que vas), cambiar de modo, cada cuarto de hora de la barra del sol y su paso por cada momento del día, reproducir y pausar el día, la foto, copiar el enlace, medir, la visita guiada, soltar fotos en el Estudio, los avisos de éxito y de error. En el móvil se acompaña de una vibración corta. Se apagan en Ajustes · «Sonidos de la interfaz» (o en Apariencia en el Estudio) y la preferencia es común a las tres páginas.
+
 ## Parámetros de URL
 
 | Parámetro | Efecto |
@@ -134,6 +136,7 @@ Detalles de las pruebas en [pruebas/LEEME.md](pruebas/LEEME.md); planes de conti
 | `index.html`, `visor.js`, `visor.css` | Núcleo del visor (three.js): recorrido, paseo libre, maqueta, radar, menú «Más», captura |
 | `paneles.js`, `paneles.css`, `i18n.js` | Tarjeta del inmueble, contacto, ficha, compartir, Ajustes e idiomas |
 | `plano.js`, `medicion.js`, `maqueta.js`, `guion.js`, `util.js` | Plano y radar, medir, maqueta, visita guiada y utilidades |
+| `sonidos.js` | Efectos de sonido de la interfaz (Web Audio, sin archivos): `cre8Sonidos.tocar(nombre)` y un sonido por clic deducido del botón (`data-sfx="nombre"` o `"no"` para forzarlo) |
 | `tema.css`, `tema.js`, `vendor/fonts/inter` | Sistema de diseño «minimal liquid glass» ([docs/diseno/sistema.md](../../docs/diseno/sistema.md)) |
 | `estudio.html`, `estudio.css`, `estudio*.js` | Estudio |
 | `asistente-osmo.html` | Guía Osmo 360 |

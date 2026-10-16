@@ -564,6 +564,36 @@ try {
     }
   });
 
+  // ================================================================== 11b · efectos de sonido
+  await inf.bloque("Efectos de sonido: uno distinto por acción y se pueden silenciar", async () => {
+    const { p } = await simulado();
+    if (!(await inf.requiere(p, { "«Más»": SEL.mas, ...piezas("ficha") }, "efectos de sonido"))) return;
+    const ultimos = () => p.evaluate(() => window.cre8Sonidos?.registro ?? []);
+    inf.ok(await p.evaluate(() => !!window.cre8Sonidos && window.cre8Sonidos.NOMBRES.length >= 15), "sonidos.js cargado con su catálogo");
+    // abrir y cerrar un diálogo: cada uno con su sonido (y no un toque genérico)
+    let n0 = (await ultimos()).length;
+    await elegirMas(p, "pn-ajustes");
+    await esperar(p, (n) => window.cre8Sonidos.registro.length > n, n0, 2000).catch(() => {});
+    const tras = (await ultimos()).slice(n0);
+    inf.ok(tras.includes("abrir") && !tras.includes("toque"), "abrir Ajustes suena «abrir»", tras);
+    // el interruptor de Ajustes: se guarda en la preferencia común y, apagado, ya no suena nada
+    const sw = await p.$("[data-k='aj-sonidos']");
+    inf.ok(!!sw && (await sw.isChecked()), "Ajustes · Sonidos de la interfaz, activado por defecto");
+    if (sw) {
+      await sw.click();
+      inf.ok(await p.evaluate(() => window.cre8Tema.efectivo.sonidos === "no" && localStorage.getItem("cre8eight:sonidos") === "no"), "apagarlo guarda «sonidos: no» (común al visor, Estudio y Guía)");
+      inf.ok(await p.evaluate(() => window.cre8Sonidos.tocar("exito") === false), "apagados, tocar() no suena");
+      await sw.click();
+    }
+    n0 = (await ultimos()).length;
+    await cerrarDialogo(p);
+    await esperar(p, (n) => window.cre8Sonidos.registro.length > n, n0, 2000).catch(() => {});
+    inf.ok((await ultimos()).slice(n0).includes("cerrar"), "cerrar el diálogo suena «cerrar»");
+    // todos los sonidos se pueden tocar sin errores
+    const malos = await p.evaluate(() => window.cre8Sonidos.NOMBRES.filter((n) => { try { window.cre8Sonidos.tocar(n); return false; } catch { return true; } }));
+    inf.ok(malos.length === 0 && p.errores.length === 0, "cada sonido del catálogo se toca sin errores", { malos, errores: p.errores.slice(0, 3) });
+  });
+
   // ================================================================== 12 · teclado
   await inf.bloque("Uso solo con teclado", async () => {
     const { p } = await simulado();

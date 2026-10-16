@@ -257,17 +257,22 @@ function menuApariencia() {
     })));
   const transparencia = h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", id: "ap-transparencia" });
   transparencia.onchange = () => T.fijar("transparencia", transparencia.checked ? "reducida" : "normal");
+  const sonidos = h("input", { type: "checkbox", role: "switch", class: "c8-interruptor", id: "ap-sonidos" });
+  sonidos.onchange = () => T.fijar("sonidos", sonidos.checked ? "si" : "no");
   const menu = h("div", { class: "menu-apariencia c8-vidrio c8-vidrio--denso", role: "dialog", "aria-label": "Apariencia y tamaño" },
     grupo("tema", "Apariencia", [["auto", "Automático", "Como el sistema (claro de día, oscuro de noche)"], ["claro", "Claro"], ["oscuro", "Oscuro"]]),
     grupo("talla", "Tamaño", [["s", "S", "Pequeño"], ["m", "M", "Mediano"], ["l", "L", "Grande"]]),
     h("label", { class: "fila-interruptor", for: "ap-transparencia" }, transparencia,
       h("span", {}, h("b", { text: "Reducir transparencia" }), h("small", { class: "tenue", text: "Paneles opacos en lugar de vidrio." }))),
+    window.cre8Sonidos ? h("label", { class: "fila-interruptor", for: "ap-sonidos" }, sonidos,
+      h("span", {}, h("b", { text: "Sonidos de la interfaz" }), h("small", { class: "tenue", text: "Un sonido distinto para cada acción." }))) : null,
     h("p", { class: "nota", text: "Vale también para el visor y la Guía en este navegador." }));
   // Refleja los cambios hechos en otra pestaña, en el visor o en la Guía mientras está abierto.
   const sincronizar = () => {
     const pref = T.preferencias;
     for (const g of menu.querySelectorAll("[data-pref]")) for (const r of g.querySelectorAll("input")) r.checked = r.value === pref[g.dataset.pref];
     transparencia.checked = T.efectivo.transparencia === "reducida";
+    sonidos.checked = T.efectivo.sonidos !== "no";
     T.segmentados(menu);
   };
   sincronizar();
@@ -505,6 +510,7 @@ addEventListener("dragenter", (e) => { if (!conArchivos(e)) return; contArrastre
 addEventListener("dragleave", (e) => { if (!conArchivos(e)) return; if (--contArrastre <= 0) { contArrastre = 0; capa.hidden = true; } });
 addEventListener("dragover", (e) => { if (conArchivos(e)) e.preventDefault(); });
 addEventListener("drop", async (e) => {
+  if (e.dataTransfer?.files?.length) window.cre8Sonidos?.tocar("soltar");
   if (!conArchivos(e)) return;
   e.preventDefault();
   contArrastre = 0; capa.hidden = true;

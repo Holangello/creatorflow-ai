@@ -187,9 +187,9 @@ try {
       const t = await (await fetch("/tour.json")).json();
       return (await X.exportarHTMLAutonomo(t, new Map(), { base: location.origin + "/" })).text();
     });
-    // Solo los 3 <script> que pone el exportador: tema.js (en <head>), el tour incrustado y el visor.
+    // Solo los 4 <script> que pone el exportador: tema.js y sonidos.js (en <head>), el tour incrustado y el visor.
     const scripts = html.match(/<script\b/gi)?.length ?? 0;
-    inf.ok(!html.includes("<script>alert(2)") && !/<img src=x onerror/i.test(html.slice(0, html.indexOf("window.TOUR_EMBEBIDO"))) && scripts === 3,
+    inf.ok(!html.includes("<script>alert(2)") && !/<img src=x onerror/i.test(html.slice(0, html.indexOf("window.TOUR_EMBEBIDO"))) && scripts === 4,
       "el tour incrustado escapa «<» (\\u003c): los nombres no pueden cerrar el <script> ni inyectar etiquetas");
     inf.ok(!/nota-simple-privada|planta-mm\.dxf|plano-arquitecto\.pdf/.test(html), "el HTML autónomo no incrusta los documentos privados del proyecto");
     writeFileSync(join(TMP, "hostil.html"), html);
