@@ -52,6 +52,9 @@ decidir: el viernes 16 está cubierto con inventario y el primer hueco de actual
 **Barrido del 16-10, 06:00 · sin candidata.** Los cinco dominios, mismo rechazo, sexto día. Nada que
 decidir: la próxima pieza es la del lunes 19 y está escrita.
 
+**Segundo barrido del 16-10, 13:00 · sin candidata.** Mismos cinco dominios, mismo rechazo. El lunes 19 está
+escrito; nada que decidir.
+
 **Barrido anterior:** 13-10-2026, 06:00. **Sin candidata verificable, y el motivo es material, no de criterio.**
 Este era el barrido que ancla la fila del miércoles 14, así que el resultado importa más que otros días.
 
