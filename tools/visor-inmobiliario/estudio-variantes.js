@@ -256,10 +256,13 @@ function pintar() {
       h("button", { type: "button", class: "c8-boton c8-boton--primario", onclick: () => emitir("ir", { seccion: "fotos" }) }, "Ir a Fotos 360")));
     return;
   }
+  // «2 versiones · colores» en vez de «2 · M»: cuántas versiones (noche, estilos) y si tiene máscara para los colores de paredes
+  const resumenNodo = (q) => { const n = q.variantes?.length ?? 0;
+    return [n ? `${n} ${n === 1 ? "versión" : "versiones"}` : null, q.mascara ? "colores" : null].filter(Boolean).join(" · ") || "Original"; };
   const selector = h("div", { class: "selector-nodos", role: "group", "aria-label": "Estancia" }, t.panoramas.map((q) => h("button", {
     "aria-pressed": String(q.id === p.id), onclick: () => { app.nodo = q.id; emitir("nodo", {}); },
   }, h("img", { src: urlDe(q.miniatura), alt: "" }), h("span", {}, h("span", { text: nombreDe(q) }),
-    h("span", { class: "tenue", text: `${q.variantes?.length ?? 0}${q.mascara ? " · M" : ""}` })))));
+    h("span", { class: "tenue", text: resumenNodo(q) })))));
   const elegirImgs = () => elegirArchivos({ aceptar: "image/jpeg,image/png,image/webp", multiple: true });
   const lista = (filtro, opciones) => {
     const xs = (p.variantes ?? []).map((v, j) => [v, j]).filter(([v]) => filtro(v));
