@@ -29,7 +29,7 @@
   .selector-paso span { display: grid; gap: 2px; }
   .selector-paso small { color: var(--c-texto-2); font-weight: var(--peso-medio); font-size: var(--t-pie); letter-spacing: var(--track-mayus); text-transform: uppercase; }
   .barra { height: 4px; border-radius: 4px; background: var(--c-pista); overflow: hidden; }
-  .barra i { display: block; height: 100%; width: 0; background: var(--c-acento); transition: width var(--d-3) var(--salida); }
+  .barra i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--c-on) 70%, transparent), var(--c-on)); transition: width var(--d-3) var(--salida); }
   .menu-pasos[open] { width: min(26rem, calc(100vw - 2rem)); }
   .menu-pasos h3 { margin: var(--e-4) 0 var(--e-2); font: var(--peso-semi) var(--t-micro) / 1 var(--fuente); letter-spacing: var(--track-mayus); text-transform: uppercase; color: var(--c-texto-2); }
   .menu-pasos .c8-lista button { all: unset; display: flex; align-items: center; gap: var(--e-3); width: 100%; cursor: pointer; min-height: var(--alto-control); }

@@ -136,8 +136,8 @@
      aclara u oscurece (--vidrio-aclarado, cada tema, siempre a favor del texto): así el tinte puede ser muy transparente
      y el texto sigue en AA. Los navegadores aplican contrast() y brightness() en sRGB (especificación de Filter Effects;
      pruebas/contraste.mjs lo comprueba en Chromium), y el cálculo de la alfa (tema.js) usa la misma cuenta. */
-  --vidrio-desenfoque: 24px;
-  --vidrio-saturacion: 100%;
+  --vidrio-desenfoque: 28px;
+  --vidrio-saturacion: 170%;   /* lo de detrás, más vivo a través del cristal, como en iOS */
   --vidrio-contraste: 0.62;
   --vidrio-aclarado-claro: 1.16;  /* vidrio claro: lo de detrás, más claro bajo el texto oscuro */
   --vidrio-aclarado-oscuro: 0.8;  /* vidrio oscuro: más oscuro bajo el texto claro */
@@ -197,8 +197,11 @@ html[data-talla="l"] { --talla: 1.18; }
   --c-capa-activa: rgba(255, 255, 255, 0.14);
   --c-campo: rgba(0, 0, 0, 0.28);
   --c-scroll: rgba(255, 255, 255, 0.22);
-  --c-pista: #2c3037;             /* fondo de interruptores y deslizadores */
+  --c-pista: rgba(255, 255, 255, 0.14); /* carril de interruptores y deslizadores: translúcido, nunca sólido */
   --c-segmento: rgba(255, 255, 255, 0.16);   /* opción elegida del control segmentado */
+  --c-on: #34c759;                /* encendido (verde de iOS) */
+  --c-off: #ff453a;               /* apagado (rojo de iOS), siempre muy sutil */
+  --vidrio-gota-brillo: rgba(255, 255, 255, 0.2);   /* luz en la cara superior de una «gota» de cristal (pomo, pin, elegido) */
 
   --c-acento: #cfad66;            /* champán: relleno de botones principales */
   --c-sobre-acento: #15110a;      /* 8,8:1 */
@@ -267,8 +270,11 @@ html[data-talla="l"] { --talla: 1.18; }
   --c-capa-activa: rgba(0, 0, 0, 0.09);
   --c-campo: rgba(255, 255, 255, 0.75);
   --c-scroll: rgba(0, 0, 0, 0.22);
-  --c-pista: #dcdce1;
-  --c-segmento: #ffffff;
+  --c-pista: rgba(0, 0, 0, 0.1);
+  --c-segmento: rgba(255, 255, 255, 0.72);   /* cristal blanco, no un relleno sólido */
+  --c-on: #34c759;
+  --c-off: #ff3b30;
+  --vidrio-gota-brillo: rgba(255, 255, 255, 0.55);
 
   --c-acento: #c9a55a;
   --c-sobre-acento: #1a1408;      /* 7,9:1 */
@@ -390,6 +396,17 @@ html[data-talla="l"] { --talla: 1.18; }
   --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.14), 0 8px 24px rgba(0, 0, 0, 0.18);
   --sombra-2: 0 2px 6px rgba(0, 0, 0, 0.12), 0 18px 48px rgba(0, 0, 0, 0.26);
 }
+/* Y al revés (solo con el cristal transparente, en oscuro): sobre una foto clara, el texto pasa a oscuro con un halo claro */
+:root .c8-vidrio[data-vidrio-aspecto="claro"] {
+  color-scheme: light;
+  --c-texto: #1d1d1f; --c-texto-2-vidrio: #2f2f34; --c-texto-3-vidrio: #3a3a3f;
+  --c-borde: rgba(0, 0, 0, 0.09); --c-borde-2: rgba(0, 0, 0, 0.16); --c-separador: rgba(0, 0, 0, 0.07);
+  --c-capa-hover: rgba(0, 0, 0, 0.05); --c-capa-activa: rgba(0, 0, 0, 0.09); --c-pista: rgba(0, 0, 0, 0.1); --c-borde-campo: rgba(0, 0, 0, 0.45);
+  --c-ok: #1d7f4e; --c-aviso: #8a5a00; --c-error: #c4372e; --c-info: #2563c9;
+  --c-ok-texto: #17663f; --c-aviso-texto: #6e4800; --c-error-texto: #a42c25; --c-info-texto: #1d4fa3;
+  --c-acento-texto-vidrio: #1d1d1f; --c-sobre-texto: #ffffff; --vidrio-tinte: 255 255 255; --vidrio-gota-brillo: rgba(255, 255, 255, 0.55);
+  --sombra-texto: 0 0 2px rgba(255, 255, 255, 0.95), 0 1px 8px rgba(255, 255, 255, 0.8); --sombra-icono: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.95));
+}
 :where(.c8-vidrio[data-vidrio-aspecto]) { color: var(--c-texto); }
 @supports (color: color-mix(in srgb, red, blue)) {
   :root .c8-vidrio[data-vidrio-aspecto="oscuro"] { --c-acento-suave: color-mix(in srgb, var(--c-acento) 16%, transparent); }
@@ -416,6 +433,44 @@ html[data-talla="l"] { --talla: 1.18; }
   box-shadow: inset 0 1px 0 var(--vidrio-reflejo-1), var(--sombra-1);
   color: var(--c-sobre-acento); font: var(--peso-fuerte) var(--t-sec) / 1 var(--fuente-titular); letter-spacing: var(--track-titular); }
 .logo-e.grande { width: 3rem; height: 3rem; border-radius: var(--r-3); font-size: var(--t-destacado); }
+
+/* ------------------------------------------------------------------ Cristal transparente (Ajustes · Cristal)
+   Casi sin tinte: se ve prácticamente todo lo de detrás con un desenfoque ligero, y los textos e iconos llevan una sombra
+   suave (oscura en oscuro, un halo claro en claro) para leerse sobre cualquier foto. Es una elección del visitante: el
+   tintado (por defecto) es el que cumple AA en el peor fondo. */
+:root[data-cristal="transparente"] {
+  --vidrio-desenfoque: 14px;
+  --vidrio-saturacion: 115%;
+  --vidrio-contraste: 0.94;
+  --vidrio-aclarado: 1;
+  --vidrio-ambiente: rgb(var(--vidrio-tinte) / 0.14);
+  --vidrio-borde: rgba(255, 255, 255, 0.28);          /* canto visible: es lo que hace que la pieza se lea como cristal */
+  --vidrio-reflejo-1: rgba(255, 255, 255, 0.75);
+  --vidrio-reflejo-2: rgba(255, 255, 255, 0.35);
+  --vidrio-brillo: rgba(255, 255, 255, 0.1);
+  --sombra-texto: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 10px rgba(0, 0, 0, 0.35);
+  --sombra-icono: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+:root[data-cristal="transparente"][data-tema="claro"] {
+  --sombra-texto: 0 0 2px rgba(255, 255, 255, 0.95), 0 1px 8px rgba(255, 255, 255, 0.8);
+  --sombra-icono: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.95));
+  --vidrio-borde: rgba(255, 255, 255, 0.6);
+}
+:root[data-cristal="transparente"] .c8-vidrio {
+  /* un velo blanco muy tenue en los dos temas: la pieza queda un punto más clara que la foto, como una píldora de cristal */
+  --vidrio: rgba(255, 255, 255, 0.1);
+  --vidrio-texto: rgba(255, 255, 255, 0.13);
+  --vidrio-denso: rgba(255, 255, 255, 0.2);
+  --vidrio-gota: linear-gradient(180deg, var(--vidrio-gota-brillo), transparent 78%), rgba(255, 255, 255, 0.26);
+  --c-segmento: rgba(255, 255, 255, 0.26);
+  text-shadow: var(--sombra-texto);
+}
+:root[data-cristal="transparente"] .c8-vidrio .c8-icono { filter: var(--sombra-icono); }
+/* con texto claro sobre una foto clara (o al revés), un velo del color contrario, leve, bajo el texto */
+:root[data-cristal="transparente"] .c8-vidrio[data-vidrio-aspecto="oscuro"] { --vidrio: rgba(20, 22, 26, 0.26); --vidrio-texto: rgba(20, 22, 26, 0.3); --vidrio-gota: linear-gradient(180deg, var(--vidrio-gota-brillo), transparent 78%), rgba(255, 255, 255, 0.22);
+  --sombra-texto: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 10px rgba(0, 0, 0, 0.35); --sombra-icono: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5)); }
+:root[data-cristal="transparente"] .c8-vidrio[data-vidrio-aspecto="claro"] { --vidrio: rgba(255, 255, 255, 0.24); --vidrio-texto: rgba(255, 255, 255, 0.28); }
+:root[data-cristal="transparente"] .c8-boton--primario { --b-fondo: linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 62%), color-mix(in srgb, var(--c-acento) 58%, transparent); }
 
 /* ------------------------------------------------------------------ Accesibilidad: transparencia y movimiento */
 :root[data-transparencia="reducida"],
@@ -500,6 +555,9 @@ html[data-talla="l"] { --talla: 1.18; }
    vidrio de iOS. Las piezas que cambian su sombra la conservan con var(--vidrio-volumen). */
 :root, .c8-vidrio {
   --vidrio-filtro: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion)) contrast(var(--vidrio-contraste)) brightness(var(--vidrio-aclarado));
+  /* «Gota» de cristal: una pieza pequeña y más clara que su carril (lo elegido, el pomo de la hora, los pines de la maqueta) */
+  --vidrio-gota: linear-gradient(180deg, var(--vidrio-gota-brillo), transparent 78%), rgb(var(--vidrio-tinte) / 0.64);
+  --vidrio-gota-sombra: inset 0 1px 0 var(--vidrio-reflejo-1), inset 0 -1px 0 var(--vidrio-reflejo-2), 0 0 0 0.5px var(--vidrio-borde), 0 4px 14px rgba(0, 0, 0, 0.18);
   --vidrio-volumen: inset 0 1px 0 var(--vidrio-brillo), inset 0 0 1rem var(--vidrio-brillo);
   --vidrio-canto: linear-gradient(135deg, var(--vidrio-reflejo-1) 0%, transparent 32%, transparent 62%, var(--vidrio-reflejo-2) 100%);
 }
@@ -608,21 +666,25 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-boton:focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; }
 .c8-boton:disabled, .c8-boton[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; transform: none; }
 .c8-boton--primario {
-  --b-fondo: var(--c-acento);
+  /* cristal con un velo de champán (72 %) y canto de luz arriba: el fondo se intuye a través, nunca un relleno sólido */
+  --b-fondo: linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent 62%), color-mix(in srgb, var(--c-acento) 72%, transparent);
   --b-texto: var(--c-sobre-acento);
+  --b-borde: color-mix(in srgb, var(--c-acento) 55%, rgba(255, 255, 255, 0.3));
   font-weight: var(--peso-semi);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 6px 18px color-mix(in srgb, var(--c-acento) 32%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.08), 0 6px 18px color-mix(in srgb, var(--c-acento) 32%, transparent);
 }
 /* El hover genérico (0,2,0) no debe apagar el relleno de los botones de color */
-@media (hover: hover) and (pointer: fine) { .c8-boton--primario:hover { --b-fondo: var(--c-acento); } }
-@media (hover: hover) and (pointer: fine) { .c8-boton--whatsapp:hover { --b-fondo: var(--c-whatsapp); } }
+@media (hover: hover) and (pointer: fine) { .c8-boton--primario:hover { --b-fondo: linear-gradient(180deg, rgba(255, 255, 255, 0.34), transparent 62%), color-mix(in srgb, var(--c-acento) 78%, transparent); } }
+@media (hover: hover) and (pointer: fine) { .c8-boton--whatsapp:hover { --b-fondo: linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 62%), color-mix(in srgb, var(--c-whatsapp) 90%, transparent); } }
 @media (hover: hover) and (pointer: fine) { .c8-boton--primario:hover, .c8-boton--whatsapp:hover { filter: brightness(1.07) saturate(1.04); } }
 .c8-boton--secundario { --b-fondo: var(--c-capa-hover); --b-borde: var(--c-borde); }
 .c8-boton--fantasma { --b-fondo: transparent; }
 @media (hover: hover) and (pointer: fine) { .c8-boton--fantasma:hover { --b-fondo: var(--c-capa-hover); } }
 .c8-boton--peligro { --b-fondo: transparent; --b-texto: var(--c-error); --b-borde: color-mix(in srgb, var(--c-error) 45%, transparent); }
 @media (hover: hover) and (pointer: fine) { .c8-boton--peligro:hover { --b-fondo: var(--c-error-fondo); } }
-.c8-boton--whatsapp { --b-fondo: var(--c-whatsapp); --b-texto: #fff; font-weight: var(--peso-semi); }
+.c8-boton--whatsapp { --b-fondo: linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 62%), color-mix(in srgb, var(--c-whatsapp) 86%, transparent); --b-texto: #fff; font-weight: var(--peso-semi);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
 .c8-boton--icono { padding: 0; width: var(--alto-control); }
 .c8-boton--icono .c8-icono { width: var(--icono); height: var(--icono); }
 .c8-boton--s { min-height: var(--alto-control-s); min-width: var(--alto-control-s); padding: 0 var(--e-3); font-size: var(--t-sec); }
@@ -664,7 +726,7 @@ html[data-talla="l"] { --talla: 1.18; }
 /* Pulsado sin color, como en las barras de iOS: una cápsula de vidrio algo más clara… El estado lo dice sobre todo el
    símbolo, que contrasta con el vidrio como su texto (≥ 3:1 por construcción; WCAG 1.4.11, A7). El acento queda para la
    acción principal («Contactar», «Empezar visita»). */
-.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-capa-activa); --b-texto: var(--c-texto); }
+.c8-pastilla .c8-boton[aria-pressed="true"] { --b-fondo: var(--c-capa-activa); --b-texto: var(--c-texto); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-on) 62%, transparent); } /* encendido: canto verde, sutil */
 @media (hover: hover) and (pointer: fine) { .c8-pastilla .c8-boton[aria-pressed="true"]:hover { --b-fondo: var(--c-capa-activa); } }
 /* …y el símbolo pasa a su variante rellena, como los «.fill» de SF Symbols: las partes marcadas con .relleno */
 .c8-icono .relleno { fill: none; stroke: none; transition: fill var(--d-2) var(--suave); }
@@ -704,7 +766,7 @@ html[data-talla="l"] { --talla: 1.18; }
   left: 3px;
   width: calc((100% - 6px) / var(--n));
   border-radius: var(--r-pastilla);
-  background: var(--c-segmento);
+  background: linear-gradient(180deg, var(--vidrio-gota-brillo), transparent 78%), var(--c-segmento);
   box-shadow: var(--sombra-1);
   transform: translateX(calc(100% * var(--i)));
   transition: transform var(--d-4) var(--muelle);
@@ -713,7 +775,7 @@ html[data-talla="l"] { --talla: 1.18; }
 /* Sobre la imagen: el segmentado puede ser de vidrio (el material manda sobre el relleno) */
 .c8-segmentado.c8-vidrio { background: var(--vidrio-texto); border-color: var(--vidrio-borde); }
 /* La opción elegida se distingue también por su aro, no solo por el relleno (WCAG 1.4.11) */
-.c8-segmentado::after { box-shadow: inset 0 0 0 1px var(--c-acento-texto), var(--sombra-1); }
+.c8-segmentado::after { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-texto) 55%, transparent), inset 0 1px 0 var(--vidrio-reflejo-1), var(--sombra-1); }
 /* Sobre la foto, sin color: la elegida es una cápsula de vidrio más clara con un canto del color del texto (≥ 3:1 sobre
    el vidrio), como la pestaña elegida de iOS 26. */
 .c8-segmentado.c8-vidrio::after {
@@ -749,10 +811,11 @@ html[data-talla="l"] { --talla: 1.18; }
   height: 1.75rem;
   margin: 0;
   border-radius: var(--r-pastilla);
-  background: var(--c-pista);
-  box-shadow: inset 0 0 0 1px var(--c-borde);
+  /* apagado: carril de cristal con un velo rojo muy sutil; encendido: verde (como en iOS) */
+  background: color-mix(in srgb, var(--c-off) 22%, var(--c-pista));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-off) 30%, var(--c-borde)), inset 0 1px 1px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  transition: background-color var(--d-2) var(--suave);
+  transition: background-color var(--d-2) var(--suave), box-shadow var(--d-2) var(--suave);
 }
 .c8-interruptor::after {
   content: "";
@@ -762,12 +825,12 @@ html[data-talla="l"] { --talla: 1.18; }
   width: calc(1.75rem - 4px);
   height: calc(1.75rem - 4px);
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  background: linear-gradient(180deg, #fff, rgba(255, 255, 255, 0.86));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.06), inset 0 -1px 0 rgba(0, 0, 0, 0.06);
   transition: transform var(--d-4) var(--muelle), width var(--d-2) var(--suave);
 }
 .c8-interruptor:active::after { width: calc(1.75rem + 2px); }
-.c8-interruptor:checked { background: var(--c-acento); box-shadow: none; }
+.c8-interruptor:checked { background: color-mix(in srgb, var(--c-on) 78%, var(--c-pista)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-on) 50%, transparent), inset 0 1px 1px rgba(0, 0, 0, 0.1); }
 .c8-interruptor:checked::after { transform: translateX(calc(2.875rem - 1.75rem)); }
 .c8-interruptor:checked:active::after { transform: translateX(calc(2.875rem - 1.75rem - 6px)); }
 .c8-interruptor:focus-visible { outline: 2px solid var(--c-foco); outline-offset: 2px; }
@@ -787,7 +850,7 @@ html[data-talla="l"] { --talla: 1.18; }
 .c8-deslizador::-webkit-slider-runnable-track {
   height: 0.375rem;
   border-radius: var(--r-pastilla);
-  background: linear-gradient(to right, var(--c-acento) var(--valor), var(--c-pista) var(--valor));
+  background: linear-gradient(to right, color-mix(in srgb, var(--c-acento) 80%, transparent) var(--valor), var(--c-pista) var(--valor));
 }
 .c8-deslizador::-moz-range-track { height: 0.375rem; border-radius: var(--r-pastilla); background: var(--c-pista); }
 .c8-deslizador::-moz-range-progress { height: 0.375rem; border-radius: var(--r-pastilla); background: var(--c-acento); }

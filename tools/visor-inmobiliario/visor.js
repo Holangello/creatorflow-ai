@@ -2127,9 +2127,19 @@ function aplicarAlfas() {
   const V = window.cre8Tema?.vidrio;
   if (!V || !luz.zonas || !conDesenfoque || transparenciaReducida()) return quitarLuz();
   const claro = document.documentElement.dataset.tema === "claro", vivas = new Set();
+  const transparente = document.documentElement.dataset.cristal === "transparente";
   for (const z of luz.zonas) {
     if (!z.el) continue;
     vivas.add(z.el);
+    if (transparente) {
+      // Cristal transparente: no hay tinte que medir (lo fija tema.css); solo el texto sigue a la foto que tiene detrás,
+      // claro sobre lo oscuro y oscuro sobre lo claro, con histéresis. Menús y diálogos siguen el tema.
+      if (!z.el.classList.contains("c8-vidrio--denso")) {
+        const a = z.el.dataset.vidrioAspecto ?? null, media = (z.p10 + z.p90) / 2; // el tono medio de lo que hay detrás
+        cambiarAspecto(z.el, claro ? (media < (a === "oscuro" ? 0.4 : 0.32) ? "oscuro" : null) : (media > (a === "claro" ? 0.42 : 0.5) ? "claro" : null));
+      }
+      continue;
+    }
     const denso = z.el.classList.contains("c8-vidrio--denso");
     const cs = getComputedStyle(z.el), num = (v, x) => parseFloat(cs.getPropertyValue(v)) || x;
     const tinte = V.aRgb(`rgb(${cs.getPropertyValue("--vidrio-tinte").trim() || "20 22 26"})`);

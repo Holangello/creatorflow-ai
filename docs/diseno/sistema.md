@@ -182,6 +182,27 @@ Fuera del vidrio (Estudio, diálogos), el pulsado sigue siendo de acento con su 
   - Sin soporte de `linear()`, los muelles pasan a curvas cúbicas.
 - **Capas:** `--z-hud` < `--z-panel` < `--z-menu` < `--z-dialogo` < `--z-aviso` < `--z-carga`.
 
+## Cristal: tres modos y nada sólido
+
+Referencias del cliente (16/10): vidrio blanco muy transparente en claro, el mismo vidrio en negro en oscuro, y un modo
+**transparente** en el que solo hay un desenfoque ligero y se ve casi todo lo de detrás.
+
+- **Preferencia `cristal`** (`tema.js`): `tinte` (por defecto) o `transparente`; `html[data-cristal]`. En Ajustes del visor
+  («Cristal: Tintado · Transparente») y en Apariencia del Estudio, común a las tres páginas.
+- **Transparente:** `--vidrio` baja a un velo blanco del 10–20 % en los dos temas, el desenfoque a 14 px y la saturación a
+  115 %; el canto se marca más (`--vidrio-borde`, `--vidrio-reflejo-*`) para que la pieza se lea como cristal; los textos
+  e iconos llevan `--sombra-texto`/`--sombra-icono` (sombra oscura en oscuro, halo claro en claro). En el visor el texto
+  sigue a la foto: `data-vidrio-aspecto="claro"` (texto oscuro) sobre una foto clara en oscuro y `"oscuro"` sobre una foto
+  oscura en claro, con un velo leve del color contrario. Es una elección del visitante: el tintado es el que cumple AA en
+  el peor fondo (`pruebas/contraste.mjs`).
+- **Sin rellenos sólidos:** el botón principal es cristal con un velo de champán (72 %) y canto de luz; WhatsApp, igual con
+  su verde; lo elegido (segmentado, `aria-pressed`) es una **gota** de cristal más clara con canto del color del texto
+  (`--vidrio-gota`, `--vidrio-gota-sombra`), sin dorado; el pomo de la barra del sol y los pines de la maqueta son gotas;
+  los carriles (`--c-pista`, `--c-segmento`) son translúcidos.
+- **Verde y rojo de estado:** `--c-on` (verde de iOS) y `--c-off` (rojo): los interruptores van rojos muy sutiles apagados y
+  verdes encendidos; los botones de encender/apagar de las pastillas (radar, sonido, pantalla completa…) llevan un canto
+  verde cuando están encendidos; el progreso de la Guía es verde. Nada más lleva color: minimalismo.
+
 ## Puntos de corte
 
 Una sola tabla para el CSS y el JS. `tema.js` la publica como `cre8Tema.MQ`, `cre8Tema.forma()` y `html[data-forma]`, y `pruebas/puntos-corte.mjs` rechaza cualquier otra medida. Los topes acaban en `.98` y los mínimos son enteros: con el zoom no quedan huecos.

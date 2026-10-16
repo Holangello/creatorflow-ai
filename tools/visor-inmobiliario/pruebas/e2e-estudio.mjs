@@ -888,8 +888,8 @@ try {
     await p.waitForSelector(SEL.menuApariencia);
     const op = await p.$$eval(`${SEL.menuApariencia} [data-pref] label`, (xs) => xs.map((x) => x.textContent.trim()).join(","));
     const abierto = await p.evaluate(() => document.querySelector(__SEL.apariencia).getAttribute("aria-expanded") === "true" && document.querySelector(__SEL.temaElegido)?.value === "auto");
-    inf.ok(op === "Automático,Claro,Oscuro,S,M,L" && abierto && (await p.isVisible(SEL.transparencia)),
-      "Apariencia: Automático (elegido) · Claro · Oscuro, tamaño S · M · L y «Reducir transparencia»", op);
+    inf.ok(op === "Automático,Claro,Oscuro,Tintado,Transparente,S,M,L" && abierto && (await p.isVisible(SEL.transparencia)),
+      "Apariencia: Automático (elegido) · Claro · Oscuro, cristal Tintado · Transparente, tamaño S · M · L y «Reducir transparencia»", op);
     await p.click(SEL.opcionApariencia("tema", "claro"));
     await p.click(SEL.opcionApariencia("talla", "l"));
     await p.click(SEL.transparencia);

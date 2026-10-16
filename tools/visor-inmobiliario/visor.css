@@ -94,8 +94,9 @@ body.raton-capturado #lienzo { cursor: none; }
 /* La hora de las fotos (la luz real): una muesca en la pista */
 #sol .riel .foto { position: absolute; top: 50%; left: calc(var(--f, 0) * 100%); width: 0.125rem; height: 0.625rem; translate: -50% -50%; border-radius: 1px; background: var(--c-texto); }
 #sol .pomo { position: absolute; bottom: 0.1875rem; left: calc(var(--t, 0) * (100% - var(--k))); width: var(--k); height: 1.25rem; border-radius: var(--r-pastilla);
-  background: #fff; color: #1d1d1f; font: var(--peso-semi) var(--t-pie) / 1.25rem var(--fuente); text-align: center; letter-spacing: 0; pointer-events: none;
-  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(0, 0, 0, 0.16); transition: scale var(--d-2) var(--muelle); }
+  background: var(--vidrio-gota); color: var(--c-texto); font: var(--peso-semi) var(--t-pie) / 1.25rem var(--fuente); text-align: center; letter-spacing: 0; pointer-events: none;
+  -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
+  box-shadow: var(--vidrio-gota-sombra); transition: scale var(--d-2) var(--muelle); }
 #sol .pista.arrastrando .pomo { scale: 1.08; }
 #sol .pista:focus-visible .pomo { outline: 2px solid var(--c-foco); outline-offset: 2px; }
 body:is(.guion-activo, .midiendo) #sol { display: none; }
@@ -372,8 +373,9 @@ body.ui-inactiva #etiquetas :is(.etq, .info):not(:focus-visible) { opacity: 0; p
 .maq-estancia b { font-weight: var(--peso-semi); }
 .maq-estancia span { color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
 .maq-pin { position: absolute; translate: -50% -100%; display: inline-flex; align-items: center; gap: var(--e-2); min-height: 1.875rem; padding: 0 var(--e-3) 0 var(--e-2);
-  border: 0; border-radius: var(--r-pastilla); background: var(--c-texto); color: var(--c-sobre-texto); font: var(--peso-semi) var(--t-pie) / 1 var(--fuente);
-  white-space: nowrap; pointer-events: auto; box-shadow: var(--sombra-1); transition: scale var(--d-3) var(--muelle-rebote), filter var(--d-1) var(--suave); }
+  border: 0; border-radius: var(--r-pastilla); background: var(--vidrio-gota); color: var(--c-texto); font: var(--peso-semi) var(--t-pie) / 1 var(--fuente);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
+  white-space: nowrap; pointer-events: auto; box-shadow: var(--vidrio-gota-sombra); transition: scale var(--d-3) var(--muelle-rebote), filter var(--d-1) var(--suave); }
 @media (pointer: coarse) { .maq-pin { min-height: 2.25rem; } }
 .maq-pin .m2 { font-weight: var(--peso-normal); opacity: 0.72; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .maq-pin .m2::before { content: "· "; }

@@ -263,6 +263,7 @@ function menuApariencia() {
   sonidos.onchange = () => T.fijar("sonidos", sonidos.checked ? "si" : "no");
   const menu = h("div", { class: "menu-apariencia c8-vidrio c8-vidrio--denso", role: "dialog", "aria-label": "Apariencia y tamaño" },
     grupo("tema", "Apariencia", [["auto", "Automático", "Como el sistema (claro de día, oscuro de noche)"], ["claro", "Claro"], ["oscuro", "Oscuro"]]),
+    grupo("cristal", "Cristal", [["tinte", "Tintado", "Vidrio blanco o ahumado, según el tema"], ["transparente", "Transparente", "Casi sin tinte: se ve lo de detrás con un ligero desenfoque"]]),
     grupo("talla", "Tamaño", [["s", "S", "Pequeño"], ["m", "M", "Mediano"], ["l", "L", "Grande"]]),
     h("label", { class: "fila-interruptor", for: "ap-transparencia" }, transparencia,
       h("span", {}, h("b", { text: "Reducir transparencia" }), h("small", { class: "tenue", text: "Paneles opacos en lugar de vidrio." }))),

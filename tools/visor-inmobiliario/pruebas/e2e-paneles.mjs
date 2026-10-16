@@ -631,7 +631,7 @@ try {
     inf.ok(Object.values(cOscuro).every((x) => x >= 4.5), "oscuro: precio, datos y tipo de la tarjeta con contraste AA (≥ 4,5:1) sobre una foto blanca o negra", cOscuro);
     await elegirMas(p, "pn-ajustes");
     if (!(await inf.requiere(p, { "«Apariencia»": SEL.apariencia("claro"), "«Tamaño»": SEL.talla("l"), "«Reducir transparencia»": SEL.transparencia }, "controles de Apariencia y Tamaño"))) return;
-    inf.ok(await marcados() === "auto,m" && await p.getAttribute(SEL.iconoApariencia, "data-v") === "auto", "Ajustes muestra «Automático» y «M» elegidos, con el icono de círculo a medio llenar");
+    inf.ok(await marcados() === "auto,tinte,m" && await p.getAttribute(SEL.iconoApariencia, "data-v") === "auto", "Ajustes muestra «Automático» y «M» elegidos, con el icono de círculo a medio llenar");
     const a18 = { talla: await p.getByRole("radio", { name: "S, pequeño", exact: true }).count(), atajos: await p.getByRole("switch", { name: "Atajos de teclado", exact: true }).count(),
       nota: await p.evaluate(() => document.getElementById(document.querySelector("[data-k='aj-atajos']")?.getAttribute("aria-describedby"))?.textContent) };
     inf.ok(a18.talla === 1 && a18.atajos === 1 && /una sola letra/.test(a18.nota ?? ""),
@@ -662,7 +662,7 @@ try {
     const tras = await html();
     inf.ok(tras.tema === "claro" && tras.talla === "l" && tras.transparencia === "normal", "al recargar se respetan Claro y L", tras);
     await elegirMas(p, "pn-ajustes");
-    inf.ok(await marcados() === "claro,l", "y Ajustes los muestra elegidos");
+    inf.ok(await marcados() === "claro,tinte,l", "y Ajustes los muestra elegidos");
     // la clave es común: otra página del producto (misma web) la aplica, y un cambio allí llega aquí en vivo
     const otra = await ctx.newPage();
     await otra.goto(`${base}tema-muestra.html`);
@@ -671,7 +671,7 @@ try {
     await p.evaluate((s) => { document.querySelector(s).__mismo = true; }, SEL.dialogoAjustes);
     await otra.evaluate(() => { window.cre8Tema.fijar("tema", "oscuro"); window.cre8Tema.fijar("talla", "s"); });
     const vivo = await esperar(p, (S) => document.documentElement.dataset.tema === "oscuro" && document.documentElement.dataset.talla === "s"
-      && [...document.querySelectorAll(`${S.dialogoAjustes} [data-pref] input:checked`)].map((r) => r.value).join() === "oscuro,s"
+      && [...document.querySelectorAll(`${S.dialogoAjustes} [data-pref] input:checked`)].map((r) => r.value).join() === "oscuro,tinte,s"
       && document.querySelector(S.iconoApariencia)?.dataset.v === "oscuro" && document.querySelector(S.dialogoAjustes).__mismo === true, SD, 5000).then(() => true, () => false);
     inf.ok(vivo, "un cambio hecho en otra pestaña se refleja en vivo: <html> y los controles de Ajustes, sin repintarlo");
     await otra.close();
@@ -681,7 +681,7 @@ try {
     await elegirMas(q, "pn-ajustes");
     const url = await q.evaluate((S) => ({ tema: document.documentElement.dataset.tema, talla: document.documentElement.dataset.talla,
       marcados: [...document.querySelectorAll(`${S.dialogoAjustes} [data-pref] input:checked`)].map((r) => r.value).join() }), SD);
-    inf.ok(url.tema === "claro" && url.talla === "m" && url.marcados === "claro,m", "?tema=claro&talla=m en la URL mandan sobre lo guardado y Ajustes lo muestra", url);
+    inf.ok(url.tema === "claro" && url.talla === "m" && url.marcados === "claro,tinte,m", "?tema=claro&talla=m en la URL mandan sobre lo guardado y Ajustes lo muestra", url);
     // «Restablecer» vuelve a lo de fábrica: Automático, M, transparencia y movimiento automáticos
     await q.click(SEL.restablecer);
     const fabrica = await q.evaluate(() => Object.fromEntries(["tema", "talla", "transparencia", "movimiento"].map((k) => [k, localStorage.getItem(`cre8eight:${k}`)])));

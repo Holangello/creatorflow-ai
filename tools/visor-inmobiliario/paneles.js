@@ -329,7 +329,7 @@ function temaLeer(que) { // "efectivo" (lo aplicado) | "preferencias" (lo elegid
   try { const v = t[que]; return (tiene(v) ? v.call(t) : v) ?? null; } catch { return null; }
 }
 const fijarTema = (clave, valor) => { try { return temaApi()?.fijar(clave, valor) === true; } catch { return false; } };
-const PREF_DEF = { tema: "auto", talla: "m", transparencia: "auto", movimiento: "auto", sonidos: "si" };
+const PREF_DEF = { tema: "auto", talla: "m", cristal: "tinte", transparencia: "auto", movimiento: "auto", sonidos: "si" };
 
 // ------------------------------------------------------------------ ajustes del visor (los guarda el núcleo: visor.ajustes)
 const AJUSTES_DEF = () => ({ sensibilidad: 1, modoJuegoWASD: true, capturaConClic: false, atajos: true,
@@ -2001,7 +2001,7 @@ function dlgAjustes() {
 // círculo que se llena según lo elegido; nunca un sol ni una luna (son la luz de la vivienda, en la barra del sol).
 function grupoApariencia() {
   if (!temaApi()) return null;
-  const pref = { ...PREF_DEF, ...(temaLeer("preferencias") ?? {}) }, idAp = nuevoId("ap"), idTa = nuevoId("ta");
+  const pref = { ...PREF_DEF, ...(temaLeer("preferencias") ?? {}) }, idAp = nuevoId("ap"), idTa = nuevoId("ta"), idCr = nuevoId("cr");
   const opciones = (clave, valores, { etiqueta, texto, nombre, clase = "" }) => {
     const grupoRadio = nuevoId(clave);
     return h("div", { class: `c8-segmentado pn-segmentado ${clase}`.trim(), role: "radiogroup", "aria-labelledby": etiqueta, "data-pref": clave },
@@ -2013,6 +2013,10 @@ function grupoApariencia() {
     h("h3", { class: "pn-sec-tit pn-tit-ic", id: idAp }, icApariencia(pref.tema), tr("ajustes.apariencia")),
     opciones("tema", ["auto", "claro", "oscuro"], { etiqueta: idAp, texto: (v) => tr(`ajustes.tema_${v}`) }),
     h("p", { class: "pn-nota" }, tr("ajustes.tema_nota")),
+    h("div", { class: "pn-fila-ajuste" },
+      h("span", { class: "pn-fila-texto", id: idCr }, tr("ajustes.cristal")),
+      opciones("cristal", ["tinte", "transparente"], { etiqueta: idCr, texto: (v) => tr(`ajustes.cristal_${v}`) })),
+    h("p", { class: "pn-nota" }, tr("ajustes.cristal_nota")),
     h("div", { class: "pn-fila-ajuste" },
       h("span", { class: "pn-fila-texto", id: idTa }, tr("ajustes.tamano"), h("small", {}, tr("ajustes.tamano_nota"))),
       opciones("talla", ["s", "m", "l"], { etiqueta: idTa, texto: (v) => v.toUpperCase(), nombre: (v) => tr(`ajustes.talla_${v}`), clase: "pn-seg-talla" })));

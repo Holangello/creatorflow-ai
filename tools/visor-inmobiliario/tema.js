@@ -16,11 +16,12 @@
   var OPCIONES = {
     tema: ["auto", "claro", "oscuro"],
     talla: ["s", "m", "l"],
+    cristal: ["tinte", "transparente"],   // vidrio tintado (blanco o ahumado) o casi sin tinte, solo desenfoque
     transparencia: ["auto", "normal", "reducida"],
     movimiento: ["auto", "normal", "reducido"],
     sonidos: ["si", "no"],
   };
-  var PREDETERMINADO = { tema: "auto", talla: "m", transparencia: "auto", movimiento: "auto", sonidos: "si" };
+  var PREDETERMINADO = { tema: "auto", talla: "m", cristal: "tinte", transparencia: "auto", movimiento: "auto", sonidos: "si" };
   var COLOR_BARRA = { claro: "#f5f5f7", oscuro: "#0a0b0d" };
   var consulta = function (q) { try { return window.matchMedia(q); } catch (e) { return { matches: false }; } };
   var mOscuro = consulta("(prefers-color-scheme: dark)");
@@ -51,6 +52,7 @@
     return {
       tema: p.tema === "auto" ? (mOscuro.matches ? "oscuro" : "claro") : p.tema,
       talla: p.talla,
+      cristal: p.cristal,
       transparencia: p.transparencia === "auto" ? (mTransparencia.matches || mContraste.matches ? "reducida" : "normal") : p.transparencia,
       movimiento: p.movimiento === "auto" ? (mMovimiento.matches ? "reducido" : "normal") : p.movimiento,
       sonidos: p.sonidos,
@@ -61,6 +63,7 @@
     var e = efectivo();
     raiz.setAttribute("data-tema", e.tema);
     raiz.setAttribute("data-talla", e.talla);
+    raiz.setAttribute("data-cristal", e.cristal);
     raiz.setAttribute("data-transparencia", e.transparencia);
     raiz.setAttribute("data-movimiento", e.movimiento);
     raiz.setAttribute("data-sonidos", e.sonidos);
